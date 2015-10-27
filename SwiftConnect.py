@@ -21,6 +21,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 log = logging.getLogger()
 
+
 #Function to connect to swift object store
 class SwiftConnect:
 		def __init__(self, swift_url, swift_user, swift_pw):
