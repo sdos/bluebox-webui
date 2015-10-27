@@ -13,7 +13,7 @@
 
 import base64
 import requests
-from swiftclient import client, service
+from swiftclient import client
 import logging
 
 
