@@ -1,0 +1,10 @@
+applications:
+- services:
+  - os-1
+  disk_quota: 1024M
+  host: csc-bluebox
+  name: csc-bluebox-1
+  path: .
+  domain: mybluemix.net
+  instances: 1
+  memory: 128M
