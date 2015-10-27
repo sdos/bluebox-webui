@@ -15,7 +15,7 @@ from flask import Flask, render_template, request, Response
 from werkzeug import secure_filename
 from SwiftConnect import SwiftConnect
 import json, logging, os, time, datetime
-from flask.testsuite import catch_warnings
+import appConfig
 
 
 # initialize logging
@@ -26,7 +26,7 @@ log = logging.getLogger()
 app = Flask(__name__)
 
 # Instantiating SwiftClient
-swift = SwiftConnect()
+swift = SwiftConnect(appConfig.swift_url, appConfig.swift_user, appConfig.swift_pw)
 
 ##########################################################################################
 """

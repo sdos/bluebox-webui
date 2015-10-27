@@ -23,12 +23,15 @@ log = logging.getLogger()
 
 #Function to connect to swift object store
 class SwiftConnect:
-		def __init__(self):
-			log.debug("Inside connect To swift")
-			encoded = base64.b64encode(bytes('4b544412403bd63cfb9a2073161c287a2eddd0f9:b66cbd58eacb9baea35faee626cb53fb604091abdd6617fd313ee8d530f8',"utf-8"))
-			newval = "Basic "+ encoded.decode("utf-8")
-			response =  requests.get("https://swift.ng.bluemix.net/auth/807c4ffd-36a2-4231-ae4d-c4ab5fcd2f65/e1322392-9553-48e1-8f5d-bcaec4b69926/4b544412403bd63cfb9a2073161c287a2eddd0f9", 
-			headers  =  {"Authorization": newval})
+		def __init__(self, swift_url, swift_user, swift_pw):
+			self.swift_url = swift_url
+			self.swift_user = swift_user
+			self.swift_pw = swift_pw
+			log.debug("Connecting to swift at: {}".format(self.swift_url))
+			authEncoded = base64.b64encode(bytes('{}:{}'.format(self.swift_user, self.swift_pw),"utf-8"))
+			authEncoded = "Basic "+ authEncoded.decode("utf-8")
+			response =  requests.get(self.swift_url, 
+			headers  =  {"Authorization": authEncoded})
 			log.debug(response.headers['x-auth-token'])
 			log.debug(response.headers['x-storage-url'])			
 			self.conn = client.Connection(
