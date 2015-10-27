@@ -26,7 +26,7 @@ log = logging.getLogger()
 app = Flask(__name__)
 
 # Instantiating SwiftClient
-swift = SwiftConnect(appConfig.swift_url, appConfig.swift_user, appConfig.swift_pw)
+swift = SwiftConnect(appConfig.swift_type, appConfig.swift_url, appConfig.swift_user, appConfig.swift_pw)
 
 ##########################################################################################
 """

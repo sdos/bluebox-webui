@@ -10,7 +10,12 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
+#swift_type = "BluemixV1Auth"
+#swift_url = "https://swift.ng.bluemix.net/global_auth/631afd9d-89a3-4bc7-b1e4-7e1723c6195a/a898adc0-770a-4c6a-874b-3f9dc353dabb"
+#swift_user = "1624de7f5cbaa7b897ec6abd03a80ac59c3d2547"
+#swift_pw = "ef6fd13111aaab99d94a0c9cf8daa05d4ebd2b0fa007ff819637f96dc8c9"
 
-swift_url = "https://swift.ng.bluemix.net/global_auth/..."
-swift_user = "..."
-swift_pw = "..."
+swift_type = "regular"
+swift_url = "http://192.168.209.204:8080/auth/v1.0"
+swift_user = "test:tester"
+swift_pw = "testing"

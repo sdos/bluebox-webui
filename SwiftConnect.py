@@ -24,11 +24,23 @@ log = logging.getLogger()
 
 #Function to connect to swift object store
 class SwiftConnect:
-		def __init__(self, swift_url, swift_user, swift_pw):
+		def __init__(self, swift_type, swift_url, swift_user, swift_pw):
 			self.swift_url = swift_url
 			self.swift_user = swift_user
 			self.swift_pw = swift_pw
-			log.debug("Connecting to swift at: {}".format(self.swift_url))
+			
+			if "BluemixV1Auth" == swift_type:
+				self.doBluemixV1Auth()
+			else:
+				self.doRegularSwiftAuth()
+
+			
+		def doRegularSwiftAuth(self):
+			log.debug("Connecting to regular swift at: {}".format(self.swift_url))
+			self.conn = client.Connection(authurl=self.swift_url, user=self.swift_user, key=self.swift_pw)
+			
+		def doBluemixV1Auth(self):
+			log.debug("Connecting to Bluemix V1 swift at: {}".format(self.swift_url))
 			authEncoded = base64.b64encode(bytes('{}:{}'.format(self.swift_user, self.swift_pw),"utf-8"))
 			authEncoded = "Basic "+ authEncoded.decode("utf-8")
 			response =  requests.get(self.swift_url, 
@@ -40,7 +52,6 @@ class SwiftConnect:
 				preauthurl=response.headers['x-storage-url']
 				
 		)
-
 
 #####################################################################################################################################################################################
 
