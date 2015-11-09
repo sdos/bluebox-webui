@@ -126,12 +126,14 @@ class SwiftConnect:
 
 
 #Creating an container list
-		def fileList(self,containername):
-			
+		def fileList(self, containername, limit=None, marker=None, prefix=None):
 			log.debug("Files in a container")
-			files = self.conn.get_container(containername,full_listing=True)[1]
-			for file  in files:
-				log.debug('{0}\t{1}\t{2}'.format(file['name'], file['bytes'], file['last_modified']))   
+			full_listing = limit is None  # bypass default limit of 10.000 of swift-client
+			files = self.conn.get_container(
+				containername, marker=marker, limit=limit, prefix=prefix,
+				full_listing=full_listing)[1]
+			for file in files:
+				log.debug('{0}\t{1}\t{2}'.format(file['name'], file['bytes'], file['last_modified']))
 			return files                    
 #####################################################################################################################################################################################                                        
 #####################################################################################################################################################################################        

@@ -67,7 +67,25 @@ def create():
 def getObjectsInContainer(containerName):
 	log.debug("getObjectsInContainer")
 	log.debug(containerName)
-	cts = swift.fileList(containerName)
+	
+	optional_params = {}
+	
+	limit = request.args.get("limit")
+	if limit is not None:
+		if limit.isdigit() and int(limit) > 0:
+			optional_params["limit"] = int(limit)
+		else:
+			log.debug("invalid query parameter limit: {}, for request: {}".format(limit, request.url))
+	
+	marker = request.args.get("marker")
+	if marker is not None:
+		optional_params["marker"] = marker
+		
+	prefix = request.args.get("prefix")
+	if prefix is not None:
+		optional_params["prefix"] = prefix
+	
+	cts = swift.fileList(containerName, **optional_params)
 	f = json.dumps(cts,sort_keys=True)
 	return Response(f, mimetype='application/json')
 
