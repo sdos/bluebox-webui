@@ -11,10 +11,12 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 
+import json, logging, os, time, datetime
+
 from flask import Flask, render_template, request, Response
 from werkzeug import secure_filename
+from exceptions import HttpError
 from SwiftConnect import SwiftConnect
-import json, logging, os, time, datetime
 import appConfig
 
 
@@ -27,6 +29,13 @@ app = Flask(__name__)
 
 # Instantiating SwiftClient
 swift = SwiftConnect(appConfig.swift_type, appConfig.swift_url, appConfig.swift_user, appConfig.swift_pw)
+
+##########################################################################################
+@app.errorhandler(HttpError)
+def handle_invalid_usage(error):
+	response = error.to_json()
+	response.status_code = error.status_code
+	return response
 
 ##########################################################################################
 """
