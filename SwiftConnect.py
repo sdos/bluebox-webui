@@ -113,10 +113,10 @@ class SwiftConnect:
 
 ####################################################################################################################################################
 #Creating an container list
-		def containerList(self):
-			
+		def containerList(self, limit=None, marker=None, prefix=None):
 			log.debug("container List")
-			containers = self.conn.get_account()[1]
+			full_listing = limit is None  # bypass default limit of 10.000 of swift-client
+			containers = self.conn.get_account(limit=limit, marker=marker, prefix=prefix, full_listing=full_listing)[1]
 			for container  in containers:
 				log.debug(container ['name'])
 				
