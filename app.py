@@ -85,6 +85,7 @@ def getObjectsInContainer(containerName):
 			optional_params["limit"] = int(limit)
 		else:
 			log.debug("invalid query parameter limit: {}, for request: {}".format(limit, request.url))
+			raise HttpError("specified query parameter limit: {}, must be a positive integer".format(limit), 400)
 	
 	marker = request.args.get("marker")
 	if marker is not None:
