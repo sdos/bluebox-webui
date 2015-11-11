@@ -13,7 +13,7 @@
 
 import json, logging, os, time, datetime
 
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, Response, send_file
 from werkzeug import secure_filename
 from exceptions import HttpError
 from SwiftConnect import SwiftConnect
@@ -25,7 +25,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(module)s - %(le
 log = logging.getLogger()
 
 # Initialize the Flask application
-app = Flask(__name__)
+# app = Flask(__name__)
+app = Flask(__name__, static_folder='angular')
 
 # Instantiating SwiftClient
 swift = SwiftConnect(appConfig.swift_type, appConfig.swift_url, appConfig.swift_user, appConfig.swift_pw)
@@ -45,7 +46,8 @@ def handle_invalid_usage(error):
 """
 @app.route('/')
 def index():
-	return render_template('index.html')
+	# return render_template('index.html')
+	return send_file('angular/index.html')
 
 ##########################################################################################
 """
@@ -54,7 +56,7 @@ def index():
 @app.route('/swift/containers', methods=['GET'])
 def getContainers():
 	optional_params = {}
-	
+
 	limit = request.args.get("limit")
 	if limit is not None:
 		if limit.isdigit() and int(limit) > 0:
@@ -62,20 +64,20 @@ def getContainers():
 		else:
 			log.debug("invalid query parameter limit: {}, for request: {}".format(limit, request.url))
 			raise HttpError("specified query parameter limit: {}, must be a positive integer".format(limit), 400)
-	
+
 	marker = request.args.get("marker")
 	if marker is not None:
 		optional_params["marker"] = marker
-		
+
 	prefix = request.args.get("prefix")
 	if prefix is not None:
 		optional_params["prefix"] = prefix
-	
+
 	cts = swift.containerList(**optional_params)
 	j = json.dumps(cts,sort_keys=True)
 	return Response(j, mimetype='application/json')
 
-	
+
 ##########################################################################################
 """
 	create the Container
@@ -106,7 +108,7 @@ def getObjectsInContainer(containerName):
 		else:
 			log.debug("invalid query parameter limit: {}, for request: {}".format(limit, request.url))
 			raise HttpError("specified query parameter limit: {}, must be a positive integer".format(limit), 400)
-	
+
 	marker = request.args.get("marker")
 	if marker is not None:
 		optional_params["marker"] = marker
