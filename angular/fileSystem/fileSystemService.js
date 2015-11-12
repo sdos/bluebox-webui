@@ -8,7 +8,7 @@ fileSystemModule.factory(
                 var deferred = $q.defer();
                 $http({
                     "method":           "POST",
-                    "url":              "/create",
+                    "url":              "/swift/create",
                     "data":             {"containerName": containerName},
                     "headers":          {"Content-Type": "application/x-www-form-urlencoded"},
                     "transformRequest": $httpParamSerializer

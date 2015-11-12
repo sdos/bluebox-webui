@@ -56,9 +56,11 @@ def handle_invalid_usage(error):
 	value of the operation
 """
 @app.route('/')
-def index():
-	# return render_template('index.html')
-	return send_file('angular/index.html')
+@app.route('/<path:path>')
+def index(path = ""):
+	if path[:5] != "swift":
+		# return render_template('index.html')
+		return send_file('angular/index.html')
 
 ##############################################################################
 
@@ -94,7 +96,7 @@ def get_containers():
 """
 	create the Container
 """
-@app.route('/create', methods=['POST'])
+@app.route('/swift/create', methods=['POST'])
 def create():
 	folderName = request.form['containerName']
 	print(folderName)
@@ -152,7 +154,7 @@ def get_metadata_info(containerName,filename):
 """
 	Route that will process the file upload
 """
-@app.route('/upload', methods=['POST'])
+@app.route('/swift/upload', methods=['POST'])
 def upload():
 	# Get the name of the uploaded file
 	log.debug("inside the upload part")

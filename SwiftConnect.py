@@ -31,9 +31,9 @@ class SwiftConnect:
 		self.swift_pw = swift_pw
 			
 		if "BluemixV1Auth" == swift_type:
-			self.doBluemixV1Auth()
+			self.do_bluemix_v1_auth()
 		else:
-			self.doRegularSwiftAuth()
+			self.do_regular_swift_auth()
 		
 	def do_regular_swift_auth(self):
 		log.debug("Connecting to regular swift at: {}".format(self.swift_url))
