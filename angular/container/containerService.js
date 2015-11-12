@@ -2,7 +2,7 @@
 
 containerModule.factory(
     'containerService',
-    ['$http', '$httpParamSerializer', '$q', '$filter', 'Upload', function($http, $httpParamSerializer, $q, $filter, Upload) {
+    ['$http', '$q', '$filter', 'Upload', function($http, $q, $filter, Upload) {
         return {
             getObjectsInContainer: function(containerName) {
                 var deferred = $q.defer();

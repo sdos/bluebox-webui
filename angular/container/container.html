@@ -18,7 +18,10 @@
 <a type="button" class="btn btn-info">Delete Old Files</a>
 
 <div class="panel panel-default">
-    <div class="panel-heading"><h3>List of containers</h3></div>
+    <div class="panel-heading">
+        <h3>List of objects in container {{ containerName }}</h3>
+        <p>{{ containerObjects.length }} objects in total</p>
+    </div>
     <table class="table table-bordered table-hover" border="2">
         <tr>
             <th>Name</th>

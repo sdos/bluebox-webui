@@ -9,7 +9,7 @@ containerModule.controller('ContainerController',
         $scope.updateContainerObjects = function () {
             containerService.getObjectsInContainer($scope.containerName)
                 .then(function (containerObjects) {
-                    angular.extend($scope.containerObjects, containerObjects);
+                    $scope.containerObjects = containerObjects;
                 }, function (response) {
                     console.error(response);
                 });
@@ -17,8 +17,9 @@ containerModule.controller('ContainerController',
 
         $scope.deleteObject = function(objectName) {
             containerService.deleteObject($scope.containerName, objectName)
-                .then(
-                    $scope.updateContainerObjects,
+                .then(function() {
+                        $scope.containerObjects = _.reject($scope.containerObjects, {name: objectName});
+                    },
                     function(response) {
                         console.error(response);
                     });

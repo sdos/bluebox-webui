@@ -5,7 +5,7 @@ fileSystemModule.controller('FileSystemController',
         $scope.updateContainers = function () {
             fileSystemService.getContainers()
                 .then(function (containers) {
-                    angular.extend($scope.containers, containers);
+                    $scope.containers = containers;
                 }, function (response) {
                     console.error(response);
                 });
