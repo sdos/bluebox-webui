@@ -13,8 +13,9 @@
 
 import json, logging, os, time, datetime
 
-from flask import Flask, render_template, request, Response, send_file
+from flask import Flask, request, Response, send_file
 from werkzeug import secure_filename
+
 from exceptions import HttpError
 from SwiftConnect import SwiftConnect
 import appConfig
@@ -31,14 +32,24 @@ app = Flask(__name__, static_folder='angular')
 # Instantiating SwiftClient
 swift = SwiftConnect(appConfig.swift_type, appConfig.swift_url, appConfig.swift_user, appConfig.swift_pw)
 
-##########################################################################################
+
+
+##############################################################################
+# error handler
+##############################################################################
+
 @app.errorhandler(HttpError)
 def handle_invalid_usage(error):
 	response = error.to_json()
 	response.status_code = error.status_code
 	return response
 
-##########################################################################################
+
+
+##############################################################################
+# views
+##############################################################################
+
 """
 	This route will show a form to perform an AJAX request
 	jQuery is loaded to execute the request and update the
@@ -49,12 +60,13 @@ def index():
 	# return render_template('index.html')
 	return send_file('angular/index.html')
 
-##########################################################################################
+##############################################################################
+
 """
 	get the list of containers
 """
 @app.route('/swift/containers', methods=['GET'])
-def getContainers():
+def get_containers():
 	optional_params = {}
 
 	limit = request.args.get("limit")
@@ -73,29 +85,29 @@ def getContainers():
 	if prefix is not None:
 		optional_params["prefix"] = prefix
 
-	cts = swift.containerList(**optional_params)
+	cts = swift.get_container_list(**optional_params)
 	j = json.dumps(cts,sort_keys=True)
 	return Response(j, mimetype='application/json')
 
+##############################################################################
 
-##########################################################################################
 """
 	create the Container
 """
-
 @app.route('/create', methods=['POST'])
 def create():
 	folderName = request.form['containerName']
 	print(folderName)
-	swift.createContainer(folderName)
+	swift.create_container(folderName)
 	return Response(None)
 
-##########################################################################################
+##############################################################################
+
 """
 	get the list of all objects in a container
 """
 @app.route('/swift/containers/<containerName>/objects', methods=['GET'])
-def getObjectsInContainer(containerName):
+def get_objects_in_container(containerName):
 	log.debug("getObjectsInContainer")
 	log.debug(containerName)
 	
@@ -117,25 +129,25 @@ def getObjectsInContainer(containerName):
 	if prefix is not None:
 		optional_params["prefix"] = prefix
 	
-	cts = swift.fileList(containerName, **optional_params)
-	f = json.dumps(cts,sort_keys=True)
+	cts = swift.get_object_list(containerName, **optional_params)
+	f = json.dumps(cts, sort_keys=True)
 	return Response(f, mimetype='application/json')
 
-##########################################################################################
+##############################################################################
+
 """
 	get the list of metadata information of all objects in a container
 """
 @app.route('/swift/containers/<containerName>/objects/<path:filename>/details', methods=['GET'])
-def getMetaDataInfo(containerName,filename):
+def get_metadata_info(containerName,filename):
 	log.debug("Get metadata information")
 	log.debug(containerName)
 	log.debug(filename)
-	metaInfo = swift.getObjMetaData(containerName,filename)
-	metadata = json.dumps(metaInfo,sort_keys=True)
+	metaInfo = swift.get_object_metadata(containerName, filename)
+	metadata = json.dumps(metaInfo, sort_keys=True)
 	return Response(metadata, mimetype='application/json')
 
-
-##########################################################################################
+##############################################################################
 
 """
 	Route that will process the file upload
@@ -167,21 +179,20 @@ def upload():
 		h = dict()
 		h["X-Object-Meta-RetentionTime"] = retentimestamp
 		h["X-Object-Meta-OwnerName"] = request.form['OwnerName']
-		swift.createObject(inputFileName,inputFileContent,folderName,h)
-		encodedoutputFileContent = swift.retrieveObject(folderName,inputFileName)
+		swift.create_object(inputFileName, inputFileContent, folderName, h)
 	return Response(None)
-			
+
+##############################################################################		
 		
-##########################################################################################
 """
 	download obj route
 """
 @app.route('/swift/containers/<containerName>/objects/<path:filename>', methods=['GET'])
-def downloadObject(containerName, filename):
+def download_object(containerName, filename):
 		log.debug("downloadObject: %s - %s" % (containerName, filename))
-		encodedOutputFile = swift.getObject(containerName,filename)
+		encodedOutputFile = swift.get_object(containerName, filename)
 		return Response(encodedOutputFile, mimetype='application/octet-stream')
-##########################################################################################
+
 def calcTimeDifference(timestamp):
 	try:
 		return int(timestamp) - int(time.time())
@@ -193,21 +204,23 @@ def isRetentionPeriodExpired(timestamp):
 		return calcTimeDifference(timestamp) <= 0
 	return False
 
+##############################################################################
+
 """
 	delete obj route
 """
 @app.route('/swift/containers/<containerName>/objects/<path:filename>', methods=['DELETE'])
-def deleteObject(containerName,filename):
+def delete_object(containerName, filename):
 		log.debug("deleteObject: %s - %s" % (containerName, filename))
-		json1 = json.dumps(swift.getObjMetaData(containerName,filename),ensure_ascii=False)
+		json1 = json.dumps(swift.get_object_metadata(containerName, filename),ensure_ascii=False)
 		log.debug(json1)
 		new_dict = json.loads(json1)
 		retentimestamp = new_dict['x-object-meta-retentiontime']
 		if (isRetentionPeriodExpired(retentimestamp) or not retentimestamp):
-			swift.delObject(containerName,filename)
+			swift.delete_object(containerName,filename)
 			responsemsg={}
 			responsemsg['deletestatus'] = "done"
-			return Response(json.dumps(responsemsg),mimetype='application/json')
+			return Response(json.dumps(responsemsg), mimetype='application/json')
 		else:
 			log.debug("You are not allowed to delete the file!")
 			log.debug( "The retentiondate is: " +
@@ -229,18 +242,21 @@ def deleteObject(containerName,filename):
 			responsemsg['hours'] = hours
 			responsemsg['days'] = days
 			responsemsg['weeks'] = weeks
-			return Response(json.dumps(responsemsg),mimetype='application/json')
-	
-#################################Scheduler#########################################################
+			return Response(json.dumps(responsemsg), mimetype='application/json')
+
+##############################################################################
+
+# TODO scheduler
+# TODO what should we do about the files which have no retention date
 @app.route('/swift/containers/<containerName>/CheckOldFiles/', methods=['GET'])
-def CheckOldFiles(containerName, doDelete=False):
+def check_old_files(containerName, doDelete=False):
 	log.debug(containerName)
-	files = swift.fileList(containerName)
+	files = swift.get_object_list(containerName)
 	oldFiles={}
 	filenames = list()
 	for file in files:
 		log.debug('{0}\t{1}\t{2}'.format(file['name'], file['bytes'], file['last_modified']))
-		fileMetaDict = swift.getObjMetaData(containerName,file['name'])
+		fileMetaDict = swift.get_object_metadata(containerName,file['name'])
 		log.debug(fileMetaDict)
 		log.debug(file['name'])
 		log.debug(fileMetaDict['x-object-meta-retentiontime'])
@@ -253,18 +269,21 @@ def CheckOldFiles(containerName, doDelete=False):
 	log.debug(filenames)	
 	responseObj = {"list" : filenames}
 	if (doDelete):
-		swift.delObjects(containerName,filenames)
-	return Response(json.dumps(responseObj),mimetype='application/json') 
+		swift.delete_objects(containerName,filenames)
+	return Response(json.dumps(responseObj), mimetype='application/json') 
 
-# TODO what should we do about the files which have no retention date
+##############################################################################
 
-###################################################################################################
 @app.route('/swift/containers/<containerName>/DeleteOldFiles/', methods=['Delete'])
-def DeleteOldFiles(containerName):
-	return CheckOldFiles(containerName, doDelete=True)
+def delete_old_files(containerName):
+	return check_old_files(containerName, doDelete=True)
 
-###################################################################################################
-#Main Function    
+
+
+##############################################################################
+# views
+##############################################################################  
+
 if __name__ == '__main__':
 	appPort = os.getenv('VCAP_APP_PORT', '5000')
 	appHost = os.getenv('VCAP_APP_HOST', '127.0.0.1')
@@ -272,6 +291,4 @@ if __name__ == '__main__':
 		host=appHost,
 		port=int(appPort),
 		debug=True
-			
 	)
-
