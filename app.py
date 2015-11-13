@@ -96,7 +96,7 @@ def get_containers():
 """
 	create the Container
 """
-@app.route('/swift/create', methods=['POST'])
+@app.route('/swift/containers', methods=['POST'])
 def create():
 	folderName = request.form['containerName']
 	print(folderName)
@@ -154,8 +154,8 @@ def get_metadata_info(containerName,filename):
 """
 	Route that will process the file upload
 """
-@app.route('/swift/upload', methods=['POST'])
-def upload():
+@app.route('/swift/containers/<containerName>/objects', methods=['POST'])
+def upload(containerName):
 	# Get the name of the uploaded file
 	log.debug("inside the upload part")
 	inputFile = request.files['objectName']
@@ -167,8 +167,7 @@ def upload():
 		log.debug(inputFileName)
 		inputFileContent = inputFile.read()
 		log.debug(inputFileContent)
-		folderName = request.form['containerNameUp']
-		log.debug(folderName)
+		log.debug(containerName)
 		retentime =  request.form['RetentionPeriod']
 		log.debug(retentime)
 		if retentime:
@@ -181,7 +180,7 @@ def upload():
 		h = dict()
 		h["X-Object-Meta-RetentionTime"] = retentimestamp
 		h["X-Object-Meta-OwnerName"] = request.form['OwnerName']
-		swift.create_object(inputFileName, inputFileContent, folderName, h)
+		swift.create_object(inputFileName, inputFileContent, containerName, h)
 	return Response(None)
 
 ##############################################################################		
