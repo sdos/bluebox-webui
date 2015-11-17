@@ -34,10 +34,9 @@ containerModule.factory(
                 var deferred = $q.defer();
                 Upload.upload({
                     "method": "POST",
-                    "url": "/swift/upload",
+                    "url": "/swift/containers/" + containerName + "/objects",
                     "data": {
                         "objectName":       file,
-                        "containerNameUp":  containerName,
                         "OwnerName":        ownerName ? ownerName : "",
                         "RetentionPeriod":  retentionDate ? retentionDate : ""
                     }

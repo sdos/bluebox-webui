@@ -6,19 +6,23 @@
 
     <title>Bluebox</title>
     <link href="/angular/bootstrap.min.css" rel="stylesheet">
+    <link href="/angular/modules/messageBag/messageBag.css" rel="stylesheet">
 
     <script src="/angular/angular.min.js"></script>
+    <script src="/angular/angular-animate.min.js"></script>
     <script src="/angular/angular-ui-router.min.js"></script>
     <script src="/angular/ng-file-upload.min.js"></script>
     <script src="/angular/underscore-min.js"></script>
+    <script src="/angular/modules/fileSystem/fileSystem.js"></script>
+    <script src="/angular/modules/fileSystem/fileSystemController.js"></script>
+    <script src="/angular/modules/fileSystem/fileSystemService.js"></script>
+    <script src="/angular/modules/container/container.js"></script>
+    <script src="/angular/modules/container/containerController.js"></script>
+    <script src="/angular/modules/container/containerService.js"></script>
+    <script src="/angular/modules/container/urlEncodeFilter.js"></script>
+    <script src="/angular/modules/messageBag/messageBag.js"></script>
+    <script src="/angular/modules/messageBag/messageBagDirective.js"></script>
     <script src="/angular/app.js"></script>
-    <script src="/angular/fileSystem/fileSystem.js"></script>
-    <script src="/angular/fileSystem/fileSystemController.js"></script>
-    <script src="/angular/fileSystem/fileSystemService.js"></script>
-    <script src="/angular/container/container.js"></script>
-    <script src="/angular/container/containerController.js"></script>
-    <script src="/angular/container/containerService.js"></script>
-    <script src="/angular/container/urlEncodeFilter.js"></script>
 </head>
 <body>
 <div class="container">
@@ -27,6 +31,8 @@
             <h1 class="text-muted">BlueBox File System</h1>
         </div>
         <hr/>
+
+        <message-bag></message-bag>
 
         <div ui-view></div>
 

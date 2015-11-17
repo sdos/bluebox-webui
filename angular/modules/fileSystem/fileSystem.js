@@ -1,13 +1,15 @@
 'use strict';
 
 var fileSystemModule = angular.module('bluebox.fileSystem', [
-    'ui.router'
+    'ui.router',
+    'bluebox.container',
+    'bluebox.messageBag'
 ])
 
     .config(['$stateProvider', function($stateProvider) {
         $stateProvider.state('fileSystemState', {
             url:            "/",
-            templateUrl:    "angular/fileSystem/fileSystem.html",
+            templateUrl:    "angular/modules/fileSystem/fileSystem.html",
             controller:     "FileSystemController"
         });
     }]);

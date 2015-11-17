@@ -2,13 +2,15 @@
 
 var containerModule = angular.module('bluebox.container', [
     'ui.router',
-    'ngFileUpload'
+    'ngFileUpload',
+    'bluebox.fileSystem',
+    'bluebox.messageBag'
 ])
 
     .config(['$stateProvider', function($stateProvider) {
         $stateProvider.state("containerState", {
             url:            "/container/:containerName",
-            templateUrl:    "angular/container/container.html",
+            templateUrl:    "angular/modules/container/container.html",
             controller:     "ContainerController"
         });
     }]);

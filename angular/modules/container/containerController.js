@@ -1,10 +1,11 @@
 'use strict';
 
 containerModule.controller('ContainerController',
-    ['$scope', '$stateParams', 'containerService', function($scope, $stateParams, containerService) {
+    ['$scope', '$rootScope', '$stateParams', 'containerService', function($scope, $rootScope, $stateParams, containerService) {
         $scope.containerName = $stateParams.containerName;
 
         $scope.containerObjects = [];
+        $scope.messages = [];
 
         $scope.updateContainerObjects = function () {
             containerService.getObjectsInContainer($scope.containerName)
@@ -18,19 +19,35 @@ containerModule.controller('ContainerController',
         $scope.deleteObject = function(objectName) {
             containerService.deleteObject($scope.containerName, objectName)
                 .then(function() {
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type": "success",
+                            "text": "Object \"" + objectName + "\" deleted."
+                        });
                         $scope.containerObjects = _.reject($scope.containerObjects, {name: objectName});
                     },
                     function(response) {
-                        console.error(response);
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type": "danger",
+                            "text": response
+                        });
                     });
         };
 
         $scope.upload = function() {
             containerService.upload($scope.file, $scope.containerName, $scope.ownerName, $scope.retentionDate)
                 .then(
-                    $scope.updateContainerObjects,
+                    function() {
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type": "success",
+                            "text": "File \"" + $scope.file.name + "\" uploaded."
+                        });
+                        $scope.updateContainerObjects();
+                    },
                     function(response) {
-                        console.error(response);
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type": "danger",
+                            "text": response
+                        });
                     });
         };
 
