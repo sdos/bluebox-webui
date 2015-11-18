@@ -68,6 +68,12 @@ class SwiftConnect:
 		self.conn.put_object(
 			container=container_name, obj=object_name,
 			contents=content, headers=metadata_dict)
+		
+	def streaming_object_upload(self, object_name, container_name, object_as_file, metadata_dict):
+		self.conn.put_object(
+			container=container_name, obj=object_name,
+			contents=object_as_file, headers=metadata_dict,
+			chunk_size=65536)
 			
 ##############################################################################
 
@@ -81,6 +87,11 @@ class SwiftConnect:
 		log.debug("Metadata")
 		log.debug(obj_tuple[0])
 		return obj_tuple[1]
+	
+	# Stream object
+	def get_object_as_generator(self, container_name, object_name):
+		log.debug("streaming object: {} in container: {}".format(container_name, object_name))
+		return self.conn.get_object(container_name, object_name, resp_chunk_size=8192)
 	
 ##############################################################################
 

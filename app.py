@@ -10,18 +10,19 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
+# initialize logging
 
+from exceptions import HttpError
 import json, logging, os, time, datetime
+import sys
 
 from flask import Flask, request, Response, send_file
 from werkzeug import secure_filename
 
-from exceptions import HttpError
 from SwiftConnect import SwiftConnect
 import appConfig
 
 
-# initialize logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 log = logging.getLogger()
 
@@ -154,8 +155,30 @@ def get_metadata_info(containerName,filename):
 """
 	Route that will process the file upload
 """
-@app.route('/swift/containers/<containerName>/objects', methods=['POST'])
-def upload(containerName):
+@app.route('/swift/containers/<container_name>/objects', methods=['POST'])
+def upload(container_name):
+	# Get the name of the uploaded file
+	file = request.files['objectName']	# returns werkzeug.datastructures.FileStorage i.e. file-like.
+										# Underlying stream is either BytesIO for small files or _TemporaryFileWrapper for large files
+	object_name = secure_filename(file.filename)
+	log.debug("uploading file: {} to container: {}".format(object_name, container_name))
+	
+	retentime =  request.form['RetentionPeriod']
+	if retentime:
+		convertretentime = datetime.datetime.strptime(retentime,"%Y-%m-%d").strftime("%d-%m-%Y")
+		retentimestamp = int(time.mktime(datetime.datetime.strptime(convertretentime, "%d-%m-%Y").timetuple()))
+	else:
+		retentimestamp = retentime
+	
+	h = dict()
+	h["X-Object-Meta-RetentionTime"] = retentimestamp
+	h["X-Object-Meta-OwnerName"] = request.form['OwnerName']
+	
+	swift.streaming_object_upload(object_name, container_name, file, h)
+	return Response(None)
+
+#@app.route('/swift/containers/<containerName>/objects', methods=['POST'])
+def legacy_upload(containerName):
 	# Get the name of the uploaded file
 	log.debug("inside the upload part")
 	inputFile = request.files['objectName']
@@ -185,25 +208,18 @@ def upload(containerName):
 
 ##############################################################################		
 		
-"""
-	download obj route
-"""
-@app.route('/swift/containers/<containerName>/objects/<path:filename>', methods=['GET'])
-def download_object(containerName, filename):
+@app.route('/swift/containers/<container_name>/objects/<path:object_name>', methods=['GET'])
+def stream_object(container_name, object_name):
+	log.debug("req to stream object: {} in container: {}".format(object_name, container_name))
+	obj_tupel = swift.get_object_as_generator(container_name, object_name)	
+	headers = {"Content-Length": obj_tupel[0].get("content-length")}
+	return Response(obj_tupel[1], mimetype='application/octet-stream', headers=headers)
+
+#@app.route('/swift/containers/<containerName>/objects/<path:filename>', methods=['GET'])
+def legacy_download_object(containerName, filename):
 		log.debug("downloadObject: %s - %s" % (containerName, filename))
 		encodedOutputFile = swift.get_object(containerName, filename)
 		return Response(encodedOutputFile, mimetype='application/octet-stream')
-
-def calcTimeDifference(timestamp):
-	try:
-		return int(timestamp) - int(time.time())
-	except ValueError:
-		return False
-
-def isRetentionPeriodExpired(timestamp):
-	if (calcTimeDifference(timestamp)):
-		return calcTimeDifference(timestamp) <= 0
-	return False
 
 ##############################################################################
 
@@ -282,7 +298,26 @@ def delete_old_files(containerName):
 
 
 ##############################################################################
-# views
+# helper functions
+##############################################################################
+
+def calcTimeDifference(timestamp):
+	try:
+		return int(timestamp) - int(time.time())
+	except ValueError:
+		return False
+	
+##############################################################################
+
+def isRetentionPeriodExpired(timestamp):
+	if (calcTimeDifference(timestamp)):
+		return calcTimeDifference(timestamp) <= 0
+	return False
+
+
+
+##############################################################################
+# main
 ##############################################################################  
 
 if __name__ == '__main__':
