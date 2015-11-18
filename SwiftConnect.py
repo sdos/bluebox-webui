@@ -55,7 +55,7 @@ class SwiftConnect:
 
 	# Creating a Container
 	def create_container(self, container_name):
-		log.debug("Inside create container")
+		log.debug("Creating new container with name: {}".format(container_name))
 		self.conn.put_container(container_name)
 		return True
 
@@ -63,13 +63,13 @@ class SwiftConnect:
 
 	# Creating an object
 	def create_object(self, object_name, content, container_name, metadata_dict):
-		log.debug(object_name)
-		log.debug("Inside create Object")
+		log.debug("Putting object: {} in container: {} as a whole".format(object_name, container_name))
 		self.conn.put_object(
 			container=container_name, obj=object_name,
 			contents=content, headers=metadata_dict)
 		
 	def streaming_object_upload(self, object_name, container_name, object_as_file, metadata_dict):
+		log.debug("Putting object: {} in container: {} as stream".format(object_name, container_name))
 		self.conn.put_object(
 			container=container_name, obj=object_name,
 			contents=object_as_file, headers=metadata_dict,
@@ -79,76 +79,60 @@ class SwiftConnect:
 
 	# Retrieving an object 
 	def get_object(self, container_name, object_name):
-		log.debug("Inside get object")
-		log.debug(container_name)
-		log.debug(object_name)
+		log.debug("Retrieving object: {} in container: {} as a whole".format(container_name, object_name))
 		obj_tuple = self.conn.get_object(container_name, object_name)
-		log.debug(obj_tuple[1]) # index [1] returns the file
-		log.debug("Metadata")
-		log.debug(obj_tuple[0])
 		return obj_tuple[1]
 	
 	# Stream object
 	def get_object_as_generator(self, container_name, object_name):
-		log.debug("streaming object: {} in container: {}".format(container_name, object_name))
+		log.debug("Retrieving object: {} in container: {} as stream".format(container_name, object_name))
 		return self.conn.get_object(container_name, object_name, resp_chunk_size=8192)
 	
 ##############################################################################
 
 	# deleting an object 
 	def delete_object(self, container_name, object_name):
-		log.debug("Inside del object")
-		log.debug(container_name)
-		log.debug(object_name)
+		log.debug("Deleting object: {} in container: {}".format(object_name, container_name))
 		self.conn.delete_object(container_name, object_name)
 
 ##############################################################################
 
 	# deleting objects 
 	def delete_objects(self, container_name, object_names):
-		log.debug("Inside del object")
-		log.debug(container_name)
-		for object_name in object_names:        # Second Example
-			log.debug(object_name)
+		log.debug("Deleting multiple objects: {} in container: {}".format(object_names, container_name))
+		for object_name in object_names:
 			self.conn.delete_object(container_name, object_name)
 
 ##############################################################################
 
 	# Creating an container list
 	def get_container_list(self, limit=None, marker=None, prefix=None):
-		log.debug("container List")
+		log.debug("Retrieving list of all containers with parameter: limit = {}, marker = {}, prefix = {}"
+				.format(limit, marker, prefix))
 		full_listing = limit is None  # bypass default limit of 10.000 of swift-client
 		containers = self.conn.get_account(
 			limit=limit, marker=marker,
 			prefix=prefix, full_listing=full_listing)[1]
-		for container  in containers:
-			log.debug(container ['name'])
-			
 		return containers                    
 
 ##############################################################################
 
 	#Creating an container list
 	def get_object_list(self, container_name, limit=None, marker=None, prefix=None):
-		log.debug("Files in a container")
+		log.debug("Retrieving list of all objects of container: {} with parameter: limit = {}, marker = {}, prefix = {}"
+				.format(container_name, limit, marker, prefix))
 		full_listing = limit is None  # bypass default limit of 10.000 of swift-client
 		files = self.conn.get_container(
 			container_name, marker=marker, limit=limit, prefix=prefix,
 			full_listing=full_listing)[1]
-		for file in files:
-			log.debug('{0}\t{1}\t{2}'.format(file['name'], file['bytes'], file['last_modified']))
 		return files                    
 
 ##############################################################################
 
 	#Retrieving an object Metadata 
 	def get_object_metadata(self, container_name, object_name):
-		log.debug("Inside get object")
-		log.debug(container_name)
-		log.debug(object_name)
-		obj_tuple = self.conn.head_object(container_name, object_name)
-		log.debug(obj_tuple)  # index [0] returns the Headers of the file
-		return obj_tuple
+		log.debug("Retrieving meta data for object: {} in container: {}".format(object_name, container_name))
+		return self.conn.head_object(container_name, object_name)
 	
 ##############################################################################
 
