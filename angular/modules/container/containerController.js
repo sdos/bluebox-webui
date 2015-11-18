@@ -59,5 +59,5 @@ containerModule.controller('ContainerController',
                     });
         };
 
-        $scope.getObjects();
+        $scope.getObjects(true);
     }]);

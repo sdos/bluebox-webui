@@ -36,5 +36,5 @@ fileSystemModule.controller('FileSystemController',
                     });
         };
 
-        $scope.getContainers();
+        $scope.getContainers(true);
     }]);
