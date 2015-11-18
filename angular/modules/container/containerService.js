@@ -3,16 +3,41 @@
 containerModule.factory(
     'containerService',
     ['$http', '$q', '$filter', 'Upload', function($http, $q, $filter, Upload) {
+        /**
+         * the limit of objects to retrieve at once
+         * @type {number}
+         */
+        var limit = 20;
+
+        /**
+         * name of the last retrieved object
+         * @type {string}
+         */
+        var currentMarker = "";
+
         return {
-            getObjectsInContainer: function(containerName) {
+            getObjects: function(containerName, reload, prefix) {
                 var deferred = $q.defer();
-                $http.get('/swift/containers/' + containerName + '/objects')
-                    .then(function successCallback(response) {
-                            deferred.resolve(response.data);
-                        }, function errorCallback(response) {
-                            deferred.reject(response);
-                        }
-                    );
+
+                // reset marker if list shall be reloaded
+                currentMarker = reload ? "" : currentMarker;
+
+                $http({
+                    "method": "GET",
+                    "url":    "/swift/containers/" + containerName + "/objects",
+                    "params": {
+                        "limit":  limit,
+                        "marker": currentMarker,
+                        "prefix": prefix ? prefix : ""
+                    }
+                }).then(function successCallback(response) {
+                        var objects = response.data;
+                        currentMarker = objects.length > 0 ? _.last(objects).name : currentMarker;
+                        deferred.resolve(objects);
+                    }, function errorCallback(response) {
+                        deferred.reject(response);
+                    }
+                );
 
                 return deferred.promise;
             },
@@ -30,7 +55,7 @@ containerModule.factory(
                 return deferred.promise;
             },
 
-            upload: function(file, containerName, ownerName, retentionDate) {
+            uploadObject: function(file, containerName, ownerName, retentionDate) {
                 var deferred = $q.defer();
                 Upload.upload({
                     "method": "POST",

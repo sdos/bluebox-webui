@@ -1,6 +1,7 @@
 'use strict';
 
 var containerModule = angular.module('bluebox.container', [
+    'infiniteScroll',
     'ui.router',
     'ngFileUpload',
     'bluebox.fileSystem',

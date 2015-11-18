@@ -1,26 +1,32 @@
 fileSystemModule.controller('FileSystemController',
     ['$scope', '$rootScope', 'fileSystemService', function($scope, $rootScope, fileSystemService) {
         $scope.containers = [];
-        $scope.messages = [];
+        $scope.isGetContainersRequestPending = false;
+        $scope.isEndOfListReached = false;
 
-        $scope.updateContainers = function () {
-            fileSystemService.getContainers()
+        $scope.getContainers = function (reload) {
+            $scope.isGetContainersRequestPending = true;
+            fileSystemService.getContainers(reload)
                 .then(function (containers) {
-                    $scope.containers = containers;
+                    $scope.isEndOfListReached = containers.length < 20;
+                    $scope.containers = reload ? containers : $scope.containers.concat(containers);
+                    $scope.isGetContainersRequestPending = false;
                 }, function (response) {
                     console.error(response);
+                    $scope.isGetContainersRequestPending = false;
                 });
         };
 
         $scope.createContainer = function() {
             fileSystemService.createContainer($scope.containerName)
                 .then(
-                    function (response) {
+                    function () {
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "success",
                             "text": "Container \"" + $scope.containerName + "\" created."
                         });
-                        $scope.updateContainers();
+                        // reload containers
+                        $scope.getContainers(true);
                     },
                     function (response) {
                         $rootScope.$broadcast('FlashMessage', {
@@ -30,5 +36,5 @@ fileSystemModule.controller('FileSystemController',
                     });
         };
 
-        $scope.updateContainers();
+        $scope.getContainers();
     }]);

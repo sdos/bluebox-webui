@@ -2,22 +2,29 @@
 
 containerModule.controller('ContainerController',
     ['$scope', '$rootScope', '$stateParams', 'containerService', function($scope, $rootScope, $stateParams, containerService) {
-        $scope.containerName = $stateParams.containerName;
+        $scope.container = {
+            name:    $stateParams.containerName,
+            objects: []
+        };
 
-        $scope.containerObjects = [];
-        $scope.messages = [];
+        $scope.isGetObjectsRequestPending = false;
+        $scope.isEndOfListReached = false;
 
-        $scope.updateContainerObjects = function () {
-            containerService.getObjectsInContainer($scope.containerName)
-                .then(function (containerObjects) {
-                    $scope.containerObjects = containerObjects;
+        $scope.getObjects = function(reload) {
+            $scope.isGetObjectsRequestPending = true;
+            containerService.getObjects($scope.container.name, reload)
+                .then(function (objects) {
+                    $scope.isEndOfListReached = objects.length < 20;
+                    $scope.container.objects = reload ? objects : $scope.container.objects.concat(objects);
+                    $scope.isGetObjectsRequestPending = false;
                 }, function (response) {
                     console.error(response);
+                    $scope.isGetObjectsRequestPending = false;
                 });
         };
 
         $scope.deleteObject = function(objectName) {
-            containerService.deleteObject($scope.containerName, objectName)
+            containerService.deleteObject($scope.container.name, objectName)
                 .then(function() {
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "success",
@@ -33,15 +40,16 @@ containerModule.controller('ContainerController',
                     });
         };
 
-        $scope.upload = function() {
-            containerService.upload($scope.file, $scope.containerName, $scope.ownerName, $scope.retentionDate)
+        $scope.uploadObject = function() {
+            containerService.uploadObject($scope.file, $scope.container.name, $scope.ownerName, $scope.retentionDate)
                 .then(
                     function() {
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "success",
                             "text": "File \"" + $scope.file.name + "\" uploaded."
                         });
-                        $scope.updateContainerObjects();
+                        // reload objects
+                        $scope.getObjects(true);
                     },
                     function(response) {
                         $rootScope.$broadcast('FlashMessage', {
@@ -51,5 +59,5 @@ containerModule.controller('ContainerController',
                     });
         };
 
-        $scope.updateContainerObjects();
+        $scope.getObjects();
     }]);

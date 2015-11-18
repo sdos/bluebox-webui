@@ -7,8 +7,17 @@
     </form>
 </div>
 <div class="panel panel-default">
-    <div class="panel-heading"><h3>List of containers</h3></div>
-    <table class="table table-bordered table-hover" border="2">
+    <div class="panel-heading">
+        <h3>List of containers</h3>
+        <p>{{ containers.length }} containers in total</p>
+    </div>
+    <table
+            infinite-scroll="getContainers()"
+            threshold="100"
+            can-load="!isGetContainersRequestPending && !isEndOfListReached"
+            global
+            class="table table-bordered table-hover"
+            border="2">
         <tr>
             <th>Name</th>
             <th>Size</th>

@@ -4,7 +4,7 @@
         <label for="browseBtn">Browse the file to upload:</label>
         <input ngf-select ng-model="file" type="file" name="objectName" id="browseBtn" required/>
         <label for="containerTxt">Container name:</label>
-        <input ng-model="containerName" type="text" class="form-control" id="containerTxt" readonly required/>
+        <input ng-model="container.name" type="text" class="form-control" id="containerTxt" readonly required/>
         <label for="ownerTxt">Owner Name:</label>
         <input ng-model="ownerName" type="text" class="form-control" id="ownerTxt" placeholder="OwnerName"/>
         <label for="retentionDate">Retention Date:</label>
@@ -19,10 +19,16 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3>List of objects in container {{ containerName }}</h3>
-        <p>{{ containerObjects.length }} objects in total</p>
+        <h3>List of objects in container {{ container.name }}</h3>
+        <p>{{ container.objects.length }} objects in total</p>
     </div>
-    <table class="table table-bordered table-hover" border="2">
+    <table
+            infinite-scroll="getObjects()"
+            threshold="100"
+            can-load="!isGetObjectsRequestPending && !isEndOfListReached"
+            global
+            class="table table-bordered table-hover"
+            border="2">
         <tr>
             <th>Name</th>
             <th>Size</th>
@@ -31,12 +37,12 @@
             <th>Delete</th>
             <th>Details</th>
         </tr>
-        <tr ng-repeat="containerObject in containerObjects">
-            <td>{{ containerObject.name }}</td>
-            <td>{{ containerObject.bytes }} Bytes</td>
-            <td>{{ containerObject.content_type }}</td>
-            <td><a ng-href="/swift/containers/{{containerName}}/objects/{{containerObject.name | urlEncode}}" type="button" class="btn btn-success">GET</a></td>
-            <td><a ng-click="deleteObject(containerObject.name)" type="button" class="btn btn-danger">DELETE</a></td>
+        <tr ng-repeat="object in container.objects">
+            <td>{{ object.name }}</td>
+            <td>{{ object.bytes }} Bytes</td>
+            <td>{{ object.content_type }}</td>
+            <td><a ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}" type="button" class="btn btn-success">GET</a></td>
+            <td><a ng-click="deleteObject(object.name)" type="button" class="btn btn-danger">DELETE</a></td>
             <td><a type="button" class="btn btn-info">DETAILS</a></td>
         </tr>
     </table>
