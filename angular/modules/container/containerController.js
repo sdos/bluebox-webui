@@ -12,7 +12,7 @@ containerModule.controller('ContainerController',
 
         $scope.getObjects = function(reload) {
             $scope.isGetObjectsRequestPending = true;
-            containerService.getObjects($scope.container.name, reload)
+            containerService.getObjects($scope.container.name, reload, $scope.prefix)
                 .then(function (objects) {
                     $scope.isEndOfListReached = objects.length < 20;
                     $scope.container.objects = reload ? objects : $scope.container.objects.concat(objects);

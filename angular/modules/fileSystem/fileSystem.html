@@ -9,7 +9,19 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <h3>List of containers</h3>
-        <p>{{ containers.length }} containers in total</p>
+        <div class="row">
+            <p class="col-md-8">{{ containers.length }} containers in total</p>
+            <form class="form-inline col-md-4">
+                <label for="prefix">Filter:</label>
+                <input
+                        ng-model="prefix"
+                        ng-change="getContainers(true)"
+                        type="text"
+                        class="form-control"
+                        id="prefix"
+                />
+            </form>
+        </div>
     </div>
     <table
             infinite-scroll="getContainers()"

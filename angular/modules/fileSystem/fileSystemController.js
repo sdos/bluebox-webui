@@ -6,7 +6,7 @@ fileSystemModule.controller('FileSystemController',
 
         $scope.getContainers = function (reload) {
             $scope.isGetContainersRequestPending = true;
-            fileSystemService.getContainers(reload)
+            fileSystemService.getContainers(reload, $scope.prefix)
                 .then(function (containers) {
                     $scope.isEndOfListReached = containers.length < 20;
                     $scope.containers = reload ? containers : $scope.containers.concat(containers);
