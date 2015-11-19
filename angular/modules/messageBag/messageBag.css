@@ -1,3 +1,11 @@
+.message-bag {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: calc(100% - 40px);
+    margin: 20px;
+}
+
 /* standard styles when no animation is active */
 .fade {
     opacity: 1;

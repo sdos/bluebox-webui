@@ -1,3 +1,6 @@
-<div ng-repeat="message in messages" class="alert alert-{{message.type}} fade">
-    <p>{{ message.text }}</p>
+<div class="message-bag">
+    <div ng-repeat="message in messages" class="alert alert-{{message.type}} fade">
+        <a ng-click="close(message.id)" class="close">&times;</a>
+        <p>{{ message.text }}</p>
+    </div>
 </div>
