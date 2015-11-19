@@ -2,13 +2,13 @@
     <div class="panel-heading"><h3>Upload an object</h3></div>
     <form ng-submit="uploadObject()">
         <label for="browseBtn">Browse the file to upload:</label>
-        <input ngf-select ng-model="file" type="file" name="objectName" id="browseBtn" required/>
+        <input ngf-select ng-model="uploadForm.file" type="file" name="objectName" id="browseBtn" required/>
         <label for="containerTxt">Container name:</label>
         <input ng-model="container.name" type="text" class="form-control" id="containerTxt" readonly required/>
         <label for="ownerTxt">Owner Name:</label>
-        <input ng-model="ownerName" type="text" class="form-control" id="ownerTxt" placeholder="OwnerName"/>
+        <input ng-model="uploadForm.owner" type="text" class="form-control" id="ownerTxt" placeholder="OwnerName"/>
         <label for="retentionDate">Retention Date:</label>
-        <input ng-model="retentionDate" type="date" class="form-control" id="retentionDate"/>
+        <input ng-model="uploadForm.retentionDate" type="date" class="form-control" id="retentionDate"/>
         <input type="submit" value="Upload" class="btn btn-success"/>
     </form>
 </div>
@@ -41,7 +41,15 @@
             <td>{{ object.name }}</td>
             <td>{{ object.bytes }} Bytes</td>
             <td>{{ object.content_type }}</td>
-            <td><a ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}" type="button" class="btn btn-success">GET</a></td>
+            <td>
+                <a
+                        ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}"
+                        target="_self"
+                        type="button"
+                        class="btn btn-success">
+                    GET
+                </a>
+            </td>
             <td><a ng-click="deleteObject(object.name)" type="button" class="btn btn-danger">DELETE</a></td>
             <td><a type="button" class="btn btn-info">DETAILS</a></td>
         </tr>

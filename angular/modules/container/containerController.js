@@ -30,7 +30,8 @@ containerModule.controller('ContainerController',
                             "type": "success",
                             "text": "Object \"" + objectName + "\" deleted."
                         });
-                        $scope.containerObjects = _.reject($scope.containerObjects, {name: objectName});
+                        // remove object from list
+                        $scope.container.objects = _.reject($scope.container.objects, {name: objectName});
                     },
                     function(response) {
                         $rootScope.$broadcast('FlashMessage', {
@@ -41,12 +42,12 @@ containerModule.controller('ContainerController',
         };
 
         $scope.uploadObject = function() {
-            containerService.uploadObject($scope.file, $scope.container.name, $scope.ownerName, $scope.retentionDate)
+            containerService.uploadObject($scope.uploadForm.file, $scope.container.name, $scope.uploadForm.owner, $scope.uploadForm.retentionDate)
                 .then(
                     function() {
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "success",
-                            "text": "File \"" + $scope.file.name + "\" uploaded."
+                            "text": "File \"" + $scope.uploadForm.file.name + "\" uploaded."
                         });
                         // reload objects
                         $scope.getObjects(true);
