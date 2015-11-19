@@ -1,10 +1,14 @@
 'use strict';
 
+/**
+ * bluebox.container
+ * module for the container contents page
+ */
 var containerModule = angular.module('bluebox.container', [
-    'infiniteScroll',
     'ui.router',
     'ngFileUpload',
     'bluebox.fileSystem',
+    'bluebox.infiniteScroll',
     'bluebox.messageBag'
 ])
 
