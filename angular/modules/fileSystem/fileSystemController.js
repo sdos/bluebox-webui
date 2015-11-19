@@ -12,7 +12,10 @@ fileSystemModule.controller('FileSystemController',
                     $scope.containers = reload ? containers : $scope.containers.concat(containers);
                     $scope.isGetContainersRequestPending = false;
                 }, function (response) {
-                    console.error(response);
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type": "danger",
+                        "text": response
+                    });
                     $scope.isGetContainersRequestPending = false;
                 });
         };

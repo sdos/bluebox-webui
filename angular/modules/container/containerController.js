@@ -18,7 +18,10 @@ containerModule.controller('ContainerController',
                     $scope.container.objects = reload ? objects : $scope.container.objects.concat(objects);
                     $scope.isGetObjectsRequestPending = false;
                 }, function (response) {
-                    console.error(response);
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type": "danger",
+                        "text": response
+                    });
                     $scope.isGetObjectsRequestPending = false;
                 });
         };
