@@ -20,7 +20,8 @@
  *     "timeout":  {string|number} "never" | time in ms the message gets dismissed after
  *                                 (optional, overrides the value passed to the directive)
  * }
- */var messageBagModule = angular.module('bluebox.messageBag', [
+ */
+angular.module('bluebox.messageBag', [
     'ngAnimate'
 ]).directive('messageBag', function() {
     return {

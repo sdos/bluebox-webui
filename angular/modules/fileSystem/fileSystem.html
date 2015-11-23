@@ -43,4 +43,7 @@
             <td><a ui-sref="containerState({containerName: container.name})" type="button" class="btn btn-info">>>></a></td>
         </tr>
     </table>
+    <div class="text-center">
+        <span ng-show="isGetContainersRequestPending" class="glyphicon glyphicon-refresh glyphicon-refresh-animate glyphicon-lg"></span>
+    </div>
 </div>
