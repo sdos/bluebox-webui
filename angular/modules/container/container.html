@@ -1,27 +1,42 @@
 <div class="panel panel-default">
     <div class="panel-heading"><h3>Upload an object</h3></div>
-    <form ng-submit="uploadObject()">
-        <label for="browseBtn">Browse the file to upload:</label>
-        <input ngf-select ng-model="uploadForm.file" type="file" name="objectName" id="browseBtn" required/>
-        <label for="containerTxt">Container name:</label>
-        <input ng-model="container.name" type="text" class="form-control" id="containerTxt" readonly required/>
-        <label for="ownerTxt">Owner Name:</label>
-        <input ng-model="uploadForm.owner" type="text" class="form-control" id="ownerTxt" placeholder="OwnerName"/>
-        <label for="retentionDate">Retention Date:</label>
-        <input ng-model="uploadForm.retentionDate" type="date" class="form-control" id="retentionDate"/>
-        <button type="submit" class="btn btn-success">
-            <span class="glyphicon glyphicon-upload"></span>
-            Upload
-        </button>
-    </form>
+    <div class="panel-body">
+        <form ng-submit="uploadObject()">
+            <label for="browseBtn">Browse the file to upload:</label>
+            <input ngf-select ng-model="uploadForm.file" ng-change="uploadProgressPercentage = 0;" type="file" name="objectName" id="browseBtn" required/>
+            <label for="containerTxt">Container name:</label>
+            <input ng-model="container.name" type="text" class="form-control" id="containerTxt" readonly required/>
+            <label for="ownerTxt">Owner Name:</label>
+            <input ng-model="uploadForm.owner" type="text" class="form-control" id="ownerTxt" placeholder="OwnerName"/>
+            <label for="retentionDate">Retention Date:</label>
+            <input ng-model="uploadForm.retentionDate" type="date" class="form-control" id="retentionDate"/>
+            <button type="submit" class="btn btn-success">
+                <span class="glyphicon glyphicon-cloud-upload"></span>
+                Upload
+            </button>
+        </form>
+    </div>
+    <div ng-show="uploadProgressPercentage" class="panel-body">
+        <div class="progress">
+            <div
+                    ng-class="{'progress-bar-success': uploadProgressPercentage === 100}"
+                    class="progress-bar progress-bar-striped"
+                    role="progressbar"
+                    style="width: {{ uploadProgressPercentage }}%;">
+                {{ uploadProgressPercentage }} %
+            </div>
+        </div>
+    </div>
 </div>
 
-<a ui-sref="fileSystemState()" type="button" class="btn btn-info">
-    <span class="glyphicon glyphicon-level-up"></span>
-    Back to containers
-</a>
-<a type="button" class="btn btn-info">Check Old Files</a>
-<a type="button" class="btn btn-info">Delete Old Files</a>
+<div class="panel-body">
+    <a ui-sref="fileSystemState()" type="button" class="btn btn-info">
+        <span class="glyphicon glyphicon-level-up"></span>
+        Back to containers
+    </a>
+    <a type="button" class="btn btn-info">Check Old Files</a>
+    <a type="button" class="btn btn-info">Delete Old Files</a>
+</div>
 
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -40,75 +55,77 @@
             </form>
         </div>
     </div>
-    <table
-            infinite-scroll="getObjects()"
-            threshold="100"
-            can-load="!isGetObjectsRequestPending && !isEndOfListReached"
-            global
-            class="table table-bordered table-hover"
-            border="2">
-        <tr>
-            <th>Name</th>
-            <th>Size</th>
-            <th>Type</th>
-            <th>Download</th>
-            <th>Delete</th>
-            <th>Details</th>
-        </tr>
-        <tr ng-repeat-start="object in container.objects">
-            <td>{{ object.name }}</td>
-            <td>{{ object.bytes }} Bytes</td>
-            <td>{{ object.content_type }}</td>
-            <td>
-                <a
-                        ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}"
-                        target="_self"
-                        type="button"
-                        class="btn btn-success">
-                    <span class="glyphicon glyphicon-download-alt"></span>
-                    GET
-                </a>
-            </td>
-            <td>
-                <a ng-click="deleteObject(object)" type="button" class="btn btn-danger">
-                    <span class="glyphicon glyphicon-remove"></span>
-                    DELETE
-                </a>
-            </td>
-            <td>
-                <a ng-click="toggleDetails(object)" type="button" class="btn btn-info">
-                    <span class="glyphicon" ng-class="{'glyphicon-chevron-right': !object.showDetails, 'glyphicon-chevron-down': object.showDetails}"></span>
-                    DETAILS
-                </a>
-            </td>
-        </tr>
-        <tr ng-if="object.showDetails" ng-repeat-end>
-            <td colspan="6">
-                <div class="row">
-                    <div ng-show="!object.details" class="col-md-12 text-center">
-                        <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate glyphicon-lg"></span>
+    <div class="panel-body">
+        <table
+                infinite-scroll="getObjects()"
+                threshold="100"
+                can-load="!isGetObjectsRequestPending && !isEndOfListReached"
+                global
+                class="table table-bordered table-hover"
+                border="2">
+            <tr>
+                <th>Name</th>
+                <th>Size</th>
+                <th>Type</th>
+                <th>Download</th>
+                <th>Delete</th>
+                <th>Details</th>
+            </tr>
+            <tr ng-repeat-start="object in container.objects">
+                <td>{{ object.name }}</td>
+                <td>{{ object.bytes }} Bytes</td>
+                <td>{{ object.content_type }}</td>
+                <td>
+                    <a
+                            ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}"
+                            target="_self"
+                            type="button"
+                            class="btn btn-success">
+                        <span class="glyphicon glyphicon-download-alt"></span>
+                        GET
+                    </a>
+                </td>
+                <td>
+                    <a ng-click="deleteObject(object)" type="button" class="btn btn-danger">
+                        <span class="glyphicon glyphicon-remove"></span>
+                        DELETE
+                    </a>
+                </td>
+                <td>
+                    <a ng-click="toggleDetails(object)" type="button" class="btn btn-info">
+                        <span class="glyphicon" ng-class="{'glyphicon-chevron-right': !object.showDetails, 'glyphicon-chevron-down': object.showDetails}"></span>
+                        DETAILS
+                    </a>
+                </td>
+            </tr>
+            <tr ng-if="object.showDetails" ng-repeat-end>
+                <td colspan="6">
+                    <div class="row">
+                        <div ng-show="!object.details" class="col-md-12 text-center">
+                            <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate glyphicon-lg"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-hover">
+                                <tr ng-repeat="(key, value) in object.details | half">
+                                    <td>{{ key }}:</td>
+                                    <td>{{ value }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-hover">
+                                <tr ng-repeat="(key, value) in object.details | half: 2">
+                                    <td>{{ key }}:</td>
+                                    <td>{{ value }}</td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <table class="table table-hover">
-                            <tr ng-repeat="(key, value) in object.details | half">
-                                <td>{{ key }}:</td>
-                                <td>{{ value }}</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table table-hover">
-                            <tr ng-repeat="(key, value) in object.details | half: 2">
-                                <td>{{ key }}:</td>
-                                <td>{{ value }}</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    </table>
-    <div ng-show="isGetObjectsRequestPending" class="text-center">
-        <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate glyphicon-lg"></span>
+                </td>
+            </tr>
+        </table>
+        <div ng-show="isGetObjectsRequestPending" class="text-center">
+            <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate glyphicon-lg"></span>
+        </div>
     </div>
 </div>

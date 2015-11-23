@@ -102,6 +102,9 @@ containerModule.factory(
                         deferred.resolve(response.data);
                     }, function errorCallback(response) {
                         deferred.reject(response);
+                    }, function notifyCallback(event) {
+                        console.log(event);
+                        deferred.notify(event);
                     }
                 );
 

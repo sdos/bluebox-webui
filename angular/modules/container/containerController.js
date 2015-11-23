@@ -32,6 +32,8 @@ containerModule.controller('ContainerController',
          */
         $scope.isEndOfListReached = false;
 
+        $scope.uploadProgressPercentage = 0;
+
         /**
          * GET new objects from the container service
          *
@@ -80,6 +82,7 @@ containerModule.controller('ContainerController',
          * upload the file of the uploadForm
          */
         $scope.uploadObject = function() {
+            $scope.uploadProgressPercentage = 0;
             containerService.uploadObject($scope.uploadForm.file, $scope.container.name, $scope.uploadForm.owner, $scope.uploadForm.retentionDate)
                 .then(
                     function() {
@@ -95,7 +98,11 @@ containerModule.controller('ContainerController',
                             "type": "danger",
                             "text": response
                         });
-                    });
+                    },
+                    function(event) {
+                        $scope.uploadProgressPercentage = parseInt(100.0 * event.loaded / event.total);
+                    }
+                );
         };
 
         /**

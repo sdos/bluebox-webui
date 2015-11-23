@@ -1,10 +1,12 @@
 <div class="panel panel-default">
     <div class="panel-heading"><h3>Create Container</h3></div>
-    <form ng-submit="createContainer()">
-        <label for="containerTxt">Container name:</label>
-        <input type="text" ng-model="containerName" class="form-control" id="containerTxt" placeholder="ContainerName" required>
-        <input type="submit" value="Create" class="btn btn-success">
-    </form>
+    <div class="panel-body">
+        <form ng-submit="createContainer()">
+            <label for="containerTxt">Container name:</label>
+            <input type="text" ng-model="containerName" class="form-control" id="containerTxt" placeholder="ContainerName" required>
+            <input type="submit" value="Create" class="btn btn-success">
+        </form>
+    </div>
 </div>
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -23,31 +25,33 @@
             </form>
         </div>
     </div>
-    <table
-            infinite-scroll="getContainers()"
-            threshold="100"
-            can-load="!isGetContainersRequestPending && !isEndOfListReached"
-            global
-            class="table table-bordered table-hover"
-            border="2">
-        <tr>
-            <th>Name</th>
-            <th>Size</th>
-            <th>Objects</th>
-            <th>Enter</th>
-        </tr>
-        <tr ng-repeat="container in containers">
-            <td>{{ container.name }}</td>
-            <td>{{ container.bytes }} Bytes</td>
-            <td>{{ container.count }}</td>
-            <td>
-                <a ui-sref="containerState({containerName: container.name})" type="button" class="btn btn-info">
-                    <span class="glyphicon glyphicon-arrow-right"></span>
-                </a>
-            </td>
-        </tr>
-    </table>
-    <div class="text-center">
-        <span ng-show="isGetContainersRequestPending" class="glyphicon glyphicon-refresh glyphicon-refresh-animate glyphicon-lg"></span>
+    <div class="panel-body">
+        <table
+                infinite-scroll="getContainers()"
+                threshold="100"
+                can-load="!isGetContainersRequestPending && !isEndOfListReached"
+                global
+                class="table table-bordered table-hover"
+                border="2">
+            <tr>
+                <th>Name</th>
+                <th>Size</th>
+                <th>Objects</th>
+                <th>Enter</th>
+            </tr>
+            <tr ng-repeat="container in containers">
+                <td>{{ container.name }}</td>
+                <td>{{ container.bytes }} Bytes</td>
+                <td>{{ container.count }}</td>
+                <td>
+                    <a ui-sref="containerState({containerName: container.name})" type="button" class="btn btn-info">
+                        <span class="glyphicon glyphicon-arrow-right"></span>
+                    </a>
+                </td>
+            </tr>
+        </table>
+        <div class="text-center">
+            <span ng-show="isGetContainersRequestPending" class="glyphicon glyphicon-refresh glyphicon-refresh-animate glyphicon-lg"></span>
+        </div>
     </div>
 </div>
