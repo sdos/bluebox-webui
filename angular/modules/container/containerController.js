@@ -9,11 +9,13 @@ containerModule.controller('ContainerController',
 
         /**
          * contains the relevant information about the current container
-         * @type {{name: string, objects: Array}}
+         * @type {{name: string, objects: Array, details: object, showDetails: boolean}}
          */
         $scope.container = {
-            name:    $stateParams.containerName,
-            objects: []
+            name:        $stateParams.containerName,
+            objects:     [],
+            details:     {},
+            showDetails: false
         };
 
         /**
@@ -54,17 +56,17 @@ containerModule.controller('ContainerController',
         /**
          * DELETE an object from the container
          *
-         * @param {string} objectName name of the object to delete
+         * @param {object} object the object to delete
          */
-        $scope.deleteObject = function(objectName) {
-            containerService.deleteObject($scope.container.name, objectName)
+        $scope.deleteObject = function(object) {
+            containerService.deleteObject($scope.container.name, object.name)
                 .then(function() {
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "success",
-                            "text": "Object \"" + objectName + "\" deleted."
+                            "text": "Object \"" + object.name + "\" deleted."
                         });
                         // remove object from list
-                        $scope.container.objects = _.reject($scope.container.objects, {name: objectName});
+                        $scope.container.objects = _.reject($scope.container.objects, {name: object.name});
                     },
                     function(response) {
                         $rootScope.$broadcast('FlashMessage', {
@@ -94,6 +96,30 @@ containerModule.controller('ContainerController',
                             "text": response
                         });
                     });
+        };
+
+        /**
+         * toggles the details section for a given object
+         *
+         * @param {object} object the object to toggle the details for
+         */
+        $scope.toggleDetails = function(object) {
+            // toggle details
+            object.showDetails = !object.showDetails;
+
+            // retrieve the details if they shall be shown
+            if (object.showDetails) {
+                containerService.getDetails($scope.container.name, object.name)
+                    .then(function (details) {
+                            object.details = details;
+                        },
+                        function (response) {
+                            $rootScope.$broadcast('FlashMessage', {
+                                "type": "danger",
+                                "text": response
+                            });
+                        });
+            }
         };
 
         // initial retrieval

@@ -85,7 +85,8 @@ containerModule.factory(
              * @param {string} containerName name of the container
              * @param {string} ownerName     name of the owner of the file (optional)
              * @param {date}   retentionDate date after that the file shall be automatically deleted from the server (optional)
-             * @returns {*|r.promise|promise}
+             * @returns {promise} resolved to the data of the response,
+             *                    rejected to the plain response if unsuccessful
              */
             uploadObject: function(file, containerName, ownerName, retentionDate) {
                 var deferred = $q.defer();
@@ -103,6 +104,27 @@ containerModule.factory(
                         deferred.reject(response);
                     }
                 );
+
+                return deferred.promise;
+            },
+
+            /**
+             * GET the details of an object
+             *
+             * @param {string} containerName name of the container
+             * @param {string} objectName    name of the object
+             * @returns {promise} resolved to the data of the response,
+             *                    rejected to the plain response if unsuccessful
+             */
+            getDetails: function(containerName, objectName) {
+                var deferred = $q.defer();
+                $http.get("/swift/containers/" + containerName + "/objects/" + $filter('urlEncode')(objectName) + "/details")
+                    .then(function successCallback(response) {
+                            deferred.resolve(response.data);
+                        }, function errorCallback(response) {
+                            deferred.reject(response);
+                        }
+                    );
 
                 return deferred.promise;
             }
