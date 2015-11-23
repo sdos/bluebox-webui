@@ -40,7 +40,11 @@
             <td>{{ container.name }}</td>
             <td>{{ container.bytes }} Bytes</td>
             <td>{{ container.count }}</td>
-            <td><a ui-sref="containerState({containerName: container.name})" type="button" class="btn btn-info">>>></a></td>
+            <td>
+                <a ui-sref="containerState({containerName: container.name})" type="button" class="btn btn-info">
+                    <span class="glyphicon glyphicon-arrow-right"></span>
+                </a>
+            </td>
         </tr>
     </table>
     <div class="text-center">

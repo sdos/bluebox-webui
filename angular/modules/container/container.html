@@ -9,11 +9,17 @@
         <input ng-model="uploadForm.owner" type="text" class="form-control" id="ownerTxt" placeholder="OwnerName"/>
         <label for="retentionDate">Retention Date:</label>
         <input ng-model="uploadForm.retentionDate" type="date" class="form-control" id="retentionDate"/>
-        <input type="submit" value="Upload" class="btn btn-success"/>
+        <button type="submit" class="btn btn-success">
+            <span class="glyphicon glyphicon-upload"></span>
+            Upload
+        </button>
     </form>
 </div>
 
-<a ui-sref="fileSystemState()" type="button" class="btn btn-info"><<< Back to containers <<<</a>
+<a ui-sref="fileSystemState()" type="button" class="btn btn-info">
+    <span class="glyphicon glyphicon-level-up"></span>
+    Back to containers
+</a>
 <a type="button" class="btn btn-info">Check Old Files</a>
 <a type="button" class="btn btn-info">Delete Old Files</a>
 
@@ -59,10 +65,16 @@
                         target="_self"
                         type="button"
                         class="btn btn-success">
+                    <span class="glyphicon glyphicon-download-alt"></span>
                     GET
                 </a>
             </td>
-            <td><a ng-click="deleteObject(object)" type="button" class="btn btn-danger">DELETE</a></td>
+            <td>
+                <a ng-click="deleteObject(object)" type="button" class="btn btn-danger">
+                    <span class="glyphicon glyphicon-remove"></span>
+                    DELETE
+                </a>
+            </td>
             <td>
                 <a ng-click="toggleDetails(object)" type="button" class="btn btn-info">
                     <span class="glyphicon" ng-class="{'glyphicon-chevron-right': !object.showDetails, 'glyphicon-chevron-down': object.showDetails}"></span>
