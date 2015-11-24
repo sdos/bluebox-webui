@@ -73,7 +73,7 @@
             </tr>
             <tr ng-repeat-start="object in container.objects">
                 <td>{{ object.name }}</td>
-                <td>{{ object.bytes }} Bytes</td>
+                <td>{{ object.bytes | bytes}}</td>
                 <td>{{ object.content_type }}</td>
                 <td>
                     <a

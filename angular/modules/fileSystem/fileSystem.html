@@ -41,7 +41,7 @@
             </tr>
             <tr ng-repeat="container in containers">
                 <td>{{ container.name }}</td>
-                <td>{{ container.bytes }} Bytes</td>
+                <td>{{ container.bytes | bytes}}</td>
                 <td>{{ container.count }}</td>
                 <td>
                     <a ui-sref="containerState({containerName: container.name})" type="button" class="btn btn-info">
