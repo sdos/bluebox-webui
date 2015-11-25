@@ -112,8 +112,8 @@ class SwiftConnect:
 		full_listing = limit is None  # bypass default limit of 10.000 of swift-client
 		containers = self.conn.get_account(
 			limit=limit, marker=marker,
-			prefix=prefix, full_listing=full_listing)[1]
-		return containers                    
+			prefix=prefix, full_listing=full_listing)
+		return containers
 
 ##############################################################################
 
@@ -124,7 +124,7 @@ class SwiftConnect:
 		full_listing = limit is None  # bypass default limit of 10.000 of swift-client
 		files = self.conn.get_container(
 			container_name, marker=marker, limit=limit, prefix=prefix,
-			full_listing=full_listing)[1]
+			full_listing=full_listing)
 		return files                    
 
 ##############################################################################
