@@ -2,7 +2,6 @@
 	Project Bluebox
 	2015, University of Stuttgart, IPVS/AS
 """
-from swiftclient.exceptions import ClientException
 """ 
 	Project Bluebox 
 	
@@ -13,13 +12,15 @@ from swiftclient.exceptions import ClientException
 """
 # initialize logging
 
-from exceptions import HttpError
+from functools import wraps
 import json, logging, os, time, datetime
 import sys
 
 from flask import Flask, request, Response, send_file
 from werkzeug import secure_filename
+from swiftclient.exceptions import ClientException
 
+from exceptions import HttpError
 from SwiftConnect import SwiftConnect
 import appConfig
 
@@ -33,6 +34,19 @@ app = Flask(__name__, static_folder="angular")
 
 # Instantiating SwiftClient
 swift = SwiftConnect(appConfig.swift_type, appConfig.swift_url, appConfig.swift_user, appConfig.swift_pw)
+
+
+
+##############################################################################
+# decorators
+##############################################################################
+
+def log_requests(func):
+	@wraps(func)
+	def logging_wrapper(*args, **kwargs):
+		log.debug("request: {} {} handled by function: {}".format(request.method, request.url, func.__name__))
+		return func(*args, **kwargs)
+	return logging_wrapper
 
 
 
@@ -70,9 +84,8 @@ def index(path = ""):
 	get the list of containers
 """
 @app.route("/swift/containers", methods=["GET"])
+@log_requests
 def get_containers():
-	log.debug(request.method + " " + request.url)
-	
 	optional_params = {}
 
 	limit = request.args.get("limit")
@@ -105,8 +118,8 @@ def get_containers():
 	create a container
 """
 @app.route("/swift/containers", methods=["POST"])
+@log_requests
 def create_container():
-	log.debug(request.method + " " + request.url)
 	container_name = request.form["containerName"]
 	swift.create_container(container_name)
 	return Response(None)
@@ -117,9 +130,8 @@ def create_container():
 	get the list of all objects in a container
 """
 @app.route("/swift/containers/<container_name>/objects", methods=["GET"])
+@log_requests
 def get_objects_in_container(container_name):
-	log.debug(request.method + " " + request.url)
-	
 	optional_params = {}
 	
 	limit = request.args.get("limit")
@@ -152,8 +164,8 @@ def get_objects_in_container(container_name):
 	get the meta data of the specified object as json
 """
 @app.route("/swift/containers/<container_name>/objects/<path:object_name>/details", methods=["GET"])
+@log_requests
 def get_object_metadata(container_name, object_name):
-	log.debug(request.method + " " + request.url)
 	metadata = swift.get_object_metadata(container_name, object_name)
 	as_json = json.dumps(metadata, sort_keys=True)
 	return Response(as_json, mimetype="application/json")
@@ -164,12 +176,12 @@ def get_object_metadata(container_name, object_name):
 	Route that will process the file upload
 """
 @app.route("/swift/containers/<container_name>/objects", methods=["POST"])
+@log_requests
 def upload_object(container_name):
 	# Get the name of the uploaded file
 	file = request.files["objectName"]	# returns werkzeug.datastructures.FileStorage i.e. file-like.
 										# Underlying stream is either BytesIO for small files or _TemporaryFileWrapper for large files
 	object_name = secure_filename(file.filename)
-	log.debug("uploading file: {} to container: {}".format(object_name, container_name))
 	
 	retentime =  request.form["RetentionPeriod"]
 	if retentime:
@@ -188,8 +200,8 @@ def upload_object(container_name):
 ##############################################################################		
 		
 @app.route("/swift/containers/<container_name>/objects/<path:object_name>", methods=["GET"])
+@log_requests
 def stream_object(container_name, object_name):
-	log.debug(request.method + " " + request.url)
 	obj_tupel = swift.get_object_as_generator(container_name, object_name)	
 	headers = {"Content-Length": obj_tupel[0].get("content-length")}
 	return Response(obj_tupel[1], mimetype="application/octet-stream", headers=headers)
@@ -200,8 +212,8 @@ def stream_object(container_name, object_name):
 	delete the specified object
 """
 @app.route("/swift/containers/<container_name>/objects/<path:object_name>", methods=["DELETE"])
+@log_requests
 def delete_object(container_name, object_name):
-		log.debug(request.method + " " + request.url)
 		json1 = json.dumps(swift.get_object_metadata(container_name, object_name), ensure_ascii=False)
 		log.debug(json1)
 		new_dict = json.loads(json1)
@@ -239,6 +251,7 @@ def delete_object(container_name, object_name):
 # TODO scheduler
 # TODO what should we do about the files which have no retention date
 @app.route("/swift/containers/<containerName>/CheckOldFiles/", methods=["GET"])
+@log_requests
 def check_old_files(containerName, doDelete=False):
 	log.debug(containerName)
 	files = swift.get_object_list(containerName)
@@ -265,6 +278,7 @@ def check_old_files(containerName, doDelete=False):
 ##############################################################################
 
 @app.route("/swift/containers/<containerName>/DeleteOldFiles/", methods=["DELETE"])
+@log_requests
 def delete_old_files(containerName):
 	return check_old_files(containerName, doDelete=True)
 
