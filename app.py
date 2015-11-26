@@ -107,8 +107,8 @@ def get_containers():
 	cts = swift.get_container_list(**optional_params)
 	
 	resp = {}
-	resp["metadata"] = {"container-count": cts[0].get("x-account-container-count"),
-					    "object-count": cts[0].get("x-account-object-count")}
+	resp["metadata"] = {"containerCount": cts[0].get("x-account-container-count"),
+					    "objectCount": cts[0].get("x-account-object-count")}
 	resp["containers"] = cts[1]
 	return Response(json.dumps(resp, sort_keys=True), mimetype="application/json")
 
@@ -154,7 +154,7 @@ def get_objects_in_container(container_name):
 	print(cts[0])
 	resp = {}
 	resp["metadata"] = {"schema": "NOT IMPLEMENTED YET",
-					    "object-count": cts[0].get("x-container-object-count")}
+					    "objectCount": cts[0].get("x-container-object-count")}
 	resp["objects"] = cts[1]
 	return Response(json.dumps(resp, sort_keys=True), mimetype="application/json")
 
