@@ -4,6 +4,7 @@
     left: 0;
     width: calc(100% - 40px);
     margin: 20px;
+    z-index: 100;
 }
 
 /* standard styles when no animation is active */
