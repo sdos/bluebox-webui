@@ -76,6 +76,32 @@ fileSystemModule.controller('FileSystemController',
                 });
         };
 
+        /**
+         * DELETE a container
+         *
+         * @param {object} container the container to delete
+         */
+        $scope.deleteContainer = function(container) {
+            fileSystemService.deleteContainer(container.name)
+                .then(function() {
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type": "success",
+                        "text": "Container \"" + container.name + "\" deleted."
+                    });
+                    // update metadata and remove object from list
+                    $scope.fileSystem.metadata.containerCount--;
+                    $scope.fileSystem.metadata.objectCount -= container.count;
+                    $scope.fileSystem.containers = _.reject($scope.fileSystem.containers, {name: container.name});
+                })
+                .catch(function(response) {
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type":     "danger",
+                        "text":     response,
+                        "timeout":  "never"
+                    });
+                });
+        };
+
         // initial retrieval
         $scope.getContainers(true);
     }]);

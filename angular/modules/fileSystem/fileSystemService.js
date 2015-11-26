@@ -64,7 +64,7 @@ fileSystemModule.factory(
                         "marker": currentMarker,
                         "prefix": prefix ? prefix : ""
                     }
-                }).then(function successCallback(response) {
+                }).then(function(response) {
                     var containers = response.data.containers;
                     currentMarker = containers.length > 0 ? _.last(containers).name : currentMarker;
                     isEndOfListReached = containers.length < limit;
@@ -79,6 +79,16 @@ fileSystemModule.factory(
              */
             isEndOfListReached: function() {
                 return isEndOfListReached;
+            },
+
+            /**
+             * DELETE a container
+             *
+             * @param {string} containerName name of the container to delete
+             * @returns {promise} resolved or rejected to the plain response
+             */
+            deleteContainer: function(containerName) {
+                return $http.delete('/swift/containers/' + containerName);
             }
         };
     }]);

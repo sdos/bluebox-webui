@@ -72,7 +72,8 @@ containerModule.controller('ContainerController',
                         "type": "success",
                         "text": "Object \"" + object.name + "\" deleted."
                     });
-                    // remove object from list
+                    // update objectCount and remove object from list
+                    $scope.container.metadata.objectCount--;
                     $scope.container.objects = _.reject($scope.container.objects, {name: object.name});
                 })
                 .catch(function(response) {

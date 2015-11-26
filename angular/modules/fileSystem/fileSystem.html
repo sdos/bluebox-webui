@@ -39,12 +39,19 @@
                 <th>Name</th>
                 <th>Size</th>
                 <th>Objects</th>
+                <th>Delete</th>
                 <th>Enter</th>
             </tr>
             <tr ng-repeat="container in fileSystem.containers">
                 <td>{{ container.name }}</td>
                 <td>{{ container.bytes | bytes}}</td>
                 <td>{{ container.count }}</td>
+                <td>
+                    <a ng-click="deleteContainer(container)" type="button" class="btn btn-danger">
+                        <span class="glyphicon glyphicon-remove"></span>
+                        DELETE
+                    </a>
+                </td>
                 <td>
                     <a ui-sref="containerState({containerName: container.name})" type="button" class="btn btn-info">
                         <span class="glyphicon glyphicon-arrow-right"></span>
