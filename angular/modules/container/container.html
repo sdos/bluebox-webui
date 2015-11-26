@@ -52,7 +52,7 @@
     <div class="panel-heading">
         <h3>List of objects in container {{ container.name }}</h3>
         <div class="row">
-            <p class="col-md-8">{{ container.objects.length }} objects in total</p>
+            <p class="col-md-8">{{ container.metadata.objectCount }} objects in total</p>
             <form class="form-inline col-md-4">
                 <label for="prefix">Filter:</label>
                 <input
@@ -69,7 +69,7 @@
         <table
                 infinite-scroll="getObjects()"
                 threshold="100"
-                can-load="!isGetObjectsRequestPending && !isEndOfListReached"
+                can-load="!isGetObjectsRequestPending && !isEndOfListReached()"
                 global
                 class="table table-bordered table-hover"
                 border="2">

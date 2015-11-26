@@ -9,13 +9,12 @@ containerModule.controller('ContainerController',
 
         /**
          * contains the relevant information about the current container
-         * @type {{name: string, objects: Array, details: object, showDetails: boolean}}
+         * @type {{name: string, objects: Array, metadata: object}}
          */
         $scope.container = {
             name:        $stateParams.containerName,
             objects:     [],
-            details:     {},
-            showDetails: false
+            metadata:    {}
         };
 
         /**
@@ -26,12 +25,16 @@ containerModule.controller('ContainerController',
         $scope.isGetObjectsRequestPending = false;
 
         /**
-         * true, if there are no more objects to retrieve from the backend
+         * returns true, if there are no more objects to retrieve from the backend
          * used to prevent further requests
-         * @type {boolean}
+         * @type {function}
          */
-        $scope.isEndOfListReached = false;
+        $scope.isEndOfListReached = containerService.isEndOfListReached;
 
+        /**
+         * uploaded portion of the file in percent
+         * @type {number}
+         */
         $scope.uploadProgressPercentage = 0;
 
         /**
@@ -42,14 +45,16 @@ containerModule.controller('ContainerController',
         $scope.getObjects = function(reload) {
             $scope.isGetObjectsRequestPending = true;
             containerService.getObjects($scope.container.name, reload, $scope.prefix)
-                .then(function (objects) {
-                    $scope.isEndOfListReached = objects.length < 20;
-                    $scope.container.objects = reload ? objects : $scope.container.objects.concat(objects);
+                .then(function (response) {
+                    $scope.container.objects = reload ? response.objects : $scope.container.objects.concat(response.objects);
+                    $scope.container.metadata = response.metadata;
                     $scope.isGetObjectsRequestPending = false;
-                }, function (response) {
+                })
+                .catch(function (response) {
                     $rootScope.$broadcast('FlashMessage', {
-                        "type": "danger",
-                        "text": response
+                        "type":     "danger",
+                        "text":     response,
+                        "timeout":  "never"
                     });
                     $scope.isGetObjectsRequestPending = false;
                 });
@@ -63,19 +68,21 @@ containerModule.controller('ContainerController',
         $scope.deleteObject = function(object) {
             containerService.deleteObject($scope.container.name, object.name)
                 .then(function() {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "success",
-                            "text": "Object \"" + object.name + "\" deleted."
-                        });
-                        // remove object from list
-                        $scope.container.objects = _.reject($scope.container.objects, {name: object.name});
-                    },
-                    function(response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": response
-                        });
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type": "success",
+                        "text": "Object \"" + object.name + "\" deleted."
                     });
+                    // update objectCount and remove object from list
+                    $scope.container.metadata.objectCount--;
+                    $scope.container.objects = _.reject($scope.container.objects, {name: object.name});
+                })
+                .catch(function(response) {
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type":     "danger",
+                        "text":     response,
+                        "timeout":  "never"
+                    });
+                });
         };
 
         /**
@@ -95,8 +102,9 @@ containerModule.controller('ContainerController',
                     },
                     function(response) {
                         $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": response
+                            "type":     "danger",
+                            "text":     response,
+                            "timeout":  "never"
                         });
                     },
                     function(event) {
@@ -118,14 +126,15 @@ containerModule.controller('ContainerController',
             if (object.showDetails) {
                 containerService.getDetails($scope.container.name, object.name)
                     .then(function (details) {
-                            object.details = details;
-                        },
-                        function (response) {
-                            $rootScope.$broadcast('FlashMessage', {
-                                "type": "danger",
-                                "text": response
-                            });
+                        object.details = details;
+                    })
+                    .catch(function (response) {
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type":     "danger",
+                            "text":     response,
+                            "timeout":  "never"
                         });
+                    });
             }
         };
 

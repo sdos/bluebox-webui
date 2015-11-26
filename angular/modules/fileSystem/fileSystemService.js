@@ -6,7 +6,7 @@
  */
 fileSystemModule.factory(
     'fileSystemService',
-    ['$http', '$httpParamSerializer', '$q', function($http, $httpParamSerializer, $q) {
+    ['$http', '$httpParamSerializer', function($http, $httpParamSerializer) {
 
         /**
          * the limit of containers to retrieve at once
@@ -20,6 +20,12 @@ fileSystemModule.factory(
          */
         var currentMarker = "";
 
+        /**
+         * true, if there are no more containers to retrieve from the backend
+         * @type {boolean}
+         */
+        var isEndOfListReached = false;
+
         return {
 
             /**
@@ -29,21 +35,13 @@ fileSystemModule.factory(
              * @returns {promise} resolved or rejected to the plain response from the backend
              */
             createContainer: function(containerName) {
-                var deferred = $q.defer();
-                $http({
+                return $http({
                     "method":           "POST",
                     "url":              "/swift/containers",
                     "data":             {"containerName": containerName},
                     "headers":          {"Content-Type": "application/x-www-form-urlencoded"},
                     "transformRequest": $httpParamSerializer
-                }).then(function successCallback(response) {
-                        deferred.resolve(response);
-                    }, function errorCallback(response) {
-                        deferred.reject(response);
-                    }
-                );
-
-                return deferred.promise;
+                })
             },
 
             /**
@@ -51,16 +49,14 @@ fileSystemModule.factory(
              *
              * @param {boolean} reload if true, the marker will be reset and the whole list will be reloaded
              * @param {string}  prefix filter containers for a certain prefix (optional)
-             * @returns {promise} resolved to the retrieved containers,
+             * @returns {promise} resolved to the response data,
              *                    rejected to the plain response if unsuccessful
              */
             getContainers: function(reload, prefix) {
-                var deferred = $q.defer();
-
                 // reset marker if list shall be reloaded
                 currentMarker = reload ? "" : currentMarker;
 
-                $http({
+                return $http({
                     "method": "GET",
                     "url":    "/swift/containers",
                     "params": {
@@ -68,16 +64,31 @@ fileSystemModule.factory(
                         "marker": currentMarker,
                         "prefix": prefix ? prefix : ""
                     }
-                }).then(function successCallback(response) {
-                        var containers = response.data;
-                        currentMarker = containers.length > 0 ? _.last(containers).name : currentMarker;
-                        deferred.resolve(containers);
-                    }, function errorCallback(response) {
-                        deferred.reject(response);
-                    }
-                );
+                }).then(function(response) {
+                    var containers = response.data.containers;
+                    currentMarker = containers.length > 0 ? _.last(containers).name : currentMarker;
+                    isEndOfListReached = containers.length < limit;
+                    return response.data;
+                });
+            },
 
-                return deferred.promise;
+            /**
+             * true, if there are no more containers to retrieve from the backend
+             *
+             * @returns {boolean}
+             */
+            isEndOfListReached: function() {
+                return isEndOfListReached;
+            },
+
+            /**
+             * DELETE a container
+             *
+             * @param {string} containerName name of the container to delete
+             * @returns {promise} resolved or rejected to the plain response
+             */
+            deleteContainer: function(containerName) {
+                return $http.delete('/swift/containers/' + containerName);
             }
         };
     }]);

@@ -12,7 +12,9 @@
     <div class="panel-heading">
         <h3>List of containers</h3>
         <div class="row">
-            <p class="col-md-8">{{ containers.length }} containers in total</p>
+            <p class="col-md-8">
+                {{ fileSystem.metadata.containerCount }} containers in total, containing {{ fileSystem.metadata.objectCount }} objects
+            </p>
             <form class="form-inline col-md-4">
                 <label for="prefix">Filter:</label>
                 <input
@@ -29,7 +31,7 @@
         <table
                 infinite-scroll="getContainers()"
                 threshold="100"
-                can-load="!isGetContainersRequestPending && !isEndOfListReached"
+                can-load="!isGetContainersRequestPending && !isEndOfListReached()"
                 global
                 class="table table-bordered table-hover"
                 border="2">
@@ -37,12 +39,21 @@
                 <th>Name</th>
                 <th>Size</th>
                 <th>Objects</th>
+                <th>Delete</th>
                 <th>Enter</th>
             </tr>
-            <tr ng-repeat="container in containers">
-                <td>{{ container.name}}</td>
+
+            <tr ng-repeat="container in fileSystem.containers">
+                <td>{{ container.name }}</td>
+
                 <td>{{ container.bytes | bytes}}</td>
                 <td>{{ container.count }}</td>
+                <td>
+                    <a ng-click="deleteContainer(container)" type="button" class="btn btn-danger">
+                        <span class="glyphicon glyphicon-remove"></span>
+                        DELETE
+                    </a>
+                </td>
                 <td>
                     <a ui-sref="containerState({containerName: container.name})" type="button" class="btn btn-info">
                         <span class="glyphicon glyphicon-arrow-right"></span>

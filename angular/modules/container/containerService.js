@@ -6,7 +6,7 @@
  */
 containerModule.factory(
     'containerService',
-    ['$http', '$q', '$filter', 'Upload', function($http, $q, $filter, Upload) {
+    ['$http', '$filter', 'Upload', function($http, $filter, Upload) {
 
         /**
          * the limit of objects to retrieve at once
@@ -20,6 +20,12 @@ containerModule.factory(
          */
         var currentMarker = "";
 
+        /**
+         * true, if there are no more objects to retrieve from the backend
+         * @type {boolean}
+         */
+        var isEndOfListReached = false;
+
         return {
 
             /**
@@ -28,16 +34,14 @@ containerModule.factory(
              * @param {string}  containerName name of the container
              * @param {boolean} reload        if true, the marker will be reset and the whole list will be reloaded
              * @param {string}  prefix        filter objects for a certain prefix (optional)
-             * @returns {promise} resolved to the retrieved objects,
+             * @returns {promise} resolved to the data of the response,
              *                    rejected to the plain response if unsuccessful
              */
             getObjects: function(containerName, reload, prefix) {
-                var deferred = $q.defer();
-
                 // reset marker if list shall be reloaded
                 currentMarker = reload ? "" : currentMarker;
 
-                $http({
+                return $http({
                     "method": "GET",
                     "url":    "/swift/containers/" + containerName + "/objects",
                     "params": {
@@ -45,16 +49,21 @@ containerModule.factory(
                         "marker": currentMarker,
                         "prefix": prefix ? prefix : ""
                     }
-                }).then(function successCallback(response) {
-                        var objects = response.data;
-                        currentMarker = objects.length > 0 ? _.last(objects).name : currentMarker;
-                        deferred.resolve(objects);
-                    }, function errorCallback(response) {
-                        deferred.reject(response);
-                    }
-                );
+                }).then(function(response) {
+                    var objects = response.data.objects;
+                    currentMarker = objects.length > 0 ? _.last(objects).name : currentMarker;
+                    isEndOfListReached = objects.length < limit;
+                    return response.data;
+                });
+            },
 
-                return deferred.promise;
+            /**
+             * true, if there are no more objects to retrieve from the backend
+             *
+             * @returns {boolean}
+             */
+            isEndOfListReached: function() {
+                return isEndOfListReached;
             },
 
             /**
@@ -62,20 +71,10 @@ containerModule.factory(
              *
              * @param {string} containerName name of the container
              * @param {string} objectName    name of the object to delete
-             * @returns {promise} resolved to the data of the response,
-             *                    rejected to the plain response if unsuccessful
+             * @returns {promise} resolved or rejected to the plain response
              */
             deleteObject: function(containerName, objectName) {
-                var deferred = $q.defer();
-                $http.delete('/swift/containers/' + containerName + '/objects/' + $filter('urlEncode')(objectName))
-                    .then(function successCallback(response) {
-                            deferred.resolve(response.data);
-                        }, function errorCallback(response) {
-                            deferred.reject(response);
-                        }
-                    );
-
-                return deferred.promise;
+                return $http.delete('/swift/containers/' + containerName + '/objects/' + $filter('urlEncode')(objectName));
             },
 
             /**
@@ -85,12 +84,10 @@ containerModule.factory(
              * @param {string} containerName name of the container
              * @param {string} ownerName     name of the owner of the file (optional)
              * @param {date}   retentionDate date after that the file shall be automatically deleted from the server (optional)
-             * @returns {promise} resolved to the data of the response,
-             *                    rejected to the plain response if unsuccessful
+             * @returns {promise} resolved or rejected to the plain response
              */
             uploadObject: function(file, containerName, ownerName, retentionDate) {
-                var deferred = $q.defer();
-                Upload.upload({
+                return Upload.upload({
                     "method": "POST",
                     "url": "/swift/containers/" + containerName + "/objects",
                     "data": {
@@ -98,17 +95,7 @@ containerModule.factory(
                         "OwnerName":        ownerName ? ownerName : "",
                         "RetentionPeriod":  retentionDate ? retentionDate : ""
                     }
-                }).then(function successCallback(response) {
-                        deferred.resolve(response.data);
-                    }, function errorCallback(response) {
-                        deferred.reject(response);
-                    }, function notifyCallback(event) {
-                        console.log(event);
-                        deferred.notify(event);
-                    }
-                );
-
-                return deferred.promise;
+                });
             },
 
             /**
@@ -116,20 +103,13 @@ containerModule.factory(
              *
              * @param {string} containerName name of the container
              * @param {string} objectName    name of the object
-             * @returns {promise} resolved to the data of the response,
-             *                    rejected to the plain response if unsuccessful
+             * @returns {promise} resolved or rejected to the plain response
              */
             getDetails: function(containerName, objectName) {
-                var deferred = $q.defer();
-                $http.get("/swift/containers/" + containerName + "/objects/" + $filter('urlEncode')(objectName) + "/details")
-                    .then(function successCallback(response) {
-                            deferred.resolve(response.data);
-                        }, function errorCallback(response) {
-                            deferred.reject(response);
-                        }
-                    );
-
-                return deferred.promise;
+                return $http.get("/swift/containers/" + containerName + "/objects/" + $filter('urlEncode')(objectName) + "/details")
+                    .then(function(response) {
+                        return response.data;
+                    });
             }
         };
     }]);

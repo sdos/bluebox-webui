@@ -8,10 +8,13 @@ fileSystemModule.controller('FileSystemController',
     ['$scope', '$rootScope', 'fileSystemService', function($scope, $rootScope, fileSystemService) {
 
         /**
-         * the currently loaded containers
-         * @type {Array}
+         * contains the relevant information about the containers
+         * @type {{containers: Array, metadata: object}}
          */
-        $scope.containers = [];
+        $scope.fileSystem = {
+            containers: [],
+            metadata:   {}
+        };
 
         /**
          * true, if we are currently waiting for an answer to a getContainers request
@@ -21,11 +24,11 @@ fileSystemModule.controller('FileSystemController',
         $scope.isGetContainersRequestPending = false;
 
         /**
-         * true, if there are no more containers to retrieve from the backend
+         * returns true, if there are no more containers to retrieve from the backend
          * used to prevent further requests
-         * @type {boolean}
+         * @type {function}
          */
-        $scope.isEndOfListReached = false;
+        $scope.isEndOfListReached = fileSystemService.isEndOfListReached;
 
         /**
          * GET new containers from the fileSystemService
@@ -35,14 +38,16 @@ fileSystemModule.controller('FileSystemController',
         $scope.getContainers = function (reload) {
             $scope.isGetContainersRequestPending = true;
             fileSystemService.getContainers(reload, $scope.prefix)
-                .then(function (containers) {
-                    $scope.isEndOfListReached = containers.length < 20;
-                    $scope.containers = reload ? containers : $scope.containers.concat(containers);
+                .then(function(response) {
+                    $scope.fileSystem.containers = reload ? response.containers : $scope.fileSystem.containers.concat(response.containers);
+                    $scope.fileSystem.metadata = response.metadata;
                     $scope.isGetContainersRequestPending = false;
-                }, function (response) {
+                })
+                .catch(function (response) {
                     $rootScope.$broadcast('FlashMessage', {
-                        "type": "danger",
-                        "text": response
+                        "type":     "danger",
+                        "text":     response,
+                        "timeout":  "never"
                     });
                     $scope.isGetContainersRequestPending = false;
                 });
@@ -61,13 +66,40 @@ fileSystemModule.controller('FileSystemController',
                         });
                         // reload containers
                         $scope.getContainers(true);
-                    },
-                    function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": response
-                        });
+                    })
+                .catch(function (response) {
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type":     "danger",
+                        "text":     response,
+                        "timeout":  "never"
                     });
+                });
+        };
+
+        /**
+         * DELETE a container
+         *
+         * @param {object} container the container to delete
+         */
+        $scope.deleteContainer = function(container) {
+            fileSystemService.deleteContainer(container.name)
+                .then(function() {
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type": "success",
+                        "text": "Container \"" + container.name + "\" deleted."
+                    });
+                    // update metadata and remove object from list
+                    $scope.fileSystem.metadata.containerCount--;
+                    $scope.fileSystem.metadata.objectCount -= container.count;
+                    $scope.fileSystem.containers = _.reject($scope.fileSystem.containers, {name: container.name});
+                })
+                .catch(function(response) {
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type":     "danger",
+                        "text":     response,
+                        "timeout":  "never"
+                    });
+                });
         };
 
         // initial retrieval
