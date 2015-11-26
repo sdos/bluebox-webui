@@ -8,8 +8,18 @@
             <input ng-model="container.name" type="text" class="form-control" id="containerTxt" readonly required/>
             <label for="ownerTxt">Owner Name:</label>
             <input ng-model="uploadForm.owner" type="text" class="form-control" id="ownerTxt" placeholder="OwnerName"/>
-            <label for="retentionDate">Retention Date:</label>
-            <input ng-model="uploadForm.retentionDate" type="date" class="form-control" id="retentionDate"/>
+                   
+            <div>
+                <label for="retentionDate">Retention Date:</label>
+            	<p class="input-group">
+                	
+            		<input ng-model="uploadForm.retentionDate" type="date" class="form-control" id="retentionDate"/>
+            		<span class="input-group-btn">
+                		<button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+            		</span>
+            	</p>
+            </div>	
+            
             <button type="submit" class="btn btn-success">
                 <span class="glyphicon glyphicon-cloud-upload"></span>
                 Upload
