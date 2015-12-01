@@ -44,8 +44,7 @@
             </tr>
 
             <tr ng-repeat="container in fileSystem.containers">
-                <td>{{ container.name }}</td>
-
+                <td ui-sref="containerState({containerName: container.name})" ng-bind-html="setContainerIcon(container)"></td>
                 <td>{{ container.bytes | bytes}}</td>
                 <td>{{ container.count }}</td>
                 <td>

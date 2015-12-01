@@ -17,6 +17,7 @@ containerModule.controller('ContainerController',
             metadata:    {}
         };
 
+        
         /**
          * true, if we are currently waiting for an answer to a getObjects request
          * used to prevent multiple requests at once

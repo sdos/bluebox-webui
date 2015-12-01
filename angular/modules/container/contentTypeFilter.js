@@ -12,7 +12,7 @@ containerModule.filter('contentType', function() {
 		if (splitArray[0] == "text"){
 			result = "Text";
 		}else if(splitArray[0] == "image"){
-			result = "Image";
+			result = splitArray[1].toUpperCase() + "-Image";
 		}else if(splitArray[0] == "application"){
 			result = "Application";
 		}else if(splitArray[0] == "audio"){

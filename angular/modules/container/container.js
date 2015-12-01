@@ -8,7 +8,8 @@ var containerModule = angular.module('bluebox.container', [
     'ui.router',
     'ngFileUpload',
     'bluebox.fileSystem',
-    'bluebox.infiniteScroll'
+    'bluebox.infiniteScroll', 
+    'bluebox.datePicker'
 ])
 
     .config(['$stateProvider', function($stateProvider) {
