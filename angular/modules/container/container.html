@@ -1,4 +1,4 @@
-<div class="panel panel-default" ng-controller="DatepickerCtrl">
+<div class="panel panel-default" >
     <div class="panel-heading"><h3>Upload an object</h3></div>
     <div class="panel-body">
         <form ng-submit="uploadObject()">
@@ -8,12 +8,11 @@
             <input ng-model="container.name" type="text" class="form-control" id="containerTxt" readonly required/>
             <label for="ownerTxt">Owner Name:</label>
             <input ng-model="uploadForm.owner" type="text" class="form-control" id="ownerTxt" placeholder="OwnerName"/>
-                   
+            
             <div>
                 <label for="retentionDate">Retention Date:</label>
-            	<p class="input-group">
-                	
-            		<input ng-model="uploadForm.retentionDate" type="date" class="form-control" id="retentionDate" uib-datepicker-popup="{{format}}" ng-model="dt" is-open="status.opened" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close"/>
+            	<p class="input-group">                	
+            		<input ng-model="uploadForm.retentionDate" type="date" class="form-control" id="retentionDate" uib-datepicker-popup="{{format}}" is-open="status.opened" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" close-text="Close"/>
             		<span class="input-group-btn">
                 		<button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
             		</span>

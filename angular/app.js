@@ -6,8 +6,6 @@ var app = angular.module('bluebox', [
     'ngSanitize',
     'ui.bootstrap'
    
-    
-    
 ])
     .config(['$locationProvider', function($locationProvider) {
         // remove the '#' in the url that angular else puts in
