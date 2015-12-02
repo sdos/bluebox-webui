@@ -163,8 +163,12 @@ def get_objects_in_container(container_name):
     if prefix is not None:
         optional_params["prefix"] = prefix
 
-    cts = swift.get_object_list(container_name, **optional_params)
-    print(cts[0])
+    try:
+        cts = swift.get_object_list(container_name, **optional_params)
+    except ClientException as e:
+        log.debug("container: {} not found, for request: {}".format(request.url))
+        raise HttpError("container: {} not found".format(container_name), 404)
+    
     resp = {}
     resp["metadata"] = {"schema": "NOT IMPLEMENTED YET",
                         "objectCount": cts[0].get("x-container-object-count")}
@@ -179,7 +183,12 @@ def get_objects_in_container(container_name):
 @app.route("/swift/containers/<container_name>/objects/<path:object_name>/details", methods=["GET"])
 @log_requests
 def get_object_metadata(container_name, object_name):
-    metadata = swift.get_object_metadata(container_name, object_name)
+    try:
+        metadata = swift.get_object_metadata(container_name, object_name)
+    except ClientException as e:
+        log.debug("object: {} in container: {} not found, for request: {}".format(object_name, container_name, request.url))
+        raise HttpError("object: {} in container: {} not found".format(object_name, container_name), 404)
+    
     as_json = json.dumps(metadata, sort_keys=True)
     return Response(as_json, mimetype="application/json")
 
@@ -216,7 +225,12 @@ def upload_object(container_name):
 @app.route("/swift/containers/<container_name>/objects/<path:object_name>", methods=["GET"])
 @log_requests
 def stream_object(container_name, object_name):
-    obj_tupel = swift.get_object_as_generator(container_name, object_name)
+    try:
+        obj_tupel = swift.get_object_as_generator(container_name, object_name)
+    except ClientException as e:
+        log.debug("object: {} in container: {} not found, for request: {}".format(object_name, container_name, request.url))
+        raise HttpError("object: {} in container: {} not found".format(object_name, container_name), 404)
+    
     headers = {"Content-Length": obj_tupel[0].get("content-length")}
     return Response(obj_tupel[1], mimetype="application/octet-stream", headers=headers)
 

@@ -14,6 +14,7 @@
 import base64
 import requests
 import logging
+import json
 
 from swiftclient import client
 
@@ -53,62 +54,6 @@ class SwiftConnect:
 
 ##############################################################################
 
-    # Creating a Container
-    def create_container(self, container_name):
-        log.debug("Creating new container with name: {}".format(container_name))
-        self.conn.put_container(container_name)
-        return True
-
-##############################################################################
-
-    def delete_container(self, container_name):
-        log.debug("Deleting container with name: {}".format(container_name))
-        self.conn.delete_container(container_name)
-
-    # Creating an object
-    def create_object(self, object_name, content, container_name, metadata_dict):
-        log.debug("Putting object: {} in container: {} as a whole".format(object_name, container_name))
-        self.conn.put_object(
-            container=container_name, obj=object_name,
-            contents=content, headers=metadata_dict)
-
-    def streaming_object_upload(self, object_name, container_name, object_as_file, metadata_dict):
-        log.debug("Putting object: {} in container: {} as stream".format(object_name, container_name))
-        self.conn.put_object(
-            container=container_name, obj=object_name,
-            contents=object_as_file, headers=metadata_dict,
-            chunk_size=65536)
- 
-##############################################################################
-
-    # Retrieving an object 
-    def get_object(self, container_name, object_name):
-        log.debug("Retrieving object: {} in container: {} as a whole".format(container_name, object_name))
-        obj_tuple = self.conn.get_object(container_name, object_name)
-        return obj_tuple[1]
-
-    # Stream object
-    def get_object_as_generator(self, container_name, object_name):
-        log.debug("Retrieving object: {} in container: {} as stream".format(container_name, object_name))
-        return self.conn.get_object(container_name, object_name, resp_chunk_size=8192)
-
-##############################################################################
-
-    # deleting an object 
-    def delete_object(self, container_name, object_name):
-        log.debug("Deleting object: {} in container: {}".format(object_name, container_name))
-        self.conn.delete_object(container_name, object_name)
-
-##############################################################################
-
-    # deleting objects 
-    def delete_objects(self, container_name, object_names):
-        log.debug("Deleting multiple objects: {} in container: {}".format(object_names, container_name))
-        for object_name in object_names:
-            self.conn.delete_object(container_name, object_name)
-
-##############################################################################
-
     # Creating an container list
     def get_container_list(self, limit=None, marker=None, prefix=None):
         log.debug("Retrieving list of all containers with parameter: limit = {}, marker = {}, prefix = {}"
@@ -118,10 +63,30 @@ class SwiftConnect:
             limit=limit, marker=marker,
             prefix=prefix, full_listing=full_listing)
         return containers
-
+    
 ##############################################################################
 
-    # Creating an container list
+    # Creating a Container
+    def create_container(self, container_name):
+        log.debug("Creating new container with name: {}".format(container_name))
+        self.conn.put_container(container_name)
+        return True
+    
+    # deletes a container and all objects within
+    def delete_container(self, container_name):
+        log.debug("Deleting container with name: {}".format(container_name))
+        cont_data = self.conn.get_container(container_name)
+        object_count = int(cont_data[0].get("x-container-object-count"))
+        if (object_count > 0):
+            for obj in cont_data[1]:
+                self.conn.delete_object(container_name, obj.get("name"))
+        self.conn.delete_container(container_name)
+
+    def get_container_metadata(self, container_name):
+        log.debug("Retrieving meta data of container: {}".format(container_name))
+        return self.conn.head_container(container_name)
+    
+    # Retrieves list of all objects of the specified container
     def get_object_list(self, container_name, limit=None, marker=None, prefix=None):
         log.debug("Retrieving list of all objects of container: {} with parameter: limit = {}, marker = {}, prefix = {}"
                 .format(container_name, limit, marker, prefix))
@@ -133,10 +98,35 @@ class SwiftConnect:
 
 ##############################################################################
 
+    def streaming_object_upload(self, object_name, container_name, object_as_file, metadata_dict):
+        log.debug("Putting object: {} in container: {} as stream".format(object_name, container_name))
+        self.conn.put_object(
+            container=container_name, obj=object_name,
+            contents=object_as_file, headers=metadata_dict,
+            chunk_size=65536)
+ 
+    # Stream object
+    def get_object_as_generator(self, container_name, object_name):
+        log.debug("Retrieving object: {} in container: {} as stream".format(container_name, object_name))
+        return self.conn.get_object(container_name, object_name, resp_chunk_size=8192)
+
+    # deleting an object 
+    def delete_object(self, container_name, object_name):
+        log.debug("Deleting object: {} in container: {}".format(object_name, container_name))
+        self.conn.delete_object(container_name, object_name)
+
     # Retrieving an object Metadata 
     def get_object_metadata(self, container_name, object_name):
         log.debug("Retrieving meta data for object: {} in container: {}".format(object_name, container_name))
         return self.conn.head_object(container_name, object_name)
+    
+##############################################################################
+
+    # deleting objects 
+    def delete_objects(self, container_name, object_names):
+        log.debug("Deleting multiple objects: {} in container: {}".format(object_names, container_name))
+        for object_name in object_names:
+            self.conn.delete_object(container_name, object_name)
 
 ##############################################################################
 
