@@ -13,7 +13,8 @@
 # initialize logging
 
 from functools import wraps
-import json, logging, os, time, datetime
+from datetime import datetime
+import json, logging, os, time
 import sys
 
 from flask import Flask, request, Response, send_file
@@ -162,8 +163,12 @@ def get_objects_in_container(container_name):
     if prefix is not None:
         optional_params["prefix"] = prefix
 
-    cts = swift.get_object_list(container_name, **optional_params)
-    print(cts[0])
+    try:
+        cts = swift.get_object_list(container_name, **optional_params)
+    except ClientException as e:
+        log.debug("container: {} not found, for request: {}".format(request.url))
+        raise HttpError("container: {} not found".format(container_name), 404)
+    
     resp = {}
     resp["metadata"] = {"schema": "NOT IMPLEMENTED YET",
                         "objectCount": cts[0].get("x-container-object-count")}
@@ -178,7 +183,12 @@ def get_objects_in_container(container_name):
 @app.route("/swift/containers/<container_name>/objects/<path:object_name>/details", methods=["GET"])
 @log_requests
 def get_object_metadata(container_name, object_name):
-    metadata = swift.get_object_metadata(container_name, object_name)
+    try:
+        metadata = swift.get_object_metadata(container_name, object_name)
+    except ClientException as e:
+        log.debug("object: {} in container: {} not found, for request: {}".format(object_name, container_name, request.url))
+        raise HttpError("object: {} in container: {} not found".format(object_name, container_name), 404)
+    
     as_json = json.dumps(metadata, sort_keys=True)
     return Response(as_json, mimetype="application/json")
 
@@ -194,19 +204,20 @@ def upload_object(container_name):
     file = request.files["objectName"]  # returns werkzeug.datastructures.FileStorage i.e. file-like.
                                         # Underlying stream is either BytesIO for small files or _TemporaryFileWrapper for large files
     object_name = secure_filename(file.filename)
-
     retentime = request.form["RetentionPeriod"]
+    
+    headers = dict()
     if retentime:
-        convertretentime = datetime.datetime.strptime(retentime,"%Y-%m-%d").strftime("%d-%m-%Y")
-        retentimestamp = int(time.mktime(datetime.datetime.strptime(convertretentime, "%d-%m-%Y").timetuple()))
-    else:
-        retentimestamp = retentime
+        try:
+            converted_retentime = datetime.strptime(retentime, "%Y-%m-%d")
+            reten_timestamp = int(time.mktime(converted_retentime.timetuple()))
+            headers["X-Object-Meta-RetentionTime"] = reten_timestamp
+        except ValueError as e:
+            log.debug("invalid date format for form parameter RetentionPeriod: {}, for request: {}. Expected format: yyyy-mm-dd".format(retentime))
+            raise HttpError("invalid date format for form parameter RetentionPeriod: {}. Expected format: yyyy-mm-dd".format(retentime), 400)
+    headers["X-Object-Meta-OwnerName"] = request.form["OwnerName"]
 
-    h = dict()
-    h["X-Object-Meta-RetentionTime"] = retentimestamp
-    h["X-Object-Meta-OwnerName"] = request.form["OwnerName"]
-
-    swift.streaming_object_upload(object_name, container_name, file, h)
+    swift.streaming_object_upload(object_name, container_name, file, headers)
     return Response(None)
 
 ##############################################################################
@@ -214,7 +225,12 @@ def upload_object(container_name):
 @app.route("/swift/containers/<container_name>/objects/<path:object_name>", methods=["GET"])
 @log_requests
 def stream_object(container_name, object_name):
-    obj_tupel = swift.get_object_as_generator(container_name, object_name)
+    try:
+        obj_tupel = swift.get_object_as_generator(container_name, object_name)
+    except ClientException as e:
+        log.debug("object: {} in container: {} not found, for request: {}".format(object_name, container_name, request.url))
+        raise HttpError("object: {} in container: {} not found".format(object_name, container_name), 404)
+    
     headers = {"Content-Length": obj_tupel[0].get("content-length")}
     return Response(obj_tupel[1], mimetype="application/octet-stream", headers=headers)
 
@@ -238,7 +254,7 @@ def delete_object(container_name, object_name):
         else:
             log.debug("You are not allowed to delete the file!")
             log.debug( "The retentiondate is: " +
-                    datetime.datetime.fromtimestamp(
+                    datetime.fromtimestamp(
                         int(retentimestamp)
                     ).strftime("%m-%d-%Y")
                 )
@@ -250,7 +266,7 @@ def delete_object(container_name, object_name):
             log.debug("You should wait for "+ str(weeks)+" weeks and "+ str(days)+" days and "+str(hours)+" hours and "+str(minutes)+" minutes and"+str(seconds)+" seconds to delete this file!!!")
             responsemsg={}
             responsemsg["deletestatus"] = "failed"
-            responsemsg["retention"] = datetime.datetime.fromtimestamp(int(retentimestamp)).strftime("%m-%d-%Y")
+            responsemsg["retention"] = datetime.fromtimestamp(int(retentimestamp)).strftime("%m-%d-%Y")
             responsemsg["seconds"] = seconds
             responsemsg["minutes"] = minutes
             responsemsg["hours"] = hours
