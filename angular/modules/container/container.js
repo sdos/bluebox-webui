@@ -5,8 +5,10 @@
  * module for the container contents page
  */
 var containerModule = angular.module('bluebox.container', [
-    'ui.router',
     'ngFileUpload',
+    'ngSanitize',
+    'ui.bootstrap',
+    'ui.router',
     'bluebox.fileSystem',
     'bluebox.infiniteScroll'
 ])

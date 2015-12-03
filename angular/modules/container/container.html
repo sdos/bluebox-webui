@@ -12,9 +12,19 @@
             <div>
                 <label for="retentionDate">Retention Date:</label>
             	<p class="input-group">                	
-            		<input ng-model="uploadForm.retentionDate" type="date" class="form-control" id="retentionDate" uib-datepicker-popup="{{format}}" is-open="status.opened" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" close-text="Close"/>
+            		<input
+                            ng-model="uploadForm.retentionDate"
+                            type="date"
+                            class="form-control"
+                            id="retentionDate"
+                            uib-datepicker-popup
+                            is-open="datePicker.isOpen"
+                            min-date="datePicker.minDate"
+                            datepicker-options="datePicker.options"/>
             		<span class="input-group-btn">
-                		<button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                		<button type="button" class="btn btn-default" ng-click="datePicker.toggle()">
+                            <i class="glyphicon glyphicon-calendar"></i>
+                        </button>
             		</span>
             	</p>
             </div>	
