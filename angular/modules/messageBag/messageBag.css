@@ -10,6 +10,8 @@
 /* standard styles when no animation is active */
 .fade {
     opacity: 1;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 /* starting styles for the enter animation */
@@ -25,7 +27,7 @@
 
 /* starting styles for the leave animation */
 .fade.ng-leave {
-    transition: opacity 2s linear;
+    transition: opacity 1s linear;
     opacity: 1;
 }
 

@@ -1,6 +1,6 @@
 <div class="message-bag">
     <div ng-repeat="message in messages" class="alert alert-{{message.type}} fade">
         <a ng-click="close(message.id)" class="close">&times;</a>
-        <p>{{ message.text }}</p>
+        <p ng-bind-html="message.text"></p>
     </div>
 </div>

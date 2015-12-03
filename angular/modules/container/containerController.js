@@ -128,7 +128,7 @@ containerModule.controller('ContainerController',
                 .catch(function (response) {
                     $rootScope.$broadcast('FlashMessage', {
                         "type":     "danger",
-                        "text":     response,
+                        "text":     response.data,
                         "timeout":  "never"
                     });
                     $scope.isGetObjectsRequestPending = false;
@@ -154,7 +154,7 @@ containerModule.controller('ContainerController',
                 .catch(function(response) {
                     $rootScope.$broadcast('FlashMessage', {
                         "type":     "danger",
-                        "text":     response,
+                        "text":     response.data,
                         "timeout":  "never"
                     });
                 });
@@ -178,7 +178,7 @@ containerModule.controller('ContainerController',
                     function(response) {
                         $rootScope.$broadcast('FlashMessage', {
                             "type":     "danger",
-                            "text":     response,
+                            "text":     response.data,
                             "timeout":  "never"
                         });
                     },
@@ -206,7 +206,7 @@ containerModule.controller('ContainerController',
                     .catch(function (response) {
                         $rootScope.$broadcast('FlashMessage', {
                             "type":     "danger",
-                            "text":     response,
+                            "text":     response.data,
                             "timeout":  "never"
                         });
                     });
