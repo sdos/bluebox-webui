@@ -35,14 +35,14 @@
             </button>
         </form>
     </div>
-    <div ng-show="uploadProgressPercentage" class="panel-body">
+    <div ng-show="uploadProgress.percentage" class="panel-body">
         <div class="progress">
             <div
-                    ng-class="{'progress-bar-success': uploadProgressPercentage === 100}"
+                    ng-class="{'progress-bar-success': uploadProgress.percentage === 100}"
                     class="progress-bar progress-bar-striped"
                     role="progressbar"
-                    style="width: {{ uploadProgressPercentage }}%;">
-                {{ uploadProgressPercentage }} %
+                    style="width: {{ uploadProgress.percentage }}%;">
+                {{ uploadProgress.percentage }} % ({{ uploadProgress.loaded | bytes }} / {{ uploadProgress.total | bytes }})
             </div>
         </div>
     </div>

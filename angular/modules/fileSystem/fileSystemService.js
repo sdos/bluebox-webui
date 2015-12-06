@@ -6,7 +6,7 @@
  */
 fileSystemModule.factory(
     'fileSystemService',
-    ['$http', '$httpParamSerializer', function($http, $httpParamSerializer) {
+    ['$http', '$httpParamSerializer', '$filter', function($http, $httpParamSerializer, $filter) {
 
         /**
          * the limit of containers to retrieve at once
