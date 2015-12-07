@@ -7,11 +7,14 @@
     z-index: 100;
 }
 
+.message-item {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
 /* standard styles when no animation is active */
 .fade {
     opacity: 1;
-    max-height: 300px;
-    overflow-y: auto;
 }
 
 /* starting styles for the enter animation */
