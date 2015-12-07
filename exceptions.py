@@ -26,3 +26,6 @@ class HttpError(Exception):
         d = {"message": self.message}
         json = jsonify(d)
         return json
+    
+    def to_string(self):
+        return self.message

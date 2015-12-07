@@ -57,9 +57,7 @@ def log_requests(func):
 
 @app.errorhandler(HttpError)
 def handle_invalid_usage(error):
-    response = error.to_json()
-    response.status_code = error.status_code
-    return response
+    return error.to_string(), error.status_code
 
 
 
@@ -256,7 +254,7 @@ def delete_object(container_name, object_name):
             hours, minutes = divmod(minutes, 60)
             days, hours = divmod(hours, 24)
             weeks, days = divmod(days, 7)
-            error_msg = "Deletion failed due to retention enforcement, you must wait for {} weeks and {} days and {} hours and {} minutes and {} seconds to delete this file!".format(weeks, days, hours, minutes, seconds)
+            error_msg = "Deletion failed due to retention enforcement, you must wait for {} weeks, {} days, {} hours, {} minutes and {} seconds to delete this file!".format(weeks, days, hours, minutes, seconds)
             log.debug(error_msg)
             raise HttpError(error_msg, 412)
 
