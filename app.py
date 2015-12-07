@@ -231,8 +231,9 @@ def stream_object(container_name, object_name):
         log.debug("object: {} in container: {} not found, for request: {}".format(object_name, container_name, request.url))
         raise HttpError("object: {} in container: {} not found".format(object_name, container_name), 404)
     
-    headers = {"Content-Length": obj_tupel[0].get("content-length")}
-    return Response(obj_tupel[1], mimetype="application/octet-stream", headers=headers)
+    headers = {"Content-Length": obj_tupel[0].get("content-length"),
+               "Content-Disposition": "attachment"}
+    return Response(obj_tupel[1], mimetype=obj_tupel[0].get("content-type"), headers=headers)
 
 ##############################################################################
 
@@ -242,37 +243,22 @@ def stream_object(container_name, object_name):
 @app.route("/swift/containers/<container_name>/objects/<path:object_name>", methods=["DELETE"])
 @log_requests
 def delete_object(container_name, object_name):
-        json1 = json.dumps(swift.get_object_metadata(container_name, object_name), ensure_ascii=False)
-        log.debug(json1)
-        new_dict = json.loads(json1)
-        retentimestamp = new_dict["x-object-meta-retentiontime"]
-        if (isRetentionPeriodExpired(retentimestamp) or not retentimestamp):
+        metadata_json = json.dumps(swift.get_object_metadata(container_name, object_name), ensure_ascii=False)
+        metadata = json.loads(metadata_json)
+        retentimestamp = metadata.get("x-object-meta-retentiontime")
+        if (not retentimestamp or isRetentionPeriodExpired(retentimestamp)):
             swift.delete_object(container_name,object_name)
-            responsemsg={}
+            responsemsg = {}
             responsemsg["deletestatus"] = "done"
             return Response(json.dumps(responsemsg), mimetype="application/json")
         else:
-            log.debug("You are not allowed to delete the file!")
-            log.debug( "The retentiondate is: " +
-                    datetime.fromtimestamp(
-                        int(retentimestamp)
-                    ).strftime("%m-%d-%Y")
-                )
             minutes, seconds = divmod(calcTimeDifference(retentimestamp), 60)
             hours, minutes = divmod(minutes, 60)
             days, hours = divmod(hours, 24)
             weeks, days = divmod(days, 7)
-            log.debug("The number of days left for deletion: " + str(days))    
-            log.debug("You should wait for "+ str(weeks)+" weeks and "+ str(days)+" days and "+str(hours)+" hours and "+str(minutes)+" minutes and"+str(seconds)+" seconds to delete this file!!!")
-            responsemsg={}
-            responsemsg["deletestatus"] = "failed"
-            responsemsg["retention"] = datetime.fromtimestamp(int(retentimestamp)).strftime("%m-%d-%Y")
-            responsemsg["seconds"] = seconds
-            responsemsg["minutes"] = minutes
-            responsemsg["hours"] = hours
-            responsemsg["days"] = days
-            responsemsg["weeks"] = weeks
-            return Response(json.dumps(responsemsg), mimetype="application/json")
+            error_msg = "Deletion failed due to retention enforcement, you must wait for {} weeks and {} days and {} hours and {} minutes and {} seconds to delete this file!".format(weeks, days, hours, minutes, seconds)
+            log.debug(error_msg)
+            raise HttpError(error_msg, 412)
 
 ##############################################################################
 
