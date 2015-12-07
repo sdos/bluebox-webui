@@ -251,23 +251,13 @@ def delete_object(container_name, object_name):
             responsemsg["deletestatus"] = "done"
             return Response(json.dumps(responsemsg), mimetype="application/json")
         else:
-            log.debug("deletion impossible since retention date is: {}".format(
-                    datetime.fromtimestamp(int(retentimestamp)).strftime("%m-%d-%Y")))
             minutes, seconds = divmod(calcTimeDifference(retentimestamp), 60)
             hours, minutes = divmod(minutes, 60)
             days, hours = divmod(hours, 24)
             weeks, days = divmod(days, 7)
-            log.debug("The number of days left for deletion: " + str(days))    
-            log.debug("You should wait for "+ str(weeks)+" weeks and "+ str(days)+" days and "+str(hours)+" hours and "+str(minutes)+" minutes and"+str(seconds)+" seconds to delete this file!!!")
-            responsemsg={}
-            responsemsg["deletestatus"] = "failed"
-            responsemsg["retention"] = datetime.fromtimestamp(int(retentimestamp)).strftime("%m-%d-%Y")
-            responsemsg["seconds"] = seconds
-            responsemsg["minutes"] = minutes
-            responsemsg["hours"] = hours
-            responsemsg["days"] = days
-            responsemsg["weeks"] = weeks
-            return Response(json.dumps(responsemsg), mimetype="application/json")
+            error_msg = "Deletion failed due to retention enforcement, you must wait for {} weeks and {} days and {} hours and {} minutes and {} seconds to delete this file!".format(weeks, days, hours, minutes, seconds)
+            log.debug(error_msg)
+            raise HttpError(error_msg, 412)
 
 ##############################################################################
 
