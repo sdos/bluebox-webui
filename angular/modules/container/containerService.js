@@ -43,7 +43,7 @@ containerModule.factory(
 
                 return $http({
                     "method": "GET",
-                    "url":    "/swift/containers/" + containerName + "/objects",
+                    "url":    "/swift/containers/" + $filter('urlEncode')(containerName) + "/objects",
                     "params": {
                         "limit":  limit,
                         "marker": currentMarker,
@@ -74,7 +74,9 @@ containerModule.factory(
              * @returns {promise} resolved or rejected to the plain response
              */
             deleteObject: function(containerName, objectName) {
-                return $http.delete('/swift/containers/' + containerName + '/objects/' + $filter('urlEncode')(objectName));
+                return $http.delete(
+                    '/swift/containers/' + $filter('urlEncode')(containerName) + '/objects/' + $filter('urlEncode')(objectName)
+                );
             },
 
             /**
@@ -89,11 +91,11 @@ containerModule.factory(
             uploadObject: function(file, containerName, ownerName, retentionDate) {
                 return Upload.upload({
                     "method": "POST",
-                    "url": "/swift/containers/" + containerName + "/objects",
+                    "url": "/swift/containers/" + $filter('urlEncode')(containerName) + "/objects",
                     "data": {
                         "objectName":       file,
                         "OwnerName":        ownerName ? ownerName : "",
-                        "RetentionPeriod":  retentionDate ? retentionDate : ""
+                        "RetentionPeriod":  retentionDate ? $filter('date')(retentionDate, "yyyy-MM-dd") : ""
                     }
                 });
             },
@@ -106,7 +108,7 @@ containerModule.factory(
              * @returns {promise} resolved or rejected to the plain response
              */
             getDetails: function(containerName, objectName) {
-                return $http.get("/swift/containers/" + containerName + "/objects/" + $filter('urlEncode')(objectName) + "/details")
+                return $http.get("/swift/containers/" + $filter('urlEncode')(containerName) + "/objects/" + $filter('urlEncode')(objectName) + "/details")
                     .then(function(response) {
                         return response.data;
                     });

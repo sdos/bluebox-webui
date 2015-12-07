@@ -17,6 +17,28 @@ containerModule.controller('ContainerController',
             metadata:    {}
         };
 
+        /**
+         * datePicker configuration
+         * @type {{opened: boolean, today: Date, options: object, toggle: function}}
+         */
+        $scope.datePicker = {
+            isOpen: false,
+
+            // past dates may not be entered
+            minDate: new Date(),
+
+            options: {
+                // start the week on monday
+                startingDay: 1
+            },
+
+            /**
+             * toggles the datePicker popup
+             */
+            toggle: function() {
+                $scope.datePicker.isOpen = !$scope.datePicker.isOpen;
+            }
+        };
         
         /**
          * true, if we are currently waiting for an answer to a getObjects request
@@ -54,7 +76,7 @@ containerModule.controller('ContainerController',
                 .catch(function (response) {
                     $rootScope.$broadcast('FlashMessage', {
                         "type":     "danger",
-                        "text":     response,
+                        "text":     response.data,
                         "timeout":  "never"
                     });
                     $scope.isGetObjectsRequestPending = false;
@@ -80,7 +102,7 @@ containerModule.controller('ContainerController',
                 .catch(function(response) {
                     $rootScope.$broadcast('FlashMessage', {
                         "type":     "danger",
-                        "text":     response,
+                        "text":     response.data,
                         "timeout":  "never"
                     });
                 });
@@ -104,7 +126,7 @@ containerModule.controller('ContainerController',
                     function(response) {
                         $rootScope.$broadcast('FlashMessage', {
                             "type":     "danger",
-                            "text":     response,
+                            "text":     response.data,
                             "timeout":  "never"
                         });
                     },
@@ -132,7 +154,7 @@ containerModule.controller('ContainerController',
                     .catch(function (response) {
                         $rootScope.$broadcast('FlashMessage', {
                             "type":     "danger",
-                            "text":     response,
+                            "text":     response.data,
                             "timeout":  "never"
                         });
                     });

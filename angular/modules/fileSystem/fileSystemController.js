@@ -46,7 +46,7 @@ fileSystemModule.controller('FileSystemController',
                 .catch(function (response) {
                     $rootScope.$broadcast('FlashMessage', {
                         "type":     "danger",
-                        "text":     response,
+                        "text":     response.data,
                         "timeout":  "never"
                     });
                     $scope.isGetContainersRequestPending = false;
@@ -81,7 +81,7 @@ fileSystemModule.controller('FileSystemController',
                 .catch(function (response) {
                     $rootScope.$broadcast('FlashMessage', {
                         "type":     "danger",
-                        "text":     response,
+                        "text":     response.data,
                         "timeout":  "never"
                     });
                 });
@@ -107,7 +107,7 @@ fileSystemModule.controller('FileSystemController',
                 .catch(function(response) {
                     $rootScope.$broadcast('FlashMessage', {
                         "type":     "danger",
-                        "text":     response,
+                        "text":     response.data,
                         "timeout":  "never"
                     });
                 });

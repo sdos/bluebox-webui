@@ -88,7 +88,7 @@ fileSystemModule.factory(
              * @returns {promise} resolved or rejected to the plain response
              */
             deleteContainer: function(containerName) {
-                return $http.delete('/swift/containers/' + containerName);
+                return $http.delete('/swift/containers/' + $filter('urlEncode')(containerName));
             }
         };
     }]);
