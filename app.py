@@ -242,22 +242,17 @@ def stream_object(container_name, object_name):
 @app.route("/swift/containers/<container_name>/objects/<path:object_name>", methods=["DELETE"])
 @log_requests
 def delete_object(container_name, object_name):
-        json1 = json.dumps(swift.get_object_metadata(container_name, object_name), ensure_ascii=False)
-        log.debug(json1)
-        new_dict = json.loads(json1)
-        retentimestamp = new_dict["x-object-meta-retentiontime"]
-        if (isRetentionPeriodExpired(retentimestamp) or not retentimestamp):
+        metadata_json = json.dumps(swift.get_object_metadata(container_name, object_name), ensure_ascii=False)
+        metadata = json.loads(metadata_json)
+        retentimestamp = metadata.get("x-object-meta-retentiontime")
+        if (not retentimestamp or isRetentionPeriodExpired(retentimestamp)):
             swift.delete_object(container_name,object_name)
-            responsemsg={}
+            responsemsg = {}
             responsemsg["deletestatus"] = "done"
             return Response(json.dumps(responsemsg), mimetype="application/json")
         else:
-            log.debug("You are not allowed to delete the file!")
-            log.debug( "The retentiondate is: " +
-                    datetime.fromtimestamp(
-                        int(retentimestamp)
-                    ).strftime("%m-%d-%Y")
-                )
+            log.debug("deletion impossible since retention date is: {}".format(
+                    datetime.fromtimestamp(int(retentimestamp)).strftime("%m-%d-%Y")))
             minutes, seconds = divmod(calcTimeDifference(retentimestamp), 60)
             hours, minutes = divmod(minutes, 60)
             days, hours = divmod(hours, 24)
