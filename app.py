@@ -229,8 +229,15 @@ def stream_object(container_name, object_name):
         log.debug("object: {} in container: {} not found, for request: {}".format(object_name, container_name, request.url))
         raise HttpError("object: {} in container: {} not found".format(object_name, container_name), 404)
     
-    headers = {"Content-Length": obj_tupel[0].get("content-length"),
-               "Content-Disposition": "attachment"}
+    headers = dict()
+    headers["Content-Length"] = obj_tupel[0].get("content-length")
+
+    show_inline_param = request.args.get("show_inline")
+    if show_inline_param and show_inline_param == "true":
+        headers["Content-Disposition"] = "inline"
+    else:
+        headers["Content-Disposition"] = "attachment" 
+    
     return Response(obj_tupel[1], mimetype=obj_tupel[0].get("content-type"), headers=headers)
 
 ##############################################################################
