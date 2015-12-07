@@ -16,7 +16,10 @@
                 {{ fileSystem.metadata.containerCount }} containers in total, containing {{ fileSystem.metadata.objectCount }} objects
             </p>
             <form class="form-inline col-md-4">
-                <label for="prefix">Filter:</label>
+                <label for="prefix">
+                    <span class="glyphicon glyphicon-filter"></span>
+                    Filter:
+                </label>
                 <input
                         ng-model="prefix"
                         ng-change="getContainers(true)"
