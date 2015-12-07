@@ -5,8 +5,8 @@
  * controller for the view of a single container
  */
 containerModule.controller('ContainerController',
-    ['$scope', '$rootScope', '$stateParams', '$timeout', 'containerService',
-        function($scope, $rootScope, $stateParams, $timeout, containerService) {
+    ['$scope', '$rootScope', '$stateParams', '$timeout', 'containerService', 'deleteConfirmationModal',
+        function($scope, $rootScope, $stateParams, $timeout, containerService, deleteConfirmationModal) {
 
             /**
              * contains the relevant information about the current container
@@ -94,7 +94,17 @@ containerModule.controller('ContainerController',
              * @param {object} object the object to delete
              */
             $scope.deleteObject = function(object) {
-                containerService.deleteObject($scope.container.name, object.name)
+                deleteConfirmationModal.open(object.name, "object")
+                    .result.then(function() {
+                        return containerService.deleteObject($scope.container.name, object.name)
+                            .catch(function (response) {
+                                $rootScope.$broadcast('FlashMessage', {
+                                    "type":     "danger",
+                                    "text":     response.data,
+                                    "timeout": "never"
+                                });
+                            });
+                    })
                     .then(function() {
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "success",
@@ -103,13 +113,6 @@ containerModule.controller('ContainerController',
                         // update objectCount and remove object from list
                         $scope.container.metadata.objectCount--;
                         $scope.container.objects = _.reject($scope.container.objects, {name: object.name});
-                    })
-                    .catch(function(response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type":     "danger",
-                            "text":     response.data,
-                            "timeout":  "never"
-                        });
                     });
             };
 

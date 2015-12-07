@@ -9,6 +9,7 @@ var containerModule = angular.module('bluebox.container', [
     'ngSanitize',
     'ui.bootstrap',
     'ui.router',
+    'bluebox.deleteConfirmation',
     'bluebox.fileSystem',
     'bluebox.infiniteScroll'
 ])
