@@ -96,24 +96,24 @@ containerModule.controller('ContainerController',
             $scope.deleteObject = function(object) {
                 deleteConfirmationModal.open(object.name, "object")
                     .result.then(function() {
-                        return containerService.deleteObject($scope.container.name, object.name)
-                            .catch(function (response) {
-                                $rootScope.$broadcast('FlashMessage', {
-                                    "type":     "danger",
-                                    "text":     response.data,
-                                    "timeout": "never"
-                                });
+                    return containerService.deleteObject($scope.container.name, object.name)
+                        .then(function() {
+                            $rootScope.$broadcast('FlashMessage', {
+                                "type": "success",
+                                "text": "Object \"" + object.name + "\" deleted."
                             });
-                    })
-                    .then(function() {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "success",
-                            "text": "Object \"" + object.name + "\" deleted."
+                            // update objectCount and remove object from list
+                            $scope.container.metadata.objectCount--;
+                            $scope.container.objects = _.reject($scope.container.objects, {name: object.name});
+                        })
+                        .catch(function (response) {
+                            $rootScope.$broadcast('FlashMessage', {
+                                "type":     "danger",
+                                "text":     response.data,
+                                "timeout": "never"
+                            });
                         });
-                        // update objectCount and remove object from list
-                        $scope.container.metadata.objectCount--;
-                        $scope.container.objects = _.reject($scope.container.objects, {name: object.name});
-                    });
+                });
             };
 
             /**

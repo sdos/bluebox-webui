@@ -96,25 +96,25 @@ fileSystemModule.controller('FileSystemController',
             $scope.deleteContainer = function(container) {
                 deleteConfirmationModal.open(container.name, "container")
                     .result.then(function() {
-                        return fileSystemService.deleteContainer(container.name)
-                            .catch(function(response) {
-                                $rootScope.$broadcast('FlashMessage', {
-                                    "type":     "danger",
-                                    "text":     response.data,
-                                    "timeout":  "never"
-                                });
+                    return fileSystemService.deleteContainer(container.name)
+                        .then(function() {
+                            $rootScope.$broadcast('FlashMessage', {
+                                "type": "success",
+                                "text": "Container \"" + container.name + "\" deleted."
                             });
-                    })
-                    .then(function() {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "success",
-                            "text": "Container \"" + container.name + "\" deleted."
+                            // update metadata and remove object from list
+                            $scope.fileSystem.metadata.containerCount--;
+                            $scope.fileSystem.metadata.objectCount -= container.count;
+                            $scope.fileSystem.containers = _.reject($scope.fileSystem.containers, {name: container.name});
+                        })
+                        .catch(function(response) {
+                            $rootScope.$broadcast('FlashMessage', {
+                                "type":     "danger",
+                                "text":     response.data,
+                                "timeout":  "never"
+                            });
                         });
-                        // update metadata and remove object from list
-                        $scope.fileSystem.metadata.containerCount--;
-                        $scope.fileSystem.metadata.objectCount -= container.count;
-                        $scope.fileSystem.containers = _.reject($scope.fileSystem.containers, {name: container.name});
-                    });
+                });
             };
 
             // initial retrieval
