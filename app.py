@@ -42,11 +42,11 @@ swift = SwiftConnect(appConfig.swift_type, appConfig.swift_url, appConfig.swift_
 # decorators
 ##############################################################################
 
-def log_requests(func):
-    @wraps(func)
+def log_requests(f):
+    @wraps(f)
     def logging_wrapper(*args, **kwargs):
-        log.debug("request: {} {} handled by function: {}".format(request.method, request.url, func.__name__))
-        return func(*args, **kwargs)
+        log.debug("request: {} {} handled by function: {}".format(request.method, request.url, f.__name__))
+        return f(*args, **kwargs)
     return logging_wrapper
 
 
@@ -161,12 +161,7 @@ def get_objects_in_container(container_name):
     if prefix is not None:
         optional_params["prefix"] = prefix
 
-    try:
-        cts = swift.get_object_list(container_name, **optional_params)
-    except ClientException as e:
-        log.debug("container: {} not found, for request: {}".format(request.url))
-        raise HttpError("container: {} not found".format(container_name), 404)
-    
+    cts = swift.get_object_list(container_name, **optional_params)
     resp = {}
     resp["metadata"] = {"schema": "NOT IMPLEMENTED YET",
                         "objectCount": cts[0].get("x-container-object-count")}
@@ -181,11 +176,7 @@ def get_objects_in_container(container_name):
 @app.route("/swift/containers/<container_name>/objects/<path:object_name>/details", methods=["GET"])
 @log_requests
 def get_object_metadata(container_name, object_name):
-    try:
-        metadata = swift.get_object_metadata(container_name, object_name)
-    except ClientException as e:
-        log.debug("object: {} in container: {} not found, for request: {}".format(object_name, container_name, request.url))
-        raise HttpError("object: {} in container: {} not found".format(object_name, container_name), 404)
+    metadata = swift.get_object_metadata(container_name, object_name)
     
     retention_timestamp = metadata.get("x-object-meta-retentiontime")
     if retention_timestamp:
@@ -228,13 +219,9 @@ def upload_object(container_name):
 @app.route("/swift/containers/<container_name>/objects/<path:object_name>", methods=["GET"])
 @log_requests
 def stream_object(container_name, object_name):
-    try:
-        obj_tupel = swift.get_object_as_generator(container_name, object_name)
-    except ClientException as e:
-        log.debug("object: {} in container: {} not found, for request: {}".format(object_name, container_name, request.url))
-        raise HttpError("object: {} in container: {} not found".format(object_name, container_name), 404)
+    obj_tupel = swift.get_object_as_generator(container_name, object_name)
     
-    headers = dict()
+    headers = {}
     headers["Content-Length"] = obj_tupel[0].get("content-length")
 
     show_inline_param = request.args.get("show_inline")
@@ -327,6 +314,7 @@ def isRetentionPeriodExpired(timestamp):
 if __name__ == "__main__":
     appPort = os.getenv("VCAP_APP_PORT", "5000")
     appHost = os.getenv("VCAP_APP_HOST", "127.0.0.1")
+    #swift.get_object_as_generator = exp(swift.get_object_as_generator, "resource not found alla", 404)
     app.run(
         host=appHost,
         port=int(appPort),

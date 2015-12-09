@@ -10,16 +10,16 @@
     This software may be modified and distributed under the terms
     of the MIT license.  See the LICENSE file for details.
 """
+# initialize logging
 
 import base64
-import requests
 import logging
-import json
 
+import requests
 from swiftclient import client
 
+from exceptions import exception_wrapper
 
-# initialize logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 log = logging.getLogger()
 
@@ -73,6 +73,7 @@ class SwiftConnect:
         return True
     
     # deletes a container and all objects within
+    @exception_wrapper(404, "requested resource does not exist", log)
     def delete_container(self, container_name):
         log.debug("Deleting container with name: {}".format(container_name))
         cont_data = self.conn.get_container(container_name)
@@ -82,11 +83,13 @@ class SwiftConnect:
                 self.conn.delete_object(container_name, obj.get("name"))
         self.conn.delete_container(container_name)
 
+    @exception_wrapper(404, "resource does not exist", log)
     def get_container_metadata(self, container_name):
         log.debug("Retrieving meta data of container: {}".format(container_name))
         return self.conn.head_container(container_name)
     
     # Retrieves list of all objects of the specified container
+    @exception_wrapper(404, "requested resource does not exist", log)
     def get_object_list(self, container_name, limit=None, marker=None, prefix=None):
         log.debug("Retrieving list of all objects of container: {} with parameter: limit = {}, marker = {}, prefix = {}"
                 .format(container_name, limit, marker, prefix))
@@ -106,16 +109,19 @@ class SwiftConnect:
             chunk_size=65536)
  
     # Stream object
+    @exception_wrapper(404, "requested resource does not exist", log)
     def get_object_as_generator(self, container_name, object_name):
         log.debug("Retrieving object: {} in container: {} as stream".format(container_name, object_name))
         return self.conn.get_object(container_name, object_name, resp_chunk_size=8192)
 
     # deleting an object 
+    @exception_wrapper(404, "requested resource does not exist", log)
     def delete_object(self, container_name, object_name):
         log.debug("Deleting object: {} in container: {}".format(object_name, container_name))
         self.conn.delete_object(container_name, object_name)
 
-    # Retrieving an object Metadata 
+    # Retrieving an object Metadata
+    @exception_wrapper(404, "resource does not exist", log)
     def get_object_metadata(self, container_name, object_name):
         log.debug("Retrieving meta data for object: {} in container: {}".format(object_name, container_name))
         return self.conn.head_object(container_name, object_name)
