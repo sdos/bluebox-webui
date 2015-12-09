@@ -187,6 +187,11 @@ def get_object_metadata(container_name, object_name):
         log.debug("object: {} in container: {} not found, for request: {}".format(object_name, container_name, request.url))
         raise HttpError("object: {} in container: {} not found".format(object_name, container_name), 404)
     
+    retention_timestamp = metadata.get("x-object-meta-retentiontime")
+    if retention_timestamp:
+        # convert time stamp to human readable format
+        metadata["x-object-meta-retentiontime"] = time.strftime("%a, %d. %B %Y", time.localtime(int(retention_timestamp)))
+    
     as_json = json.dumps(metadata, sort_keys=True)
     return Response(as_json, mimetype="application/json")
 
@@ -204,7 +209,7 @@ def upload_object(container_name):
     object_name = secure_filename(file.filename)
     retentime = request.form["RetentionPeriod"]
     
-    headers = dict()
+    headers = {}
     if retentime:
         try:
             converted_retentime = datetime.strptime(retentime, "%Y-%m-%d")
@@ -248,20 +253,15 @@ def stream_object(container_name, object_name):
 @app.route("/swift/containers/<container_name>/objects/<path:object_name>", methods=["DELETE"])
 @log_requests
 def delete_object(container_name, object_name):
-        metadata_json = json.dumps(swift.get_object_metadata(container_name, object_name), ensure_ascii=False)
-        metadata = json.loads(metadata_json)
+        metadata = swift.get_object_metadata(container_name, object_name)
         retentimestamp = metadata.get("x-object-meta-retentiontime")
         if (not retentimestamp or isRetentionPeriodExpired(retentimestamp)):
-            swift.delete_object(container_name,object_name)
-            responsemsg = {}
+            swift.delete_object(container_name, object_name)
+            responsemsg = dict()
             responsemsg["deletestatus"] = "done"
             return Response(json.dumps(responsemsg), mimetype="application/json")
         else:
-            minutes, seconds = divmod(calcTimeDifference(retentimestamp), 60)
-            hours, minutes = divmod(minutes, 60)
-            days, hours = divmod(hours, 24)
-            weeks, days = divmod(days, 7)
-            error_msg = "Deletion failed due to retention enforcement, you must wait for {} weeks, {} days, {} hours, {} minutes and {} seconds to delete this file!".format(weeks, days, hours, minutes, seconds)
+            error_msg = "Deletion failed due to retention enforcement, file cannot be deleted till {}!".format(time.strftime("%a, %d. %B %Y", time.localtime(int(retentimestamp))))
             log.debug(error_msg)
             raise HttpError(error_msg, 412)
 
