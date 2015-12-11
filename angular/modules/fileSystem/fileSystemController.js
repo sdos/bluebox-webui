@@ -54,17 +54,6 @@ fileSystemModule.controller('FileSystemController',
                     });
             };
 
-
-            $scope.setContainerIcon = function(container){
-
-                if (container.count >0){
-                    return '<img alt="BlueBox Logo" src="/angular/icons/file_icon_full_32.png">    ' + container.name;
-                }else{
-                    return '<img alt="BlueBox Logo" src="/angular/icons/file_icon_empty_32.png">    ' + container.name;
-                }
-
-            };
-
             /**
              * create a new container by the name entered in the form
              */
