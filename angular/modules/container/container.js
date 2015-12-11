@@ -6,7 +6,6 @@
  */
 var containerModule = angular.module('bluebox.container', [
     'ngFileUpload',
-    'ngSanitize',
     'ui.bootstrap',
     'ui.router',
     'bluebox.deleteConfirmation',
