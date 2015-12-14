@@ -80,7 +80,61 @@ def index(path=""):
 ##############################################################################
 
 """
-    get the list of containers
+    returns the json schema for object classes
+"""
+@app.route("/swift/objectclassschema", methods=["GET"])
+@log_requests
+def get_objectclass_schema():
+    raise HttpError("function is not implemented yet", 501)
+
+##############################################################################
+
+"""
+    returns the list of all object classes
+"""
+@app.route("/swift/objectclasses", methods=["GET"])
+@log_requests
+def get_objectclasses():
+    raise HttpError("function is not implemented yet", 501)
+
+"""
+    creates a new object class
+"""
+@app.route("/swift/objectclasses", methods=["POST"])
+@log_requests
+def create_objectclass_schema():
+    raise HttpError("function is not implemented yet", 501)
+
+##############################################################################
+
+"""
+    returns the JSON schema of the specified object class
+"""
+@app.route("/swift/objectclasses/<class_name>", methods=["GET"])
+@log_requests
+def get_objectclass(class_name):
+    raise HttpError("function is not implemented yet", 501)
+
+"""
+    changes the specified object class
+"""
+@app.route("/swift/objectclasses/<class_name>", methods=["PUT"])
+@log_requests
+def change_objectclass(class_name):
+    raise HttpError("function is not implemented yet", 501)
+
+"""
+    deletes the specified object class
+"""
+@app.route("/swift/objectclasses/<class_name>", methods=["DELETE"])
+@log_requests
+def delete_objectclass(class_name):
+    raise HttpError("function is not implemented yet", 501)
+
+##############################################################################
+
+"""
+    returns the list of containers
 """
 @app.route("/swift/containers", methods=["GET"])
 @log_requests
@@ -114,7 +168,7 @@ def get_containers():
 ##############################################################################
 
 """
-    create a container
+    creates a new container
 """
 @app.route("/swift/containers", methods=["POST"])
 @log_requests
@@ -126,7 +180,7 @@ def create_container():
 ##############################################################################
 
 """
-    delete a container
+    deletes the specified container
 """
 @app.route("/swift/containers/<container_name>", methods=["DELETE"])
 @log_requests
@@ -134,11 +188,18 @@ def delete_container(container_name):
     swift.delete_container(container_name)
     return Response(None)
 
+"""
+    changes the definition of the specified container
+"""
+@app.route("/swift/containers/<container_name>", methods=["PUT"])
+@log_requests
+def change_container(container_name):
+    raise HttpError("function is not implemented yet", 501)
+
 ##############################################################################
 
-
 """
-    get the list of all objects in a container
+    returns the list of all objects in the specified container
 """
 @app.route("/swift/containers/<container_name>/objects", methods=["GET"])
 @log_requests
@@ -168,38 +229,19 @@ def get_objects_in_container(container_name):
     resp["objects"] = cts[1]
     return Response(json.dumps(resp, sort_keys=True), mimetype="application/json")
 
-##############################################################################
 
 """
-    get the meta data of the specified object as json
-"""
-@app.route("/swift/containers/<container_name>/objects/<path:object_name>/details", methods=["GET"])
-@log_requests
-def get_object_metadata(container_name, object_name):
-    metadata = swift.get_object_metadata(container_name, object_name)
-    
-    retention_timestamp = metadata.get("x-object-meta-retentiontime")
-    if retention_timestamp:
-        # convert time stamp to human readable format
-        metadata["x-object-meta-retentiontime"] = time.strftime("%a, %d. %B %Y", time.localtime(int(retention_timestamp)))
-    
-    as_json = json.dumps(metadata, sort_keys=True)
-    return Response(as_json, mimetype="application/json")
-
-##############################################################################
-
-"""
-    Route that will process the file upload
+    creates a new object
 """
 @app.route("/swift/containers/<container_name>/objects", methods=["POST"])
 @log_requests
-def upload_object(container_name):
+def create_object(container_name):
     # Get the name of the uploaded file
     file = request.files["objectName"]  # returns werkzeug.datastructures.FileStorage i.e. file-like.
                                         # Underlying stream is either BytesIO for small files or _TemporaryFileWrapper for large files
     object_name = secure_filename(file.filename)
     retentime = request.form["RetentionPeriod"]
-    
+
     headers = {}
     if retentime:
         try:
@@ -216,6 +258,9 @@ def upload_object(container_name):
 
 ##############################################################################
 
+"""
+    downloads the specified object
+"""
 @app.route("/swift/containers/<container_name>/objects/<path:object_name>", methods=["GET"])
 @log_requests
 def stream_object(container_name, object_name):
@@ -231,8 +276,6 @@ def stream_object(container_name, object_name):
         headers["Content-Disposition"] = "attachment" 
     
     return Response(obj_tupel[1], mimetype=obj_tupel[0].get("content-type"), headers=headers)
-
-##############################################################################
 
 """
     delete the specified object
@@ -251,6 +294,32 @@ def delete_object(container_name, object_name):
             error_msg = "Deletion failed due to retention enforcement, file cannot be deleted till {}!".format(time.strftime("%a, %d. %B %Y", time.localtime(int(retentimestamp))))
             log.debug(error_msg)
             raise HttpError(error_msg, 412)
+
+##############################################################################
+
+"""
+    returns the meta data of the specified object as json
+"""
+@app.route("/swift/containers/<container_name>/objects/<path:object_name>/details", methods=["GET"])
+@log_requests
+def get_object_metadata(container_name, object_name):
+    metadata = swift.get_object_metadata(container_name, object_name)
+    
+    retention_timestamp = metadata.get("x-object-meta-retentiontime")
+    if retention_timestamp:
+        # convert time stamp to human readable format
+        metadata["x-object-meta-retentiontime"] = time.strftime("%a, %d. %B %Y", time.localtime(int(retention_timestamp)))
+    
+    as_json = json.dumps(metadata, sort_keys=True)
+    return Response(as_json, mimetype="application/json")
+
+"""
+    changes the meta data of the specified object
+"""
+@app.route("/swift/containers/<container_name>/objects/<path:object_name>/details", methods=["PUT"])
+@log_requests
+def change_object_metadata(container_name, object_name):
+    raise HttpError("funcion not implemented yet")
 
 ##############################################################################
 
@@ -314,7 +383,6 @@ def isRetentionPeriodExpired(timestamp):
 if __name__ == "__main__":
     appPort = os.getenv("VCAP_APP_PORT", "5000")
     appHost = os.getenv("VCAP_APP_HOST", "127.0.0.1")
-    #swift.get_object_as_generator = exp(swift.get_object_as_generator, "resource not found alla", 404)
     app.run(
         host=appHost,
         port=int(appPort),
