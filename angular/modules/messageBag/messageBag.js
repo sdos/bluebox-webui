@@ -22,7 +22,8 @@
  * }
  */
 angular.module('bluebox.messageBag', [
-    'ngAnimate'
+    'ngAnimate',
+    'ngSanitize'
 ]).directive('messageBag', function() {
     return {
         restrict:       'E',

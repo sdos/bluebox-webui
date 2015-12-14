@@ -47,7 +47,12 @@
             </tr>
 
             <tr ng-repeat="container in fileSystem.containers">
-                <td ui-sref="containerState({containerName: container.name})" ng-bind-html="setContainerIcon(container)"></td>
+                <td ui-sref="containerState({containerName: container.name})">
+                    <img
+                            alt="BlueBox Logo"
+                            ng-src="/angular/icons/file_icon_{{ container.count > 0 ? 'full' : 'empty' }}_32.png">
+                    {{ container.name }}
+                </td>
                 <td>{{ container.bytes | bytes}}</td>
                 <td>{{ container.count }}</td>
                 <td>
