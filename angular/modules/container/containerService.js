@@ -6,7 +6,7 @@
  */
 containerModule.factory(
     'containerService',
-    ['$http', '$filter', 'Upload', function($http, $filter, Upload) {
+    ['$http', '$filter', 'Upload', 'BACKEND_BASE_URL', function($http, $filter, Upload, BACKEND_BASE_URL) {
 
         /**
          * the limit of objects to retrieve at once
@@ -43,7 +43,7 @@ containerModule.factory(
 
                 return $http({
                     "method": "GET",
-                    "url":    "/swift/containers/" + $filter('urlEncode')(containerName) + "/objects",
+                    "url":    BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(containerName) + "/objects",
                     "params": {
                         "limit":  limit,
                         "marker": currentMarker,
@@ -75,7 +75,7 @@ containerModule.factory(
              */
             deleteObject: function(containerName, objectName) {
                 return $http.delete(
-                    '/swift/containers/' + $filter('urlEncode')(containerName) + '/objects/' + $filter('urlEncode')(objectName)
+                    BACKEND_BASE_URL + 'containers/' + $filter('urlEncode')(containerName) + '/objects/' + $filter('urlEncode')(objectName)
                 );
             },
 
@@ -91,7 +91,7 @@ containerModule.factory(
             uploadObject: function(file, containerName, ownerName, retentionDate) {
                 return Upload.upload({
                     "method": "POST",
-                    "url": "/swift/containers/" + $filter('urlEncode')(containerName) + "/objects",
+                    "url": BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(containerName) + "/objects",
                     "data": {
                         "objectName":       file,
                         "OwnerName":        ownerName ? ownerName : "",
@@ -108,7 +108,7 @@ containerModule.factory(
              * @returns {promise} resolved or rejected to the plain response
              */
             getDetails: function(containerName, objectName) {
-                return $http.get("/swift/containers/" + $filter('urlEncode')(containerName) + "/objects/" + $filter('urlEncode')(objectName) + "/details")
+                return $http.get(BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(containerName) + "/objects/" + $filter('urlEncode')(objectName) + "/details")
                     .then(function(response) {
                         return response.data;
                     });

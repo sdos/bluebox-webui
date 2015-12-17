@@ -9,3 +9,5 @@ var app = angular.module('bluebox', [
         // works only if <base href="/"> is set in html head and URL rewriting is set up properly
         $locationProvider.html5Mode(true);
     }]);
+
+app.constant('BACKEND_BASE_URL', '/swift/');

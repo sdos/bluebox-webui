@@ -1,50 +1,60 @@
 <div class="panel panel-default" >
     <div class="panel-heading"><h3>Upload an object</h3></div>
     <div class="panel-body">
-        <form ng-submit="uploadObject()">
-            <label for="browseBtn">Browse the file to upload:</label>
-            <input ngf-select ng-model="uploadForm.file" ng-change="uploadProgressPercentage = 0;" type="file" name="objectName" id="browseBtn" required/>
-            <label for="containerTxt">Container name:</label>
-            <input ng-model="container.name" type="text" class="form-control" id="containerTxt" readonly required/>
-            <label for="ownerTxt">Owner Name:</label>
-            <input ng-model="uploadForm.owner" type="text" class="form-control" id="ownerTxt" placeholder="OwnerName"/>
-            
-            <div>
-                <label for="retentionDate">Retention Date:</label>
-            	<p class="input-group">                	
-            		<input
-                            ng-model="uploadForm.retentionDate"
-                            type="date"
-                            class="form-control"
-                            id="retentionDate"
-                            uib-datepicker-popup
-                            is-open="datePicker.isOpen"
-                            min-date="datePicker.minDate"
-                            datepicker-options="datePicker.options"/>
-            		<span class="input-group-btn">
-                		<button type="button" class="btn btn-default" ng-click="datePicker.toggle()">
-                            <i class="glyphicon glyphicon-calendar"></i>
-                        </button>
-            		</span>
-            	</p>
-            </div>	
-            
-            <button type="submit" class="btn btn-success">
-                <span class="glyphicon glyphicon-cloud-upload"></span>
-                Upload
-            </button>
-        </form>
-    </div>
-    <div ng-show="uploadProgress.percentage" class="panel-body">
-        <div class="progress">
-            <div
-                    ng-class="{'progress-bar-success': uploadProgress.percentage === 100}"
-                    class="progress-bar progress-bar-striped"
-                    role="progressbar"
-                    style="width: {{ uploadProgress.percentage }}%;">
-                {{ uploadProgress.percentage }} % ({{ uploadProgress.loaded | bytes }} / {{ uploadProgress.total | bytes }})
+        <form ng-submit="uploadObject()" class="form-horizontal">
+            <div class="form-group">
+                <label for="browseBtn" class="col-sm-2 control-label">File to upload</label>
+                <div class="col-sm-10">
+                    <input ngf-select ng-model="uploadForm.file" ng-change="uploadProgressPercentage = 0;" type="file" name="objectName" id="browseBtn" required/>
+                </div>
             </div>
-        </div>
+            <div class="form-group">
+                <label for="containerTxt" class="col-sm-2 control-label">Container name</label>
+                <div class="col-sm-10">
+                    <input ng-model="container.name" type="text" class="form-control" id="containerTxt" readonly required/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="ownerTxt" class="col-sm-2 control-label">Owner Name</label>
+                <div class="col-sm-10">
+                    <input ng-model="uploadForm.owner" type="text" class="form-control" id="ownerTxt" placeholder="OwnerName"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="retentionDate" class="col-sm-2 control-label">Retention Date</label>
+                <div class="col-sm-10">
+                    <date-input
+                            model="uploadForm.retentionDate"
+                            id="retentionDate"
+                            min-date="datePicker.minDate">
+                    </date-input>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-success">
+                        <span class="glyphicon glyphicon-cloud-upload"></span>
+                        Upload
+                    </button>
+                </div>
+            </div>
+
+            <div ng-show="uploadProgress.percentage" class="form-group">
+                <label class="col-sm-2 control-label">Upload progress</label>
+                <div class="col-sm-10">
+                    <div class="progress">
+                        <div
+                                ng-class="{'progress-bar-success': uploadProgress.percentage === 100, 'progress-bar-striped active': uploadProgress.percentage !== 100}"
+                                class="progress-bar"
+                                role="progressbar"
+                                style="width: {{ uploadProgress.percentage }}%;">
+                            {{ uploadProgress.percentage }} % ({{ uploadProgress.loaded | bytes }} / {{ uploadProgress.total | bytes }})
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -83,8 +93,7 @@
                 threshold="100"
                 can-load="!isGetObjectsRequestPending && !isEndOfListReached()"
                 global
-                class="table table-bordered table-hover"
-                border="2">
+                class="table table-hover">
             <tr>
                 <th>Name</th>
                 <th>Size</th>

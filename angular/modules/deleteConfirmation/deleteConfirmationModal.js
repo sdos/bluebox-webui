@@ -20,7 +20,7 @@ deleteConfirmationModule.factory(
             open: function(name, type) {
                 return $uibModal.open({
                     animation:      true,
-                    templateUrl:    "angular/modules/deleteConfirmation/deleteConfirmation.html",
+                    templateUrl:    "angular/modules/deleteConfirmation/deleteConfirmationModal.html",
                     controller:     "DeleteConfirmationController",
                     resolve:        {
                         item: function() {

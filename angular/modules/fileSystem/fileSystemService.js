@@ -6,89 +6,90 @@
  */
 fileSystemModule.factory(
     'fileSystemService',
-    ['$http', '$httpParamSerializer', '$filter', function($http, $httpParamSerializer, $filter) {
-
-        /**
-         * the limit of containers to retrieve at once
-         * @type {number}
-         */
-        var limit = 20;
-
-        /**
-         * name of the last retrieved container
-         * @type {string}
-         */
-        var currentMarker = "";
-
-        /**
-         * true, if there are no more containers to retrieve from the backend
-         * @type {boolean}
-         */
-        var isEndOfListReached = false;
-
-        return {
+    ['$http', '$httpParamSerializer', '$filter', 'BACKEND_BASE_URL',
+        function($http, $httpParamSerializer, $filter, BACKEND_BASE_URL) {
 
             /**
-             * POST a new container
-             *
-             * @param containerName
-             * @returns {promise} resolved or rejected to the plain response from the backend
+             * the limit of containers to retrieve at once
+             * @type {number}
              */
-            createContainer: function(containerName) {
-                return $http({
-                    "method":           "POST",
-                    "url":              "/swift/containers",
-                    "data":             {"containerName": containerName},
-                    "headers":          {"Content-Type": "application/x-www-form-urlencoded"},
-                    "transformRequest": $httpParamSerializer
-                })
-            },
+            var limit = 20;
 
             /**
-             * GET the next partial list of containers
-             *
-             * @param {boolean} reload if true, the marker will be reset and the whole list will be reloaded
-             * @param {string}  prefix filter containers for a certain prefix (optional)
-             * @returns {promise} resolved to the response data,
-             *                    rejected to the plain response if unsuccessful
+             * name of the last retrieved container
+             * @type {string}
              */
-            getContainers: function(reload, prefix) {
-                // reset marker if list shall be reloaded
-                currentMarker = reload ? "" : currentMarker;
-
-                return $http({
-                    "method": "GET",
-                    "url":    "/swift/containers",
-                    "params": {
-                        "limit":  limit,
-                        "marker": currentMarker,
-                        "prefix": prefix ? prefix : ""
-                    }
-                }).then(function(response) {
-                    var containers = response.data.containers;
-                    currentMarker = containers.length > 0 ? _.last(containers).name : currentMarker;
-                    isEndOfListReached = containers.length < limit;
-                    return response.data;
-                });
-            },
+            var currentMarker = "";
 
             /**
              * true, if there are no more containers to retrieve from the backend
-             *
-             * @returns {boolean}
+             * @type {boolean}
              */
-            isEndOfListReached: function() {
-                return isEndOfListReached;
-            },
+            var isEndOfListReached = false;
 
-            /**
-             * DELETE a container
-             *
-             * @param {string} containerName name of the container to delete
-             * @returns {promise} resolved or rejected to the plain response
-             */
-            deleteContainer: function(containerName) {
-                return $http.delete('/swift/containers/' + $filter('urlEncode')(containerName));
-            }
-        };
-    }]);
+            return {
+
+                /**
+                 * POST a new container
+                 *
+                 * @param {{name: string, objectClass: string}} container the new container
+                 * @returns {promise} resolved or rejected to the plain response from the backend
+                 */
+                createContainer: function(container) {
+                    return $http({
+                        "method":           "POST",
+                        "url":              BACKEND_BASE_URL + "containers",
+                        "data":             {"containerName": container.name},
+                        "headers":          {"Content-Type": "application/x-www-form-urlencoded"},
+                        "transformRequest": $httpParamSerializer
+                    })
+                },
+
+                /**
+                 * GET the next partial list of containers
+                 *
+                 * @param {boolean} reload if true, the marker will be reset and the whole list will be reloaded
+                 * @param {string}  prefix filter containers for a certain prefix (optional)
+                 * @returns {promise} resolved to the response data,
+                 *                    rejected to the plain response if unsuccessful
+                 */
+                getContainers: function(reload, prefix) {
+                    // reset marker if list shall be reloaded
+                    currentMarker = reload ? "" : currentMarker;
+
+                    return $http({
+                        "method": "GET",
+                        "url":    BACKEND_BASE_URL + "containers",
+                        "params": {
+                            "limit":  limit,
+                            "marker": currentMarker,
+                            "prefix": prefix ? prefix : ""
+                        }
+                    }).then(function(response) {
+                        var containers = response.data.containers;
+                        currentMarker = containers.length > 0 ? _.last(containers).name : currentMarker;
+                        isEndOfListReached = containers.length < limit;
+                        return response.data;
+                    });
+                },
+
+                /**
+                 * true, if there are no more containers to retrieve from the backend
+                 *
+                 * @returns {boolean}
+                 */
+                isEndOfListReached: function() {
+                    return isEndOfListReached;
+                },
+
+                /**
+                 * DELETE a container
+                 *
+                 * @param {string} containerName name of the container to delete
+                 * @returns {promise} resolved or rejected to the plain response
+                 */
+                deleteContainer: function(containerName) {
+                    return $http.delete(BACKEND_BASE_URL + 'containers/' + $filter('urlEncode')(containerName));
+                }
+            };
+        }]);

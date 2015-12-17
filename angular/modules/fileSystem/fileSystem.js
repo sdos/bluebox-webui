@@ -8,7 +8,8 @@ var fileSystemModule = angular.module('bluebox.fileSystem', [
     'ui.router',
     'bluebox.container',
     'bluebox.deleteConfirmation',
-    'bluebox.infiniteScroll'
+    'bluebox.infiniteScroll',
+    'bluebox.objectClass'
 ])
 
     .config(['$stateProvider', function($stateProvider) {

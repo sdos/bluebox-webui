@@ -1,0 +1,86 @@
+<div class="modal-header">
+    <h3 class="modal-title">
+        Create new object class
+    </h3>
+</div>
+<div class="modal-body">
+    <message-bag timeout="3000"></message-bag>
+    <form ng-submit="createObjectClass()">
+        <h4>
+            <label for="className">Object class name</label>
+        </h4>
+        <input type="text" ng-model="objectClass.name" class="form-control" id="className" placeholder="Object class name" required>
+        <hr/>
+        <h4><label>Metadata fields</label></h4>
+        <div class="row">
+            <div class="col-sm-4">
+                <label for="fieldName">Name</label>
+            </div>
+            <div class="col-sm-2">
+                <label for="fieldType">Type</label>
+            </div>
+            <div class="col-sm-3">
+                <label for="fieldDefault">Default value</label>
+            </div>
+            <div class="col-sm-2 text-center">
+                <label for="required">Required?</label>
+            </div>
+        </div>
+        <div ng-repeat="metadataField in objectClass.metadataFields" class="form-group row">
+            <div class="col-sm-4">
+                <input type="text" ng-model="metadataField.name" class="form-control" placeholder="Field name" id="fieldName" required>
+            </div>
+            <div class="col-sm-2">
+                <select ng-model="metadataField.type" ng-options="typeOption.name for typeOption in typeOptions" class="form-control" id="fieldType" required></select>
+            </div>
+            <div class="col-sm-3" ng-switch="metadataField.type.inputType">
+                <div ng-switch-when="number">
+                    <input type="number" ng-model="metadataField.default" class="form-control" id="fieldDefault" placeholder="Default number">
+                </div>
+                <div ng-switch-when="email">
+                    <input type="email" ng-model="metadataField.default" class="form-control" id="fieldDefault" placeholder="Default email">
+                </div>
+                <div ng-switch-when="url">
+                    <input type="url" ng-model="metadataField.default" class="form-control" id="fieldDefault" placeholder="Default URL">
+                </div>
+                <div ng-switch-when="checkbox"  class="checkbox text-center">
+                    <input type="checkbox" ng-model="metadataField.default" id="fieldDefault">
+                </div>
+                <div ng-switch-when="date">
+                    <date-input
+                            model="metadataField.default"
+                            id="fieldDefault">
+                    </date-input>
+                </div>
+                <div ng-switch-default>
+                    <input type="text" ng-model="metadataField.default" class="form-control" id="fieldDefault" placeholder="Default text">
+                </div>
+            </div>
+            <div class="col-sm-2 text-center">
+                <div class="checkbox">
+                    <input type="checkbox" ng-model="metadataField.required" id="required">
+                </div>
+            </div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-danger" ng-disabled="$first && $last" ng-click="removeMetadataField(metadataField)">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </button>
+            </div>
+        </div>
+        <button type="button" class="btn btn-success" ng-click="addMetadataField()">
+            <span class="glyphicon glyphicon-plus"></span>
+            Add field
+        </button>
+    </form>
+
+</div>
+<div class="modal-footer">
+    <button class="btn btn-success" type="button" ng-click="createObjectClass()">
+        <span class="glyphicon glyphicon-ok"></span>
+        Create
+    </button>
+    <button class="btn btn-primary" type="button" ng-click="cancel()">
+        <span class="glyphicon glyphicon-ban-circle"></span>
+        Cancel
+    </button>
+</div>

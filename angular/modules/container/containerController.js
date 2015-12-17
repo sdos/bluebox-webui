@@ -20,25 +20,12 @@ containerModule.controller('ContainerController',
 
             /**
              * datePicker configuration
-             * @type {{opened: boolean, today: Date, options: object, toggle: function}}
+             * @type {{minDate: Date}}
              */
             $scope.datePicker = {
-                isOpen: false,
 
                 // past dates may not be entered
-                minDate: new Date(),
-
-                options: {
-                    // start the week on monday
-                    startingDay: 1
-                },
-
-                /**
-                 * toggles the datePicker popup
-                 */
-                toggle: function() {
-                    $scope.datePicker.isOpen = !$scope.datePicker.isOpen;
-                }
+                minDate: new Date()
             };
 
             /**

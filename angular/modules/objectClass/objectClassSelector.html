@@ -1,0 +1,19 @@
+<div class="input-group">
+    <select
+        ng-model="model"
+        ng-options="objectClass.name for objectClass in objectClasses"
+        class="form-control"
+        id="{{ id }}">
+    </select>
+    <div class="input-group-btn">
+        <button ng-click="createNewClass()" type="button" class="btn btn-success">
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+        <button type="button" class="btn btn-primary">
+            <span class="glyphicon glyphicon-pencil"></span>
+        </button>
+        <button type="button" class="btn btn-danger">
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+    </div>
+</div>

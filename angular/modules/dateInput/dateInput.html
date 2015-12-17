@@ -1,0 +1,16 @@
+<div class="input-group">
+    <input
+            ng-model="model"
+            type="date"
+            class="form-control"
+            id="{{ id }}"
+            uib-datepicker-popup
+            is-open="isOpen"
+            min-date="minDate"
+            datepicker-options="options"/>
+    <span class="input-group-btn">
+        <button type="button" class="btn btn-default" ng-click="isOpen = !isOpen">
+            <span class="glyphicon glyphicon-calendar"></span>
+        </button>
+    </span>
+</div>

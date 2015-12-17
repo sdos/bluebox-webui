@@ -58,12 +58,12 @@ fileSystemModule.controller('FileSystemController',
              * create a new container by the name entered in the form
              */
             $scope.createContainer = function() {
-                fileSystemService.createContainer($scope.containerName)
+                fileSystemService.createContainer($scope.container)
                     .then(
                         function () {
                             $rootScope.$broadcast('FlashMessage', {
                                 "type": "success",
-                                "text": "Container \"" + $scope.containerName + "\" created."
+                                "text": "Container \"" + $scope.container.name + "\" created."
                             });
                             // reload containers
                             $scope.getContainers(true);

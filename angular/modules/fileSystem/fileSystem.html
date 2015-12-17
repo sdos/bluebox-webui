@@ -1,10 +1,27 @@
 <div class="panel panel-default">
     <div class="panel-heading"><h3>Create Container</h3></div>
     <div class="panel-body">
-        <form ng-submit="createContainer()">
-            <label for="containerTxt">Container name:</label>
-            <input type="text" ng-model="containerName" class="form-control" id="containerTxt" placeholder="ContainerName" required>
-            <input type="submit" value="Create" class="btn btn-success">
+        <form ng-submit="createContainer()" class="form-horizontal">
+            <div class="form-group">
+                <label for="containerName" class="col-sm-2 control-label">Container name</label>
+                <div class="col-sm-10">
+                    <input type="text" ng-model="container.name" class="form-control" id="containerName" placeholder="ContainerName" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="objectClass" class="col-sm-2 control-label">Object class</label>
+                <div class="col-sm-10">
+                    <object-class-selector model="container.objectClass" id="objectClass"></object-class-selector>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-success">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Create
+                    </button>
+                </div>
+            </div>
         </form>
     </div>
 </div>
@@ -36,8 +53,7 @@
                 threshold="100"
                 can-load="!isGetContainersRequestPending && !isEndOfListReached()"
                 global
-                class="table table-bordered table-hover"
-                border="2">
+                class="table table-hover">
             <tr>
                 <th>Name</th>
                 <th>Size</th>

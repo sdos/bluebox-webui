@@ -9,6 +9,7 @@ var containerModule = angular.module('bluebox.container', [
     'ui.bootstrap',
     'ui.router',
     'bluebox.deleteConfirmation',
+    'bluebox.dateInput',
     'bluebox.fileSystem',
     'bluebox.infiniteScroll'
 ])
