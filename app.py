@@ -85,7 +85,9 @@ def index(path=""):
 @app.route("/swift/objectclassschema", methods=["GET"])
 @log_requests
 def get_objectclass_schema():
-    raise HttpError("function is not implemented yet", 501)
+    ## TODO: initial insert
+    acc_metadata = swift.get_account_metadata()
+    return acc_metadata.get("x-objectclass-schema")
 
 ##############################################################################
 
@@ -95,15 +97,29 @@ def get_objectclass_schema():
 @app.route("/swift/objectclasses", methods=["GET"])
 @log_requests
 def get_objectclasses():
-    raise HttpError("function is not implemented yet", 501)
+    acc_metadata = swift.get_account_metadata()
+    metadata_keys = acc_metadata.keys()
+    class_names = [key[14:] for key in metadata_keys if key.startswith("x-objectclass")]
+    
+    resp = {}
+    resp["metadata"] = {"classCount": len(class_names)}
+    resp["classes"] = class_names
+    return Response(json.dumps(resp, sort_keys=True), mimetype="application/json")
+
 
 """
     creates a new object class
 """
 @app.route("/swift/objectclasses", methods=["POST"])
 @log_requests
-def create_objectclass_schema():
+def create_objectclass():
     raise HttpError("function is not implemented yet", 501)
+    
+    class_name = ""
+    acc_metadata = swift.get_account_metadata()
+    if ("x-objectclass-" + class_name) in acc_metadata:
+        raise HttpError("class already exists", 422)
+    
 
 ##############################################################################
 
@@ -113,7 +129,14 @@ def create_objectclass_schema():
 @app.route("/swift/objectclasses/<class_name>", methods=["GET"])
 @log_requests
 def get_objectclass(class_name):
-    raise HttpError("function is not implemented yet", 501)
+    acc_metadata = swift.get_account_metadata()
+    class_def = acc_metadata["x-objectclass-" + class_name]
+    
+    if not class_def:
+        raise HttpError("class does not exist", 404)
+    
+    return Response(class_def, mimetype="application/json")
+
 
 """
     changes the specified object class
@@ -122,6 +145,7 @@ def get_objectclass(class_name):
 @log_requests
 def change_objectclass(class_name):
     raise HttpError("function is not implemented yet", 501)
+
 
 """
     deletes the specified object class
@@ -165,7 +189,6 @@ def get_containers():
     resp["containers"] = cts[1]
     return Response(json.dumps(resp, sort_keys=True), mimetype="application/json")
 
-##############################################################################
 
 """
     creates a new container
@@ -174,6 +197,11 @@ def get_containers():
 @log_requests
 def create_container():
     container_name = request.form["containerName"]
+    
+    containers = swift.get_container_list()
+    if container_name in containers:
+        raise HttpError("container already exists", 422)
+    
     swift.create_container(container_name)
     return Response(None)
 
@@ -187,6 +215,7 @@ def create_container():
 def delete_container(container_name):
     swift.delete_container(container_name)
     return Response(None)
+
 
 """
     changes the definition of the specified container
@@ -236,10 +265,16 @@ def get_objects_in_container(container_name):
 @app.route("/swift/containers/<container_name>/objects", methods=["POST"])
 @log_requests
 def create_object(container_name):
-    # Get the name of the uploaded file
-    file = request.files["objectName"]  # returns werkzeug.datastructures.FileStorage i.e. file-like.
-                                        # Underlying stream is either BytesIO for small files or _TemporaryFileWrapper for large files
+    # returns werkzeug.datastructures.FileStorage i.e. file-like
+    # Underlying stream is either BytesIO for small files or _TemporaryFileWrapper for large files
+    file = request.files["objectName"]  
     object_name = secure_filename(file.filename)
+    
+    # check whether an object with the same name already exists in the same container
+    all_objects = swift.get_object_list(container_name)[1]
+    if object_name in [obj.get("name") for obj in all_objects]:
+        raise HttpError("object with this name already exists in this container", 422)
+    
     retentime = request.form["RetentionPeriod"]
 
     headers = {}
@@ -277,6 +312,7 @@ def stream_object(container_name, object_name):
     
     return Response(obj_tupel[1], mimetype=obj_tupel[0].get("content-type"), headers=headers)
 
+
 """
     delete the specified object
 """
@@ -312,6 +348,7 @@ def get_object_metadata(container_name, object_name):
     
     as_json = json.dumps(metadata, sort_keys=True)
     return Response(as_json, mimetype="application/json")
+
 
 """
     changes the meta data of the specified object
