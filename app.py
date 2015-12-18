@@ -139,7 +139,7 @@ def create_objectclass():
         raise HttpError("class already exists", 422)
     
     swift.store_account_metadata(class_key, json.dumps(class_definition))  
-    return Response()  
+    return "", 201  
 
 ##############################################################################
 
@@ -182,7 +182,7 @@ def delete_objectclass(class_name):
         raise HttpError("class does not exist", 404)
     
     swift.store_account_metadata(class_key, "")
-    return Response()
+    return "", 204
 
 ##############################################################################
 
@@ -249,7 +249,7 @@ def create_container():
     container_metadata = {"x-container-object-class": class_name}
     
     swift.create_container(container_name, container_metadata)
-    return Response(None)
+    return "", 201
 
 ##############################################################################
 
@@ -260,7 +260,7 @@ def create_container():
 @log_requests
 def delete_container(container_name):
     swift.delete_container(container_name)
-    return Response(None)
+    return "", 204
 
 
 """
@@ -335,7 +335,7 @@ def create_object(container_name):
     headers["X-Object-Meta-OwnerName"] = request.form["OwnerName"]
 
     swift.streaming_object_upload(object_name, container_name, file, headers)
-    return Response(None)
+    return "", 201
 
 ##############################################################################
 
@@ -367,15 +367,13 @@ def stream_object(container_name, object_name):
 def delete_object(container_name, object_name):
         metadata = swift.get_object_metadata(container_name, object_name)
         retentimestamp = metadata.get("x-object-meta-retentiontime")
-        if (not retentimestamp or isRetentionPeriodExpired(retentimestamp)):
-            swift.delete_object(container_name, object_name)
-            responsemsg = dict()
-            responsemsg["deletestatus"] = "done"
-            return Response(json.dumps(responsemsg), mimetype="application/json")
-        else:
+        if retentimestamp and not isRetentionPeriodExpired(retentimestamp):
             error_msg = "Deletion failed due to retention enforcement, file cannot be deleted till {}!".format(time.strftime("%a, %d. %B %Y", time.localtime(int(retentimestamp))))
             log.debug(error_msg)
             raise HttpError(error_msg, 412)
+        
+        swift.delete_object(container_name, object_name)
+        return "", 204
 
 ##############################################################################
 
