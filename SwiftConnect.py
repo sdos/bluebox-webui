@@ -14,6 +14,7 @@
 
 import base64
 import logging
+import re
 
 import requests
 from swiftclient import client
@@ -30,6 +31,7 @@ class SwiftConnect:
         self.swift_url = swift_url
         self.swift_user = swift_user
         self.swift_pw = swift_pw
+        self.VALID_ACC_METADATA_KEY_REGEX = re.compile("x-account-meta-[a-z0-9-]+")
 
         if "BluemixV1Auth" == swift_type:
             self.do_bluemix_v1_auth()
@@ -64,12 +66,27 @@ class SwiftConnect:
             prefix=prefix, full_listing=full_listing)
         return containers
     
+    # returns all account meta data key value pairs
+    def get_account_metadata(self):
+        log.debug("Retrieving account meta data")
+        return self.conn.head_account()
+    
+    # stores the specified key value pair in the account meta data
+    # the key must match the following regex: 'x-account-meta-[a-z0-9-]+',
+    # otherwise an value exception will be raised
+    def store_account_metadata(self, key, value):
+        log.debug("Storing account meta data, key: {}, value: {}".format(key, value))
+        if not self.VALID_ACC_METADATA_KEY_REGEX.fullmatch(key):
+            raise ValueError("meta data key: {} does not match the required pattern: {}".format(key, self.VALID_ACC_METADATA_KEY_REGEX.pattern))
+        
+        self.conn.post_account({key: value})
+        
 ##############################################################################
 
     # Creating a Container
-    def create_container(self, container_name):
-        log.debug("Creating new container with name: {}".format(container_name))
-        self.conn.put_container(container_name)
+    def create_container(self, container_name, container_metadata=None):
+        log.debug("Creating new container with name: {} and meta data: {}".format(container_name, container_metadata))
+        self.conn.put_container(container_name, headers=container_metadata)
         return True
     
     # deletes a container and all objects within
@@ -120,7 +137,7 @@ class SwiftConnect:
         log.debug("Deleting object: {} in container: {}".format(object_name, container_name))
         self.conn.delete_object(container_name, object_name)
 
-    # Retrieving an object Metadata
+    # retrieving the meta data of the specified object
     @exception_wrapper(404, "resource does not exist", log)
     def get_object_metadata(self, container_name, object_name):
         log.debug("Retrieving meta data for object: {} in container: {}".format(object_name, container_name))
