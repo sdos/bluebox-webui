@@ -83,27 +83,29 @@ fileSystemModule.controller('FileSystemController',
              * @param {object} container the container to delete
              */
             $scope.deleteContainer = function(container) {
-                deleteConfirmationModal.open(container.name, "container")
-                    .result.then(function() {
-                    return fileSystemService.deleteContainer(container.name)
-                        .then(function() {
-                            $rootScope.$broadcast('FlashMessage', {
-                                "type": "success",
-                                "text": "Container \"" + container.name + "\" deleted."
+                deleteConfirmationModal
+                    .open(container.name, "container")
+                    .result
+                    .then(function() {
+                        return fileSystemService.deleteContainer(container)
+                            .then(function() {
+                                $rootScope.$broadcast('FlashMessage', {
+                                    "type": "success",
+                                    "text": "Container \"" + container.name + "\" deleted."
+                                });
+                                // update metadata and remove object from list
+                                $scope.fileSystem.metadata.containerCount--;
+                                $scope.fileSystem.metadata.objectCount -= container.count;
+                                $scope.fileSystem.containers = _.reject($scope.fileSystem.containers, container);
+                            })
+                            .catch(function(response) {
+                                $rootScope.$broadcast('FlashMessage', {
+                                    "type":     "danger",
+                                    "text":     response.data,
+                                    "timeout":  "never"
+                                });
                             });
-                            // update metadata and remove object from list
-                            $scope.fileSystem.metadata.containerCount--;
-                            $scope.fileSystem.metadata.objectCount -= container.count;
-                            $scope.fileSystem.containers = _.reject($scope.fileSystem.containers, {name: container.name});
-                        })
-                        .catch(function(response) {
-                            $rootScope.$broadcast('FlashMessage', {
-                                "type":     "danger",
-                                "text":     response.data,
-                                "timeout":  "never"
-                            });
-                        });
-                });
+                    });
             };
 
             // initial retrieval

@@ -6,8 +6,8 @@
  */
 fileSystemModule.factory(
     'fileSystemService',
-    ['$http', '$httpParamSerializer', '$filter', 'BACKEND_BASE_URL',
-        function($http, $httpParamSerializer, $filter, BACKEND_BASE_URL) {
+    ['$http', '$filter', 'BACKEND_BASE_URL',
+        function($http, $filter, BACKEND_BASE_URL) {
 
             /**
              * the limit of containers to retrieve at once
@@ -39,9 +39,12 @@ fileSystemModule.factory(
                     return $http({
                         "method":           "POST",
                         "url":              BACKEND_BASE_URL + "containers",
-                        "data":             {"containerName": container.name},
-                        "headers":          {"Content-Type": "application/x-www-form-urlencoded"},
-                        "transformRequest": $httpParamSerializer
+                        "data":             {
+                            "container": {
+                                "name":         container.name,
+                                "objectClass":  container.objectClass.name
+                            }
+                        }
                     })
                 },
 
@@ -85,11 +88,11 @@ fileSystemModule.factory(
                 /**
                  * DELETE a container
                  *
-                 * @param {string} containerName name of the container to delete
+                 * @param {string} container the container to delete
                  * @returns {promise} resolved or rejected to the plain response
                  */
-                deleteContainer: function(containerName) {
-                    return $http.delete(BACKEND_BASE_URL + 'containers/' + $filter('urlEncode')(containerName));
+                deleteContainer: function(container) {
+                    return $http.delete(BACKEND_BASE_URL + 'containers/' + $filter('urlEncode')(container.name));
                 }
             };
         }]);

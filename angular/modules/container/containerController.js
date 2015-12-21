@@ -83,7 +83,7 @@ containerModule.controller('ContainerController',
             $scope.deleteObject = function(object) {
                 deleteConfirmationModal.open(object.name, "object")
                     .result.then(function() {
-                    return containerService.deleteObject($scope.container.name, object.name)
+                    return containerService.deleteObject($scope.container, object)
                         .then(function() {
                             $rootScope.$broadcast('FlashMessage', {
                                 "type": "success",
@@ -91,7 +91,7 @@ containerModule.controller('ContainerController',
                             });
                             // update objectCount and remove object from list
                             $scope.container.metadata.objectCount--;
-                            $scope.container.objects = _.reject($scope.container.objects, {name: object.name});
+                            $scope.container.objects = _.reject($scope.container.objects, object);
                         })
                         .catch(function (response) {
                             $rootScope.$broadcast('FlashMessage', {
@@ -151,7 +151,7 @@ containerModule.controller('ContainerController',
 
                 // retrieve the details if they shall be shown
                 if (object.showDetails) {
-                    containerService.getDetails($scope.container.name, object.name)
+                    containerService.getDetails($scope.container, object)
                         .then(function (details) {
                             object.details = details;
                         })
