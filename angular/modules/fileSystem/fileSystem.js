@@ -5,12 +5,13 @@
  * module for the container overview page
  */
 var fileSystemModule = angular.module('bluebox.fileSystem', [
-    'ui.router',
-    'bluebox.container',
-    'bluebox.deleteConfirmation',
-    'bluebox.infiniteScroll',
-    'bluebox.objectClass'
-])
+        'ui.router',
+        'bluebox.container',
+        'bluebox.deleteConfirmation',
+        'bluebox.filter',
+        'bluebox.infiniteScroll',
+        'bluebox.objectClass'
+    ])
 
     .config(['$stateProvider', function($stateProvider) {
         $stateProvider.state('fileSystemState', {

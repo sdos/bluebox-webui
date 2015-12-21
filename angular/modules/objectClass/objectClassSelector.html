@@ -4,15 +4,16 @@
         ng-options="objectClass.name for objectClass in objectClasses"
         class="form-control"
         id="{{ id }}">
+        <option value="">no object class</option>
     </select>
     <div class="input-group-btn">
-        <button ng-click="createNewClass()" type="button" class="btn btn-success">
+        <button ng-click="createNewObjectClass()" type="button" class="btn btn-success">
             <span class="glyphicon glyphicon-plus"></span>
         </button>
-        <button type="button" class="btn btn-primary">
+        <button type="button" ng-disabled="!model" class="btn btn-primary">
             <span class="glyphicon glyphicon-pencil"></span>
         </button>
-        <button type="button" class="btn btn-danger">
+        <button ng-click="deleteObjectClass()" ng-disabled="!model" type="button" class="btn btn-danger">
             <span class="glyphicon glyphicon-remove"></span>
         </button>
     </div>

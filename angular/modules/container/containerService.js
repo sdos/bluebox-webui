@@ -31,19 +31,19 @@ containerModule.factory(
             /**
              * GET the next partial list of objects
              *
-             * @param {string}  containerName name of the container
-             * @param {boolean} reload        if true, the marker will be reset and the whole list will be reloaded
-             * @param {string}  prefix        filter objects for a certain prefix (optional)
+             * @param {string}  container   the container
+             * @param {boolean} reload      if true, the marker will be reset and the whole list will be reloaded
+             * @param {string}  prefix      filter objects for a certain prefix (optional)
              * @returns {promise} resolved to the data of the response,
              *                    rejected to the plain response if unsuccessful
              */
-            getObjects: function(containerName, reload, prefix) {
+            getObjects: function(container, reload, prefix) {
                 // reset marker if list shall be reloaded
                 currentMarker = reload ? "" : currentMarker;
 
                 return $http({
                     "method": "GET",
-                    "url":    BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(containerName) + "/objects",
+                    "url":    BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(container.name) + "/objects",
                     "params": {
                         "limit":  limit,
                         "marker": currentMarker,
@@ -69,13 +69,13 @@ containerModule.factory(
             /**
              * DELETE an object from a container
              *
-             * @param {string} containerName name of the container
-             * @param {string} objectName    name of the object to delete
+             * @param {string} container the container the object is in
+             * @param {string} object    the object to delete
              * @returns {promise} resolved or rejected to the plain response
              */
-            deleteObject: function(containerName, objectName) {
+            deleteObject: function(container, object) {
                 return $http.delete(
-                    BACKEND_BASE_URL + 'containers/' + $filter('urlEncode')(containerName) + '/objects/' + $filter('urlEncode')(objectName)
+                    BACKEND_BASE_URL + 'containers/' + $filter('urlEncode')(container.name) + '/objects/' + $filter('urlEncode')(object.name)
                 );
             },
 
@@ -103,12 +103,13 @@ containerModule.factory(
             /**
              * GET the details of an object
              *
-             * @param {string} containerName name of the container
-             * @param {string} objectName    name of the object
-             * @returns {promise} resolved or rejected to the plain response
+             * @param {string} container the container the object is in
+             * @param {string} object    the object
+             * @returns {promise} resolved to the response data if successful, else rejected to the plain response
              */
-            getDetails: function(containerName, objectName) {
-                return $http.get(BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(containerName) + "/objects/" + $filter('urlEncode')(objectName) + "/details")
+            getDetails: function(container, object) {
+                return $http
+                    .get(BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(container.name) + "/objects/" + $filter('urlEncode')(object.name) + "/details")
                     .then(function(response) {
                         return response.data;
                     });

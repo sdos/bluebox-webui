@@ -10,10 +10,21 @@ objectClassModule.factory(
 
         return {
 
+            /**
+             * GET the list of available object classes
+             *
+             * @returns {promise} resolved or rejected to the plain response
+             */
             getObjectClasses: function() {
                 return $http.get(BACKEND_BASE_URL + 'objectclasses');
             },
 
+            /**
+             * POST a new object class
+             *
+             * @param objectClass the new object class
+             * @returns {promise} resolved or rejected to the plain response
+             */
             createObjectClass: function(objectClass) {
                 return $http({
                     "method":   "POST",
@@ -25,6 +36,16 @@ objectClassModule.factory(
                         }
                     }
                 })
+            },
+
+            /**
+             * DELETE an object class
+             *
+             * @param objectClass the object class to delete
+             * @returns {promise} resolved or rejected to the plain response
+             */
+            deleteObjectClass: function(objectClass) {
+                return $http.delete(BACKEND_BASE_URL + "objectclasses/" + $filter('urlEncode')(objectClass.name));
             }
         };
     }]
