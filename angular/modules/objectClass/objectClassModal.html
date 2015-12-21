@@ -1,11 +1,11 @@
-<div class="modal-header">
-    <h3 class="modal-title">
-        Create new object class
-    </h3>
-</div>
-<div class="modal-body">
-    <message-bag timeout="3000"></message-bag>
-    <form ng-submit="createObjectClass()">
+<form ng-submit="createObjectClass()">
+    <div class="modal-header">
+        <h3 class="modal-title">
+            Create new object class
+        </h3>
+    </div>
+    <div class="modal-body">
+        <message-bag timeout="3000"></message-bag>
         <h4>
             <label for="className">Object class name</label>
         </h4>
@@ -31,7 +31,9 @@
                 <input type="text" ng-model="metadataField.name" class="form-control" placeholder="Field name" id="fieldName" required>
             </div>
             <div class="col-sm-2">
-                <select ng-model="metadataField.type" ng-options="typeOption.name for typeOption in typeOptions" class="form-control" id="fieldType" required></select>
+                <select ng-model="metadataField.type" ng-options="typeOption.name for typeOption in typeOptions" class="form-control" id="fieldType" required>
+                    <option value="">Select type</option>
+                </select>
             </div>
             <div class="col-sm-3" ng-switch="metadataField.type.inputType">
                 <div ng-switch-when="number">
@@ -71,16 +73,15 @@
             <span class="glyphicon glyphicon-plus"></span>
             Add field
         </button>
-    </form>
-
-</div>
-<div class="modal-footer">
-    <button class="btn btn-success" type="button" ng-click="createObjectClass()">
-        <span class="glyphicon glyphicon-ok"></span>
-        Create
-    </button>
-    <button class="btn btn-primary" type="button" ng-click="cancel()">
-        <span class="glyphicon glyphicon-ban-circle"></span>
-        Cancel
-    </button>
-</div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" type="submit">
+            <span class="glyphicon glyphicon-ok"></span>
+            Create
+        </button>
+        <button class="btn btn-primary" type="button" ng-click="cancel()">
+            <span class="glyphicon glyphicon-ban-circle"></span>
+            Cancel
+        </button>
+    </div>
+</form>

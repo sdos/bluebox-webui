@@ -13,26 +13,47 @@ var objectClassModule = angular.module('bluebox.objectClass', [
     .constant('TYPE_OPTIONS', [
         {
             name:       "Text",
-            inputType:  "text"
+            inputType:  "text",
+            jsonSchema: {
+                type: "string"
+            }
         },
         {
             name:       "Number",
-            inputType:  "number"
+            inputType:  "number",
+            jsonSchema: {
+                type: "number"
+            }
         },
         {
             name:       "Boolean",
-            inputType:  "checkbox"
+            inputType:  "checkbox",
+            jsonSchema: {
+                type: "boolean"
+            }
         },
         {
             name:       "Date",
-            inputType:  "date"
+            inputType:  "date",
+            jsonSchema: {
+                type: "string",
+                format: "date-time"
+            }
         },
         {
             name:       "Email",
-            inputType:  "email"
+            inputType:  "email",
+            jsonSchema: {
+                type: "string",
+                format: "email"
+            }
         },
         {
             name:       "URL",
-            inputType:  "url"
+            inputType:  "url",
+            jsonSchema: {
+                type: "string",
+                format: "uri"
+            }
         }
     ]);
