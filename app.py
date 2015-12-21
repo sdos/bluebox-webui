@@ -230,7 +230,7 @@ def create_container():
     try:
         container_definition = request.json.get("container")
         class_name = container_definition.get("objectClass")
-        container_name = container_definition.get("schema")
+        container_name = container_definition.get("name")
     except AttributeError:
         raise HttpError("malformed request", 400)
     
