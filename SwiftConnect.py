@@ -15,6 +15,7 @@
 import base64
 import logging
 import re
+import json
 
 import requests
 from swiftclient import client
@@ -81,6 +82,35 @@ class SwiftConnect:
         
         self.conn.post_account({key: value})
         
+    # stores the specified key value pair to an undefined place
+    def store_metadata(self, key, value):
+        containers = self.get_container_list()[1]
+        if "internal-object-class-store" not in [container.get("name") for container in containers]:
+            self.conn.put_container("internal-object-class-store")
+            
+        self.conn.put_object("internal-object-class-store", key, value)
+    
+    # returns the meta data for the specified key or None
+    def get_metadata(self, key):
+        try:
+            data = self.conn.get_object("internal-object-class-store", key)[1]
+            return data.decode("latin-1") # assume string
+        except Exception:
+            return None
+    
+    def get_metadata_keys(self):
+        try:
+            tmp = self.conn.get_container("internal-object-class-store")[1]
+        except Exception: # container does not exist
+            return []
+        
+        return [entry.get("name") for entry in tmp]
+    
+    @exception_wrapper(404, "resource does not exist", log)
+    def remove_metadata(self, key):
+        self.conn.delete_object("internal-object-class-store", key)
+    
+    
 ##############################################################################
 
     # Creating a Container

@@ -87,9 +87,7 @@ def index(path=""):
 @app.route("/swift/objectclassschema", methods=["GET"])
 @log_requests
 def get_objectclass_schema():
-    ## TODO: initial insert
-    acc_metadata = swift.get_account_metadata()
-    return acc_metadata.get("x-objectclass-schema")
+    raise HttpError("function is not implemented yet", 501)
 
 ##############################################################################
 
@@ -100,13 +98,14 @@ def get_objectclass_schema():
 @log_requests
 def get_objectclasses():
     class_names = []
-    acc_metadata = swift.get_account_metadata()
-    for k, v in acc_metadata.items():
+    keys = swift.get_metadata_keys()
+    for k in keys:
         if k.startswith("x-account-meta-objclass-"):
             try:
-                class_names.append(json.loads(v).get("name"))
+                value = swift.get_metadata(k)
+                class_names.append(json.loads(value).get("name"))
             except Exception as e:
-                log.debug("encountered invalid class definition stored in object store. key: {}, value: {}".format(k, v))
+                log.debug("encountered invalid class definition stored in object store. key: {}, value: {}".format(k, value))
     
     resp = {}
     resp["metadata"] = {"classCount": len(class_names)}
@@ -133,12 +132,12 @@ def create_objectclass():
         raise HttpError("class name or class schema definition missing", 400)
     
     class_key = xform_class_name_to_key(class_name)
-    acc_metadata = swift.get_account_metadata()
+    keys = swift.get_metadata_keys()
     
-    if class_key in acc_metadata:
+    if class_key in keys:
         raise HttpError("class already exists", 422)
     
-    swift.store_account_metadata(class_key, json.dumps(class_definition))  
+    swift.store_metadata(class_key, json.dumps(class_definition))  
     return "", 201  
 
 ##############################################################################
@@ -149,9 +148,8 @@ def create_objectclass():
 @app.route("/swift/objectclasses/<class_name>", methods=["GET"])
 @log_requests
 def get_objectclass(class_name):
-    acc_metadata = swift.get_account_metadata()
     class_key = xform_class_name_to_key(class_name)
-    class_def = acc_metadata.get(class_key)
+    class_def = swift.get_metadata(class_key)
     
     if not class_def:
         raise HttpError("class does not exist", 404)
@@ -174,14 +172,13 @@ def change_objectclass(class_name):
 @app.route("/swift/objectclasses/<class_name>", methods=["DELETE"])
 @log_requests
 def delete_objectclass(class_name):
-    acc_metadata = swift.get_account_metadata()
     class_key = xform_class_name_to_key(class_name)
-    class_def = acc_metadata.get(class_key)
+    class_def = swift.get_metadata(class_key)
     
     if not class_def:
         raise HttpError("class does not exist", 404)
     
-    swift.store_account_metadata(class_key, "")
+    swift.remove_metadata(class_key)
     return "", 204
 
 ##############################################################################
@@ -229,24 +226,30 @@ def create_container():
     
     try:
         container_definition = request.json.get("container")
-        class_name = container_definition.get("objectClass")
         container_name = container_definition.get("name")
     except AttributeError:
         raise HttpError("malformed request", 400)
     
-    if not class_name or not container_name:
-        raise HttpError("container name or class name missing", 400)
+    if not container_name:
+        raise HttpError("container name is missing", 400)
     
     containers = swift.get_container_list()[1]
     if container_name in [container.get("name") for container in containers]:
         raise HttpError("container already exists", 422)
     
-    class_key = xform_class_name_to_key(class_name)
-    acc_metadata = swift.get_account_metadata()
-    if class_key not in acc_metadata:
-        raise HttpError("class does not exist", 404)
+    container_metadata = {}
     
-    container_metadata = {"x-container-object-class": class_name}
+    try:
+        class_name = container_definition.get("objectClass")
+        class_key = xform_class_name_to_key(class_name)
+        class_definition = swift.get_metadata(class_key)
+        if class_name:
+            if class_definition is None:
+                raise HttpError("class does not exist", 404)
+            container_metadata = {"x-container-object-class": class_name}
+    except AttributeError:
+        pass # ignore empty or missing class definition
+    
     
     swift.create_container(container_name, container_metadata)
     return "", 201
