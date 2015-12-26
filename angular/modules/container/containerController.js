@@ -59,7 +59,7 @@ containerModule.controller('ContainerController',
              */
             $scope.getObjects = function(reload) {
                 $scope.isGetObjectsRequestPending = true;
-                containerService.getObjects($scope.container.name, reload, $scope.prefix)
+                containerService.getObjects($scope.container, reload, $scope.prefix)
                     .then(function (response) {
                         $scope.container.objects = reload ? response.objects : $scope.container.objects.concat(response.objects);
                         $scope.container.metadata = response.metadata;
