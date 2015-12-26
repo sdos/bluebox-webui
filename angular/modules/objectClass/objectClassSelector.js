@@ -15,6 +15,9 @@ objectClassModule.directive('objectClassSelector', function() {
         controller:  ['$scope', '$uibModal', '$rootScope', 'objectClassService', 'deleteConfirmationModal',
             function($scope, $uibModal, $rootScope, objectClassService, deleteConfirmationModal) {
 
+                /**
+                 * retrieves the object classes for the selector
+                 */
                 var getObjectClasses = function() {
                     objectClassService
                         .getObjectClasses()

@@ -33,6 +33,9 @@
                 <label for="required">Required?</label>
             </div>
         </div>
+        <div ng-show="isLoading()" class="form-group text-center">
+            <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate glyphicon-lg"></span>
+        </div>
         <div ng-repeat="metadataField in objectClassModel.metadataFields" class="form-group row">
             <div class="col-sm-4">
                 <input type="text"
@@ -104,13 +107,13 @@
                 </button>
             </div>
         </div>
-        <button type="button" class="btn btn-success" ng-click="addMetadataField()">
+        <button ng-disabled="isLoading()" type="button" class="btn btn-success" ng-click="addMetadataField()">
             <span class="glyphicon glyphicon-plus"></span>
             Add field
         </button>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-success" type="submit">
+        <button ng-disabled="isLoading()" class="btn btn-success" type="submit">
             <span class="glyphicon glyphicon-ok"></span>
             <span ng-if="!isEditMode">Create</span>
             <span ng-if="isEditMode">Update</span>

@@ -26,7 +26,7 @@ objectClassModule.controller('ObjectClassModalController',
              */
             $scope.objectClassModel = {
                 name:           className || "",
-                metadataFields: [angular.copy(METADATA_FIELD_TEMPLATE)]
+                metadataFields: []
             };
 
             /**
@@ -47,6 +47,8 @@ objectClassModule.controller('ObjectClassModalController',
                                 "timeout": "never"
                             });
                         });
+                } else {
+                    $scope.addMetadataField();
                 }
             };
 
@@ -63,6 +65,13 @@ objectClassModule.controller('ObjectClassModalController',
              */
             $scope.removeMetadataField = function(metadataField) {
                 $scope.objectClassModel.metadataFields = _.reject($scope.objectClassModel.metadataFields, metadataField)
+            };
+
+            /**
+             * returns true when there are no metadata fields loaded yet
+             */
+            $scope.isLoading = function() {
+                return _.isEmpty($scope.objectClassModel.metadataFields);
             };
 
             /**
