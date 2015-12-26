@@ -5,15 +5,14 @@
  * controller for the object class form
  */
 objectClassModule.controller('ObjectClassModalController',
-    ['$scope', '$uibModalInstance', 'objectClassService', 'TYPE_OPTIONS',
-        function($scope, $uibModalInstance, objectClassService, TYPE_OPTIONS) {
+    ['$scope', '$rootScope', '$uibModalInstance', '$filter', 'objectClassService', 'METADATA_FIELD_TEMPLATE', 'TYPE_OPTIONS', 'className',
+        function($scope, $rootScope, $uibModalInstance, $filter, objectClassService, METADATA_FIELD_TEMPLATE, TYPE_OPTIONS, className) {
 
-            var metadataField = {
-                "name":       "",
-                "type":       "",
-                "default":    "",
-                "required":   false
-            };
+            /**
+             * whether an existing object class is edited or a new one is created
+             * @type {boolean}
+             */
+            $scope.isEditMode = className || false;
 
             /**
              * list of options to choose the type of a metadata field from
@@ -25,16 +24,37 @@ objectClassModule.controller('ObjectClassModalController',
              * the object class model that is being edited
              * @type {{name: string, metadataFields: Array}}
              */
-            $scope.objectClass = {
-                name:           "",
-                metadataFields: [angular.copy(metadataField)]
+            $scope.objectClassModel = {
+                name:           className || "",
+                metadataFields: [angular.copy(METADATA_FIELD_TEMPLATE)]
+            };
+
+            /**
+             * loads the form model if an existing class is being edited
+             */
+            var initialize = function() {
+                if ($scope.isEditMode) {
+                    objectClassService
+                        .getObjectClass($scope.objectClassModel.name)
+                        .then(function (objectClass) {
+                            $scope.objectClassModel = $filter('jsonSchema')(objectClass.schema, true);
+                        })
+                        .catch(function (response) {
+                            $uibModalInstance.dismiss();
+                            $rootScope.$broadcast('FlashMessage', {
+                                "type": "danger",
+                                "text": "Could not load object class.<br/><br/>" + response.data,
+                                "timeout": "never"
+                            });
+                        });
+                }
             };
 
             /**
              * adds a metadata field to the form
              */
             $scope.addMetadataField = function() {
-                $scope.objectClass.metadataFields.push(angular.copy(metadataField));
+                $scope.objectClassModel.metadataFields.push(angular.copy(METADATA_FIELD_TEMPLATE));
             };
 
             /**
@@ -42,18 +62,22 @@ objectClassModule.controller('ObjectClassModalController',
              * @param {object} metadataField the field to remove
              */
             $scope.removeMetadataField = function(metadataField) {
-                $scope.objectClass.metadataFields = _.reject($scope.objectClass.metadataFields, metadataField)
+                $scope.objectClassModel.metadataFields = _.reject($scope.objectClassModel.metadataFields, metadataField)
             };
 
             /**
-             * creates the new objectClass and closes the modal if successful
+             * creates or updates the objectClass and closes the modal if successful
              */
-            $scope.createObjectClass = function() {
+            $scope.submitObjectClass = function() {
+                var submitFunction = $scope.isEditMode ? objectClassService.updateObjectClass : objectClassService.createObjectClass;
+                var objectClass = {
+                    "name":   $scope.objectClassModel.name,
+                    "schema": $filter('jsonSchema')($scope.objectClassModel)
+                };
                 $scope.$broadcast('clearMessageBag');
-                objectClassService
-                    .createObjectClass($scope.objectClass)
+                submitFunction(objectClass)
                     .then(function() {
-                        $uibModalInstance.close($scope.objectClass);
+                        $uibModalInstance.close($scope.objectClassModel);
                     })
                     .catch(function (response) {
                         $scope.$broadcast('FlashMessage', {
@@ -70,5 +94,7 @@ objectClassModule.controller('ObjectClassModalController',
             $scope.cancel = function () {
                 $uibModalInstance.dismiss();
             };
+
+            initialize();
         }]
 );

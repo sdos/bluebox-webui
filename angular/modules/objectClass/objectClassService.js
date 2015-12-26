@@ -24,9 +24,23 @@ objectClassModule.factory(
             },
 
             /**
+             * GET a single object class
+             *
+             * @param {string} name the name of the object class
+             * @returns {{name: string, schema: {}}}
+             */
+            getObjectClass: function(name) {
+                return $http
+                    .get(BACKEND_BASE_URL + 'objectclasses/' + $filter('urlEncode')(name))
+                    .then(function(response) {
+                        return response.data;
+                    });
+            },
+
+            /**
              * POST a new object class
              *
-             * @param objectClass the new object class
+             * @param {{name: string, schema: {}}} objectClass the new object class
              * @returns {promise} resolved or rejected to the plain response
              */
             createObjectClass: function(objectClass) {
@@ -34,10 +48,23 @@ objectClassModule.factory(
                     "method":   "POST",
                     "url":      BACKEND_BASE_URL + "objectclasses",
                     "data":     {
-                        "objectClass": {
-                            "name":   objectClass.name,
-                            "schema": $filter('jsonSchema')(objectClass)
-                        }
+                        "objectClass": objectClass
+                    }
+                })
+            },
+
+            /**
+             * PUT an update of an existing object class
+             *
+             * @param {{name: string, schema: {}}} objectClass the object class to update
+             * @returns {promise} resolved or rejected to the plain response
+             */
+            updateObjectClass: function(objectClass) {
+                return $http({
+                    "method":   "PUT",
+                    "url":      BACKEND_BASE_URL + "objectclasses/" + $filter('urlEncode')(objectClass.name),
+                    "data":     {
+                        "objectClass": objectClass
                     }
                 })
             },

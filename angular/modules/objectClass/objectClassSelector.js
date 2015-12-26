@@ -27,21 +27,47 @@ objectClassModule.directive('objectClassSelector', function() {
                  * opens a form to create a new object class
                  */
                 $scope.createNewObjectClass = function() {
-                    $uibModal
-                        .open({
-                            animation:      true,
-                            size:           "lg",
-                            templateUrl:    "/angular/modules/objectClass/objectClassModal.html",
-                            controller:     "ObjectClassModalController"
-                        })
-                        .result
-                        .then(function(objectClass) {
-                            $rootScope.$broadcast('FlashMessage', {
-                                "type": "success",
-                                "text": "Object class \"" + objectClass.name + "\" created."
-                            });
-                            getObjectClasses();
+                    $scope.editObjectClass(true);
+                };
+
+                /**
+                 * opens a form to edit the selected object class or create a new one
+                 *
+                 * @param isCreateMode if true, a new object class will be created
+                 */
+                $scope.editObjectClass = function(isCreateMode) {
+                    if (!isCreateMode && !angular.isDefined($scope.model)) {
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type": "danger",
+                            "text": "Could not edit object class: no object class selected."
                         });
+                    } else {
+                        $uibModal
+                            .open({
+                                animation: true,
+                                size: "lg",
+                                templateUrl: "/angular/modules/objectClass/objectClassModal.html",
+                                controller: "ObjectClassModalController",
+                                resolve: {
+                                    className: function () {
+                                        return isCreateMode ? undefined : $scope.model;
+                                    }
+                                }
+                            })
+                            .result
+                            .then(function (objectClass) {
+                                var action = isCreateMode ? "created" : "updated";
+                                $rootScope.$broadcast('FlashMessage', {
+                                    "type": "success",
+                                    "text": "Object class \"" + objectClass.name + "\" " + action + "."
+                                });
+
+                                // update selector options if class was created
+                                if (isCreateMode) {
+                                    getObjectClasses();
+                                }
+                            });
+                    }
                 };
 
                 /**

@@ -12,6 +12,13 @@ var objectClassModule = angular.module('bluebox.objectClass', [
         'bluebox.messageBag'
     ])
 
+    .constant('METADATA_FIELD_TEMPLATE', {
+        "name":       "",
+        "type":       "",
+        "default":    "",
+        "required":   false
+    })
+
     .constant('TYPE_OPTIONS', [
         {
             name:       "Text",
