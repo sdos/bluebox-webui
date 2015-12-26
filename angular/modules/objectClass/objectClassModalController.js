@@ -52,7 +52,9 @@ objectClassModule.controller('ObjectClassModalController',
                 $scope.$broadcast('clearMessageBag');
                 objectClassService
                     .createObjectClass($scope.objectClass)
-                    .then($uibModalInstance.close)
+                    .then(function() {
+                        $uibModalInstance.close($scope.objectClass);
+                    })
                     .catch(function (response) {
                         $scope.$broadcast('FlashMessage', {
                             "type":     "danger",

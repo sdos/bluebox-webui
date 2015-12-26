@@ -16,7 +16,11 @@ objectClassModule.factory(
              * @returns {promise} resolved or rejected to the plain response
              */
             getObjectClasses: function() {
-                return $http.get(BACKEND_BASE_URL + 'objectclasses');
+                return $http
+                    .get(BACKEND_BASE_URL + 'objectclasses')
+                    .then(function(response) {
+                        return response.data.classes;
+                    });
             },
 
             /**
@@ -41,11 +45,11 @@ objectClassModule.factory(
             /**
              * DELETE an object class
              *
-             * @param objectClass the object class to delete
+             * @param objectClassName the name of the object class to delete
              * @returns {promise} resolved or rejected to the plain response
              */
-            deleteObjectClass: function(objectClass) {
-                return $http.delete(BACKEND_BASE_URL + "objectclasses/" + $filter('urlEncode')(objectClass.name));
+            deleteObjectClass: function(objectClassName) {
+                return $http.delete(BACKEND_BASE_URL + "objectclasses/" + $filter('urlEncode')(objectClassName));
             }
         };
     }]

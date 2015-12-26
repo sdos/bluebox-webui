@@ -15,23 +15,33 @@ objectClassModule.directive('objectClassSelector', function() {
         controller:  ['$scope', '$uibModal', '$rootScope', 'objectClassService', 'deleteConfirmationModal',
             function($scope, $uibModal, $rootScope, objectClassService, deleteConfirmationModal) {
 
-                // initial retrieval
-                objectClassService
-                    .getObjectClasses()
-                    .then(function(response) {
-                        $scope.objectClasses = response.objectClasses;
-                    });
+                var getObjectClasses = function() {
+                    objectClassService
+                        .getObjectClasses()
+                        .then(function(classes) {
+                            $scope.objectClasses = classes;
+                        });
+                };
 
                 /**
                  * opens a form to create a new object class
                  */
                 $scope.createNewObjectClass = function() {
-                    $uibModal.open({
-                        animation:      true,
-                        size:           "lg",
-                        templateUrl:    "/angular/modules/objectClass/objectClassModal.html",
-                        controller:     "ObjectClassModalController"
-                    });
+                    $uibModal
+                        .open({
+                            animation:      true,
+                            size:           "lg",
+                            templateUrl:    "/angular/modules/objectClass/objectClassModal.html",
+                            controller:     "ObjectClassModalController"
+                        })
+                        .result
+                        .then(function(objectClass) {
+                            $rootScope.$broadcast('FlashMessage', {
+                                "type": "success",
+                                "text": "Object class \"" + objectClass.name + "\" created."
+                            });
+                            getObjectClasses();
+                        });
                 };
 
                 /**
@@ -45,7 +55,7 @@ objectClassModule.directive('objectClassSelector', function() {
                         });
                     } else {
                         deleteConfirmationModal
-                            .open($scope.model.name, "object class")
+                            .open($scope.model, "object class")
                             .result
                             .then(function () {
                                 return objectClassService
@@ -53,10 +63,12 @@ objectClassModule.directive('objectClassSelector', function() {
                                     .then(function () {
                                         $rootScope.$broadcast('FlashMessage', {
                                             "type": "success",
-                                            "text": "Object class \"" + $scope.model.name + "\" deleted."
+                                            "text": "Object class \"" + $scope.model + "\" deleted."
                                         });
                                         // remove object class from list
-                                        $scope.objectClasses = _.reject($scope.objectClasses, $scope.model);
+                                        $scope.objectClasses = _.reject($scope.objectClasses, function(objectClass) {
+                                            return objectClass === $scope.model;
+                                        });
                                     })
                                     .catch(function (response) {
                                         $rootScope.$broadcast('FlashMessage', {
@@ -68,6 +80,9 @@ objectClassModule.directive('objectClassSelector', function() {
                             });
                     }
                 };
+
+                // initial retrieval
+                getObjectClasses();
             }]
     };
 });

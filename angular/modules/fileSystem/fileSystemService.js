@@ -42,7 +42,7 @@ fileSystemModule.factory(
                         "data":             {
                             "container": {
                                 "name":         container.name,
-                                "objectClass":  container.objectClass.name
+                                "objectClass":  container.objectClass
                             }
                         }
                     })
