@@ -106,15 +106,7 @@
             <tr ng-repeat-start="object in container.objects">
                 <td>
                 	<div ng-if="object.content_type.indexOf('text/') > -1">
-                		<img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.css') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_css_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.xls') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_xls_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.xlsx') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_xlsx_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.html') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_html_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.doc') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_doc_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.docx') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_docx_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.pdf') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_pdf_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.xml') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_xml_32.png"/>
+                		<img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>      
                 	    <img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/text_default_32.png" ng-else/>
                 		{{ object.name }}
                 	</div>
@@ -130,12 +122,22 @@
                 	</div>
                 	<div ng-else-if="object.content_type.indexOf('image/') > -1">
                 		<img ng-if="object.name.indexOf('.jpg') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_jpeg_32.png"/>
+                		<img ng-else-if="object.name.indexOf('.jpeg') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_jpeg_32.png"/>
+                		<img ng-else-if="object.name.indexOf('.jpe') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_jpeg_32.png"/>
                 		<img ng-else-if="object.name.indexOf('.png') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_png_32.png"/>
                 		<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/image_default_32.png"/>
                 	    {{ object.name }}
                 	</div>
                 	<div ng-else-if="object.content_type.indexOf('application/') > -1">
                 		<img ng-if="object.name.indexOf('.xml') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xml_32.png"/>
+                		<img ng-else-if="object.name.indexOf('.doc') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_doc_32.png"/>
+                	    <img ng-else-if="object.name.indexOf('.docx') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_docx_32.png"/>
+                	    <img ng-else-if="object.name.indexOf('.xls') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xls_32.png"/>
+                	    <img ng-else-if="object.name.indexOf('.xlsx') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xlsx_32.png"/>
+                	    <img ng-else-if="object.name.indexOf('.css') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_css_32.png"/>              
+                	    <img ng-else-if="object.name.indexOf('.html') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_html_32.png"/>     
+                	    <img ng-else-if="object.name.indexOf('.pdf') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_pdf_32.png"/>
+                	    <img ng-else-if="object.name.indexOf('.rtf') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_rtf_32.png"/>     
                 		<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/application_default_32.png"/>
                 	    {{ object.name }}
                 	</div>
@@ -148,10 +150,19 @@
                 <td>{{ object.bytes | bytes}}</td>
                 <td>{{ object.content_type | contentType }}</td>
                 <td>
-                    <a
-                            ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true"
+                                
+                    <a ng-if="(object.content_type.indexOf('application/') > -1) || (object.content_type.indexOf('video/') > -1) || (object.content_type.indexOf('audio/') > -1) "                          
+                            ng-disabled="(object.content_type.indexOf('application/') > -1) || (object.content_type.indexOf('video/') > -1) || (object.content_type.indexOf('audio/') > -1) "
                             target="_blank"
-                            type="button"
+                            type="button"         
+                            class="btn btn-success">
+                        <span class="glyphicon glyphicon-new-window"></span>
+                        PREVIEW
+                    </a>
+                    <a ng-else
+                            ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true"       
+                            target="_blank"
+                            type="button" 
                             class="btn btn-success">
                         <span class="glyphicon glyphicon-new-window"></span>
                         PREVIEW
