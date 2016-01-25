@@ -1,17 +1,39 @@
+<div class="panel-body">
+    <a ui-sref="fileSystemState()" type="button" class="btn btn-info">
+        <span class="glyphicon glyphicon-level-up"></span>
+        Back to containers
+    </a>
+    <a type="button" class="btn btn-info">Check Old Files</a>
+    <a type="button" class="btn btn-info">Delete Old Files</a>
+</div>
 <div class="panel panel-default" >
-    <div class="panel-heading"><h3>Upload an object</h3></div>
-    <div class="panel-body">
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-sm-1">
+                <img
+                        alt="Container icon"
+                        ng-src="/angular/icons/file_icon_{{ container.metadata.objectCount > 0 ? 'full' : 'empty' }}_64.png">
+            </div>
+            <div class="col-sm-11">
+                <h3>
+                    Container: {{ container.name }}
+                </h3>
+                <p>Object class: {{ container.metadata.objectClass }}</p>
+            </div>
+        </div>
+    </div>
+    <div ng-click="showUploadForm = !showUploadForm" class="panel-heading clickable">
+        <h4>
+            <span class="glyphicon" ng-class="{'glyphicon-chevron-right': !showUploadForm, 'glyphicon-chevron-down': showUploadForm}"></span>
+            Upload an object
+        </h4>
+    </div>
+    <div ng-show="showUploadForm" class="panel-body">
         <form ng-submit="uploadObject()" class="form-horizontal">
             <div class="form-group">
                 <label for="browseBtn" class="col-sm-2 control-label">File to upload</label>
                 <div class="col-sm-10">
                     <input ngf-select ng-model="uploadForm.file" ng-change="uploadProgressPercentage = 0;" type="file" name="objectName" id="browseBtn" required/>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="containerTxt" class="col-sm-2 control-label">Container name</label>
-                <div class="col-sm-10">
-                    <input ng-model="container.name" type="text" class="form-control" id="containerTxt" readonly required/>
                 </div>
             </div>
             <div class="form-group">
@@ -21,7 +43,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="retentionDate" class="col-sm-2 control-label">Retention Date</label>
+                <label class="col-sm-2 control-label">Retention Date</label>
                 <div class="col-sm-10">
                     <date-input
                             model="uploadForm.retentionDate"
@@ -56,20 +78,9 @@
             </div>
         </form>
     </div>
-</div>
-
-<div class="panel-body">
-    <a ui-sref="fileSystemState()" type="button" class="btn btn-info">
-        <span class="glyphicon glyphicon-level-up"></span>
-        Back to containers
-    </a>
-    <a type="button" class="btn btn-info">Check Old Files</a>
-    <a type="button" class="btn btn-info">Delete Old Files</a>
-</div>
-
-<div class="panel panel-default">
+    <div ng-show="showUploadForm" class="panel-footer"></div>
     <div class="panel-heading">
-        <h3>List of objects in container {{ container.name }}</h3>
+        <h4>Object list</h4>
         <div class="row">
             <p class="col-md-8">{{ container.metadata.objectCount }} objects in total</p>
             <form class="form-inline col-md-4">
@@ -105,67 +116,57 @@
             </tr>
             <tr ng-repeat-start="object in container.objects">
                 <td>
-                	<div ng-if="object.content_type.indexOf('text/') > -1">
-                		<img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>      
-                	    <img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/text_default_32.png" ng-else/>
-                		{{ object.name }}
-                	</div>
-                	<div ng-else-if="object.content_type.indexOf('audio/') > -1">
-                	    <img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>
-                		<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/audio_default_32.png"/>
-                	    {{ object.name }}
-                	</div>
-                	<div ng-else-if="object.content_type.indexOf('video/') > -1">
-                		<img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>
-                		<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/video_default_32.png"/>
-                	    {{ object.name }}
-                	</div>
-                	<div ng-else-if="object.content_type.indexOf('image/') > -1">
-                		<img ng-if="object.name.indexOf('.jpg') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_jpeg_32.png"/>
-                		<img ng-else-if="object.name.indexOf('.jpeg') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_jpeg_32.png"/>
-                		<img ng-else-if="object.name.indexOf('.jpe') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_jpeg_32.png"/>
-                		<img ng-else-if="object.name.indexOf('.png') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_png_32.png"/>
-                		<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/image_default_32.png"/>
-                	    {{ object.name }}
-                	</div>
-                	<div ng-else-if="object.content_type.indexOf('application/') > -1">
-                		<img ng-if="object.name.indexOf('.xml') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xml_32.png"/>
-                		<img ng-else-if="object.name.indexOf('.doc') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_doc_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.docx') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_docx_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.xls') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xls_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.xlsx') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xlsx_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.css') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_css_32.png"/>              
-                	    <img ng-else-if="object.name.indexOf('.html') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_html_32.png"/>     
-                	    <img ng-else-if="object.name.indexOf('.pdf') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_pdf_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.rtf') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_rtf_32.png"/>     
-                		<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/application_default_32.png"/>
-                	    {{ object.name }}
-                	</div>
-                	<div ng-else>
-                	    <img alt="Data Icon" ng-src="/angular/icons/data_icons/unknown_data_32.png"/>
-                	    {{ object.name }}
-                	</div>
-                	
+                    <div ng-if="object.content_type.indexOf('text/') > -1">
+                        <img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>
+                        <img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/text_default_32.png" ng-else/>
+                        {{ object.name }}
+                    </div>
+                    <div ng-else-if="object.content_type.indexOf('audio/') > -1">
+                        <img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>
+                        <img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/audio_default_32.png"/>
+                        {{ object.name }}
+                    </div>
+                    <div ng-else-if="object.content_type.indexOf('video/') > -1">
+                        <img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>
+                        <img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/video_default_32.png"/>
+                        {{ object.name }}
+                    </div>
+                    <div ng-else-if="object.content_type.indexOf('image/') > -1">
+                        <img ng-if="object.name.indexOf('.jpg') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_jpeg_32.png"/>
+                        <img ng-else-if="object.name.indexOf('.jpeg') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_jpeg_32.png"/>
+                        <img ng-else-if="object.name.indexOf('.jpe') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_jpeg_32.png"/>
+                        <img ng-else-if="object.name.indexOf('.png') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_png_32.png"/>
+                        <img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/image_default_32.png"/>
+                        {{ object.name }}
+                    </div>
+                    <div ng-else-if="object.content_type.indexOf('application/') > -1">
+                        <img ng-if="object.name.indexOf('.xml') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xml_32.png"/>
+                        <img ng-else-if="object.name.indexOf('.docx') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_docx_32.png"/>
+                        <img ng-else-if="object.name.indexOf('.doc') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_doc_32.png"/>
+                        <img ng-else-if="object.name.indexOf('.xlsx') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xlsx_32.png"/>
+                        <img ng-else-if="object.name.indexOf('.xls') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xls_32.png"/>
+                        <img ng-else-if="object.name.indexOf('.css') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_css_32.png"/>
+                        <img ng-else-if="object.name.indexOf('.html') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_html_32.png"/>
+                        <img ng-else-if="object.name.indexOf('.pdf') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_pdf_32.png"/>
+                        <img ng-else-if="object.name.indexOf('.rtf') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_rtf_32.png"/>
+                        <img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/application_default_32.png"/>
+                        {{ object.name }}
+                    </div>
+                    <div ng-else>
+                        <img alt="Data Icon" ng-src="/angular/icons/data_icons/unknown_data_32.png"/>
+                        {{ object.name }}
+                    </div>
+
                 </td>
                 <td>{{ object.bytes | bytes}}</td>
                 <td>{{ object.content_type | contentType }}</td>
                 <td>
-                                
-                    <a ng-if="(object.content_type.indexOf('application/') > -1) || (object.content_type.indexOf('video/') > -1) || (object.content_type.indexOf('audio/') > -1) "                          
+                    <a
                             ng-disabled="(object.content_type.indexOf('application/') > -1) || (object.content_type.indexOf('video/') > -1) || (object.content_type.indexOf('audio/') > -1) "
                             target="_blank"
-                            type="button"         
+                            type="button"
                             class="btn btn-success">
                         <span class="glyphicon glyphicon-new-window"></span>
-                        PREVIEW
-                    </a>
-                    <a ng-else
-                            ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true"       
-                            target="_blank"
-                            type="button" 
-                            class="btn btn-success">
-                        <span class="glyphicon glyphicon-new-window"></span>
-                        PREVIEW
                     </a>
                 </td>
                 <td>
@@ -175,19 +176,16 @@
                             type="button"
                             class="btn btn-success">
                         <span class="glyphicon glyphicon-download-alt"></span>
-                        GET
                     </a>
                 </td>
                 <td>
                     <a ng-click="deleteObject(object)" type="button" class="btn btn-danger">
                         <span class="glyphicon glyphicon-remove"></span>
-                        DELETE
                     </a>
                 </td>
                 <td>
                     <a ng-click="toggleDetails(object)" type="button" class="btn btn-info">
                         <span class="glyphicon" ng-class="{'glyphicon-chevron-right': !object.showDetails, 'glyphicon-chevron-down': object.showDetails}"></span>
-                        DETAILS
                     </a>
                 </td>
             </tr>

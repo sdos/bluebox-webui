@@ -18,3 +18,8 @@
 .glyphicon-lg {
     font-size: 2em;
 }
+
+/* cursor for clickable elements that are neither a nor buttons */
+.clickable {
+    cursor: pointer;
+}

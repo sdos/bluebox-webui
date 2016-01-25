@@ -43,6 +43,12 @@ containerModule.controller('ContainerController',
             $scope.isEndOfListReached = containerService.isEndOfListReached;
 
             /**
+             * whether the upload form shall be shown
+             * @type {boolean}
+             */
+            $scope.showUploadForm = false;
+
+            /**
              * uploaded portion of the file in percent
              * @type {{loaded: number, total: number, percentage: number}}
              */
