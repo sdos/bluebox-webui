@@ -3,6 +3,8 @@
     Project Bluebox
     2015, University of Stuttgart, IPVS/AS
 """
+from jsonschema.exceptions import ValidationError
+from internal_storage import InternalStorageManager
 """
     Project Bluebox
 
@@ -22,10 +24,12 @@ import re
 from flask import Flask, request, Response, send_file
 from werkzeug import secure_filename
 from swiftclient.exceptions import ClientException
+from jsonschema import Draft4Validator, FormatChecker, ValidationError
 
 from exceptions import HttpError
 from SwiftConnect import SwiftConnect
 import appConfig
+import internal_storage
 
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
@@ -37,7 +41,9 @@ app = Flask(__name__, static_folder="angular")
 
 # Instantiating SwiftClient
 swift = SwiftConnect(appConfig.swift_type, appConfig.swift_url, appConfig.swift_user, appConfig.swift_pw)
+internal_data = InternalStorageManager(swift)
 
+CLASS_SCHEMA = json.loads(open("object_class_schema").read())
 
 
 ##############################################################################
@@ -87,7 +93,7 @@ def index(path=""):
 @app.route("/swift/objectclassschema", methods=["GET"])
 @log_requests
 def get_objectclass_schema():
-    raise HttpError("function is not implemented yet", 501)
+    return Response(json.dumps(CLASS_SCHEMA), mimetype="application/json")
 
 ##############################################################################
 
@@ -97,15 +103,12 @@ def get_objectclass_schema():
 @app.route("/swift/objectclasses", methods=["GET"])
 @log_requests
 def get_objectclasses():
-    class_names = []
-    keys = swift.get_metadata_keys()
-    for k in keys:
-        if k.startswith("x-account-meta-objclass-"):
-            try:
-                value = swift.get_metadata(k)
-                class_names.append(json.loads(value).get("name"))
-            except Exception as e:
-                log.debug("encountered invalid class definition stored in object store. key: {}, value: {}".format(k, value))
+    class_names = internal_data.get_keys("object classes")
+    for k in class_names:
+        value = internal_data.get_data("object classes", k)
+        # TODO validate if invalid remove key
+        #class_names.append(json.loads(value).get("name"))
+        #log.debug("encountered invalid class definition stored in object store. key: {}, value: {}".format(k, value))
     
     resp = {}
     resp["metadata"] = {"classCount": len(class_names)}
@@ -119,8 +122,6 @@ def get_objectclasses():
 @app.route("/swift/objectclasses", methods=["POST"])
 @log_requests
 def create_objectclass():
-    #TODO: schema validation
-    
     try:
         class_definition = request.json.get("objectClass")
         class_name = class_definition.get("name")
@@ -131,14 +132,18 @@ def create_objectclass():
     if not class_name or not class_schema:
         raise HttpError("class name or class schema definition missing", 400)
     
-    class_key = xform_class_name_to_key(class_name)
-    keys = swift.get_metadata_keys()
+    class_names = internal_data.get_keys("object classes")
     
-    if class_key in keys:
+    if class_name in class_names:
         raise HttpError("class already exists", 422)
     
-    swift.store_metadata(class_key, json.dumps(class_definition))  
-    return "", 201  
+    try:
+        Draft4Validator(CLASS_SCHEMA, format_checker=FormatChecker()).validate(class_definition)
+    except ValidationError as e:
+        raise HttpError("invalid class definition: {}".format(e), 400)
+    
+    internal_data.store_data("object classes", class_name, json.dumps(class_definition))  
+    return "", 201
 
 ##############################################################################
 
@@ -148,8 +153,7 @@ def create_objectclass():
 @app.route("/swift/objectclasses/<class_name>", methods=["GET"])
 @log_requests
 def get_objectclass(class_name):
-    class_key = xform_class_name_to_key(class_name)
-    class_def = swift.get_metadata(class_key)
+    class_def = internal_data.get_data("object classes", class_name)
     
     if not class_def:
         raise HttpError("class does not exist", 404)
@@ -163,7 +167,23 @@ def get_objectclass(class_name):
 @app.route("/swift/objectclasses/<class_name>", methods=["PUT"])
 @log_requests
 def change_objectclass(class_name):
-    raise HttpError("function is not implemented yet", 501)
+    try:
+        class_definition = request.json.get("objectClass")
+        class_name = class_definition.get("name")
+        class_schema = class_definition.get("schema")
+    except AttributeError:
+        raise HttpError("malformed request", 400)
+    
+    if not class_name or not class_schema:
+        raise HttpError("class name or class schema definition missing", 400)
+    
+    try:
+        Draft4Validator(CLASS_SCHEMA, format_checker=FormatChecker()).validate(class_definition)
+    except ValidationError as e:
+        raise HttpError("invalid class definition: {}".format(e), 400)
+    
+    internal_data.store_data("object classes", class_name, json.dumps(class_definition))  
+    return "", 200
 
 
 """
@@ -172,13 +192,12 @@ def change_objectclass(class_name):
 @app.route("/swift/objectclasses/<class_name>", methods=["DELETE"])
 @log_requests
 def delete_objectclass(class_name):
-    class_key = xform_class_name_to_key(class_name)
-    class_def = swift.get_metadata(class_key)
+    class_def = internal_data.get_data("object classes", class_name)
     
     if not class_def:
         raise HttpError("class does not exist", 404)
     
-    swift.remove_metadata(class_key)
+    internal_data.remove_data("object classes", class_name)
     return "", 204
 
 ##############################################################################
@@ -241,15 +260,13 @@ def create_container():
     
     try:
         class_name = container_definition.get("objectClass")
-        class_key = xform_class_name_to_key(class_name)
-        class_definition = swift.get_metadata(class_key)
+        class_definition = internal_data.get_data("object classes", class_name)
         if class_name:
             if class_definition is None:
                 raise HttpError("class does not exist", 404)
-            container_metadata = {"x-container-object-class": class_name}
+            container_metadata = {"x-container-meta-object-class": class_name}
     except AttributeError:
         pass # ignore empty or missing class definition
-    
     
     swift.create_container(container_name, container_metadata)
     return "", 201
@@ -272,7 +289,35 @@ def delete_container(container_name):
 @app.route("/swift/containers/<container_name>", methods=["PUT"])
 @log_requests
 def change_container(container_name):
-    raise HttpError("function is not implemented yet", 501)
+    #TODO: check schema validity since somebody else could store a rouge class definition in the object store (via direct interfacing with the object store)
+    
+    try:
+        container_definition = request.json.get("container")
+        container_name = container_definition.get("name")
+    except AttributeError:
+        raise HttpError("malformed request", 400)
+    
+    if not container_name:
+        raise HttpError("container name is missing", 400)
+    
+    containers = swift.get_container_list()[1]
+    if container_name not in [container.get("name") for container in containers]:
+        raise HttpError("container does not exist", 404)
+    
+    container_metadata = {}
+    
+    try:
+        class_name = container_definition.get("objectClass")
+        class_definition = internal_data.get_data("object classes", class_name)
+        if class_name:
+            if class_definition is None:
+                raise HttpError("class does not exist", 404)
+            container_metadata = {"x-container-meta-object-class": class_name}
+    except AttributeError:
+        pass # ignore empty or missing class definition
+    
+    swift.create_container(container_name, container_metadata)
+    return "", 201
 
 ##############################################################################
 
@@ -301,8 +346,9 @@ def get_objects_in_container(container_name):
         optional_params["prefix"] = prefix
 
     cts = swift.get_object_list(container_name, **optional_params)
+    
     resp = {}
-    resp["metadata"] = {"objectClass": cts[0].get("x-container-object-class"),
+    resp["metadata"] = {"objectClass": cts[0].get("x-container-meta-object-class"),
                         "objectCount": cts[0].get("x-container-object-count")}
     resp["objects"] = cts[1]
     return Response(json.dumps(resp, sort_keys=True), mimetype="application/json")
