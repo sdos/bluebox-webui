@@ -18,7 +18,30 @@
                 <h3>
                     Container: {{ container.name }}
                 </h3>
-                <p>Object class: {{ container.metadata.objectClass }}</p>
+                <form ng-submit="updateContainer()" class="form-horizontal">
+                    <div class="form-group">
+                        <label class="control-label col-sm-2">Object class:</label>
+                        <div ng-show="!showContainerForm" ng-mouseenter="showContainerForm = true" class="form-control-static col-sm-5">
+                            {{ container.objectClass ? container.objectClass : "no object class" }}
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </div>
+                        <object-class-selector ng-mouseleave="showContainerForm = isContainerFormInputDifferent()"
+                                               ng-show="showContainerForm"
+                                               ng-model="container.objectClass"
+                                               id="objectClass" class="col-sm-5">
+                        </object-class-selector>
+                        <div ng-show="isContainerFormInputDifferent()" class="col-sm-5">
+                            <button type="submit" class="btn btn-success">
+                                <span class="glyphicon glyphicon-save"></span>
+                                Apply
+                            </button>
+                            <button class="btn btn-primary" type="button" ng-click="resetContainerForm()">
+                                <span class="glyphicon glyphicon-repeat"></span>
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

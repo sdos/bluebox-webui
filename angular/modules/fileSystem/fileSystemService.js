@@ -27,6 +27,21 @@ fileSystemModule.factory(
              */
             var isEndOfListReached = false;
 
+            /**
+             * constructs the proper request data object from a container, omits all unnecessary properties
+             *
+             * @param {object} container the received container
+             * @returns {{container: {name: string, objectClass: string}}}
+             */
+            var getCleanRequestData = function(container) {
+                return {
+                    "container": {
+                        "name":         container.name,
+                        "objectClass":  container.objectClass
+                    }
+                };
+            };
+
             return {
 
                 /**
@@ -37,14 +52,23 @@ fileSystemModule.factory(
                  */
                 createContainer: function(container) {
                     return $http({
-                        "method":           "POST",
-                        "url":              BACKEND_BASE_URL + "containers",
-                        "data":             {
-                            "container": {
-                                "name":         container.name,
-                                "objectClass":  container.objectClass
-                            }
-                        }
+                        "method":   "POST",
+                        "url":      BACKEND_BASE_URL + "containers",
+                        "data":     getCleanRequestData(container)
+                    })
+                },
+
+                /**
+                 * PUT an update of a container
+                 *
+                 * @param {{name: string, objectClass: string}} container the container to update
+                 * @returns {promise} resolved or rejected to the plain response from the backend
+                 */
+                updateContainer: function(container) {
+                    return $http({
+                        "method":   "PUT",
+                        "url":      BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(container.name),
+                        "data":     getCleanRequestData(container)
                     })
                 },
 

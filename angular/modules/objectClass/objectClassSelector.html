@@ -1,6 +1,6 @@
 <div class="input-group">
     <select
-        ng-model="model"
+        ng-model="ngModel"
         ng-options="objectClass for objectClass in objectClasses"
         class="form-control"
         id="{{ id }}">
@@ -10,10 +10,10 @@
         <button ng-click="createNewObjectClass()" type="button" class="btn btn-success">
             <span class="glyphicon glyphicon-plus"></span>
         </button>
-        <button ng-click="editObjectClass()" ng-disabled="!model" type="button" class="btn btn-primary">
+        <button ng-click="editObjectClass()" ng-disabled="!ngModel" type="button" class="btn btn-primary">
             <span class="glyphicon glyphicon-pencil"></span>
         </button>
-        <button ng-click="deleteObjectClass()" ng-disabled="!model" type="button" class="btn btn-danger">
+        <button ng-click="deleteObjectClass()" ng-disabled="!ngModel" type="button" class="btn btn-danger">
             <span class="glyphicon glyphicon-remove"></span>
         </button>
     </div>
