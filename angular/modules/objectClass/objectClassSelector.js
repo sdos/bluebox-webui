@@ -65,9 +65,10 @@ objectClassModule.directive('objectClassSelector', function() {
                                     "text": "Object class \"" + objectClass.name + "\" " + action + "."
                                 });
 
-                                // update selector options if class was created
-                                if (isCreateMode) {
+                                // update selector options if class was created or renamed
+                                if (isCreateMode || objectClass.name !== $scope.model) {
                                     getObjectClasses();
+                                    $scope.model = objectClass.name;
                                 }
                             });
                     }

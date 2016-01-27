@@ -1,3 +1,6 @@
+<div ng-show="isSubmissionPending" class="modal-backdrop in vertical-center">
+    <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate glyphicon-lg"></span>
+</div>
 <form ng-submit="submitObjectClass()">
     <div class="modal-header">
         <h3 class="modal-title">
@@ -12,7 +15,6 @@
         </h4>
         <input type="text"
                ng-model="objectClassModel.name"
-               ng-disabled="isEditMode"
                class="form-control"
                id="className"
                placeholder="Object class name"
@@ -27,7 +29,7 @@
                 <label for="fieldType">Type</label>
             </div>
             <div class="col-sm-3">
-                <label for="fieldDefault">Default value</label>
+                <label>Default value</label>
             </div>
             <div class="col-sm-2 text-center">
                 <label for="required">Required?</label>
@@ -59,37 +61,31 @@
                     <input type="number"
                            ng-model="metadataField.default"
                            class="form-control"
-                           id="fieldDefault"
                            placeholder="Default number">
                 </div>
                 <div ng-switch-when="email">
                     <input type="email"
                            ng-model="metadataField.default"
                            class="form-control"
-                           id="fieldDefault"
                            placeholder="Default email">
                 </div>
                 <div ng-switch-when="url">
                     <input type="url"
                            ng-model="metadataField.default"
                            class="form-control"
-                           id="fieldDefault"
                            placeholder="Default URL">
                 </div>
                 <div ng-switch-when="checkbox"  class="checkbox text-center">
-                    <input type="checkbox" ng-model="metadataField.default" id="fieldDefault">
+                    <input type="checkbox" ng-model="metadataField.default">
                 </div>
                 <div ng-switch-when="date">
-                    <date-input
-                            model="metadataField.default"
-                            id="fieldDefault">
+                    <date-input model="metadataField.default">
                     </date-input>
                 </div>
                 <div ng-switch-default>
                     <input type="text"
                            ng-model="metadataField.default"
                            class="form-control"
-                           id="fieldDefault"
                            placeholder="Default text">
                 </div>
             </div>
