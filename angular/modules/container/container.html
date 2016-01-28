@@ -107,6 +107,7 @@
                 <td>
                 	<div ng-if="object.content_type.indexOf('text/') > -1">
                 		<img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>      
+                	    <img ng-else-if="object.name.indexOf('.html') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_html_32.png"/>     
                 	    <img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/text_default_32.png" ng-else/>
                 		{{ object.name }}
                 	</div>
@@ -135,7 +136,6 @@
                 	    <img ng-else-if="object.name.indexOf('.xls') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xls_32.png"/>
                 	    <img ng-else-if="object.name.indexOf('.xlsx') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xlsx_32.png"/>
                 	    <img ng-else-if="object.name.indexOf('.css') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_css_32.png"/>              
-                	    <img ng-else-if="object.name.indexOf('.html') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_html_32.png"/>     
                 	    <img ng-else-if="object.name.indexOf('.pdf') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_pdf_32.png"/>
                 	    <img ng-else-if="object.name.indexOf('.rtf') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_rtf_32.png"/>     
                 		<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/application_default_32.png"/>
@@ -151,16 +151,17 @@
                 <td>{{ object.content_type | contentType }}</td>
                 <td>
                                 
-                    <a ng-if="(object.content_type.indexOf('application/') > -1) || (object.content_type.indexOf('video/') > -1) || (object.content_type.indexOf('audio/') > -1) "                          
-                            ng-disabled="(object.content_type.indexOf('application/') > -1) || (object.content_type.indexOf('video/') > -1) || (object.content_type.indexOf('audio/') > -1) "
-                            target="_blank"
-                            type="button"         
-                            class="btn btn-success">
+                    <a ng-if="(object.content_type.indexOf('text/') > -1) || (object.name.indexOf('.pdf') > -1) || (object.content_type.indexOf('image/') > -1) "                          
+                       ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true"       
+                       target="_blank"
+                       type="button"         
+                       class="btn btn-success">
                         <span class="glyphicon glyphicon-new-window"></span>
                         PREVIEW
                     </a>
                     <a ng-else
-                            ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true"       
+                    		ng-disabled="(object.content_type.indexOf('application/') > -1) || (object.content_type.indexOf('video/') > -1) || (object.content_type.indexOf('audio/') > -1) "
+                           
                             target="_blank"
                             type="button" 
                             class="btn btn-success">
