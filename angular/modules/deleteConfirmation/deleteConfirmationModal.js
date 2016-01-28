@@ -27,10 +27,10 @@ deleteConfirmationModule.factory(
                             return {
                                 name: name,
                                 type: type
-                            }
+                            };
                         }
                     }
-                })
+                });
             }
         };
     }]

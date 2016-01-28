@@ -8,8 +8,8 @@ objectClassModule.directive('objectClassSelector', function() {
     return {
         restrict:    'E',
         scope:       {
-            model:  '=',
-            id:     '@'
+            ngModel:    '=',
+            id:         '@'
         },
         templateUrl: "/angular/modules/objectClass/objectClassSelector.html",
         controller:  ['$scope', '$uibModal', '$rootScope', 'objectClassService', 'deleteConfirmationModal',
@@ -39,7 +39,7 @@ objectClassModule.directive('objectClassSelector', function() {
                  * @param isCreateMode if true, a new object class will be created
                  */
                 $scope.editObjectClass = function(isCreateMode) {
-                    if (!isCreateMode && !angular.isDefined($scope.model)) {
+                    if (!isCreateMode && !angular.isDefined($scope.ngModel)) {
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "danger",
                             "text": "Could not edit object class: no object class selected."
@@ -53,7 +53,7 @@ objectClassModule.directive('objectClassSelector', function() {
                                 controller: "ObjectClassModalController",
                                 resolve: {
                                     className: function () {
-                                        return isCreateMode ? undefined : $scope.model;
+                                        return isCreateMode ? undefined : $scope.ngModel;
                                     }
                                 }
                             })
@@ -65,9 +65,10 @@ objectClassModule.directive('objectClassSelector', function() {
                                     "text": "Object class \"" + objectClass.name + "\" " + action + "."
                                 });
 
-                                // update selector options if class was created
-                                if (isCreateMode) {
+                                // update selector options if class was created or renamed
+                                if (isCreateMode || objectClass.name !== $scope.ngModel) {
                                     getObjectClasses();
+                                    $scope.ngModel = objectClass.name;
                                 }
                             });
                     }
@@ -77,26 +78,26 @@ objectClassModule.directive('objectClassSelector', function() {
                  * deletes the selected object class
                  */
                 $scope.deleteObjectClass = function() {
-                    if (!angular.isDefined($scope.model)) {
+                    if (!angular.isDefined($scope.ngModel)) {
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "danger",
                             "text": "Could not delete object class: no object class selected."
                         });
                     } else {
                         deleteConfirmationModal
-                            .open($scope.model, "object class")
+                            .open($scope.ngModel, "object class")
                             .result
                             .then(function () {
                                 return objectClassService
-                                    .deleteObjectClass($scope.model)
+                                    .deleteObjectClass($scope.ngModel)
                                     .then(function () {
                                         $rootScope.$broadcast('FlashMessage', {
                                             "type": "success",
-                                            "text": "Object class \"" + $scope.model + "\" deleted."
+                                            "text": "Object class \"" + $scope.ngModel + "\" deleted."
                                         });
                                         // remove object class from list
                                         $scope.objectClasses = _.reject($scope.objectClasses, function(objectClass) {
-                                            return objectClass === $scope.model;
+                                            return objectClass === $scope.ngModel;
                                         });
                                     })
                                     .catch(function (response) {

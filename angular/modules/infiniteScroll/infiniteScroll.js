@@ -3,7 +3,7 @@
 /**
  * bluebox.infiniteScroll
  * module and directive for infinite scrolling
- * adapted from https://github.com/sparkalow/angular-infinite-scroll
+ * adopted from https://github.com/sparkalow/angular-infinite-scroll
  *
  * usage:
  *      <div infinite-scroll="addItems()" threshold="100" can-load="true" global>...</div>

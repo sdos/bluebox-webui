@@ -18,3 +18,16 @@
 .glyphicon-lg {
     font-size: 2em;
 }
+
+/* cursor for clickable elements that are neither a nor buttons */
+.clickable {
+    cursor: pointer;
+}
+
+/* vertical centered elements */
+.vertical-center {
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
