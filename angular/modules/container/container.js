@@ -13,7 +13,8 @@ var containerModule = angular.module('bluebox.container', [
         'bluebox.dateInput',
         'bluebox.filter',
         'bluebox.fileSystem',
-        'bluebox.infiniteScroll'
+        'bluebox.infiniteScroll',
+        'bluebox.objectClass'
     ])
 
     .config(['$stateProvider', function($stateProvider) {

@@ -1,9 +1,10 @@
 <div class="input-group">
     <input
-            ng-model="model"
+            ng-model="ngModel"
             ng-click="isOpen = true"
             type="date"
             class="form-control"
+            name="{{ name }}"
             id="{{ id }}"
             uib-datepicker-popup
             is-open="isOpen"

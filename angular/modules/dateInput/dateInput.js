@@ -16,7 +16,8 @@ angular.module('bluebox.dateInput', [
         return {
             restrict:       'E',
             scope:          {
-                model:      '=',
+                ngModel:    '=',
+                name:       '@',
                 id:         '@',
                 minDate:    '=',
                 options:    '='

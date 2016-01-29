@@ -115,6 +115,7 @@ objectClassModule.controller('ObjectClassModalController',
              * creates or updates the objectClass and closes the modal if successful
              */
             $scope.submitObjectClass = function() {
+                // TODO: check default value compatibility on change of input type
                 $scope.isSubmissionPending = true;
 
                 // assign the proper submit function

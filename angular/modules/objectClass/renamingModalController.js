@@ -1,8 +1,8 @@
 'use strict';
 
 /**
- * DeleteConfirmationController
- * controller for the modal content of the delete confirmation dialogue
+ * RenamingModalController
+ * controller for the modal content of the rename object class dialogue
  */
 objectClassModule.controller('RenamingModalController',
     ['$scope', '$uibModalInstance', 'oldName', 'newName', function($scope, $uibModalInstance, oldName, newName) {

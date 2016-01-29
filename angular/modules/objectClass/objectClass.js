@@ -18,7 +18,7 @@ var objectClassModule = angular.module('bluebox.objectClass', [
     .constant('METADATA_FIELD_TEMPLATE', {
         "name":       "",
         "type":       "",
-        "default":    "",
+        "default":    undefined,
         "required":   false
     })
 

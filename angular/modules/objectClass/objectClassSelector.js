@@ -70,6 +70,11 @@ objectClassModule.directive('objectClassSelector', function() {
                                     getObjectClasses();
                                     $scope.ngModel = objectClass.name;
                                 }
+
+                                // emit an event if class was modified
+                                if (!isCreateMode) {
+                                    $scope.$emit('objectClassModified', objectClass);
+                                }
                             });
                     }
                 };
@@ -99,6 +104,8 @@ objectClassModule.directive('objectClassSelector', function() {
                                         $scope.objectClasses = _.reject($scope.objectClasses, function(objectClass) {
                                             return objectClass === $scope.ngModel;
                                         });
+                                        // emit an event
+                                        $scope.$emit('objectClassDeleted', $scope.ngModel);
                                     })
                                     .catch(function (response) {
                                         $rootScope.$broadcast('FlashMessage', {

@@ -50,45 +50,19 @@
             <div class="col-sm-2">
                 <select ng-model="metadataField.type"
                         ng-options="typeOption.name for typeOption in typeOptions"
+                        ng-change="metadataField.default = undefined"
                         class="form-control"
                         id="fieldType"
                         required>
                     <option value="">Select type</option>
                 </select>
             </div>
-            <div class="col-sm-3" ng-switch="metadataField.type.inputType">
-                <div ng-switch-when="number">
-                    <input type="number"
-                           ng-model="metadataField.default"
-                           class="form-control"
-                           placeholder="Default number">
-                </div>
-                <div ng-switch-when="email">
-                    <input type="email"
-                           ng-model="metadataField.default"
-                           class="form-control"
-                           placeholder="Default email">
-                </div>
-                <div ng-switch-when="url">
-                    <input type="url"
-                           ng-model="metadataField.default"
-                           class="form-control"
-                           placeholder="Default URL">
-                </div>
-                <div ng-switch-when="checkbox"  class="checkbox text-center">
-                    <input type="checkbox" ng-model="metadataField.default">
-                </div>
-                <div ng-switch-when="date">
-                    <date-input model="metadataField.default">
-                    </date-input>
-                </div>
-                <div ng-switch-default>
-                    <input type="text"
-                           ng-model="metadataField.default"
-                           class="form-control"
-                           placeholder="Default text">
-                </div>
-            </div>
+            <dynamic-input
+                    type="metadataField.type.inputType"
+                    ng-model="metadataField.default"
+                    placeholder="Default {{ metadataField.type.inputType }}"
+                    inline="true"
+                    class="col-sm-3"></dynamic-input>
             <div class="col-sm-2 text-center">
                 <div class="checkbox">
                     <input type="checkbox" ng-model="metadataField.required" id="required">

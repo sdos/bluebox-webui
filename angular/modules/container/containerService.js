@@ -82,19 +82,19 @@ containerModule.factory(
             /**
              * upload a file to a container
              *
-             * @param {object} file          the file to upload
-             * @param {string} containerName name of the container
-             * @param {string} ownerName     name of the owner of the file (optional)
-             * @param {date}   retentionDate date after that the file shall be automatically deleted from the server (optional)
+             * @param {object}            file          the file to upload
+             * @param {string}            containerName name of the container
+             * @param {{key: value, ...}} metadata      the provided metadata for the object
+             * @param {date}              retentionDate date after that the file shall be automatically deleted from the server (optional)
              * @returns {promise} resolved or rejected to the plain response
              */
-            uploadObject: function(file, containerName, ownerName, retentionDate) {
+            uploadObject: function(file, containerName, metadata, retentionDate) {
                 return Upload.upload({
                     "method": "POST",
                     "url": BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(containerName) + "/objects",
                     "data": {
                         "objectName":       file,
-                        "OwnerName":        ownerName ? ownerName : "",
+                        "metadata":         metadata,
                         "RetentionPeriod":  retentionDate ? $filter('date')(retentionDate, "yyyy-MM-dd") : ""
                     }
                 });

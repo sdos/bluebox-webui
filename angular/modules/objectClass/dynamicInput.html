@@ -1,0 +1,14 @@
+<input ng-if="type === 'text' || type === 'number' || type === 'email' || type === 'url'"
+       type="{{ type }}"
+       ng-model="$parent.ngModel"
+       ng-required="ngRequired"
+       class="form-control"
+       name="{{ name }}"
+       id="{{ id }}"
+       placeholder="{{ placeholder }}"/>
+
+<div ng-if="type === 'checkbox'" ng-class="inline ? 'checkbox-inline' : 'checkbox'">
+    <input type="checkbox" ng-model="$parent.ngModel" name="{{ name }}" id="{{ id }}" ng-class="inline ? '' : 'no-label'"/>
+</div>
+
+<date-input ng-if="type === 'date'" ng-model="$parent.ngModel" name="{{ name }}" id="{{ id }}"></date-input>

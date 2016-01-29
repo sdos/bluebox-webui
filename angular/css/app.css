@@ -31,3 +31,8 @@
     align-items: center;
     justify-content: center;
 }
+
+/* checkboxes that remain properly aligned */
+.checkbox input[type=checkbox].no-label {
+    margin-left: 0;
+}
