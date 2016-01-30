@@ -371,18 +371,17 @@ def create_object(container_name):
         raise HttpError("object with this name already exists in this container", 422)
     
     retentime = request.form["RetentionPeriod"]
-
     headers = {}
     if retentime:
         try:
             converted_retentime = datetime.strptime(retentime, "%Y-%m-%d")
             reten_timestamp = int(time.mktime(converted_retentime.timetuple()))
             headers["X-Object-Meta-RetentionTime"] = reten_timestamp
-        except ValueError as e:
+        except Exception as e:
+            print(e)
             log.debug("invalid date format for form parameter RetentionPeriod: {}, for request: {}. Expected format: yyyy-mm-dd".format(retentime))
             raise HttpError("invalid date format for form parameter RetentionPeriod: {}. Expected format: yyyy-mm-dd".format(retentime), 400)
-    headers["X-Object-Meta-OwnerName"] = request.form["OwnerName"]
-
+    
     swift.streaming_object_upload(object_name, container_name, file, headers)
     return "", 201
 
