@@ -84,6 +84,10 @@ def index(path=""):
     if path[:5] != "swift":
         # return render_template('index.html')
         return send_file("angular/index.html")
+    else:
+        # this function is only called, when no other route matches
+        raise HttpError("the requested endpoint does not exist", 404)
+    
 
 ##############################################################################
 
@@ -378,7 +382,6 @@ def create_object(container_name):
             reten_timestamp = int(time.mktime(converted_retentime.timetuple()))
             headers["X-Object-Meta-RetentionTime"] = reten_timestamp
         except Exception as e:
-            print(e)
             log.debug("invalid date format for form parameter RetentionPeriod: {}, for request: {}. Expected format: yyyy-mm-dd".format(retentime))
             raise HttpError("invalid date format for form parameter RetentionPeriod: {}. Expected format: yyyy-mm-dd".format(retentime), 400)
     
