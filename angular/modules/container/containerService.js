@@ -94,7 +94,7 @@ containerModule.factory(
                     "url": BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(containerName) + "/objects",
                     "data": {
                         "objectName":       file,
-                        "metadata":         metadata,
+                        "metadata":         Upload.json(metadata),
                         "RetentionPeriod":  retentionDate ? $filter('date')(retentionDate, "yyyy-MM-dd") : ""
                     }
                 });
