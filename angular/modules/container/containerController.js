@@ -69,7 +69,7 @@ containerModule.controller('ContainerController',
             };
 
             /**
-             * list of the fixed columns for container properties
+             * list of the basic object properties that are served directly with the object list (without having to GET details)
              * @type {Array}
              */
             $scope.basicMetadataFields = [
@@ -84,6 +84,18 @@ containerModule.controller('ContainerController',
                     objectProperty: "content_type",
                     filter: "contentType",
                     isShownInColumn: true
+                },
+                {
+                    name: "Hash",
+                    objectProperty: "hash",
+                    isShownInColumn: false
+                },
+                {
+                    name: "Last modified (UTC)",
+                    objectProperty: "last_modified",
+                    filter: "date",
+                    dateFormat: "medium",
+                    isShownInColumn: false
                 }
             ];
 
