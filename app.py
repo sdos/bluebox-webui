@@ -136,7 +136,6 @@ def create_objectclass():
     if not class_name or not class_schema:
         raise HttpError("class name or class schema definition missing", 400)
     
-    class_name = xform_header_names(class_name)
     class_names = internal_data.get_keys("object classes")
     
     if class_name in class_names:
@@ -264,7 +263,7 @@ def create_container():
     container_metadata = {}
     
     try:
-        class_name = xform_header_names(container_definition.get("objectClass"))
+        class_name = container_definition.get("objectClass")
         class_definition = internal_data.get_data("object classes", class_name)
         if class_name:
             if class_definition is None:
@@ -312,7 +311,7 @@ def change_container(container_name):
     container_metadata = {}
     
     try:
-        class_name = xform_header_names(container_definition.get("objectClass"))
+        class_name = container_definition.get("objectClass")
         class_definition = internal_data.get_data("object classes", class_name)
         if class_name:
             if class_definition is None:
@@ -399,7 +398,8 @@ def create_object(container_name):
             val = class_metadata[field]
             if val is not None:
                 field_header = xform_header_names(field)
-                headers["X-Object-Meta-" + class_name + "-Class-" + field_header] = class_metadata[field]
+                xformed_class_name = xform_header_names(class_name)
+                headers["X-Object-Meta-" + xformed_class_name + "-Class-" + field_header] = class_metadata[field]
     
     swift.streaming_object_upload(object_name, container_name, file, headers)
     return "", 201
