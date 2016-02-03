@@ -388,8 +388,13 @@ def create_object(container_name):
     
     class_metadata_json = request.form["metadata"]
     if class_metadata_json:
-        class_name = swift.get_container_metadata(container_name).get("x-container-meta-object-class")
         class_metadata = json.loads(class_metadata_json)
+        
+        class_name = swift.get_container_metadata(container_name).get("x-container-meta-object-class")
+        if class_name:
+            class_definition = json.loads(internal_data.get_data("object classes", class_name))
+            Draft4Validator(class_definition, format_checker=FormatChecker()).validate(class_metadata)
+        
         for field in class_metadata.keys():
             val = class_metadata[field]
             if val is not None:
