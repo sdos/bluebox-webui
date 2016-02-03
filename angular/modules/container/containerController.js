@@ -5,8 +5,8 @@
  * controller for the view of a single container
  */
 containerModule.controller('ContainerController',
-    ['$scope', '$rootScope', '$stateParams', '$timeout', '$filter', 'containerService', 'fileSystemService', 'objectClassService', 'deleteConfirmationModal',
-        function($scope, $rootScope, $stateParams, $timeout, $filter, containerService, fileSystemService, objectClassService, deleteConfirmationModal) {
+    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', 'containerService', 'fileSystemService', 'objectClassService', 'deleteConfirmationModal',
+        function($scope, $rootScope, $state, $stateParams, $timeout, $filter, containerService, fileSystemService, objectClassService, deleteConfirmationModal) {
 
             /**
              * contains the relevant information about the current container
@@ -65,6 +65,22 @@ containerModule.controller('ContainerController',
             };
 
             /**
+             * quits the current container and goes to the parent state
+             * optionally broadcasts an error message
+             *
+             * @param {string|undefined} errorMessage if defined, it will be broadcasted from rootScope
+             */
+            var quitContainer = function(errorMessage) {
+                if (angular.isString(errorMessage)) {
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type":     "danger",
+                        "text":     errorMessage
+                    });
+                }
+                $state.go('fileSystemState');
+            };
+
+            /**
              * GET new objects from the container service
              *
              * @param {boolean} reload if true, the list will be reloaded from the beginning
@@ -91,11 +107,15 @@ containerModule.controller('ContainerController',
                         $scope.isGetObjectsRequestPending = false;
                     })
                     .catch(function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type":     "danger",
-                            "text":     response.data,
-                            "timeout":  "never"
-                        });
+                        if (response.status === 404) {
+                            quitContainer("Container \"" + $scope.container.name + "\" not found.");
+                        } else {
+                            $rootScope.$broadcast('FlashMessage', {
+                                "type": "danger",
+                                "text": response.data,
+                                "timeout": "never"
+                            });
+                        }
                         $scope.isGetObjectsRequestPending = false;
                     });
             };
@@ -170,7 +190,6 @@ containerModule.controller('ContainerController',
 
                     // if the field is new OR
                     // if the field types are different OR
-                    // TODO: check for type compatibility instead of difference
                     // if the default value has changed and the user has not interacted with it
                     if (!oldMetadataField
                         || oldMetadataField.type.inputType !== newMetadataField.type.inputType
@@ -327,8 +346,14 @@ containerModule.controller('ContainerController',
                 }
             };
 
-            // initial retrieval
-            $scope.getObjects(true);
+            // quit the container if there is no name provided
+            if (!$stateParams.containerName) {
+                quitContainer("Cannot enter container: no container name provided.");
+            } else {
+                // initial retrieval
+                $scope.getObjects(true);
+                $scope.isInitialRetrievalDone = true;
+            }
 
             // update the metadata fields if the current class was modified
             $scope.$on('objectClassModified', function(event, objectClass) {
@@ -339,8 +364,8 @@ containerModule.controller('ContainerController',
                 }
             });
 
-            // reset metadata fields id a class has been deleted
-            $scope.$on('objectClassDeleted', function(event, objectClassName) {
+            // reset metadata fields if a class has been deleted
+            $scope.$on('objectClassDeleted', function() {
                 // reset the metadata fields
                 $scope.container.metadataFields = [];
                 $scope.fileModel.metadata = {};

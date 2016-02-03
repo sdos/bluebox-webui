@@ -147,7 +147,7 @@
         <table
                 infinite-scroll="getObjects()"
                 threshold="100"
-                can-load="!isGetObjectsRequestPending && !isEndOfListReached()"
+                can-load="isInitialRetrievalDone && !isGetObjectsRequestPending && !isEndOfListReached()"
                 global
                 class="table table-hover">
             <tr>
