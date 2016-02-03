@@ -65,6 +65,25 @@ containerModule.controller('ContainerController',
             };
 
             /**
+             * list of the fixed columns for container properties
+             * @type {Array}
+             */
+            $scope.fixedColumns = [
+                {name: "Size", objectProperty: "bytes", filter: "bytes", isShown: true},
+                {name: "Type", objectProperty: "content_type", filter: "contentType", isShown: true}
+            ];
+
+            /**
+             * list of special metadata fields that are not part of the object class, but shall possibly be shown in a column
+             * @type {Array}
+             */
+            $scope.specialMetadata = [
+                {name: "Date", headerKey: "date", isShownInColumn: false},
+                {name: "Last modified", headerKey: "last-modified", isShownInColumn: false},
+                {name: "Retention Date", headerKey: "x-object-meta-retentiontime", isShownInColumn: false}
+            ];
+
+            /**
              * quits the current container and goes to the parent state
              * optionally broadcasts an error message
              *
@@ -105,6 +124,10 @@ containerModule.controller('ContainerController',
                         $scope.container.objects = reload ? response.objects : $scope.container.objects.concat(response.objects);
                         $scope.container.metadata = response.metadata;
                         $scope.isGetObjectsRequestPending = false;
+
+                        if (isAnyMetadataFieldShownInColumn()) {
+                            getAllMissingDetails();
+                        }
                     })
                     .catch(function (response) {
                         if (response.status === 404) {
@@ -331,20 +354,69 @@ containerModule.controller('ContainerController',
 
                 // retrieve the details if they shall be shown
                 if (object.showDetails) {
-                    containerService
-                        .getDetails($scope.container, object)
-                        .then(function (details) {
-                            object.details = details;
-                        })
-                        .catch(function (response) {
-                            $rootScope.$broadcast('FlashMessage', {
-                                "type":     "danger",
-                                "text":     response.data,
-                                "timeout":  "never"
-                            });
-                        });
+                    getDetails(object);
                 }
             };
+
+            /**
+             * GET the details for an object
+             *
+             * @param object the object to get the details for
+             */
+            var getDetails = function(object) {
+                containerService
+                    .getDetails($scope.container, object)
+                    .then(function (details) {
+                        object.details = details;
+                    })
+                    .catch(function (response) {
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type":     "danger",
+                            "text":     response.data,
+                            "timeout":  "never"
+                        });
+                    });
+            };
+
+            /**
+             * toggles the column for a given metadata field and loads the objects' details if necessary
+             *
+             * @param metadataField the metadata field to toggle the column for
+             */
+            $scope.toggleMetadataFieldColumn = function(metadataField) {
+                metadataField.isShownInColumn = !metadataField.isShownInColumn;
+
+                // if the metadataField is set to be shown
+                if (metadataField.isShownInColumn) {
+
+                    // make sure the headerKey is available
+                    if (!metadataField.headerKey) {
+                        metadataField.headerKey = $filter("metadataHeaderField")(metadataField.name, $scope.container.metadata.objectClass);
+                    }
+
+                    getAllMissingDetails();
+                }
+            };
+
+            /**
+             * get the details for all objects that are missing them
+             */
+            var getAllMissingDetails = function() {
+                var objectsWithoutDetails = _.filter($scope.container.objects, function(object) {
+                    return !object.details;
+                });
+                angular.forEach(objectsWithoutDetails, getDetails);
+            };
+
+            /**
+             * checks if there is any metadata field that is shown in a column
+             *
+             * @returns {boolean} true if there is at least one metadata field that is shown in a column, else false
+             */
+            var isAnyMetadataFieldShownInColumn = function() {
+                return Boolean(_.findWhere($scope.container.metadataFields.concat($scope.specialMetadata), {isShownInColumn: true}));
+            };
+
 
             // quit the container if there is no name provided
             if (!$stateParams.containerName) {
