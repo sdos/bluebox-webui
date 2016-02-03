@@ -136,6 +136,7 @@ def create_objectclass():
     if not class_name or not class_schema:
         raise HttpError("class name or class schema definition missing", 400)
     
+    class_name = xform_header_names(class_name)
     class_names = internal_data.get_keys("object classes")
     
     if class_name in class_names:
@@ -263,7 +264,7 @@ def create_container():
     container_metadata = {}
     
     try:
-        class_name = container_definition.get("objectClass")
+        class_name = xform_header_names(container_definition.get("objectClass"))
         class_definition = internal_data.get_data("object classes", class_name)
         if class_name:
             if class_definition is None:
@@ -311,7 +312,7 @@ def change_container(container_name):
     container_metadata = {}
     
     try:
-        class_name = container_definition.get("objectClass")
+        class_name = xform_header_names(container_definition.get("objectClass"))
         class_definition = internal_data.get_data("object classes", class_name)
         if class_name:
             if class_definition is None:
@@ -392,7 +393,8 @@ def create_object(container_name):
         for field in class_metadata.keys():
             val = class_metadata[field]
             if val is not None:
-                headers["X-Object-Meta-" + class_name + "-Class-" + field] = class_metadata[field]
+                field_header = xform_header_names(field)
+                headers["X-Object-Meta-" + class_name + "-Class-" + field_header] = class_metadata[field]
     
     swift.streaming_object_upload(object_name, container_name, file, headers)
     return "", 201
@@ -517,17 +519,17 @@ def isRetentionPeriodExpired(timestamp):
         return calcTimeDifference(timestamp) <= 0
     return False
 
-def xform_class_name_to_key(class_name):
-    tmp =  class_name.strip()
+def xform_header_names(name):
+    tmp =  name.strip()
+    tmp = tmp.lower()
     tmp = re.sub("\s+", " ", tmp) # collapse inner whitespace to single space
     tmp = tmp.replace(" ", "-")
     tmp = tmp.replace("ä", "ae")
     tmp = tmp.replace("ö", "oe")
     tmp = tmp.replace("ü", "ue")
+    tmp = tmp.replace("ß", "ss")
     tmp = re.sub("[^A-Za-z0-9-]+", "", tmp) # remove special characters
-    tmp = tmp.lower()
-    key = "x-account-meta-objclass-" + tmp
-    return key
+    return tmp
 
 ##############################################################################
 # main
