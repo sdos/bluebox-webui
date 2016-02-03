@@ -89,6 +89,11 @@ containerModule.factory(
              * @returns {promise} resolved or rejected to the plain response
              */
             uploadObject: function(file, containerName, metadata, retentionDate) {
+                // filter all dates to the proper format
+                for (var i in metadata) {
+                    metadata[i] = angular.isDate(metadata[i]) ? $filter('date')(metadata[i], "yyyy-MM-dd") : metadata[i];
+                }
+
                 return Upload.upload({
                     "method": "POST",
                     "url": BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(containerName) + "/objects",

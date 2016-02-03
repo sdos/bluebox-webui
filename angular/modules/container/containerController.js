@@ -31,6 +31,10 @@ containerModule.controller('ContainerController',
                 objectClass:    ""
             };
 
+            /**
+             * the form model for the file upload
+             * @type {{file: null, retentionDate: null, metadata: {}}}
+             */
             $scope.fileModel = {
                 file:          null,
                 retentionDate: null,
@@ -38,10 +42,10 @@ containerModule.controller('ContainerController',
             };
 
             /**
-             * datePicker configuration
+             * retentionDatePicker configuration
              * @type {{minDate: Date}}
              */
-            $scope.datePicker = {
+            $scope.retentionDatePicker = {
 
                 // past dates may not be entered
                 minDate: new Date()
@@ -68,19 +72,44 @@ containerModule.controller('ContainerController',
              * list of the fixed columns for container properties
              * @type {Array}
              */
-            $scope.fixedColumns = [
-                {name: "Size", objectProperty: "bytes", filter: "bytes", isShown: true},
-                {name: "Type", objectProperty: "content_type", filter: "contentType", isShown: true}
+            $scope.basicMetadataFields = [
+                {
+                    name: "Size",
+                    objectProperty: "bytes",
+                    filter: "bytes",
+                    isShownInColumn: true
+                },
+                {
+                    name: "Type",
+                    objectProperty: "content_type",
+                    filter: "contentType",
+                    isShownInColumn: true
+                }
             ];
 
             /**
              * list of special metadata fields that are not part of the object class, but shall possibly be shown in a column
              * @type {Array}
              */
-            $scope.specialMetadata = [
-                {name: "Date", headerKey: "date", isShownInColumn: false},
-                {name: "Last modified", headerKey: "last-modified", isShownInColumn: false},
-                {name: "Retention Date", headerKey: "x-object-meta-retentiontime", isShownInColumn: false}
+            $scope.specialMetadataFields = [
+                {
+                    name: "Date",
+                    headerKey: "date",
+                    dateFormat: "medium",
+                    isShownInColumn: false
+                },
+                {
+                    name: "Last modified",
+                    headerKey: "last-modified",
+                    dateFormat: "medium",
+                    isShownInColumn: false
+                },
+                {
+                    name: "Retention Date",
+                    headerKey: "x-object-meta-retentiontime",
+                    dateFormat: "mediumDate",
+                    isShownInColumn: false
+                }
             ];
 
             /**
@@ -144,7 +173,7 @@ containerModule.controller('ContainerController',
             };
 
             /**
-             * updates the metadata fields for the given object class
+             * updates the metadata fields according to the given object class
              *
              * @param {string} objectClassName the name of the object class
              */
@@ -161,6 +190,7 @@ containerModule.controller('ContainerController',
                         .then(function(objectClass) {
                             $scope.isObjectClassOutdated = false;
                             var metadataFields = $filter('jsonSchema')(objectClass.schema, true).metadataFields;
+                            setAdditionalPropertiesForMetadataFields(metadataFields);
                             updateMetadataInputFields($scope.container.metadataFields, metadataFields);
                             $scope.container.metadataFields = metadataFields;
                             $scope.isGetObjectClassRequestPending = false;
@@ -177,6 +207,23 @@ containerModule.controller('ContainerController',
                             }
                             $scope.isGetObjectClassRequestPending = false;
                         });
+                }
+            };
+
+            /**
+             * adds the following properties to metadata fields:
+             *  - headerKey the HTTP header key by which the metadata value is provided
+             *  - dateFormat for all metadata fields that tells how to display the date
+             *
+             * @param metadataFields an array of metadata fields
+             */
+            var setAdditionalPropertiesForMetadataFields = function(metadataFields) {
+                for (var i in metadataFields) {
+                    var metadataField = metadataFields[i];
+                    metadataField.headerKey = $filter("metadataHeaderField")(metadataField.name, $scope.container.metadata.objectClass);
+                    if (metadataField.type.inputType === 'date') {
+                        metadataField.dateFormat = "mediumDate";
+                    }
                 }
             };
 
@@ -367,6 +414,7 @@ containerModule.controller('ContainerController',
                 containerService
                     .getDetails($scope.container, object)
                     .then(function (details) {
+                        parseMetadataDates(details);
                         object.details = details;
                     })
                     .catch(function (response) {
@@ -379,6 +427,30 @@ containerModule.controller('ContainerController',
             };
 
             /**
+             * parses all dates in a metadata array to Date objects
+             *
+             * @param {Array} metadata the details of an object to be parsed
+             */
+            var parseMetadataDates = function(metadata) {
+                for (var key in metadata) {
+                    var metadataField = $scope.getMetadataField(key);
+                    if (metadataField && metadataField.dateFormat) {
+                        var parsedDate = Date.parse(metadata[key]);
+                        metadata[key] = isNaN(parsedDate) ? metadata[key] : parsedDate;
+                    }
+                }
+            };
+
+            /**
+             * returns the metadata field (either special or custom) for a given HTTP header key
+             *
+             * @param headerKey the HTTP header key
+             */
+            $scope.getMetadataField = function(headerKey) {
+                return _.findWhere($scope.specialMetadataFields.concat($scope.container.metadataFields), {headerKey: headerKey})
+            };
+
+            /**
              * toggles the column for a given metadata field and loads the objects' details if necessary
              *
              * @param metadataField the metadata field to toggle the column for
@@ -388,12 +460,6 @@ containerModule.controller('ContainerController',
 
                 // if the metadataField is set to be shown
                 if (metadataField.isShownInColumn) {
-
-                    // make sure the headerKey is available
-                    if (!metadataField.headerKey) {
-                        metadataField.headerKey = $filter("metadataHeaderField")(metadataField.name, $scope.container.metadata.objectClass);
-                    }
-
                     getAllMissingDetails();
                 }
             };
@@ -414,7 +480,7 @@ containerModule.controller('ContainerController',
              * @returns {boolean} true if there is at least one metadata field that is shown in a column, else false
              */
             var isAnyMetadataFieldShownInColumn = function() {
-                return Boolean(_.findWhere($scope.container.metadataFields.concat($scope.specialMetadata), {isShownInColumn: true}));
+                return Boolean(_.findWhere($scope.container.metadataFields.concat($scope.specialMetadataFields), {isShownInColumn: true}));
             };
 
 

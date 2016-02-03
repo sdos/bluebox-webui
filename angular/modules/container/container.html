@@ -75,7 +75,7 @@
                     <date-input
                             ng-model="fileModel.retentionDate"
                             id="retentionDate"
-                            min-date="datePicker.minDate">
+                            min-date="retentionDatePicker.minDate">
                     </date-input>
                 </div>
             </div>
@@ -149,11 +149,13 @@
         <div ng-show="showColumnSelector" class="row">
             <div class="col-sm-12">
                 <div class="btn-group" role="group">
-                    <button ng-repeat="column in fixedColumns" type="button" ng-click="column.isShown = !column.isShown"
-                            ng-class="{'btn-default': !column.isShown, 'btn-info': column.isShown}" class="btn">
-                        {{ column.name }}
+                    <button ng-repeat="metadataField in basicMetadataFields"
+                            ng-click="metadataField.isShownInColumn = !metadataField.isShownInColumn"
+                            ng-class="{'btn-default': !metadataField.isShownInColumn, 'btn-info': metadataField.isShownInColumn}"
+                            type="button" class="btn">
+                        {{ metadataField.name }}
                     </button>
-                    <button ng-repeat="metadataField in container.metadataFields.concat(specialMetadata)"
+                    <button ng-repeat="metadataField in container.metadataFields.concat(specialMetadataFields)"
                             ng-click="toggleMetadataFieldColumn(metadataField)"
                             ng-class="{'btn-default': !metadataField.isShownInColumn, 'btn-info': metadataField.isShownInColumn}"
                             type="button" class="btn">
@@ -172,8 +174,8 @@
                 class="table table-hover">
             <tr>
                 <th>Name</th>
-                <th ng-repeat="column in fixedColumns" ng-show="column.isShown">{{ column.name }}</th>
-                <th ng-repeat="metadataField in container.metadataFields.concat(specialMetadata)" ng-show="metadataField.isShownInColumn">{{ metadataField.name }}</th>
+                <th ng-repeat="metadataField in basicMetadataFields" ng-show="metadataField.isShownInColumn">{{ metadataField.name }}</th>
+                <th ng-repeat="metadataField in container.metadataFields.concat(specialMetadataFields)" ng-show="metadataField.isShownInColumn">{{ metadataField.name }}</th>
                 <th>Preview</th>
                 <th>Download</th>
                 <th>Delete</th>
@@ -225,13 +227,14 @@
                 	
 
                 </td>
-                <td ng-repeat="column in fixedColumns" ng-show="column.isShown">{{ object[column.objectProperty] | picker:column.filter }}</td>
-                <td ng-repeat="metadataField in container.metadataFields.concat(specialMetadata)" ng-show="metadataField.isShownInColumn">
+                <td ng-repeat="metadataField in basicMetadataFields" ng-show="metadataField.isShownInColumn">{{ object[metadataField.objectProperty] | picker:metadataField.filter }}</td>
+                <td ng-repeat="metadataField in container.metadataFields.concat(specialMetadataFields)" ng-show="metadataField.isShownInColumn">
                     <div ng-show="!object.details" class="text-center">
                         <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
                     </div>
                     <div ng-show="object.details">
-                        {{ object.details[metadataField.headerKey] }}
+                        <div ng-show="metadataField.dateFormat">{{ object.details[metadataField.headerKey] | date:metadataField.dateFormat }}</div>
+                        <div ng-show="!metadataField.dateFormat">{{ object.details[metadataField.headerKey] }}</div>
                     </div>
                 </td>
                 <td>
@@ -272,7 +275,8 @@
                             <table class="table table-hover">
                                 <tr ng-repeat="(key, value) in object.details | half">
                                     <td>{{ key }}:</td>
-                                    <td>{{ value }}</td>
+                                    <td ng-show="getMetadataField(key)">{{ value | date:getMetadataField(key).dateFormat }}</td>
+                                    <td ng-show="!getMetadataField(key)">{{ value }}</td>
                                 </tr>
                             </table>
                         </div>
@@ -280,7 +284,8 @@
                             <table class="table table-hover">
                                 <tr ng-repeat="(key, value) in object.details | half: 2">
                                     <td>{{ key }}:</td>
-                                    <td>{{ value }}</td>
+                                    <td ng-show="getMetadataField(key)">{{ value | date:getMetadataField(key).dateFormat }}</td>
+                                    <td ng-show="!getMetadataField(key)">{{ value }}</td>
                                 </tr>
                             </table>
                         </div>
