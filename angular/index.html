@@ -18,6 +18,8 @@
     <script src="/angular/external/ui-bootstrap-tpls-0.14.3.min.js"></script>
     <script src="/angular/external/underscore-min.js"></script>
     <script src="/angular/modules/container/container.js"></script>
+    <script src="/angular/modules/tasks/tasks.js"></script>
+    <script src="/angular/modules/tasks/tasksController.js"></script>
     <script src="/angular/modules/container/containerController.js"></script>
     <script src="/angular/modules/container/containerService.js"></script>
     <script src="/angular/modules/container/contentTypeFilter.js"></script>
@@ -51,9 +53,20 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1 class="text-muted"><img alt="BlueBox Logo" src="/angular/icons/bluebox_icon.png">BlueBox File System</h1>
+        <h1 class="text-muted"><img alt="BlueBox Logo" src="/angular/icons/bluebox_icon.png">BlueBox Content Management</h1>
     </div>
     <hr/>
+
+        <ul class="nav nav-pills">
+          <li>
+            <a ui-sref="fileSystemState()">Content Management</a></li>
+          <li>
+            <a ui-sref="tasksState()">Tasks and Scheduling</a></li>
+          <li>
+            <a href>About</a></li>
+        </ul>
+
+
 
     <message-bag timeout="3000" fixed animated></message-bag>
 

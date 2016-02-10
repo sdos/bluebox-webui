@@ -2,7 +2,8 @@
 
 var app = angular.module('bluebox', [
     'bluebox.fileSystem',
-    'bluebox.messageBag'
+    'bluebox.messageBag',
+    'bluebox.tasks'
 ])
     .config(['$locationProvider', function($locationProvider) {
         // remove the '#' in the url that angular else puts in
