@@ -19,43 +19,59 @@ import json
 import logging
 import re
 import requests
+import appConfig
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 log = logging.getLogger()
 
 
+
+def doAuthGetToken(user, password):
+	log.debug("Connecting to regular swift at: {}".format(appConfig.swift_url))
+	c = client.Connection(authurl=appConfig.swift_url, 
+								user=user, 
+								key=password, 
+								auth_version=appConfig.swift_auth_version,
+								os_options={"project_id":appConfig.swift_tenant,
+										"user_id":user})
+	if c.get_auth()[0] !=  appConfig.swift_store_url:
+		log.error("swift suggested a different storage endpoint than our config: {} {}").format(appConfig.swift_store_url, c.get_auth()[0])
+	return c.get_auth()[1] 
+
+"""
+deprecated. left for documentation purposes.
+this does "manual" authentication in order to receive an authtoken.
+def do_bluemix_v1_auth(self):
+	log.debug("Connecting to Bluemix V1 swift at: {}".format(self.swift_url))
+	authEncoded = base64.b64encode(bytes('{}:{}'.format(self.swift_user, self.swift_pw), "utf-8"))
+	authEncoded = "Basic " + authEncoded.decode("utf-8")
+	response = requests.get(self.swift_url, headers={"Authorization": authEncoded})
+	log.debug(response.headers['x-auth-token'])
+	log.debug(response.headers['x-storage-url'])
+	self.conn = client.Connection(
+		preauthtoken=response.headers['x-auth-token'],
+		preauthurl=response.headers['x-storage-url']
+	)
+"""
+
+
+
+
+
+
+
+
 # Function to connect to swift object store
 class SwiftConnect:
-	def __init__(self, swiftConfig):
-		self.swiftConfig = swiftConfig
-		self.VALID_ACC_METADATA_KEY_REGEX = re.compile("x-account-meta-[a-z0-9-]+")
-
-		self.do_regular_swift_auth()
-
-	def do_regular_swift_auth(self):
-		log.debug("Connecting to regular swift at: {}".format(self.swiftConfig.swift_url))
-		self.conn = client.Connection(authurl=self.swiftConfig.swift_url, 
-									user=self.swiftConfig.swift_user, 
-									key=self.swiftConfig.swift_pw, 
-									auth_version=self.swiftConfig.swift_auth_version,
-									os_options={"project_id":self.swiftConfig.swift_tenant,
-											"user_id":self.swiftConfig.swift_user})
-
-	"""
-	deprecated. left for documentation purposes.
-	this does "manual" authentication in order to receive an authtoken.
-	def do_bluemix_v1_auth(self):
-		log.debug("Connecting to Bluemix V1 swift at: {}".format(self.swift_url))
-		authEncoded = base64.b64encode(bytes('{}:{}'.format(self.swift_user, self.swift_pw), "utf-8"))
-		authEncoded = "Basic " + authEncoded.decode("utf-8")
-		response = requests.get(self.swift_url, headers={"Authorization": authEncoded})
-		log.debug(response.headers['x-auth-token'])
-		log.debug(response.headers['x-storage-url'])
+	
+	VALID_ACC_METADATA_KEY_REGEX = re.compile("x-account-meta-[a-z0-9-]+")
+	def __init__(self, token):
 		self.conn = client.Connection(
-			preauthtoken=response.headers['x-auth-token'],
-			preauthurl=response.headers['x-storage-url']
+			preauthtoken=token,
+			preauthurl=appConfig.swift_store_url
 		)
-	"""
+
+
 ##############################################################################
 
 	# Creating an container list

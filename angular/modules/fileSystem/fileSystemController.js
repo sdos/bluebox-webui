@@ -5,8 +5,8 @@
  * controller for the container overview
  */
 fileSystemModule.controller('FileSystemController',
-    ['$scope', '$rootScope', 'deleteConfirmationModal', 'fileSystemService',
-        function($scope, $rootScope, deleteConfirmationModal, fileSystemService) {
+    ['$scope', '$rootScope', 'deleteConfirmationModal', 'fileSystemService', '$state',
+        function($scope, $rootScope, deleteConfirmationModal, fileSystemService, $state) {
 
             /**
              * contains the relevant information about the containers
@@ -45,12 +45,18 @@ fileSystemModule.controller('FileSystemController',
                         $scope.isGetContainersRequestPending = false;
                     })
                     .catch(function (response) {
+                    	$scope.isGetContainersRequestPending = false;
+                    	if (401 == response.status) {
+                    		$state.go('loginState');
+                    		return;
+                    	}
+                    	
                         $rootScope.$broadcast('FlashMessage', {
                             "type":     "danger",
                             "text":     response.data,
                             "timeout":  "never"
                         });
-                        $scope.isGetContainersRequestPending = false;
+                        
                     });
             };
 
