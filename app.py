@@ -40,7 +40,7 @@ log = logging.getLogger()
 app = Flask(__name__, static_folder="angular")
 
 # Instantiating SwiftClient
-swift = SwiftConnect(appConfig.swift_type, appConfig.swift_url, appConfig.swift_user, appConfig.swift_pw)
+swift = SwiftConnect(appConfig)
 internal_data = InternalStorageManager(swift)
 
 CLASS_SCHEMA = json.loads(open("object_class_schema").read())
