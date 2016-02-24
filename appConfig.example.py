@@ -21,10 +21,12 @@ swift_user = "<userId>"
 swift_pw = "<password>"
 swift_auth_version = 3
 swift_tenant = <projectId>
+swift_store_url = <>
 """
 
 
 swift_url = "http://?????/auth/v1.0"
+swift_store_url = ""
 swift_user = "<account>:<user>"
 swift_pw = "<pw>"
 swift_auth_version = 1
