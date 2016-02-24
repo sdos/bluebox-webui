@@ -309,7 +309,7 @@ containerModule.controller('ContainerController',
                         $rootScope.$broadcast('FlashMessage', {
                             "type":     "danger",
                             "text":     response.data,
-                            "timeout":  "never"
+                            "timeout":  "7000"
                         });
                     });
             };
@@ -356,7 +356,7 @@ containerModule.controller('ContainerController',
                                 $rootScope.$broadcast('FlashMessage', {
                                     "type":     "danger",
                                     "text":     response.data,
-                                    "timeout":  "never"
+                                    "timeout":  "7000"
                                 });
                             });
                     });
@@ -384,7 +384,7 @@ containerModule.controller('ContainerController',
                             $rootScope.$broadcast('FlashMessage', {
                                 "type":     "danger",
                                 "text":     response.data,
-                                "timeout":  "never"
+                                "timeout":  "7000"
                             });
                             resetProgressBar();
                         },
@@ -437,7 +437,7 @@ containerModule.controller('ContainerController',
                         $rootScope.$broadcast('FlashMessage', {
                             "type":     "danger",
                             "text":     response.data,
-                            "timeout":  "never"
+                            "timeout":  "7000"
                         });
                     });
             };
