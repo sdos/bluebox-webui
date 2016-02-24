@@ -5,6 +5,7 @@
 """
 from jsonschema.exceptions import ValidationError
 from internal_storage import InternalStorageManager
+from exceptions import HttpError
 """
 	Project Bluebox
 
@@ -19,14 +20,12 @@ from internal_storage import InternalStorageManager
 
 
 from datetime import datetime
-from exceptions import HttpError
 from flask import Flask, request, Response, send_file
 from functools import wraps
 from jsonschema import Draft4Validator, FormatChecker, ValidationError
 from swiftclient.exceptions import ClientException
 from werkzeug import secure_filename
 import SwiftConnect
-import internal_storage
 import json, logging, os, time
 import re
 
@@ -60,9 +59,8 @@ def handle_invalid_usage(e):
 			return "not authenticated", 401
 		return "swift back end error", 500
 	if (HttpError == type(e)):
-		if (401 == e.status_code):
-			return "not authenticated", 401
-
+		return e.to_string(), e.status_code
+	return "Internal Server Error", 500
 ##############################################################################
 # login/authenticate
 ##############################################################################
