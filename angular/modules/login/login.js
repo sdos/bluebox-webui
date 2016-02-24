@@ -15,6 +15,9 @@ var loginModule = angular.module('bluebox.login', [
         $stateProvider.state("loginState", {
             url:            "/login",
             templateUrl:    "angular/modules/login/login.html",
-            controller:     "LoginController"
+            controller:     "LoginController",
+            params:			{
+            	noAuth: false
+            }
         });
     }]);

@@ -171,6 +171,10 @@ containerModule.controller('ContainerController',
                         }
                     })
                     .catch(function (response) {
+                    	if (401 == response.status) {
+                    		$state.go('loginState', {noAuth: true});
+                    		return;
+                    	}
                         if (response.status === 404) {
                             quitContainer("Container \"" + $scope.container.name + "\" not found.");
                         } else {

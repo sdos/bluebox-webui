@@ -28,6 +28,8 @@ log = logging.getLogger()
 
 def doAuthGetToken(user, password):
 	log.debug("Connecting to regular swift at: {}".format(appConfig.swift_url))
+	if (1 == appConfig.swift_auth_version): 
+		user = appConfig.swift_tenant + ":" + user
 	c = client.Connection(authurl=appConfig.swift_url, 
 								user=user, 
 								key=password, 
@@ -35,7 +37,7 @@ def doAuthGetToken(user, password):
 								os_options={"project_id":appConfig.swift_tenant,
 										"user_id":user})
 	if c.get_auth()[0] !=  appConfig.swift_store_url:
-		log.error("swift suggested a different storage endpoint than our config: {} {}").format(appConfig.swift_store_url, c.get_auth()[0])
+		log.error("swift suggested a different storage endpoint than our config: {} {}".format(appConfig.swift_store_url, c.get_auth()[0]))
 	return c.get_auth()[1] 
 
 """

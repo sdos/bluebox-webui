@@ -8,14 +8,21 @@ loginModule.controller('LoginController',
     ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http',
         function($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http) {
 
-    	console.log("nothing to do here...")
-    	
-    	
+    	if ($stateParams.noAuth) {
+			$rootScope.$broadcast('FlashMessage', {
+                "type":     "danger",
+                "text":     "Authentication required"
+            });    		
+    	}
     	
     	$scope.credentials = {};
     	$scope.login = function() {
     		$http.post('swift/login', $scope.credentials)
     		.success(function() {
+    			$rootScope.$broadcast('FlashMessage', {
+                    "type":     "success",
+                    "text":     "Authentication successful"
+                });
     				$state.go('fileSystemState');
 
     		})

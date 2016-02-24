@@ -47,14 +47,13 @@ fileSystemModule.controller('FileSystemController',
                     .catch(function (response) {
                     	$scope.isGetContainersRequestPending = false;
                     	if (401 == response.status) {
-                    		$state.go('loginState');
+                    		$state.go('loginState', {noAuth: true});
                     		return;
                     	}
                     	
                         $rootScope.$broadcast('FlashMessage', {
-                            "type":     "danger",
-                            "text":     response.data,
-                            "timeout":  "never"
+                            "type":     "warning",
+                            "text":     response.data
                         });
                         
                     });
@@ -77,8 +76,7 @@ fileSystemModule.controller('FileSystemController',
                     .catch(function (response) {
                         $rootScope.$broadcast('FlashMessage', {
                             "type":     "danger",
-                            "text":     response.data,
-                            "timeout":  "never"
+                            "text":     response.data
                         });
                     });
             };
@@ -107,8 +105,7 @@ fileSystemModule.controller('FileSystemController',
                             .catch(function(response) {
                                 $rootScope.$broadcast('FlashMessage', {
                                     "type":     "danger",
-                                    "text":     response.data,
-                                    "timeout":  "never"
+                                    "text":     response.data
                                 });
                             });
                     });

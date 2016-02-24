@@ -52,17 +52,16 @@ def log_requests(f):
 ##############################################################################
 # error handler
 ##############################################################################
-@app.errorhandler(HttpError)
-def handle_invalid_usage(error):
-	return error.to_string(), error.status_code
-	
-@app.errorhandler(ClientException)
-def handle_ClientException(error):
-	if (401 == error.http_status):
-		return "not authenticated", error.http_status
-	return "swift back end error", error.http_status
-
-
+@app.errorhandler(Exception)
+def handle_invalid_usage(e):
+	log.error(e.to_string())
+	if (ClientException == type(e)):
+		if (401 == e.http_status):
+			return "not authenticated", 401
+		return "swift back end error", 500
+	if (HttpError == type(e)):
+		if (401 == e.status_code):
+			return "not authenticated", 401
 
 ##############################################################################
 # login/authenticate
@@ -79,8 +78,10 @@ def doLogin():
 		r.set_cookie(COOKIE_NAME, value=token)
 		return r
 	except ClientException as e:
+		log.exception("Login error")
 		raise HttpError(e.msg, 401)
-	except:
+	except Exception:
+		log.exception("Login error")
 		raise HttpError("Internal Server Error", 500)
 
 
