@@ -4,6 +4,8 @@ var app = angular.module('bluebox', [
     'bluebox.fileSystem',
     'bluebox.messageBag',
     'bluebox.tasks',
+    'bluebox.about',
+    'bluebox.account',
     'bluebox.login'
 ])
     .config(['$locationProvider', '$httpProvider', function($locationProvider, $httpProvider) {

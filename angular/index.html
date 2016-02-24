@@ -13,6 +13,7 @@
     <script src="/angular/external/angular-animate.min.js"></script>
     <script src="/angular/external/angular-sanitize.js"></script>
     <script src="/angular/external/angular-ui-router.min.js"></script>
+    <script src="/angular/external/angular-cookies.js"></script>
     <script src="/angular/external/elif.js"></script>
     <script src="/angular/external/ng-file-upload.min.js"></script>
     <script src="/angular/external/ui-bootstrap-tpls-0.14.3.min.js"></script>
@@ -22,6 +23,10 @@
     <script src="/angular/modules/tasks/tasksController.js"></script>
     <script src="/angular/modules/login/login.js"></script>
     <script src="/angular/modules/login/loginController.js"></script>
+    <script src="/angular/modules/about/about.js"></script>
+    <script src="/angular/modules/about/aboutController.js"></script>
+    <script src="/angular/modules/account/account.js"></script>
+    <script src="/angular/modules/account/accountController.js"></script>
     <script src="/angular/modules/container/containerController.js"></script>
     <script src="/angular/modules/container/containerService.js"></script>
     <script src="/angular/modules/container/contentTypeFilter.js"></script>
@@ -63,9 +68,11 @@
           <li>
             <a ui-sref="fileSystemState()">Content Management</a></li>
           <li>
-            <a ui-sref="tasksState()">Tasks and Scheduling</a></li>
+            <a ui-sref="tasksState()">Tasks & Scheduling</a></li>
           <li>
-            <a href>About</a></li>
+            <a ui-sref="aboutState()">About</a></li>
+          <li>
+            <a ui-sref="accountState()">Account & Security</a></li>
         </ul>
 
 
