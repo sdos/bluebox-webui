@@ -53,7 +53,7 @@ def log_requests(f):
 ##############################################################################
 @app.errorhandler(Exception)
 def handle_invalid_usage(e):
-	log.error(e.to_string())
+	log.error(e.__str__())
 	if (ClientException == type(e)):
 		if (401 == e.http_status):
 			return "not authenticated", 401
