@@ -1,7 +1,4 @@
-"""
-	Project Bluebox
-	2015, University of Stuttgart, IPVS/AS
-"""
+# -*- coding: utf-8 -*-
 """
 	Project Bluebox 
 

@@ -31,3 +31,13 @@ swift_user = "<account>:<user>"
 swift_pw = "<pw>"
 swift_auth_version = 1
 swift_tenant = None
+
+"""
+Server configuration
+"""
+
+netPort = os.getenv("VCAP_APP_PORT", "5000")
+#netHost = os.getenv("VCAP_APP_HOST", "0.0.0.0") #run public
+netHost = os.getenv("VCAP_APP_HOST", "127.0.0.1") #run only on localhost
+
+

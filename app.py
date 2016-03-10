@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-	Project Bluebox
-	2015, University of Stuttgart, IPVS/AS
-"""
-from jsonschema.exceptions import ValidationError
-from internal_storage import InternalStorageManager
-from exceptions import HttpError
+
 """
 	Project Bluebox
 
@@ -16,18 +10,21 @@ from exceptions import HttpError
 """
 # initialize logging
 
-
-
-
 from datetime import datetime
-from flask import Flask, request, Response, send_file
+from exceptions import HttpError
 from functools import wraps
-from jsonschema import Draft4Validator, FormatChecker, ValidationError
-from swiftclient.exceptions import ClientException
-from werkzeug import secure_filename
-import SwiftConnect
 import json, logging, os, time
 import re
+
+from flask import Flask, request, Response, send_file
+from jsonschema import Draft4Validator, FormatChecker, ValidationError
+from jsonschema.exceptions import ValidationError
+from swiftclient.exceptions import ClientException
+from werkzeug import secure_filename
+
+import SwiftConnect
+import appConfig
+from internal_storage import InternalStorageManager
 
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
@@ -549,10 +546,8 @@ def xform_header_names(name):
 ##############################################################################
 
 if __name__ == "__main__":
-	appPort = os.getenv("VCAP_APP_PORT", "5000")
-	appHost = os.getenv("VCAP_APP_HOST", "127.0.0.1")
 	app.run(
-		host=appHost,
-		port=int(appPort),
+		host=appConfig.netHost,
+		port=int(appConfig.netPort),
 		debug=True
 	)
