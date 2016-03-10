@@ -281,6 +281,7 @@ def get_containers():
 @log_requests
 def create_container():
 	swift = createConnection(request)
+	internal_data = InternalStorageManager(swift)
 	#TODO: check schema validity since somebody else could store a rouge class definition in the object store (via direct interfacing with the object store)
 	
 	try:
