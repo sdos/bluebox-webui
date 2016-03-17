@@ -17,8 +17,10 @@ import Bluebox.appConfig
 from Bluebox import app
 
 http_server = HTTPServer(WSGIContainer(app))
+http_server.max_buffer_size=8000000000
 http_server.bind(
 				port=int(Bluebox.appConfig.netPort),
 				address=Bluebox.appConfig.netHost)
+# "0" starts one process per CPU core
 http_server.start(num_processes=0)
 IOLoop.instance().start()
