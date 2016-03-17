@@ -30,10 +30,6 @@ swift_auth_version = 1
 swift_tenant = "test"
 swift_store_url = "http://192.168.209.204:8080/v1/AUTH_" + swift_tenant
 
-netPort = os.getenv("VCAP_APP_PORT", "5000")
-netHost = os.getenv("VCAP_APP_HOST", "0.0.0.0")
-netHost = os.getenv("VCAP_APP_HOST", "127.0.0.1")
-
 """
 swift_url = "https://lon-identity.open.softlayer.com/v3"
 swift_tenant = "8a6ffbc979c844c6aedfad4ca3e832c5"
