@@ -9,14 +9,14 @@
 """
 # initialize logging
 
-from exceptions import exception_wrapper
+from Bluebox.exceptions import exception_wrapper
 from swiftclient import client
 import base64
 import json
 import logging
 import re
 import requests
-import appConfig
+from Bluebox import appConfig
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 log = logging.getLogger()

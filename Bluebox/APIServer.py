@@ -8,10 +8,10 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
-# initialize logging
+
 
 from datetime import datetime
-from exceptions import HttpError
+
 from functools import wraps
 import json, logging, os, time
 import re
@@ -22,15 +22,21 @@ from jsonschema.exceptions import ValidationError
 from swiftclient.exceptions import ClientException
 from werkzeug import secure_filename
 
-import SwiftConnect
-import appConfig
-from internal_storage import InternalStorageManager
+from Bluebox import SwiftConnect
+from Bluebox import appConfig
+from Bluebox.internal_storage import InternalStorageManager
+from Bluebox.exceptions import HttpError
+
+
+
+
+from Bluebox import app
+
 
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
 log = logging.getLogger()
-app = Flask(__name__, static_folder="angular")
-CLASS_SCHEMA = json.loads(open("object_class_schema").read())
+CLASS_SCHEMA = json.loads(open("Bluebox/include/object_class_schema").read())
 
 
 ##############################################################################
@@ -348,6 +354,7 @@ def change_container(container_name):
 	
 	try:
 		class_name = container_definition.get("objectClass")
+		internal_data = InternalStorageManager(swift)
 		class_definition = internal_data.get_data("object classes", class_name)
 		if class_name:
 			if class_definition is None:
@@ -429,6 +436,7 @@ def create_object(container_name):
 		
 		class_name = swift.get_container_metadata(container_name).get("x-container-meta-object-class")
 		if class_name:
+			internal_data = InternalStorageManager(swift)
 			class_definition = json.loads(internal_data.get_data("object classes", class_name))
 			Draft4Validator(class_definition, format_checker=FormatChecker()).validate(class_metadata)
 		
@@ -540,14 +548,3 @@ def xform_header_names(name):
 	tmp = tmp.replace("ß", "ss")
 	tmp = re.sub("[^A-Za-z0-9-]+", "", tmp) # remove special characters
 	return tmp
-
-##############################################################################
-# main
-##############################################################################
-
-if __name__ == "__main__":
-	app.run(
-		host=appConfig.netHost,
-		port=int(appConfig.netPort),
-		debug=True
-	)
