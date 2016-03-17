@@ -11,27 +11,19 @@
 
 
 from datetime import datetime
-
 from functools import wraps
-import json, logging, os, time
-import re
+import json, logging, time, re
 
-from flask import Flask, request, Response, send_file
-from jsonschema import Draft4Validator, FormatChecker, ValidationError
+from flask import request, Response, send_file
+from jsonschema import Draft4Validator, FormatChecker
 from jsonschema.exceptions import ValidationError
 from swiftclient.exceptions import ClientException
 from werkzeug import secure_filename
 
 from Bluebox import SwiftConnect
-from Bluebox import appConfig
-from Bluebox.internal_storage import InternalStorageManager
-from Bluebox.exceptions import HttpError
-
-
-
-
 from Bluebox import app
-
+from Bluebox.exceptions import HttpError
+from Bluebox.internal_storage import InternalStorageManager
 
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
@@ -140,8 +132,8 @@ def get_objectclasses():
 	for k in class_names:
 		value = internal_data.get_data("object classes", k)
 		# TODO validate if invalid remove key
-		#class_names.append(json.loads(value).get("name"))
-		#log.debug("encountered invalid class definition stored in object store. key: {}, value: {}".format(k, value))
+		# class_names.append(json.loads(value).get("name"))
+		# log.debug("encountered invalid class definition stored in object store. key: {}, value: {}".format(k, value))
 	
 	resp = {}
 	resp["metadata"] = {"classCount": len(class_names)}
@@ -285,7 +277,7 @@ def get_containers():
 def create_container():
 	swift = createConnection(request)
 	internal_data = InternalStorageManager(swift)
-	#TODO: check schema validity since somebody else could store a rouge class definition in the object store (via direct interfacing with the object store)
+	# TODO: check schema validity since somebody else could store a rouge class definition in the object store (via direct interfacing with the object store)
 	
 	try:
 		container_definition = request.json.get("container")
@@ -310,7 +302,7 @@ def create_container():
 				raise HttpError("class does not exist", 404)
 			container_metadata = {"x-container-meta-object-class": class_name}
 	except AttributeError:
-		pass # ignore empty or missing class definition
+		pass  # ignore empty or missing class definition
 	
 	swift.create_container(container_name, container_metadata)
 	return "", 201
@@ -335,7 +327,7 @@ def delete_container(container_name):
 @log_requests
 def change_container(container_name):
 	swift = createConnection(request)
-	#TODO: check schema validity since somebody else could store a rouge class definition in the object store (via direct interfacing with the object store)
+	# TODO: check schema validity since somebody else could store a rouge class definition in the object store (via direct interfacing with the object store)
 	
 	try:
 		container_definition = request.json.get("container")
@@ -361,7 +353,7 @@ def change_container(container_name):
 				raise HttpError("class does not exist", 404)
 			container_metadata = {"x-container-meta-object-class": class_name}
 	except AttributeError:
-		pass # ignore empty or missing class definition
+		pass  # ignore empty or missing class definition
 	
 	swift.create_container(container_name, container_metadata)
 	return "", 201
@@ -538,13 +530,13 @@ def isRetentionPeriodExpired(timestamp):
 	return False
 
 def xform_header_names(name):
-	tmp =  name.strip()
+	tmp = name.strip()
 	tmp = tmp.lower()
-	tmp = re.sub("\s+", " ", tmp) # collapse inner whitespace to single space
+	tmp = re.sub("\s+", " ", tmp)  # collapse inner whitespace to single space
 	tmp = tmp.replace(" ", "-")
 	tmp = tmp.replace("ä", "ae")
 	tmp = tmp.replace("ö", "oe")
 	tmp = tmp.replace("ü", "ue")
 	tmp = tmp.replace("ß", "ss")
-	tmp = re.sub("[^A-Za-z0-9-]+", "", tmp) # remove special characters
+	tmp = re.sub("[^A-Za-z0-9-]+", "", tmp)  # remove special characters
 	return tmp
