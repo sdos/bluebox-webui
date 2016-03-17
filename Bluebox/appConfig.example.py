@@ -8,7 +8,6 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 
-import os
 """
 this is the current config file for bluebox. define the server connection below:
 
