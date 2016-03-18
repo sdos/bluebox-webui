@@ -20,3 +20,4 @@ bind = "{}:{}".format(netHost, netPort)
 workers = multiprocessing.cpu_count() * 2 + 1
 timeout = 600
 graceful_timeout = 800
+worker_class = "eventlet"

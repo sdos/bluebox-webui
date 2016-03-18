@@ -170,7 +170,7 @@ class SwiftConnect:
 			container=container_name, obj=object_name,
 			contents=object_as_file, headers=metadata_dict,
 			chunk_size=65536)
- 
+
 	# Stream object
 	@exception_wrapper(404, "requested resource does not exist", log)
 	def get_object_as_generator(self, container_name, object_name):

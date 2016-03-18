@@ -1,5 +1,5 @@
 # swift-bluebox
-Bluebox is a web UI for the swift object store with Enterprise Content Management extensions
+Bluebox is a web UI for the swift object store with Enterprise Content Management extensions. This is the UI for our larger "OSECM" research project
 
 Bluebox consists of two parts:
 * a small server runtime written in python
