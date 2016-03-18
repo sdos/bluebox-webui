@@ -9,7 +9,7 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 
-from Bluebox import app
+from Bluebox import app, socketio
 
 
 import os
@@ -17,8 +17,10 @@ import os
 netPort = os.getenv("VCAP_APP_PORT", "5000")
 netHost = os.getenv("VCAP_APP_HOST", "0.0.0.0")
 
-app.run(
-	host=netHost,
-	port=int(netPort),
-	debug=True
+#app.run(
+socketio.run(
+			app,
+			host=netHost,
+			port=int(netPort),
+			debug=True
 )

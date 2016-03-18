@@ -5,10 +5,9 @@
  * module for the container contents page
  */
 var tasksModule = angular.module('bluebox.tasks', [
-        'ngFileUpload',
         'ui.bootstrap',
         'ui.router',
-        'elif'
+        'smart-table'
     ])
 
     .config(['$stateProvider', function($stateProvider) {
