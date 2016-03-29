@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gunicorn --config=config_gunicorn.py Bluebox:app
+gunicorn --config=config_gunicorn.py osecm.Bluebox:app
