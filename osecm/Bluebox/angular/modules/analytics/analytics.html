@@ -19,6 +19,8 @@
 					source for BB-Insights. Use the HTTP node to create an endpoint and
 					give it any name you like. Connect your flow to the HTTP node and
 					then come back here.</p>
+					
+				<p>P.S. Don't forget to hit <i>"Deploy"</i> in Node-Red.</p>
 				<a type="button" class="btn btn-default" target="_blank"
 					ng-href="{{nodered.url}}">Open the Node-RED editor</a>
 			</div>
@@ -35,7 +37,7 @@
 				<div class="dropdown">
 					<button class="btn btn-default dropdown-toggle" type="button"
 						id="sourceSelector" data-toggle="dropdown" aria-haspopup="true"
-						aria-expanded="true">
+						aria-expanded="true" ng-click="updateNodeRedSources()">
 						{{selectedSource.url}} <b>{{selectedSource.name}}</b> {{selectedSource.initialLabel}}<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" aria-labelledby="sourceSelector">
