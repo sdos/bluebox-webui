@@ -59,6 +59,7 @@ def doPlot(plotType):
 	print(df)
 	
 	p = Bar(df, df.columns[0], values=df.columns[1], title="Bar graph of " + nrDataSource, xlabel=df.columns[0], ylabel=df.columns[1])
+	#p2 = Bar(df, df.columns[0], values=df.columns[2], title="Bar graph of " + nrDataSource, xlabel=df.columns[0], ylabel=df.columns[1])
 	
 	
 	
