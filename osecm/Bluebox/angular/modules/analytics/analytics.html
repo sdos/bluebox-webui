@@ -1,7 +1,7 @@
 
 <div class="panel panel-default">
 	<div class="panel-heading">
-		<h2>BB-Insights - BlueBox Analytics</h2>
+		<h2>BB-Insights</h2>
 	</div>
 	<div class="panel-body">
 
@@ -17,7 +17,7 @@
 				<p>After you have created your flow in Node-RED, turn it into a data
 					source for BB-Insights. Use the HTTP node to create an endpoint,
 					connect your query to the HTTP node, and give it any URL and name
-					you like.</p>
+					you like (HTTP-node names show up here; useful names make things easier).</p>
 
 				<p>Check out the included examples in Node-RED to get an idea.
 					When you're done, come back here.</p>
@@ -25,7 +25,7 @@
 				<p>
 					P.S. Don't forget to hit <i>"Deploy"</i> in Node-Red.
 				</p>
-				<a type="button" class="btn btn-default" target="_blank"
+				<a type="button" class="btn btn-info" target="_blank"
 					ng-href="{{nodered.url}}">Open the Node-RED editor</a>
 			</div>
 		</div>
@@ -40,7 +40,7 @@
 
 
 				<div class="dropdown">
-					<button class="btn btn-default dropdown-toggle" type="button"
+					<button class="btn btn-info dropdown-toggle" type="button"
 						id="sourceSelector" data-toggle="dropdown" aria-haspopup="true"
 						aria-expanded="true" ng-click="updateNodeRedSources()">
 						{{selectedSource.url}} <b>{{selectedSource.name}}</b>

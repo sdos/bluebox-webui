@@ -52,16 +52,16 @@ def getNodeRedEndpoint():
 
 
 
-def doPlot1(data, sourceName):
-	p = Bar(data, data.columns[0], values=data.columns[1], title="Bar graph of " + sourceName, xlabel=data.columns[0], ylabel=data.columns[1])
+def doPlot1(data, nrDataSource):
+	p = Bar(data, data.columns[0], values=data.columns[1], title="Bar graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1])
 	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
 	return c
 
 
-def doPlot2(data, sourceName):
+def doPlot2(data, nrDataSource):
 	plots = []
 	for thisColumn in data.columns[1:]:
-		plots.append(Bar(data, data.columns[0], values=thisColumn, title="Bar graph of " + sourceName, xlabel=data.columns[0], ylabel=thisColumn))
+		plots.append(Bar(data, data.columns[0], values=thisColumn, title="Bar graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=thisColumn))
 	c = components(vplot(*plots), resources=None, wrap_script=False, wrap_plot_info=True)
 	return c
 
@@ -76,27 +76,30 @@ def getListOfKeys(d):
 
 @app.route("/api_analytics/plot/<plotType>", methods=["GET"])
 def doPlot(plotType):
-	nrDataSource = request.args.get("nrDataSource")
-	url = appConfig.nodered_url + nrDataSource
+	nrDataSource = json.loads(request.args.get("nrDataSource"))
+	url = appConfig.nodered_url + nrDataSource['url']
 	r = requests.get(url)
 	if r.status_code == 404:
-		raise HttpError("Node-RED endpoint is not reachable: {}".format(url), 420)
-	
-	data = json.JSONDecoder(object_pairs_hook=collections.OrderedDict).decode(r.content.decode())
-	dataKeys = getListOfKeys(data[0])
-	
-	df = pandas.DataFrame(data, columns=dataKeys)
-	df[dataKeys[0]] = df[dataKeys[0]].map(lambda x: str(x)[:20])
-	print(df)
-	
-	if('2bar' == plotType):
-		c = doPlot2(data=df, sourceName=nrDataSource)
-	elif('bar' == plotType):
-		c = doPlot1(data=df, sourceName=nrDataSource)
+		raise HttpError("the Node-RED data source is not reachable: {}".format(url), 420)
+
+	try:
+		data = json.JSONDecoder(object_pairs_hook=collections.OrderedDict).decode(r.content.decode())
+		dataKeys = getListOfKeys(data[0])
 		
+		df = pandas.DataFrame(data, columns=dataKeys)
+		df[dataKeys[0]] = df[dataKeys[0]].map(lambda x: str(x)[:20])
+		print(df)
 		
-	print(nrDataSource, plotType)
-	return Response(json.dumps(c), mimetype="application/json")
+		if('2bar' == plotType):
+			c = doPlot2(data=df, nrDataSource=nrDataSource)
+		elif('bar' == plotType):
+			c = doPlot1(data=df, nrDataSource=nrDataSource)
+			
+			
+		print(nrDataSource, plotType)
+		return Response(json.dumps(c), mimetype="application/json")
+	except:
+		raise HttpError("the Node-RED data source produced malformatted data", 500)
 
 
 @app.route("/api_analytics/nrsources", methods=["GET"])
@@ -105,8 +108,8 @@ def getNodeRedEnpointList():
 	sources = []
 	for s in n:
 		# Node-RED has a strange API... we can't reconstruct node/flow relationships...
-		#if ('tab' == s['type'] and 'label' in s):
-		#	thisFlowName = s['label'] + "->"
+		# if ('tab' == s['type'] and 'label' in s):
+		# 	thisFlowName = s['label'] + "->"
 		if ('http in' == s['type'] and 'url' in s): 
 			sources.append({"url": s['url'], "name": s['name']})
 	return Response(json.dumps(sources), mimetype="application/json")

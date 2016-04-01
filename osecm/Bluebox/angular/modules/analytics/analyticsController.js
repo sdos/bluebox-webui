@@ -61,7 +61,7 @@ analyticsModule
 														+ plotType,
 												{
 													params : {
-														"nrDataSource" : $scope.selectedSource.url
+														"nrDataSource" : $scope.selectedSource
 													}
 												})
 										.then(
@@ -97,10 +97,12 @@ analyticsModule
 																	{
 																		"type" : "danger",
 																		"text" : "Error: "
-																				+ response.data
+																				+ response.data,
+																				timeout: 30000
 																	});
 												});
 
+								
 							};
 
 							$scope.updateNodeRedSources = updateNodeRedSources;
