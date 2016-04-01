@@ -7,8 +7,9 @@
 
 
 		<div class="panel panel-info">
-			<div class="panel-heading">Step 1: Open the Node-RED editor and
-				create your query</div>
+			<div class="panel-heading">
+				<h4>Step 1: Open the Node-RED editor and create your queries</h4>
+			</div>
 			<div class="panel-body">
 				<p>BB-Insights comes with a Node-RED instance that is connected
 					to your metadata warehouse. You can create SQL queries, pull in
@@ -24,24 +25,44 @@
 		</div>
 
 		<div class="panel panel-info">
-			<div class="panel-heading">Step 2: Enter the endpoint name for
-				your Node-RED data source</div>
+			<div class="panel-heading">
+				<h4>Step 2: Select your Node-RED data source</h4>
+			</div>
 			<div class="panel-body">
-				<p>Enter the name you specified for your HTTP node in Node-RED.
-					You only need to enter the name of the endpoint, BB-Insights
-					already knows the rest of the URL.</p>
-				<div class="input-group">
-					<span class="input-group-addon" id="basic-addon1">{{nodered.url}}/</span>
-					<input id="noderedUrlField" type="text" class="form-control" placeholder="endpoint name"
-						aria-describedby="basic-addon1" ng-model="nrDataSource">
+				<p>The following list shows all your endpoints from Node-RED. Select the one you want to use for this analysis.</p>
+
+
+				<div class="dropdown">
+					<button class="btn btn-default dropdown-toggle" type="button"
+						id="sourceSelector" data-toggle="dropdown" aria-haspopup="true"
+						aria-expanded="true">
+						{{selectedSource.url}} <b>{{selectedSource.name}}</b> {{selectedSource.initialLabel}}<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" aria-labelledby="sourceSelector">
+						<li ng-repeat="s in availableSources track by s.url"><a href="#"
+							ng-click="selectSource(s)">{{s.url}} <b>{{s.name}}</b></a></li>
+
+					</ul>
 				</div>
+
+
+
+				<!-- 				<div class="input-group"> -->
+				<!-- 					<span class="input-group-addon" id="basic-addon1">{{nodered.url}}/</span> -->
+				<!-- 					<input id="noderedUrlField" type="text" class="form-control" placeholder="endpoint name" -->
+				<!-- 						aria-describedby="basic-addon1" ng-model="nrDataSource"> -->
+				<!-- 				</div> -->
+
+
+
 			</div>
 		</div>
 
 
 		<div class="panel panel-info">
-			<div class="panel-heading">Step 3: Select a suitable
-				visualization for your data</div>
+			<div class="panel-heading">
+				<h4>Step 3: Select a suitable visualization for your data</h4>
+			</div>
 			<div class="panel-body">
 				<p>BB-insights uses Bokeh and D3.js to visualize your data. You
 					can now choose which type of visualization you want to use.</p>
@@ -50,13 +71,13 @@
 					visualization types support different amounts of rows and columns.</p>
 
 				<button type="button" class="btn btn-success"
-					ng-disabled="!nrDataSource" ng-click="drawPlot('bar')">
+					ng-disabled="!selectedSource.url" ng-click="drawPlot('bar')">
 					<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
 					<p>Bar graph</p>
 					<p>* rows, 1 column</p>
 				</button>
 				<button type="button" class="btn btn-success"
-					ng-disabled="!nrDataSource" ng-click="drawPlot('2bar')">
+					ng-disabled="!selectedSource.url" ng-click="drawPlot('2bar')">
 					<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
 					<p>2 Bar graphs</p>
 					<p>* rows, 2 columns</p>
@@ -66,17 +87,19 @@
 		</div>
 
 
-		<link href="/angular/css/bokeh-0.11.1.min.css"
-			rel="stylesheet" type="text/css">
+		<link href="/angular/css/bokeh-0.11.1.min.css" rel="stylesheet"
+			type="text/css">
 		<link href="/angular/css/bokeh-widgets-0.11.1.min.css"
 			rel="stylesheet" type="text/css">
-			
+
 		<!-- Import doesn't work here; just left as a TODO... currently the import is happening in the header in index.html -->
 		<!-- <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js"></script> -->
 
 
 		<div class="panel panel-success" ng-hide="!bbplot">
-			<div class="panel-heading">Your Results</div>
+			<div class="panel-heading">
+				<h4>Your results</h4>
+			</div>
 			<div class="panel-body" ng-bind-html="bbplot | to_trusted"></div>
 		</div>
 

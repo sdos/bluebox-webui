@@ -18,9 +18,11 @@ analyticsModule
 								$timeout, $filter, $http) {
 
 							console.log("BB-Insights!");
+							updateNodeRedSources();
 							$scope.nodered = {
 								url : "...Endpoint URL unknown..."
 							};
+							$scope.selectedSource = {url:"", name: "", initialLabel: "Select your data source here"};
 
 							$http
 									.get('api_analytics/nrendpoint')
@@ -54,7 +56,14 @@ analyticsModule
 
 							$scope.drawPlot = function(plotType) {
 								$http
-										.get('api_analytics/plot/'+plotType, {params:{"nrDataSource": $scope.nrDataSource}})
+										.get(
+												'api_analytics/plot/'
+														+ plotType,
+												{
+													params : {
+														"nrDataSource" : $scope.selectedSource.url
+													}
+												})
 										.then(
 												function successCallback(
 														response) {
@@ -76,9 +85,11 @@ analyticsModule
 													}
 												},
 												function errorCallback(response) {
-													console.log(JSON.stringify(response));
-													if(420 == response.status){
-														
+													console
+															.log(JSON
+																	.stringify(response));
+													if (420 == response.status) {
+
 													}
 													$rootScope
 															.$broadcast(
@@ -86,10 +97,53 @@ analyticsModule
 																	{
 																		"type" : "danger",
 																		"text" : "Error: "
-																			+ response.data
+																				+ response.data
 																	});
 												});
 
 							};
+
+							$scope.updateNodeRedSources = updateNodeRedSources;
+							
+							function updateNodeRedSources() {
+							$http
+									.get('api_analytics/nrsources')
+									.then(
+											function successCallback(
+													response) {
+												console.log(response.data);
+												$scope.availableSources = response.data;
+
+												if (!response.data) {
+													$rootScope
+															.$broadcast(
+																	'FlashMessage',
+																	{
+																		"type" : "danger",
+																		"text" : "unable to retrieve Node-RED enpoint list..."
+																	});
+												}
+											},
+											function errorCallback(response) {
+												console
+														.log(JSON
+																.stringify(response));
+												$rootScope
+														.$broadcast(
+																'FlashMessage',
+																{
+																	"type" : "danger",
+																	"text" : "Error: "
+																			+ response.data
+																});
+											});
+
+						};								
+						$scope.selectSource = function(s) {
+							console.log(s.url);
+							$scope.selectedSource = s;
+							
+
+						};
 
 						} ]);

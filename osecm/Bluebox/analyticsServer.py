@@ -77,7 +77,7 @@ def getListOfKeys(d):
 @app.route("/api_analytics/plot/<plotType>", methods=["GET"])
 def doPlot(plotType):
 	nrDataSource = request.args.get("nrDataSource")
-	url = appConfig.nodered_url + "/" + nrDataSource
+	url = appConfig.nodered_url + nrDataSource
 	r = requests.get(url)
 	if r.status_code == 404:
 		raise HttpError("Node-RED endpoint is not reachable: {}".format(url), 420)
@@ -104,6 +104,9 @@ def getNodeRedEnpointList():
 	n = requests.get(appConfig.nodered_url + "/flows").json()
 	sources = []
 	for s in n:
+		# Node-RED has a strange API... we can't reconstruct node/flow relationships...
+		#if ('tab' == s['type'] and 'label' in s):
+		#	thisFlowName = s['label'] + "->"
 		if ('http in' == s['type'] and 'url' in s): 
-			sources.append(s['url'])
+			sources.append({"url": s['url'], "name": s['name']})
 	return Response(json.dumps(sources), mimetype="application/json")
