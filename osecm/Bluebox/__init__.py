@@ -21,6 +21,7 @@ socketio = SocketIO(app)
 
 import osecm.Bluebox.APIServer
 import osecm.Bluebox.TasksServer
+import osecm.Bluebox.analyticsServer
 
 
 

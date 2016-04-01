@@ -5,6 +5,7 @@ var app = angular.module('bluebox', [
     'bluebox.messageBag',
     'bluebox.tasks',
     'bluebox.about',
+    'bluebox.analytics',
     'bluebox.account',
     'bluebox.login'
 ])

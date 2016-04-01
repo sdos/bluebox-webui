@@ -1,0 +1,90 @@
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h2>BB-Insights - BlueBox Analytics</h2>
+	</div>
+	<div class="panel-body">
+
+
+		<div class="panel panel-info">
+			<div class="panel-heading">Step 1: Open the Node-RED editor and
+				create your query</div>
+			<div class="panel-body">
+				<p>BB-Insights comes with a Node-RED instance that is connected
+					to your metadata warehouse. You can create SQL queries, pull in
+					external data sources, and use javascript functions to perform any
+					possible analysis on the data.</p>
+				<p>After you created your flow in Node-RED, turn it into a data
+					source for BB-Insights. Use the HTTP node to create an endpoint and
+					give it any name you like. Connect your flow to the HTTP node and
+					then come back here.</p>
+				<a type="button" class="btn btn-default" target="_blank"
+					ng-href="{{nodered.url}}">Open the Node-RED editor</a>
+			</div>
+		</div>
+
+		<div class="panel panel-info">
+			<div class="panel-heading">Step 2: Enter the endpoint name for
+				your Node-RED data source</div>
+			<div class="panel-body">
+				<p>Enter the name you specified for your HTTP node in Node-RED.
+					You only need to enter the name of the endpoint, BB-Insights
+					already knows the rest of the URL.</p>
+				<div class="input-group">
+					<span class="input-group-addon" id="basic-addon1">{{nodered.url}}/</span>
+					<input type="text" class="form-control" placeholder="endpoint name"
+						aria-describedby="basic-addon1" ng-model="nrDataSource">
+				</div>
+			</div>
+		</div>
+
+
+		<div class="panel panel-info">
+			<div class="panel-heading">Step 3: Select a suitable
+				visualization for your data</div>
+			<div class="panel-body">
+				<p>BB-insights uses Bokeh and D3.js to visualize your data. You
+					can now choose which type of visualization you want to use.</p>
+				<p>Each type supports different data structures. All data from
+					Node-RED has to come in tables or matrixes, the different
+					visualization types support different amounts of rows and columns.</p>
+
+				<button type="button" class="btn btn-success"
+					ng-disabled="!nrDataSource" ng-click="drawPlot('bar')">
+					<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+					<p>Bar graph</p>
+					<p>1 row, * columns</p>
+				</button>
+				<button type="button" class="btn btn-success"
+					ng-disabled="!nrDataSource" ng-click="drawPlot('pie')">
+					<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+					<p>Pie graph</p>
+					<p>1 row, * columns</p>
+				</button>
+				<button type="button" class="btn btn-success"
+					ng-disabled="!nrDataSource" ng-click="drawPlot('multipie')">
+					<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+					<p>Multiple pie graphs</p>
+					<p>* rows, * columns</p>
+				</button>
+
+			</div>
+		</div>
+
+
+		<link href="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.css"
+			rel="stylesheet" type="text/css">
+		<!-- Import doesn't work here; just left as a TODO... currently the import is happening in the header in index.html -->
+		<!-- <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js"></script> -->
+
+
+		<div class="panel panel-success" ng-hide="!bbplot">
+			<div class="panel-heading">Your Results</div>
+			<div class="panel-body" ng-bind-html="bbplot | to_trusted"></div>
+		</div>
+
+
+
+
+	</div>
+</div>

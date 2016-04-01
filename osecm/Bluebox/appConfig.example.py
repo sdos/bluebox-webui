@@ -28,3 +28,7 @@ swift_pw = "<pw>"
 swift_auth_version = 1
 swift_tenant = None
 
+"""
+used by BB-Insights. Please provide the URL that points to the Node-RED root.
+"""
+nodered_url = "http://host:port"

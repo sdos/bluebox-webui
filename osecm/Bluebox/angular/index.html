@@ -6,11 +6,13 @@
 
     <title>Bluebox</title>
     <link href="/angular/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/angular/css/bootstrap-theme.min.css" rel="stylesheet">
     <link href="/angular/css/app.css" rel="stylesheet">
     <link href="/angular/modules/messageBag/messageBag.css" rel="stylesheet">
 	 
-	
+	<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js"></script>
     <script src="/angular/external/angular.min.js"></script>
+<!--     <script src="/angular/external/bootstrap.min.js"></script> -->
     <script src="/angular/external/angular-animate.min.js"></script>
     <script src="/angular/external/angular-sanitize.js"></script>
     <script src="/angular/external/angular-ui-router.min.js"></script>
@@ -28,6 +30,8 @@
     <script src="/angular/modules/login/loginController.js"></script>
     <script src="/angular/modules/about/about.js"></script>
     <script src="/angular/modules/about/aboutController.js"></script>
+    <script src="/angular/modules/analytics/analytics.js"></script>
+    <script src="/angular/modules/analytics/analyticsController.js"></script>
     <script src="/angular/modules/account/account.js"></script>
     <script src="/angular/modules/account/accountController.js"></script>
     <script src="/angular/modules/container/containerController.js"></script>
@@ -74,6 +78,8 @@
             <a ui-sref="tasksState()">Tasks & Scheduling</a></li>
           <li>
             <a ui-sref="aboutState()">About</a></li>
+          <li>
+            <a ui-sref="analyticsState()">Analytics</a></li>
           <li>
             <a ui-sref="accountState()">Account & Security</a></li>
         </ul>
