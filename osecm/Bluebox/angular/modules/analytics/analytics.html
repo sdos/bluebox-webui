@@ -8,19 +8,23 @@
 
 		<div class="panel panel-info">
 			<div class="panel-heading">
-				<h4>Step 1: Open the Node-RED editor and create your queries</h4>
+				<h4><b>Step 1:</b> Open the Node-RED editor and create your queries</h4>
 			</div>
 			<div class="panel-body">
 				<p>BB-Insights comes with a Node-RED instance that is connected
 					to your metadata warehouse. You can create SQL queries, pull in
-					external data sources, and use javascript functions to perform any
-					possible analysis on the data.</p>
-				<p>After you created your flow in Node-RED, turn it into a data
-					source for BB-Insights. Use the HTTP node to create an endpoint and
-					give it any name you like. Connect your flow to the HTTP node and
-					then come back here.</p>
-					
-				<p>P.S. Don't forget to hit <i>"Deploy"</i> in Node-Red.</p>
+					external data sources, and use JavaScript functions to do really anything.</p>
+				<p>After you have created your flow in Node-RED, turn it into a data
+					source for BB-Insights. Use the HTTP node to create an endpoint,
+					connect your query to the HTTP node, and give it any URL and name
+					you like.</p>
+
+				<p>Check out the included examples in Node-RED to get an idea.
+					When you're done, come back here.</p>
+
+				<p>
+					P.S. Don't forget to hit <i>"Deploy"</i> in Node-Red.
+				</p>
 				<a type="button" class="btn btn-default" target="_blank"
 					ng-href="{{nodered.url}}">Open the Node-RED editor</a>
 			</div>
@@ -28,21 +32,23 @@
 
 		<div class="panel panel-info">
 			<div class="panel-heading">
-				<h4>Step 2: Select your Node-RED data source</h4>
+				<h4><b>Step 2:</b> Select your Node-RED data source</h4>
 			</div>
 			<div class="panel-body">
-				<p>The following list shows all your endpoints from Node-RED. Select the one you want to use for this analysis.</p>
+				<p>The following list shows all your endpoints from Node-RED.
+					Select the one you want to use for this analysis.</p>
 
 
 				<div class="dropdown">
 					<button class="btn btn-default dropdown-toggle" type="button"
 						id="sourceSelector" data-toggle="dropdown" aria-haspopup="true"
 						aria-expanded="true" ng-click="updateNodeRedSources()">
-						{{selectedSource.url}} <b>{{selectedSource.name}}</b> {{selectedSource.initialLabel}}<span class="caret"></span>
+						{{selectedSource.url}} <b>{{selectedSource.name}}</b>
+						{{selectedSource.initialLabel}}<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" aria-labelledby="sourceSelector">
-						<li ng-repeat="s in availableSources track by s.url"><a href="#"
-							ng-click="selectSource(s)">{{s.url}} <b>{{s.name}}</b></a></li>
+						<li ng-repeat="s in availableSources track by s.url"><a
+							href="#" ng-click="selectSource(s)">{{s.url}} <b>{{s.name}}</b></a></li>
 
 					</ul>
 				</div>
@@ -63,7 +69,7 @@
 
 		<div class="panel panel-info">
 			<div class="panel-heading">
-				<h4>Step 3: Select a suitable visualization for your data</h4>
+				<h4><b>Step 3:</b> Select a suitable visualization for your data</h4>
 			</div>
 			<div class="panel-body">
 				<p>BB-insights uses Bokeh and D3.js to visualize your data. You
@@ -100,7 +106,7 @@
 
 		<div class="panel panel-success" ng-hide="!bbplot">
 			<div class="panel-heading">
-				<h4>Your results</h4>
+				<h4><b>Your results</b></h4>
 			</div>
 			<div class="panel-body" ng-bind-html="bbplot | to_trusted"></div>
 		</div>
