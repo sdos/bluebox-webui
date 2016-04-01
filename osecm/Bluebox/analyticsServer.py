@@ -10,25 +10,27 @@
 """
 
 
+import collections
 from datetime import datetime
 from functools import wraps
 import json, logging, time, re
 
+from bokeh.charts import Area, show, vplot, output_file, Bar
+from bokeh.embed import components 
 from flask import request, Response, send_file, render_template
+import requests
 
 from osecm.Bluebox import app
-from osecm.Bluebox.exceptions import HttpError
 from osecm.Bluebox import appConfig
-from bokeh.embed import components 
-import requests
-import pandas as pd
+from osecm.Bluebox.exceptions import HttpError
+import pandas
+
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
 log = logging.getLogger()
 
 
 
-from bokeh.charts import Area, show, vplot, output_file, Bar
 
 # create some example data
 data = dict(
@@ -48,28 +50,60 @@ def getNodeRedEndpoint():
 
 
 
+
+
+def doPlot1(data, sourceName):
+	p = Bar(data, data.columns[0], values=data.columns[1], title="Bar graph of " + sourceName, xlabel=data.columns[0], ylabel=data.columns[1])
+	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
+	return c
+
+
+def doPlot2(data, sourceName):
+	plots = []
+	for thisColumn in data.columns[1:]:
+		plots.append(Bar(data, data.columns[0], values=thisColumn, title="Bar graph of " + sourceName, xlabel=data.columns[0], ylabel=thisColumn))
+	c = components(vplot(*plots), resources=None, wrap_script=False, wrap_plot_info=True)
+	return c
+
+
+def getListOfKeys(d):
+	keys = []
+	for k in d.keys():
+		keys.append(k)
+	return keys
+
+
+
 @app.route("/api_analytics/plot/<plotType>", methods=["GET"])
 def doPlot(plotType):
 	nrDataSource = request.args.get("nrDataSource")
-	
-	
 	url = appConfig.nodered_url + "/" + nrDataSource
-	data = requests.get(url).json()
-	df = pd.DataFrame(data)
+	r = requests.get(url)
+	if r.status_code == 404:
+		raise HttpError("Node-RED endpoint is not reachable: {}".format(url), 420)
+	
+	data = json.JSONDecoder(object_pairs_hook=collections.OrderedDict).decode(r.content.decode())
+	dataKeys = getListOfKeys(data[0])
+	
+	df = pandas.DataFrame(data, columns=dataKeys)
+	df[dataKeys[0]] = df[dataKeys[0]].map(lambda x: str(x)[:20])
 	print(df)
 	
-	p = Bar(df, df.columns[0], values=df.columns[1], title="Bar graph of " + nrDataSource, xlabel=df.columns[0], ylabel=df.columns[1])
-	#p2 = Bar(df, df.columns[0], values=df.columns[2], title="Bar graph of " + nrDataSource, xlabel=df.columns[0], ylabel=df.columns[1])
-	
-	
-	
-	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
-	
+	if('2bar' == plotType):
+		c = doPlot2(data=df, sourceName=nrDataSource)
+	elif('bar' == plotType):
+		c = doPlot1(data=df, sourceName=nrDataSource)
+		
+		
 	print(nrDataSource, plotType)
 	return Response(json.dumps(c), mimetype="application/json")
-	#return includes + "<h2>hallo</h2>" + c[0] + c[1], 200
 
 
-
-
-
+@app.route("/api_analytics/nrsources", methods=["GET"])
+def getNodeRedEnpointList():
+	n = requests.get(appConfig.nodered_url + "/flows").json()
+	sources = []
+	for s in n:
+		if ('http in' == s['type'] and 'url' in s): 
+			sources.append(s['url'])
+	return Response(json.dumps(sources), mimetype="application/json")

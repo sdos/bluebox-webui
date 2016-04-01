@@ -71,18 +71,22 @@ analyticsModule
 																		'FlashMessage',
 																		{
 																			"type" : "danger",
-																			"text" : "Error communicating with analytics back end"
+																			"text" : "No data received from backend"
 																		});
 													}
 												},
 												function errorCallback(response) {
+													console.log(JSON.stringify(response));
+													if(420 == response.status){
+														
+													}
 													$rootScope
 															.$broadcast(
 																	'FlashMessage',
 																	{
 																		"type" : "danger",
-																		"text" : "Error communicating with analytics back end: "
-																				+ response
+																		"text" : "Error: "
+																			+ response.data
 																	});
 												});
 

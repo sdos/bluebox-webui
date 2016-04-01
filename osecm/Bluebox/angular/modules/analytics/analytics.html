@@ -32,7 +32,7 @@
 					already knows the rest of the URL.</p>
 				<div class="input-group">
 					<span class="input-group-addon" id="basic-addon1">{{nodered.url}}/</span>
-					<input type="text" class="form-control" placeholder="endpoint name"
+					<input id="noderedUrlField" type="text" class="form-control" placeholder="endpoint name"
 						aria-describedby="basic-addon1" ng-model="nrDataSource">
 				</div>
 			</div>
@@ -53,27 +53,24 @@
 					ng-disabled="!nrDataSource" ng-click="drawPlot('bar')">
 					<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
 					<p>Bar graph</p>
-					<p>1 row, * columns</p>
+					<p>* rows, 1 column</p>
 				</button>
 				<button type="button" class="btn btn-success"
-					ng-disabled="!nrDataSource" ng-click="drawPlot('pie')">
+					ng-disabled="!nrDataSource" ng-click="drawPlot('2bar')">
 					<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-					<p>Pie graph</p>
-					<p>1 row, * columns</p>
-				</button>
-				<button type="button" class="btn btn-success"
-					ng-disabled="!nrDataSource" ng-click="drawPlot('multipie')">
-					<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-					<p>Multiple pie graphs</p>
-					<p>* rows, * columns</p>
+					<p>2 Bar graphs</p>
+					<p>* rows, 2 columns</p>
 				</button>
 
 			</div>
 		</div>
 
 
-		<link href="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.css"
+		<link href="/angular/css/bokeh-0.11.1.min.css"
 			rel="stylesheet" type="text/css">
+		<link href="/angular/css/bokeh-widgets-0.11.1.min.css"
+			rel="stylesheet" type="text/css">
+			
 		<!-- Import doesn't work here; just left as a TODO... currently the import is happening in the header in index.html -->
 		<!-- <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js"></script> -->
 
