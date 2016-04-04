@@ -17,8 +17,8 @@ netHost = os.getenv("VCAP_APP_HOST", "0.0.0.0")
 
 
 bind = "{}:{}".format(netHost, netPort)
-#workers = multiprocessing.cpu_count() * 2 + 1
-workers = 1 #
+workers = multiprocessing.cpu_count() * 2 + 1
+#workers = 1 #
 timeout = 600
 graceful_timeout = 800
 worker_class = "gevent"
