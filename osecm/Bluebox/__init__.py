@@ -11,13 +11,13 @@
 
 import logging
 from flask import Flask
-from flask_socketio import SocketIO
+#from flask_socketio import SocketIO
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
 log = logging.getLogger()
 
 app = Flask(__name__, static_folder="angular")
-socketio = SocketIO(app)
+#socketio = SocketIO(app)
 
 import osecm.Bluebox.APIServer
 import osecm.Bluebox.TasksServer
