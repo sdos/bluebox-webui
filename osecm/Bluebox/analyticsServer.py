@@ -53,7 +53,7 @@ def getNodeRedEndpoint():
 
 
 def doPlot1(data, nrDataSource):
-	p = Bar(data, data.columns[0], values=data.columns[1], title="Bar graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1])
+	p = Bar(data, data.columns[0], values=data.columns[1], title="Bar graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1], responsive=True)
 	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
 	return c
 
@@ -61,7 +61,7 @@ def doPlot1(data, nrDataSource):
 def doPlot2(data, nrDataSource):
 	plots = []
 	for thisColumn in data.columns[1:]:
-		plots.append(Bar(data, data.columns[0], values=thisColumn, title="Bar graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=thisColumn))
+		plots.append(Bar(data, data.columns[0], values=thisColumn, title="Bar graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=thisColumn, responsive=True))
 	c = components(vplot(*plots), resources=None, wrap_script=False, wrap_plot_info=True)
 	return c
 
