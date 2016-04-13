@@ -1,300 +1,315 @@
-<div class="panel-body">
-    <a ui-sref="fileSystemState()" type="button" class="btn btn-info">
-        <span class="glyphicon glyphicon-level-up"></span>
-        Back to containers
-    </a>
-</div>
-<div class="panel panel-default" >
-    <div class="panel-heading">
-        <div class="row">
-            <div class="col-sm-1">
-                <img
-                        alt="Container icon"
-                        ng-src="/angular/icons/file_icon_{{ container.metadata.objectCount > 0 ? 'full' : 'empty' }}_64.png">
-            </div>
-            <div class="col-sm-11">
-                <h3>
-                    Container: {{ container.name }}
-                </h3>
-                <form ng-submit="updateContainer()" class="form-horizontal">
-                    <div class="form-group">
-                        <label class="control-label col-sm-2">Object class:</label>
-                        <div ng-show="!showContainerForm" ng-mouseenter="showContainerForm = true" class="form-control-static col-sm-5">
-                            {{ containerModel.objectClass ? containerModel.objectClass : "no object class" }}
-                            <span class="glyphicon glyphicon-pencil"></span>
-                        </div>
-                        <object-class-selector ng-mouseleave="showContainerForm = !isContainerModelInSync()"
-                                               ng-show="showContainerForm"
-                                               ng-model="containerModel.objectClass"
-                                               id="objectClass" class="col-sm-5">
-                        </object-class-selector>
-                        <div ng-show="!isContainerModelInSync()" class="col-sm-5">
-                            <button type="submit" class="btn btn-success">
-                                <span class="glyphicon glyphicon-save"></span>
-                                Apply
-                            </button>
-                            <button class="btn btn-primary" type="button" ng-click="resetContainerForm()">
-                                <span class="glyphicon glyphicon-repeat"></span>
-                                Reset
-                            </button>
-                        </div>
-                    </div>
-                    <div ng-if="isObjectClassOutdated" class="form-group">
-                        <div class="col-sm-offset-2 col-sm-10 form-control-static text-warning">
-                            <span class="glyphicon glyphicon-warning-sign"></span>
-                            <strong>The object class "{{ container.metadata.objectClass }}" does not exist anymore!</strong>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div ng-click="showUploadForm = !showUploadForm" class="panel-heading clickable">
-        <h4>
-            <span class="glyphicon" ng-class="{'glyphicon-chevron-right': !showUploadForm, 'glyphicon-chevron-down': showUploadForm}"></span>
-            Upload an object
-        </h4>
-    </div>
-    <div ng-show="showUploadForm" class="panel-body">
-        <div ng-show="isGetObjectClassRequestPending" class="text-center">
-            <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate glyphicon-lg"></span>
-        </div>
-        <form name="uploadForm" ng-show="!isGetObjectClassRequestPending" ng-submit="uploadObject()" class="form-horizontal">
-            <div class="form-group">
-                <label for="file" class="col-sm-2 control-label">File to upload</label>
-                <div class="col-sm-10">
-                    <input ngf-select ng-model="fileModel.file" ng-change="uploadProgressPercentage = 0;" type="file"
-                           class="form-control-static" id="file" required/>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">Retention Date</label>
-                <div class="col-sm-10">
-                    <date-input
-                            ng-model="fileModel.retentionDate"
-                            id="retentionDate"
-                            min-date="retentionDatePicker.minDate">
-                    </date-input>
-                </div>
-            </div>
-            <div ng-repeat="metadataField in container.metadataFields" class="form-group">
-                <label for="{{ metadataField.name }}" class="col-sm-2 control-label">
-                    {{ metadataField.name }}
-                    <span ng-if="metadataField.required">*</span>
-                </label>
-                <div class="col-sm-10">
-                    <dynamic-input
-                            type="metadataField.type.inputType"
-                            ng-model="fileModel.metadata[metadataField.name]"
-                            ng-required="metadataField.required"
-                            name="{{ metadataField.name }}"
-                            id="{{ metadataField.name }}">
-                    </dynamic-input>
-                </div>
-            </div>
+<!-- Top buttons -->
+<md-button ui-sref="fileSystemState()" class="md-raised">
+	<span class="glyphicon glyphicon-level-up"></span>
+	Back to containers
+</md-button>
 
-            <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-2">
-                    <button type="submit" class="btn btn-success">
-                        <span class="glyphicon glyphicon-cloud-upload"></span>
-                        Upload
-                    </button>
-                </div>
-                <div ng-if="isAnyMetadataFieldRequired()" class="col-sm-8 form-control-static small">
-                    (* required field)
-                </div>
-            </div>
+<!-- Card with container name -->
+<md-card>
+	<md-card-header>
+		  <md-card-avatar>
+			<img ng-src="/angular/icons/file_icon_{{ container.metadata.objectCount > 0 ? 'full' : 'empty' }}_64.png">
+		  </md-card-avatar>
+		  <md-card-title-text>
+			  <span class="md-headline"> <br/>Container: {{ container.name }}</span>
+		  </md-card-title-text>
+	</md-card-header>
+	<md-card-content>
 
-            <div ng-show="uploadProgress.percentage" class="form-group">
-                <label class="col-sm-2 control-label">Upload progress</label>
-                <div class="col-sm-10 form-control-static">
-                    <div class="progress">
-                        <div
-                                ng-class="{'progress-bar-success': uploadProgress.percentage === 100, 'progress-bar-striped active': uploadProgress.percentage !== 100}"
-                                class="progress-bar"
-                                role="progressbar"
-                                style="width: {{ uploadProgress.percentage }}%;">
-                            {{ uploadProgress.percentage }} % ({{ uploadProgress.loaded | bytes }} / {{ uploadProgress.total | bytes }})
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div ng-show="showUploadForm" class="panel-footer"></div>
-    <div class="panel-heading">
-        <h4>Object list</h4>
-        <div class="row">
-            <p class="col-md-8">{{ container.metadata.objectCount }} objects in total</p>
-            <form class="form-inline col-md-4">
-                <label for="prefix">
-                    <span class="glyphicon glyphicon-filter"></span>
-                    Filter:
-                </label>
-                <input
-                        ng-model="prefix"
-                        ng-change="getObjects(true)"
-                        type="text"
-                        class="form-control"
-                        id="prefix"
-                />
-            </form>
-        </div>
-        <h5 ng-click="showColumnSelector = !showColumnSelector" class="clickable">
-            <span class="glyphicon" ng-class="{'glyphicon-chevron-right': !showColumnSelector, 'glyphicon-chevron-down': showColumnSelector}"></span>
-            Select columns
-        </h5>
-        <div ng-show="showColumnSelector" class="row">
-            <div class="col-sm-12">
-                <div class="btn-group" role="group">
-                    <button ng-repeat="metadataField in basicMetadataFields"
-                            ng-click="metadataField.isShownInColumn = !metadataField.isShownInColumn"
-                            ng-class="{'btn-default': !metadataField.isShownInColumn, 'btn-info': metadataField.isShownInColumn}"
-                            type="button" class="btn">
-                        {{ metadataField.name }}
-                    </button>
-                    <button ng-repeat="metadataField in container.metadataFields.concat(specialMetadataFields)"
-                            ng-click="toggleMetadataFieldColumn(metadataField)"
-                            ng-class="{'btn-default': !metadataField.isShownInColumn, 'btn-info': metadataField.isShownInColumn}"
-                            type="button" class="btn">
-                        {{ metadataField.name }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="panel-body">
-        <table
-                infinite-scroll="getObjects()"
-                threshold="100"
-                can-load="isInitialRetrievalDone && !isGetObjectsRequestPending && !isEndOfListReached()"
-                global
-                class="table table-hover">
-            <tr>
-                <th>Name</th>
-                <th ng-repeat="metadataField in basicMetadataFields" ng-show="metadataField.isShownInColumn">{{ metadataField.name }}</th>
-                <th ng-repeat="metadataField in container.metadataFields.concat(specialMetadataFields)" ng-show="metadataField.isShownInColumn">{{ metadataField.name }}</th>
-                <th>Preview</th>
-                <th>Download</th>
-                <th>Delete</th>
-                <th>Details</th>
-            </tr>
-            <tr ng-repeat-start="object in container.objects">
-                <td>
+		<!-- Show warning if the class of the container was deleted -->
+			<div ng-if="isObjectClassOutdated">
+				<md-toolbar class="md-warn">
+					<div class="md-toolbar-tools">
+						 <h2 class="md-flex">
+							 <span class="glyphicon glyphicon-warning-sign"></span>
+							 <strong>
+								 The object class "{{ container.metadata.objectClass }}" does not exist anymore!
+							 </strong>
+						 </h2>
+					</div>
+				</md-toolbar>
+			</div>
+	</md-card-content>
+</md-card>
 
-                	<div ng-if="object.content_type.startsWith('text/')">
-                		<img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>      
-                	    <img ng-else-if="object.name.indexOf('.html') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_html_32.png"/>     
-                	    <img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/text_default_32.png" ng-else/>
-                		{{ object.name }}
-                	</div>
-                	<div ng-else-if="object.content_type.startsWith('audio/')">
-                	    <img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>
-                		<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/audio_default_32.png"/>
-                	    {{ object.name }}
-                	</div>
-                	<div ng-else-if="object.content_type.startsWith('video/')">
-                		<img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>
-                		<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/video_default_32.png"/>
-                	    {{ object.name }}
-                	</div>
-                	<div ng-else-if="object.content_type.startsWith('image/')">
-                		<img ng-if="object.content_type.endsWith('jpeg')" alt="Data Icon" ng-src="/angular/icons/data_icons/image_jpeg_32.png"/>
-                		<img ng-else-if="object.content_type.endsWith('png')" alt="Data Icon" ng-src="/angular/icons/data_icons/image_png_32.png"/>
-                		<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/image_default_32.png"/>
-                	    {{ object.name }}
-                	</div>
-                	<div ng-else-if="object.content_type.startsWith('application/')">
-                		<img ng-if="object.name.indexOf('.xml') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xml_32.png"/>
-                        <img ng-else-if="object.name.indexOf('.docx') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_docx_32.png"/>
-                        <img ng-else-if="object.name.indexOf('.doc') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_doc_32.png"/>
-                        <img ng-else-if="object.name.indexOf('.xlsx') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xlsx_32.png"/>
-                        <img ng-else-if="object.name.indexOf('.xls') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xls_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.css') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_css_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.pdf') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_pdf_32.png"/>
-                	    <img ng-else-if="object.name.indexOf('.rtf') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_rtf_32.png"/>     
-                		<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/application_default_32.png"/>
-                	    {{ object.name }}
-                	</div>
-                	<div ng-else>
-                	    <img alt="Data Icon" ng-src="/angular/icons/data_icons/unknown_data_32.png"/>
-                	    {{ object.name }}
-                	</div>
-                	
+<!-- Card where you can change the object class of the container -->
+<md-card>
+	<md-card-title ng-click="showClassForm = !showClassForm">
+		<md-card-title-text>
+			<span class="md-headline">
+				<span class="glyphicon"
+					  ng-class="{'glyphicon glyphicon-triangle-right': !showClassForm, 'glyphicon glyphicon-triangle-bottom': showClassForm}">
+				</span>
+				Object class</span>
+		</md-card-title-text>
+	</md-card-title>
+	<md-card-content ng-show="showClassForm">
+		<form ng-submit="updateContainer()">
 
-                </td>
-                <td ng-repeat="metadataField in basicMetadataFields" ng-show="metadataField.isShownInColumn">
-                    <div ng-if="metadataField.filter && metadataField.filter !== 'date'">{{ object[metadataField.objectProperty] | picker:metadataField.filter }}</div>
-                    <div ng-if="metadataField.filter === 'date'">{{ object[metadataField.objectProperty] | date:(metadataField.dateFormat ? metadataField.dateFormat : "mediumDate") }}</div>
-                    <div ng-if="!metadataField.filter && !metadataField.dateFormat">{{ object[metadataField.objectProperty] }}</div>
-                </td>
-                <td ng-repeat="metadataField in container.metadataFields.concat(specialMetadataFields)" ng-show="metadataField.isShownInColumn">
-                    <div ng-show="!object.details" class="text-center">
-                        <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-                    </div>
-                    <div ng-show="object.details">
-                        <div ng-show="metadataField.dateFormat">{{ object.details[metadataField.headerKey] | date:metadataField.dateFormat }}</div>
-                        <div ng-show="!metadataField.dateFormat">{{ object.details[metadataField.headerKey] }}</div>
-                    </div>
-                </td>
-                <td>
-                    <a ng-disabled="(object.name.indexOf('.pdf') == -1) && (object.content_type.indexOf('application/') > -1) || (object.content_type.indexOf('video/') > -1) || (object.content_type.indexOf('audio/') > -1)"
-                       ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true"       
-                       target="_blank"
-                       type="button"         
-                       class="btn btn-success">
-                        <span class="glyphicon glyphicon-new-window"></span>
-                    </a>
-                </td>
-                <td>
-                    <a ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}"
-                       target="_self"
-                       type="button"
-                       class="btn btn-success">
-                        <span class="glyphicon glyphicon-download-alt"></span>
-                    </a>
-                </td>
-                <td>
-                    <a ng-click="deleteObject(object)" type="button" class="btn btn-danger">
-                        <span class="glyphicon glyphicon-remove"></span>
-                    </a>
-                </td>
-                <td>
-                    <a ng-click="toggleDetails(object)" type="button" class="btn btn-info">
-                        <span class="glyphicon" ng-class="{'glyphicon-chevron-right': !object.showDetails, 'glyphicon-chevron-down': object.showDetails}"></span>
-                    </a>
-                </td>
-            </tr>
-            <tr ng-if="object.showDetails" ng-repeat-end>
-                <td colspan="7">
-                    <div class="row">
-                        <div ng-show="!object.details" class="col-md-12 text-center">
-                            <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate glyphicon-lg"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <table class="table table-hover">
-                                <tr ng-repeat="(key, value) in object.details | half">
-                                    <td>{{ key }}:</td>
-                                    <td ng-show="getMetadataField(key)">{{ value | date:getMetadataField(key).dateFormat }}</td>
-                                    <td ng-show="!getMetadataField(key)">{{ value }}</td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="col-md-6">
-                            <table class="table table-hover">
-                                <tr ng-repeat="(key, value) in object.details | half: 2">
-                                    <td>{{ key }}:</td>
-                                    <td ng-show="getMetadataField(key)">{{ value | date:getMetadataField(key).dateFormat }}</td>
-                                    <td ng-show="!getMetadataField(key)">{{ value }}</td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        </table>
-        <div ng-show="isGetObjectsRequestPending" class="text-center">
-            <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate glyphicon-lg"></span>
-        </div>
-    </div>
-</div>
+			<!-- Object class dropdown element from objectClass/objectClassSelector.html -->
+			<object-class-selector ng-model="containerModel.objectClass" id="objectClass">
+			</object-class-selector>
+
+			<!-- Buttons which turn up if changes have been made -->
+			<div ng-show="!isContainerModelInSync()">
+				<md-button type="submit" class="md-raised md-primary">
+					<span class="glyphicon glyphicon-save"></span>
+					Apply
+				</md-button>
+
+				<md-button ng-click="resetContainerForm()" class="md-raised">
+					<span class="glyphicon glyphicon-repeat"></span>
+					Reset
+				</md-button>
+			</div>
+
+		</form>
+	</md-card-content>
+</md-card>
+
+<!-- Card where you can upload an object into the container -->
+<md-card>
+	<md-card-title ng-click="showUploadForm = !showUploadForm">
+		  <md-card-title-text>
+			<span class="md-headline">
+				<span class="glyphicon"
+					  ng-class="{'glyphicon glyphicon-triangle-right': !showUploadForm,
+					  'glyphicon glyphicon-triangle-bottom': showUploadForm}">
+				</span>
+				Upload an object</span>
+		  </md-card-title-text>
+	</md-card-title>
+	<md-card-content ng-show="showUploadForm">
+			<form name="uploadForm" ng-show="!isGetObjectClassRequestPending" ng-submit="uploadObject()">
+
+				<!-- Choose File to upload -->
+				<input ngf-select ng-model="fileModel.file" ng-change="uploadProgressPercentage = 0;" type="file"
+					   class="form-control-static" id="file" required/>
+
+				<!-- Date input retention date -->
+				<md-datepicker class="md-block" flex-gt-sm="" ng-model="fileModel.retentionDate"
+								md-placeholder="Retention date" date="retentionDatePicker.minDate">
+				</md-datepicker>
+
+				<!-- Additional meta data input fields -->
+				<md-input-container ng-repeat="metadataField in container.metadataFields" class="md-block" flex-gt-sm="">
+					 <label for="{{ metaField.name }}">
+						 {{ metadataField.name }}
+					 </label>
+					 <input ng-if="metadataField.required" required="" ng-model="fileModel.metadata[metadataField.name]">
+					 <input ng-if="!metadataField.required" ng-model="fileModel.metadata[metadataField.name]">
+					<div ng-if="metadataField.required" ng-message="required">Required field</div>
+				</md-input-container>
+
+
+				<!-- Button to upload File -->
+				<md-button type="submit" class="md-raised md-primary">
+							<span class="glyphicon glyphicon-cloud-upload"></span> Upload
+				</md-button>
+
+				<!-- Upload progress percentage with bar -->
+				<div ng-show="uploadProgress.percentage">
+					{{ uploadProgress.percentage }} % ({{ uploadProgress.loaded | bytes }} / {{ uploadProgress.total | bytes }})
+				</div>
+				<md-progress-linear ng-show="uploadProgress.percentage" md-mode="determinate" value="{{uploadProgress.percentage}}">
+				</md-progress-linear>
+
+			</form>
+	</md-card-content>
+</md-card>
+
+<!-- Card which shows all files inside the container -->
+<md-card>
+	<md-card-title>
+		  <md-card-title-text>
+              <span class="md-headline">List of all objects ({{ container.metadata.objectCount }})</span>
+		  </md-card-title-text>
+	</md-card-title>
+
+	<!-- Text input to filter files inside the container -->
+	<md-card-actions layout="row" layout-align="end center">
+		  <md-input-container class="md-block" flex-gt-sm="">
+			<label>
+				<span class="glyphicon glyphicon-filter"></span>
+					Filter:
+			</label>
+			<input ng-model="prefix" ng-change="getObjects(true)">
+		  </md-input-container>
+	</md-card-actions>
+
+	<!-- Selector to choose columns to show -->
+	<md-card-content>
+		<h5 ng-click="showColumnSelector = !showColumnSelector" class="clickable">
+			<span class="glyphicon" ng-class="{'glyphicon glyphicon-triangle-right': !showColumnSelector,
+			 'glyphicon glyphicon-triangle-bottom': showColumnSelector}"></span>
+			Select columns
+		</h5>
+
+		<div ng-show="showColumnSelector" class="row">
+			 <div class="col-sm-12">
+				  <div class="btn-group" role="group">
+					  <button ng-repeat="metadataField in basicMetadataFields"
+							  ng-click="metadataField.isShownInColumn = !metadataField.isShownInColumn"
+							  ng-class="{'btn-default': !metadataField.isShownInColumn, 'btn-info': metadataField.isShownInColumn}"
+							  type="button" class="btn">
+							  {{ metadataField.name }}
+					  </button>
+					  <button ng-repeat="metadataField in container.metadataFields.concat(specialMetadataFields)"
+							  ng-click="toggleMetadataFieldColumn(metadataField)"
+							  ng-class="{'btn-default': !metadataField.isShownInColumn, 'btn-info': metadataField.isShownInColumn}"
+							  type="button" class="btn">
+							  {{ metadataField.name }}
+					  </button>
+				  </div>
+			 </div>
+		</div>
+	</md-card-content>
+
+	<!-- Lists all files inside the container -->
+	<md-card-content>
+		<table
+				infinite-scroll="getObjects()"
+				threshold="100"
+				can-load="isInitialRetrievalDone && !isGetObjectsRequestPending && !isEndOfListReached()"
+				global
+				class="table table-hover">
+			<tr>
+				<th>Name</th>
+				<th ng-repeat="metadataField in basicMetadataFields" ng-show="metadataField.isShownInColumn">{{ metadataField.name }}</th>
+				<th ng-repeat="metadataField in container.metadataFields.concat(specialMetadataFields)" ng-show="metadataField.isShownInColumn">{{ metadataField.name }}</th>
+				<th></th>
+				<th></th>
+				<th></th>
+			</tr>
+			<tr ng-repeat-start="object in container.objects">
+				<td>
+					<!-- Open preview of object in a new tab -->
+					<a ng-disabled="(object.name.indexOf('.pdf') == -1) && (object.content_type.indexOf('application/') > -1) || (object.content_type.indexOf('video/') > -1) || (object.content_type.indexOf('audio/') > -1)"
+					   ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true"
+					   target="_blank">
+
+						<!-- Choose image for object -->
+						<div ng-if="object.content_type.indexOf('text/') > -1">
+							<img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>
+							<img ng-else-if="object.name.indexOf('.html') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_html_32.png"/>
+							<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/text_default_32.png" ng-else/>
+							{{ object.name }}
+						</div>
+
+						<div ng-else-if="object.content_type.indexOf('audio/') > -1">
+							<img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>
+							<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/audio_default_32.png"/>
+							{{ object.name }}
+						</div>
+
+						<div ng-else-if="object.content_type.indexOf('video/') > -1">
+							<img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>
+							<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/video_default_32.png"/>
+							{{ object.name }}
+						</div>
+
+						<div ng-else-if="object.content_type.indexOf('image/') > -1">
+							<img ng-if="object.name.indexOf('.jpg') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_jpeg_32.png"/>
+							<img ng-else-if="object.name.indexOf('.jpeg') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_jpeg_32.png"/>
+							<img ng-else-if="object.name.indexOf('.jpe') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_jpeg_32.png"/>
+							<img ng-else-if="object.name.indexOf('.png') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/image_png_32.png"/>
+							<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/image_default_32.png"/>
+							{{ object.name }}
+						</div>
+
+						<div ng-else-if="object.content_type.indexOf('application/') > -1">
+							<img ng-if="object.name.indexOf('.xml') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xml_32.png"/>
+							<img ng-else-if="object.name.indexOf('.docx') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_docx_32.png"/>
+							<img ng-else-if="object.name.indexOf('.doc') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_doc_32.png"/>
+							<img ng-else-if="object.name.indexOf('.xlsx') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xlsx_32.png"/>
+							<img ng-else-if="object.name.indexOf('.xls') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_xls_32.png"/>
+							<img ng-else-if="object.name.indexOf('.css') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_css_32.png"/>
+							<img ng-else-if="object.name.indexOf('.pdf') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_pdf_32.png"/>
+							<img ng-else-if="object.name.indexOf('.rtf') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_rtf_32.png"/>
+							<img ng-else alt="Data Icon" ng-src="/angular/icons/data_icons/application_default_32.png"/>
+							{{ object.name }}
+						</div>
+
+						<div ng-else>
+							<img alt="Data Icon" ng-src="/angular/icons/data_icons/unknown_data_32.png"/>
+							{{ object.name }}
+						</div>
+					</a>
+				</td>
+
+				<td ng-repeat="metadataField in basicMetadataFields" ng-show="metadataField.isShownInColumn">
+					<div ng-if="metadataField.filter && metadataField.filter !== 'date'">{{ object[metadataField.objectProperty] | picker:metadataField.filter }}</div>
+					<div ng-if="metadataField.filter === 'date'">{{ object[metadataField.objectProperty] | date:(metadataField.dateFormat ? metadataField.dateFormat : "mediumDate") }}</div>
+					<div ng-if="!metadataField.filter && !metadataField.dateFormat">{{ object[metadataField.objectProperty] }}</div>
+				</td>
+				<td ng-repeat="metadataField in container.metadataFields.concat(specialMetadataFields)" ng-show="metadataField.isShownInColumn">
+					<div ng-show="!object.details" class="text-center">
+						<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+					</div>
+					<div ng-show="object.details">
+						<div ng-show="metadataField.dateFormat">{{ object.details[metadataField.headerKey] | date:metadataField.dateFormat }}</div>
+						<div ng-show="!metadataField.dateFormat">{{ object.details[metadataField.headerKey] }}</div>
+					</div>
+				</td>
+
+				<!-- Button to download object from container -->
+				<td>
+					<md-button ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}"
+							   target="_self"
+								class="md-raised">
+								<span class="glyphicon glyphicon-download-alt"></span>
+					</md-button>
+				</td>
+
+				<!-- Button to delete object from container -->
+				<td>
+					<md-button ng-click="deleteObject(object)" class="md-raised md-warn">
+						<span class="glyphicon glyphicon-trash"></span>
+					</md-button>
+				</td>
+
+				<!-- Button to show details of object -->
+				<td>
+					<md-button ng-click="toggleDetails(object)" class="md-raised">
+						<span class="glyphicon" ng-class="{'glyphicon glyphicon-triangle-right': !object.showDetails,
+						 'glyphicon glyphicon-triangle-bottom': object.showDetails}"></span>
+					</md-button>
+				</td>
+			</tr>
+
+			<!-- Layout of the details of the object -->
+			<tr ng-if="object.showDetails" ng-repeat-end>
+				<td colspan="7">
+					<div class="row">
+						<div ng-show="!object.details" layout="row" layout-sm="column" layout-align="space-around">
+							<md-progress-circular md-mode="indeterminate"></md-progress-circular>
+						</div>
+						<div class="col-md-6">
+							<table class="table table-hover">
+								<tr ng-repeat="(key, value) in object.details | half">
+									<td>{{ key }}:</td>
+									<td ng-show="getMetadataField(key)">{{ value | date:getMetadataField(key).dateFormat }}</td>
+									<td ng-show="!getMetadataField(key)">{{ value }}</td>
+								</tr>
+							</table>
+						</div>
+						<div class="col-md-6">
+							<table class="table table-hover">
+								<tr ng-repeat="(key, value) in object.details | half: 2">
+									<td>{{ key }}:</td>
+									<td ng-show="getMetadataField(key)">{{ value | date:getMetadataField(key).dateFormat }}</td>
+									<td ng-show="!getMetadataField(key)">{{ value }}</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</td>
+			</tr>
+		</table>
+
+		<!-- Show spinner while loading -->
+		<div layout="row" layout-sm="column" layout-align="space-around" ng-show="isGetObjectsRequestPending">
+			  <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+		</div>
+	</md-card-content>
+</md-card>
