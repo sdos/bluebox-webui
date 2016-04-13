@@ -22,7 +22,7 @@ analyticsModule
 							$scope.nodered = {
 								url : "...Endpoint URL unknown..."
 							};
-							$scope.selectedSource = {url:"", name: "", initialLabel: "Select your data source here"};
+							//$scope.selectedSource = {url:"", name: "", initialLabel: "Select your data source here"};
 
 							$http
 									.get('api_analytics/nrendpoint')
@@ -140,12 +140,5 @@ analyticsModule
 																});
 											});
 
-						};								
-						$scope.selectSource = function(s) {
-							console.log(s.url);
-							$scope.selectedSource = s;
-							
-
 						};
-
-						} ]);
+} ]);

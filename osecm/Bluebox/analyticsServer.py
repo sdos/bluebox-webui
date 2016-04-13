@@ -78,6 +78,7 @@ def getListOfKeys(d):
 @app.route("/api_analytics/plot/<plotType>", methods=["GET"])
 def doPlot(plotType):
 	nrDataSource = json.loads(request.args.get("nrDataSource"))
+	print(nrDataSource)
 	url = appConfig.nodered_url + nrDataSource['url']
 	r = requests.get(url)
 	if r.status_code == 404:
