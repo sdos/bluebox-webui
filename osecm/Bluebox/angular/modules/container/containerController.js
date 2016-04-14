@@ -8,6 +8,19 @@ containerModule.controller('ContainerController',
     ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', 'containerService', 'fileSystemService', 'objectClassService', 'deleteConfirmationModal',
         function($scope, $rootScope, $state, $stateParams, $timeout, $filter, containerService, fileSystemService, objectClassService, deleteConfirmationModal) {
 
+  	  $scope.objectTableOptions = {
+	            headerHeight: 50,
+	            rowHeight: 50,
+	            footerHeight: 50,
+	            columnMode: 'force',
+	            paging: { externalPaging: true },
+	            columns: [
+	              { name: "Name", prop: "name", },
+	              { name: "Bytes", prop: "bytes", },
+	              { name: "Content Type", prop: "content_type" }
+	            ]
+	          };
+    	
             /**
              * contains the relevant information about the current container
              * @type {{name: string, metadata: {objectClass: string, objectCount: number}, metadataFields: Array, objects: Array}}
@@ -145,10 +158,12 @@ containerModule.controller('ContainerController',
              *
              * @param {boolean} reload if true, the list will be reloaded from the beginning
              */
-            $scope.getObjects = function(reload) {
+            $scope.getObjects = function(m, limit) {
+            	var marker = m * limit;
+            	console.log('paging!', marker, limit);
                 $scope.isGetObjectsRequestPending = true;
                 containerService
-                    .getObjects($scope.container, reload, $scope.prefix)
+                    .getObjects($scope.container, $scope.prefix, marker, limit)
                     .then(function (response) {
 
                         // if the object class has changed
@@ -162,8 +177,19 @@ containerModule.controller('ContainerController',
                             getMetadataFields(response.metadata.objectClass);
                         }
 
-                        $scope.container.objects = reload ? response.objects : $scope.container.objects.concat(response.objects);
+                        console.log("md: ", response.metadata);
+                        console.log("rsp: ", response.objects);
+                        response.objects.forEach(function(element, index) {
+                        	$scope.container.objects[marker + index] = element;
+                        	
+                        });
+                        console.log("mydata: ", $scope.container.objects);
+                        
                         $scope.container.metadata = response.metadata;
+                        $scope.objectTableOptions.paging.count=$scope.container.metadata.objectCount;
+                        
+                        
+                        
                         $scope.isGetObjectsRequestPending = false;
 
                         if (isAnyMetadataFieldShownInColumn()) {
@@ -499,7 +525,7 @@ containerModule.controller('ContainerController',
                 quitContainer("Cannot enter container: no container name provided.");
             } else {
                 // initial retrieval
-                $scope.getObjects(true);
+                $scope.getObjects(0,10);
                 $scope.isInitialRetrievalDone = true;
             }
 

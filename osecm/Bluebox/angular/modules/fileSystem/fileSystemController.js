@@ -14,7 +14,9 @@ fileSystemModule.controller('FileSystemController',
     	  $scope.containerTableOptions = {
     	            headerHeight: 50,
     	            rowHeight: 50,
-    	            scrollbarV: false,            
+    	            scrollbarV: false,
+    	            footerHeight: 50,
+    	            columnMode: 'force',     
     	            columns: [
     	              { name: "Name", prop: "name", },
     	              { name: "Bytes", prop: "bytes", },

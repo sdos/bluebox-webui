@@ -4,7 +4,61 @@
 	Back to containers
 </md-button>
 
-<!-- Card with container name -->
+
+
+
+
+
+
+
+<!-- Card which lists all objects in this container -->
+<md-card>
+    <md-card-title>
+          <md-card-title-text>
+            <span class="md-headline">List of {{container.metadata.objectCount}} objects in {{ container.name }}</span>
+          </md-card-title-text>
+    </md-card-title>
+
+
+    <!-- Lists all objs -->
+    <md-card-content>
+          <dtable 
+          options="objectTableOptions" 
+          rows="container.objects" 
+          class="material dt"
+          on-page="getObjects(offset, size)"
+          >
+        </dtable>
+
+    </md-card-content>
+</md-card>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 
+
+
+
+
+
+
+
+
+
+
+
+
+Card with container name
 <md-card>
 	<md-card-header>
 		  <md-card-avatar>
@@ -16,7 +70,7 @@
 	</md-card-header>
 	<md-card-content>
 
-		<!-- Show warning if the class of the container was deleted -->
+		Show warning if the class of the container was deleted
 			<div ng-if="isObjectClassOutdated">
 				<md-toolbar class="md-warn">
 					<div class="md-toolbar-tools">
@@ -32,7 +86,7 @@
 	</md-card-content>
 </md-card>
 
-<!-- Card where you can change the object class of the container -->
+Card where you can change the object class of the container
 <md-card>
 	<md-card-title ng-click="showClassForm = !showClassForm">
 		<md-card-title-text>
@@ -46,11 +100,11 @@
 	<md-card-content ng-show="showClassForm">
 		<form ng-submit="updateContainer()">
 
-			<!-- Object class dropdown element from objectClass/objectClassSelector.html -->
+			Object class dropdown element from objectClass/objectClassSelector.html
 			<object-class-selector ng-model="containerModel.objectClass" id="objectClass">
 			</object-class-selector>
 
-			<!-- Buttons which turn up if changes have been made -->
+			Buttons which turn up if changes have been made
 			<div ng-show="!isContainerModelInSync()">
 				<md-button type="submit" class="md-raised md-primary">
 					<span class="glyphicon glyphicon-save"></span>
@@ -67,7 +121,7 @@
 	</md-card-content>
 </md-card>
 
-<!-- Card where you can upload an object into the container -->
+Card where you can upload an object into the container
 <md-card>
 	<md-card-title ng-click="showUploadForm = !showUploadForm">
 		  <md-card-title-text>
@@ -82,16 +136,16 @@
 	<md-card-content ng-show="showUploadForm">
 			<form name="uploadForm" ng-show="!isGetObjectClassRequestPending" ng-submit="uploadObject()">
 
-				<!-- Choose File to upload -->
+				Choose File to upload
 				<input ngf-select ng-model="fileModel.file" ng-change="uploadProgressPercentage = 0;" type="file"
 					   class="form-control-static" id="file" required/>
 
-				<!-- Date input retention date -->
+				Date input retention date
 				<md-datepicker class="md-block" flex-gt-sm="" ng-model="fileModel.retentionDate"
 								md-placeholder="Retention date" date="retentionDatePicker.minDate">
 				</md-datepicker>
 
-				<!-- Additional meta data input fields -->
+				Additional meta data input fields
 				<md-input-container ng-repeat="metadataField in container.metadataFields" class="md-block" flex-gt-sm="">
 					 <label for="{{ metaField.name }}">
 						 {{ metadataField.name }}
@@ -102,12 +156,12 @@
 				</md-input-container>
 
 
-				<!-- Button to upload File -->
+				Button to upload File
 				<md-button type="submit" class="md-raised md-primary">
 							<span class="glyphicon glyphicon-cloud-upload"></span> Upload
 				</md-button>
 
-				<!-- Upload progress percentage with bar -->
+				Upload progress percentage with bar
 				<div ng-show="uploadProgress.percentage">
 					{{ uploadProgress.percentage }} % ({{ uploadProgress.loaded | bytes }} / {{ uploadProgress.total | bytes }})
 				</div>
@@ -118,7 +172,16 @@
 	</md-card-content>
 </md-card>
 
-<!-- Card which shows all files inside the container -->
+
+
+
+
+
+
+
+
+
+Card which shows all files inside the container
 <md-card>
 	<md-card-title>
 		  <md-card-title-text>
@@ -126,7 +189,7 @@
 		  </md-card-title-text>
 	</md-card-title>
 
-	<!-- Text input to filter files inside the container -->
+	Text input to filter files inside the container
 	<md-card-actions layout="row" layout-align="end center">
 		  <md-input-container class="md-block" flex-gt-sm="">
 			<label>
@@ -137,7 +200,7 @@
 		  </md-input-container>
 	</md-card-actions>
 
-	<!-- Selector to choose columns to show -->
+	Selector to choose columns to show
 	<md-card-content>
 		<h5 ng-click="showColumnSelector = !showColumnSelector" class="clickable">
 			<span class="glyphicon" ng-class="{'glyphicon glyphicon-triangle-right': !showColumnSelector,
@@ -165,7 +228,7 @@
 		</div>
 	</md-card-content>
 
-	<!-- Lists all files inside the container -->
+	Lists all files inside the container
 	<md-card-content>
 		<table
 				infinite-scroll="getObjects()"
@@ -183,12 +246,12 @@
 			</tr>
 			<tr ng-repeat-start="object in container.objects">
 				<td>
-					<!-- Open preview of object in a new tab -->
+					Open preview of object in a new tab
 					<a ng-disabled="(object.name.indexOf('.pdf') == -1) && (object.content_type.indexOf('application/') > -1) || (object.content_type.indexOf('video/') > -1) || (object.content_type.indexOf('audio/') > -1)"
 					   ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true"
 					   target="_blank">
 
-						<!-- Choose image for object -->
+						Choose image for object
 						<div ng-if="object.content_type.indexOf('text/') > -1">
 							<img ng-if="object.name.indexOf('.txt') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/text_txt_32.png"/>
 							<img ng-else-if="object.name.indexOf('.html') > -1" alt="Data Icon" ng-src="/angular/icons/data_icons/application_html_32.png"/>
@@ -252,7 +315,7 @@
 					</div>
 				</td>
 
-				<!-- Button to download object from container -->
+				Button to download object from container
 				<td>
 					<md-button ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}"
 							   target="_self"
@@ -261,14 +324,14 @@
 					</md-button>
 				</td>
 
-				<!-- Button to delete object from container -->
+				Button to delete object from container
 				<td>
 					<md-button ng-click="deleteObject(object)" class="md-raised md-warn">
 						<span class="glyphicon glyphicon-trash"></span>
 					</md-button>
 				</td>
 
-				<!-- Button to show details of object -->
+				Button to show details of object
 				<td>
 					<md-button ng-click="toggleDetails(object)" class="md-raised">
 						<span class="glyphicon" ng-class="{'glyphicon glyphicon-triangle-right': !object.showDetails,
@@ -277,7 +340,7 @@
 				</td>
 			</tr>
 
-			<!-- Layout of the details of the object -->
+			Layout of the details of the object
 			<tr ng-if="object.showDetails" ng-repeat-end>
 				<td colspan="7">
 					<div class="row">
@@ -307,9 +370,9 @@
 			</tr>
 		</table>
 
-		<!-- Show spinner while loading -->
+		Show spinner while loading
 		<div layout="row" layout-sm="column" layout-align="space-around" ng-show="isGetObjectsRequestPending">
 			  <md-progress-circular md-mode="indeterminate"></md-progress-circular>
 		</div>
 	</md-card-content>
-</md-card>
+</md-card> -->

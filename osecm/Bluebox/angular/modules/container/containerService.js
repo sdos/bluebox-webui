@@ -9,18 +9,6 @@ containerModule.factory(
     ['$http', '$filter', 'Upload', 'BACKEND_BASE_URL', function($http, $filter, Upload, BACKEND_BASE_URL) {
 
         /**
-         * the limit of objects to retrieve at once
-         * @type {number}
-         */
-        var limit = 20;
-
-        /**
-         * name of the last retrieved object
-         * @type {string}
-         */
-        var currentMarker = "";
-
-        /**
          * true, if there are no more objects to retrieve from the backend
          * @type {boolean}
          */
@@ -37,34 +25,22 @@ containerModule.factory(
              * @returns {promise} resolved to the data of the response,
              *                    rejected to the plain response if unsuccessful
              */
-            getObjects: function(container, reload, prefix) {
-                // reset marker if list shall be reloaded
-                currentMarker = reload ? "" : currentMarker;
+            getObjects: function(container, prefix, marker, limit) {
 
                 return $http({
                     "method": "GET",
                     "url":    BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(container.name) + "/objects",
                     "params": {
                         "limit":  limit,
-                        "marker": currentMarker,
+                        "marker": marker,
                         "prefix": prefix ? prefix : ""
                     }
                 }).then(function(response) {
                     var objects = response.data.objects;
-                    currentMarker = 1; //objects.length > 0 ? _.last(objects).name : currentMarker;
-                    isEndOfListReached = objects.length < limit;
                     return response.data;
                 });
             },
 
-            /**
-             * true, if there are no more objects to retrieve from the backend
-             *
-             * @returns {boolean}
-             */
-            isEndOfListReached: function() {
-                return isEndOfListReached;
-            },
 
             /**
              * DELETE an object from a container
