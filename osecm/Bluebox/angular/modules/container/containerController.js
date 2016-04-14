@@ -8,15 +8,35 @@ containerModule.controller('ContainerController',
     ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', 'containerService', 'fileSystemService', 'objectClassService', 'deleteConfirmationModal',
         function($scope, $rootScope, $state, $stateParams, $timeout, $filter, containerService, fileSystemService, objectClassService, deleteConfirmationModal) {
 
+    	
+    	$scope.isGetObjectsRequestPending = false;
+    	$scope.isFirstRequest = true;
+    	
   	  $scope.objectTableOptions = {
 	            headerHeight: 50,
 	            rowHeight: 50,
 	            footerHeight: 50,
 	            columnMode: 'force',
-	            paging: { externalPaging: true },
+	            paging: { 
+	            	externalPaging: true,
+	            	size: 10
+	                //loadingIndicator: true 
+	                },
 	            columns: [
-	              { name: "Name", prop: "name", },
-	              { name: "Bytes", prop: "bytes", },
+	              { 
+	            	  name: "Name", 
+	            	  prop: "name",
+	            	  cellRenderer: function() {
+	            		  return '<b>{{$cell}}</b>';
+	            	  }
+	              },
+	              { 
+	            	  name: "Size", 
+	            	  prop: "bytes", 
+	            	  cellRenderer: function() {
+	            		  return '<span>{{$cell | bytes}}</span>';
+	            	  }
+	              },
 	              { name: "Content Type", prop: "content_type" }
 	            ]
 	          };
@@ -158,12 +178,25 @@ containerModule.controller('ContainerController',
              *
              * @param {boolean} reload if true, the list will be reloaded from the beginning
              */
-            $scope.getObjects = function(m, limit) {
-            	var marker = m * limit;
-            	console.log('paging!', marker, limit);
+            $scope.getObjects = function(offset, limit) {
+            	//$scope.objectTableOptions.paging.loadingIndicator = true;
+            	var numObjsWeHave = $scope.container.objects.length;
+            	var positionJumpedTo = offset * limit;
+            	var numObjsNeeded = positionJumpedTo + limit - numObjsWeHave;
+            	numObjsNeeded = (numObjsNeeded > 0) ? numObjsNeeded : 0;
+            	
+            	var lastObj = $scope.container.objects[numObjsWeHave - 1]; 
+            	var marker = lastObj ? lastObj.name : "";
+            	
+            	
+            	console.log('paging!', offset, limit);
+            	console.log("numObjsWeHave ", numObjsWeHave, "positionJumpedTo ", positionJumpedTo, "numObjsNeeded ", numObjsNeeded);
+            	if ($scope.isGetObjectsRequestPending) return;
+            	if (numObjsNeeded == 0) return;
+            	if (!$scope.isFirstRequest && numObjsWeHave == $scope.container.metadata.objectCount) return;
                 $scope.isGetObjectsRequestPending = true;
                 containerService
-                    .getObjects($scope.container, $scope.prefix, marker, limit)
+                    .getObjects($scope.container, $scope.prefix, marker, numObjsNeeded)
                     .then(function (response) {
 
                         // if the object class has changed
@@ -179,18 +212,18 @@ containerModule.controller('ContainerController',
 
                         console.log("md: ", response.metadata);
                         console.log("rsp: ", response.objects);
-                        response.objects.forEach(function(element, index) {
-                        	$scope.container.objects[marker + index] = element;
-                        	
-                        });
-                        console.log("mydata: ", $scope.container.objects);
                         
+                        
+                        $scope.container.objects = $scope.container.objects.concat(response.objects);
                         $scope.container.metadata = response.metadata;
                         $scope.objectTableOptions.paging.count=$scope.container.metadata.objectCount;
                         
-                        
+                        console.log("mydata: ", $scope.container.objects);
                         
                         $scope.isGetObjectsRequestPending = false;
+                        $scope.isFirstRequest = false;
+                        $scope.objectTableOptions.paging.loadingIndicator = false;
+                        
 
                         if (isAnyMetadataFieldShownInColumn()) {
                             getAllMissingDetails();
@@ -210,6 +243,7 @@ containerModule.controller('ContainerController',
                             });
                         }
                         $scope.isGetObjectsRequestPending = false;
+                        //$scope.objectTableOptions.paging.loadingIndicator = false;
                     });
             };
 
