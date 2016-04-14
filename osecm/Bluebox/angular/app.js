@@ -1,6 +1,7 @@
 'use strict';
 
 var app = angular.module('bluebox', [
+    'ngMaterial',
     'bluebox.fileSystem',
     'bluebox.messageBag',
     'bluebox.tasks',

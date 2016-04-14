@@ -1,21 +1,33 @@
-<div class="modal-header alert-danger">
-    <h3 class="modal-title">
-        <span class="glyphicon glyphicon-remove"></span>
-        Delete {{ item.type }}
-    </h3>
-</div>
-<div class="modal-body">
-    <p>
-        Do you really want to delete the {{ item.type }} "{{ item.name }}"?
-    </p>
-</div>
-<div class="modal-footer">
-    <button class="btn btn-danger" type="button" ng-click="confirm()">
-        <span class="glyphicon glyphicon-remove"></span>
+<!-- Dialog to make sure if the user really wants to delete given object -->
+<md-toolbar class="md-warn">
+    <div class="md-toolbar-tools">
+         <h2 class="md-flex">
+             <span class="glyphicon glyphicon-trash"></span>
+             <strong>
+                 Delete {{ item.type }}?
+             </strong>
+         </h2>
+    </div>
+</md-toolbar>
+
+<md-content layout-padding="">
+    <div class="md-dialog-content">
+        <p>
+           Do you really want to delete the {{ item.type }} "{{ item.name }}"?
+        </p>
+    </div>
+</md-content>
+
+<div layout="row" layout-sm="column" layout-align="center">
+    <!-- Delete Button -->
+    <md-button flex="50" class="md-raised md-warn"  ng-click="confirm()">
+        <span class="glyphicon glyphicon-trash"></span>
         Delete
-    </button>
-    <button class="btn btn-primary" type="button" ng-click="cancel()">
-        <span class="glyphicon glyphicon-ban-circle"></span>
+    </md-button>
+
+    <!-- Cancel Button -->
+    <md-button flex="50" class="md-raised" ng-click="cancel()">
+        <span class="glyphicon glyphicon-remove"></span>
         Cancel
-    </button>
+    </md-button>
 </div>

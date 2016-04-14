@@ -1,20 +1,29 @@
-<div class="panel panel-default">
-	<div class="panel-heading">
-		<h2>Please log in</h2>
-	</div>
-	<div class="panel-body">
-		<form role="form" ng-submit="login()">
-			<div class="form-group">
-				<label for="username">Username:</label> <input type="text"
-					class="form-control" id="username" name="username"
-					ng-model="credentials.username" />
-			</div>
-			<div class="form-group">
-				<label for="password">Password:</label> <input type="password"
-					class="form-control" id="password" name="password"
-					ng-model="credentials.password" />
-			</div>
-			<button type="submit" class="btn btn-primary">Submit</button>
-		</form>
-	</div>
-</div>
+<!-- Login card -->
+<md-card>
+	<md-card-title>
+          <md-card-title-text>
+            <span class="md-headline">Please log in</span>
+          </md-card-title-text>
+    </md-card-title>
+	<md-card-content>
+          <form ng-submit="login()">
+
+                <!-- Input of the username -->
+                <md-input-container class="md-block" flex-gt-sm="">
+                        <label>Username</label>
+                        <input id="username" type="text" ng-model="credentials.username">
+                </md-input-container>
+
+			  	<!-- Input of the password -->
+                <md-input-container class="md-block" flex-gt-sm="">
+                        <label>Password</label>
+                        <input id="password" type="password" ng-model="credentials.password">
+                </md-input-container>
+
+                <!-- Button to submit the form and log in -->
+                <md-button type="submit" class="md-raised md-primary">
+                        Log in
+                </md-button>
+          </form>
+    </md-card-content>
+</md-card>

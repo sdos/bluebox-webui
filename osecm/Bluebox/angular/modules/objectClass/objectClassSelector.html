@@ -1,20 +1,27 @@
-<div class="input-group">
-    <select
-        ng-model="ngModel"
-        ng-options="objectClass for objectClass in objectClasses"
-        class="form-control"
-        id="{{ id }}">
-        <option value="">no object class</option>
-    </select>
-    <div class="input-group-btn">
-        <button ng-click="createNewObjectClass()" type="button" class="btn btn-success">
-            <span class="glyphicon glyphicon-plus"></span>
-        </button>
-        <button ng-click="editObjectClass()" ng-disabled="!ngModel" type="button" class="btn btn-primary">
-            <span class="glyphicon glyphicon-pencil"></span>
-        </button>
-        <button ng-click="deleteObjectClass()" ng-disabled="!ngModel" type="button" class="btn btn-danger">
-            <span class="glyphicon glyphicon-remove"></span>
-        </button>
-    </div>
-</div>
+<!-- Element to select a class for a container -->
+
+<!-- Dropdown input form -->
+<md-input-container class="md-block" flex-gt-sm="">
+    <label>Object class</label>
+    <md-select ng-model="ngModel">
+        <md-option ng-repeat="class in objectClasses" value="{{ class }}">
+            {{ class }}
+        </md-option>
+    </md-select>
+</md-input-container>
+
+<!-- Control buttons -->
+<md-button ng-click="createNewObjectClass()" class="md-raised">
+    <span class="glyphicon glyphicon-plus"></span>
+    Add
+</md-button>
+
+<md-button ng-click="editObjectClass()" ng-disbaled="" class="md-raised">
+    <span class="glyphicon glyphicon-pencil"></span>
+    Edit
+</md-button>
+
+<md-button ng-click="deleteObjectClass()" ng-disabled="" class="md-raised md-warn">
+    <span class="glyphicon glyphicon-trash"></span>
+    Delete
+</md-button>

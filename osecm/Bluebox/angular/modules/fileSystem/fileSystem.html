@@ -1,54 +1,50 @@
-<div class="panel panel-default">
-    <div class="panel-heading"><h3>Create container</h3></div>
-    <div class="panel-body">
-        <form ng-submit="createContainer()" class="form-horizontal">
-            <div class="form-group">
-                <label for="containerName" class="col-sm-2 control-label">Container name</label>
-                <div class="col-sm-10">
-                    <input type="text" ng-model="container.name" ng-trim="false" class="form-control" id="containerName" placeholder="ContainerName" required>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">Object class</label>
-                <div class="col-sm-10">
-                    <object-class-selector ng-model="container.objectClass" id="objectClass"></object-class-selector>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                    <button type="submit" class="btn btn-success">
-                        <span class="glyphicon glyphicon-plus"></span>
-                        Create
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3>List of containers</h3>
-        <div class="row">
-            <p class="col-md-8">
-                {{ fileSystem.metadata.containerCount }} containers in total, containing {{ fileSystem.metadata.objectCount }} objects
-            </p>
-            <form class="form-inline col-md-4">
-                <label for="prefix">
-                    <span class="glyphicon glyphicon-filter"></span>
+<!-- Card where you can create a new container -->
+<md-card>
+    <md-card-title>
+          <md-card-title-text>
+            <span class="md-headline">Create new container</span>
+          </md-card-title-text>
+    </md-card-title>
+    <md-card-content>
+          <form ng-submit="createContainer()">
+
+                <!-- Input of the container name -->
+                <md-input-container class="md-block" flex-gt-sm="">
+                        <label>Container name</label>
+                        <input id="containerName" type="text" ng-model="container.name"
+                                ng-trim="false">
+                </md-input-container>
+
+                <!-- Button to submit the form and create a new container -->
+                <md-button type="submit" class="md-raised md-primary">
+                        <span class="glyphicon glyphicon-plus"></span> Create
+                </md-button>
+          </form>
+    </md-card-content>
+</md-card>
+
+<!-- Card which lists all available containers -->
+<md-card>
+    <md-card-title>
+          <md-card-title-text>
+            <span class="md-headline">List of all containers</span>
+          </md-card-title-text>
+    </md-card-title>
+
+    <!-- Text input to filter containers -->
+    <md-card-actions layout="row" layout-align="end center">
+          <md-input-container class="md-block" flex-gt-sm="">
+            <label>
+                <span class="glyphicon glyphicon-filter"></span>
                     Filter:
-                </label>
-                <input
-                        ng-model="prefix"
-                        ng-change="getContainers(true)"
-                        type="text"
-                        class="form-control"
-                        id="prefix"
-                />
-            </form>
-        </div>
-    </div>
-    <div class="panel-body">
-        <table
+            </label>
+            <input ng-model="prefix" ng-change="getContainers(true)">
+          </md-input-container>
+    </md-card-actions>
+
+    <!-- Lists all containers in a table -->
+    <md-card-content>
+          <table
                 infinite-scroll="getContainers()"
                 threshold="100"
                 can-load="!isGetContainersRequestPending && !isEndOfListReached()"
@@ -58,7 +54,7 @@
                 <th>Name</th>
                 <th>Size</th>
                 <th>Objects</th>
-                <th>Delete</th>
+                <th></th>
             </tr>
 
             <tr ng-repeat="container in fileSystem.containers">
@@ -70,15 +66,19 @@
                 </td>
                 <td ui-sref="containerState({containerName: container.name})" class="clickable">{{ container.bytes | bytes}}</td>
                 <td ui-sref="containerState({containerName: container.name})" class="clickable">{{ container.count }}</td>
+
+                <!-- Button to delete containers -->
                 <td>
-                    <a ng-click="deleteContainer(container)" type="button" class="btn btn-danger">
-                        <span class="glyphicon glyphicon-remove"></span>
-                    </a>
+                    <md-button ng-click="deleteContainer(container)" class="md-raised md-warn">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </md-button>
                 </td>
             </tr>
         </table>
-        <div class="text-center">
-            <span ng-show="isGetContainersRequestPending" class="glyphicon glyphicon-refresh glyphicon-refresh-animate glyphicon-lg"></span>
+
+        <!-- Show spinner while loading -->
+        <div layout="row" layout-sm="column" layout-align="space-around" ng-show="isGetContainersRequestPending">
+              <md-progress-circular md-mode="indeterminate"></md-progress-circular>
         </div>
-    </div>
-</div>
+    </md-card-content>
+</md-card>
