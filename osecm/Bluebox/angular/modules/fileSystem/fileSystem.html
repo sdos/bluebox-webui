@@ -44,13 +44,18 @@
 
     <!-- Lists all containers in a table -->
     <md-card-content>
-          <table
-                infinite-scroll="getContainers()"
+          <dtable 
+          options="containerTableOptions" 
+          rows="fileSystem.containers" 
+          class="material dt"
+          on-row-click="enterContainer({containerName: row.name})"
+          >
+<!--                 infinite-scroll="getContainers()"
                 threshold="100"
                 can-load="!isGetContainersRequestPending && !isEndOfListReached()"
                 global
-                class="table table-hover">
-            <tr>
+                class="material"> -->
+<!--             <tr>
                 <th>Name</th>
                 <th>Size</th>
                 <th>Objects</th>
@@ -67,14 +72,14 @@
                 <td ui-sref="containerState({containerName: container.name})" class="clickable">{{ container.bytes | bytes}}</td>
                 <td ui-sref="containerState({containerName: container.name})" class="clickable">{{ container.count }}</td>
 
-                <!-- Button to delete containers -->
+                Button to delete containers
                 <td>
                     <md-button ng-click="deleteContainer(container)" class="md-raised md-warn">
                         <span class="glyphicon glyphicon-trash"></span>
                     </md-button>
                 </td>
-            </tr>
-        </table>
+            </tr> -->
+        </dtable>
 
         <!-- Show spinner while loading -->
         <div layout="row" layout-sm="column" layout-align="space-around" ng-show="isGetContainersRequestPending">

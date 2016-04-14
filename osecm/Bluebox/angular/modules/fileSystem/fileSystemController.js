@@ -7,6 +7,21 @@
 fileSystemModule.controller('FileSystemController',
     ['$scope', '$rootScope', 'deleteConfirmationModal', 'fileSystemService', '$state',
         function($scope, $rootScope, deleteConfirmationModal, fileSystemService, $state) {
+    	
+    	
+    	
+    	
+    	  $scope.containerTableOptions = {
+    	            headerHeight: 50,
+    	            rowHeight: 50,
+    	            scrollbarV: false,            
+    	            columns: [
+    	              { name: "Name", prop: "name", },
+    	              { name: "Bytes", prop: "bytes", },
+    	              { name: "Number of Objects", prop: "count" }
+    	            ]
+    	          };
+    	
 
             /**
              * contains the relevant information about the containers
@@ -31,6 +46,14 @@ fileSystemModule.controller('FileSystemController',
              */
             $scope.isEndOfListReached = fileSystemService.isEndOfListReached;
 
+            
+            $scope.enterContainer = function (params) {
+            	
+            	console.log(params);
+            	$state.go('containerState', params);
+            	};
+            
+            
             /**
              * GET new containers from the fileSystemService
              *

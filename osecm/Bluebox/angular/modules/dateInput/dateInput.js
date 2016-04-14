@@ -4,9 +4,7 @@
  * bluebox.dateInput
  * module and directive that provides a date input field with a date picker
  */
-angular.module('bluebox.dateInput', [
-        'ui.bootstrap'
-    ])
+angular.module('bluebox.dateInput', [])
     .config(['uibDatepickerConfig', function(uibDatepickerConfig) {
         // set starting day of the week to monday
         uibDatepickerConfig.startingDay = 1;

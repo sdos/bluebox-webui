@@ -490,7 +490,7 @@ containerModule.controller('ContainerController',
              * @returns {boolean} true if there is at least one metadata field that is shown in a column, else false
              */
             var isAnyMetadataFieldShownInColumn = function() {
-                return Boolean(_.findWhere($scope.container.metadataFields.concat($scope.specialMetadataFields), {isShownInColumn: true}));
+            	return Boolean(_.findWhere($scope.container.metadataFields.concat($scope.specialMetadataFields), {isShownInColumn: true}));
             };
 
 

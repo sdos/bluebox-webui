@@ -5,10 +5,7 @@
  * module for the login page
  */
 var loginModule = angular.module('bluebox.login', [
-        'ngFileUpload',
-        'ui.bootstrap',
-        'ui.router',
-        'elif'
+        'ui.router'
     ])
 
     .config(['$stateProvider', function($stateProvider) {

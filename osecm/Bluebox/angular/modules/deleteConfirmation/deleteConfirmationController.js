@@ -5,7 +5,7 @@
  * controller for the modal content of the delete confirmation dialogue
  */
 deleteConfirmationModule.controller('DeleteConfirmationController',
-    ['$scope', '$uibModalInstance', 'item', function($scope, $uibModalInstance, item) {
+    ['$scope', 'item', function($scope, item) {
 
         /**
          * information about the item to delete

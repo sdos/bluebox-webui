@@ -1,27 +1,22 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="bluebox">
 <head>
-    <meta charset="UTF-8">
-    <base href="/">
+<meta charset="UTF-8">
+<base href="/">
 
-    <title>Bluebox</title>
-    <link href="/angular/css/bootstrap.min.css" rel="stylesheet">
+<title>Bluebox</title>
+<!--     <link href="/angular/css/bootstrap.min.css" rel="stylesheet">
     <link href="/angular/css/bootstrap-theme.min.css" rel="stylesheet">
     <link href="/angular/css/app.css" rel="stylesheet">
     <link href="/angular/modules/messageBag/messageBag.css" rel="stylesheet">
-
-    <!-- Angular Material style sheet -->
+    <link rel="stylesheet" href="/angular/external/angular-data-table/dataTable.css">
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.css">
-
-    <!-- Angular Material requires Angular.js Libraries -->
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-aria.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-messages.min.js"></script>
-
-    <!-- Angular Material Library -->
     <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.js"></script>
-	 
+	<script src="/angular/external/angular-data-table/dataTable.helpers.min.js"></script>
 	<script src="/angular/external/bokeh-0.11.1.min.js"></script>	 
 	<script src="/angular/external/bokeh-widgets-0.11.1.min.js"></script>
     <script src="/angular/external/angular.min.js"></script>
@@ -36,73 +31,104 @@
     <script src="/angular/external/ui-bootstrap-tpls-0.14.3.min.js"></script>
     <script src="/angular/external/underscore-min.js"></script>
     <script src="/angular/external/smart-table.min.js"></script>
-    <script src="/angular/external/socket.io-1.4.5.js"></script>
-    <script src="/angular/modules/container/container.js"></script>
-    <script src="/angular/modules/tasks/tasks.js"></script>
-    <script src="/angular/modules/tasks/tasksController.js"></script>
-    <script src="/angular/modules/login/login.js"></script>
-    <script src="/angular/modules/login/loginController.js"></script>
-    <script src="/angular/modules/about/about.js"></script>
-    <script src="/angular/modules/about/aboutController.js"></script>
-    <script src="/angular/modules/analytics/analytics.js"></script>
-    <script src="/angular/modules/analytics/analyticsController.js"></script>
-    <script src="/angular/modules/account/account.js"></script>
-    <script src="/angular/modules/account/accountController.js"></script>
-    <script src="/angular/modules/container/containerController.js"></script>
-    <script src="/angular/modules/container/containerService.js"></script>
-    <script src="/angular/modules/container/contentTypeFilter.js"></script>
-    <script src="/angular/modules/container/halfFilter.js"></script>
-    <script src="/angular/modules/container/httpHeaderFieldFilter.js"></script>
-    <script src="/angular/modules/container/metadataHeaderFieldFilter.js"></script>
-    <script src="/angular/modules/dateInput/dateInput.js"></script>
-    <script src="/angular/modules/filter/filter.js"></script>
-    <script src="/angular/modules/filter/bytesFilter.js"></script>
-    <script src="/angular/modules/filter/pickerFilter.js"></script>
-    <script src="/angular/modules/filter/urlEncodeFilter.js"></script>
-    <script src="/angular/modules/deleteConfirmation/deleteConfirmation.js"></script>
-    <script src="/angular/modules/deleteConfirmation/deleteConfirmationController.js"></script>
-    <script src="/angular/modules/deleteConfirmation/deleteConfirmationModal.js"></script>
-    <script src="/angular/modules/fileSystem/fileSystem.js"></script>
-    <script src="/angular/modules/fileSystem/fileSystemController.js"></script>
-    <script src="/angular/modules/fileSystem/fileSystemService.js"></script>
-    <script src="/angular/modules/infiniteScroll/infiniteScroll.js"></script>
-    <script src="/angular/modules/messageBag/messageBag.js"></script>
-    <script src="/angular/modules/objectClass/objectClass.js"></script>
-    <script src="/angular/modules/objectClass/dynamicInput.js"></script>
-    <script src="/angular/modules/objectClass/jsonSchemaFilter.js"></script>
-    <script src="/angular/modules/objectClass/objectClassModalController.js"></script>
-    <script src="/angular/modules/objectClass/objectClassSelector.js"></script>
-    <script src="/angular/modules/objectClass/objectClassService.js"></script>
-    <script src="/angular/modules/objectClass/renamingModalController.js"></script>
+    <script src="/angular/external/socket.io-1.4.5.js"></script> -->
 
-    <script src="/angular/app.js"></script>
-    
+
+<meta name="viewport"
+	content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+<link rel="stylesheet"
+	href="/angular/bower_components/angular-material/angular-material.css">
+<link rel="stylesheet"
+	href="/angular/bower_components/angular-data-table/release/dataTable.css">
+<link rel="stylesheet"
+	href="/angular/bower_components/angular-data-table/release/material.css">
+
+
 </head>
-<body>
-<div class="container">
-    <div class="header">
-        <h1 class="text-muted"><img alt="BlueBox Logo" src="/angular/icons/bluebox_icon.png">BlueBox Content Management</h1>
-    </div>
-    <hr/>
+<body ng-app="bluebox">
+	<div class="container" ng-controller="bbController">
+		<div class="header">
+			<h1 class="text-muted">
+				<img alt="BlueBox Logo" src="/angular/icons/bluebox_icon.png">BlueBox
+				Content Management
+			</h1>
+		</div>
+		<hr />
 
-        <ul class="nav nav-pills">
-          <li>
-            <a ui-sref="fileSystemState()">Content Management</a></li>
-          <li>
-            <a ui-sref="tasksState()">Tasks & Scheduling</a></li>
-          <li>
-            <a ui-sref="aboutState()">About</a></li>
-          <li>
-            <a ui-sref="analyticsState()">Analytics</a></li>
-          <li>
-            <a ui-sref="accountState()">Account & Security</a></li>
-        </ul>
+		<md-tabs md-dynamic-height md-border-bottom md-selected="selectedTabIndex">
+		<md-tab label="Content Management"></md-tab>
+		<md-tab label="Tasks & Scheduling"></md-tab>
+		<md-tab label="About"></md-tab>
+		<md-tab label="Analytics"></md-tab>
+		<md-tab label="Account & Security"></md-tab>
+		</md-tabs>
 
 
 
-    <message-bag timeout="3000" fixed animated></message-bag>
+		<div ng-controller="messageBagController"></div>
 
-    <div ui-view></div>
-</div>
+		<div ui-view></div>
+	</div>
+
+
+
+
+
+
+	<script src="/angular/bower_components/angular/angular.js"></script>
+	<script src="/angular/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+	<script src="/angular/bower_components/angular-aria/angular-aria.js"></script>
+	<script src="/angular/bower_components/angular-animate/angular-animate.js"></script>
+	<script src="/angular/bower_components/angular-material/angular-material.js"></script>
+	<script src="/angular/bower_components/ng-file-upload/ng-file-upload.js"></script>
+	<script src="/angular/bower_components/ng-elif/src/elif.js"></script>
+	<script src="/angular/bower_components/angular-sanitize/angular-sanitize.js"></script>
+	<script src="/angular/bower_components/angular-data-table/release/dataTable.helpers.js"></script>
+	<script src="/angular/bower_components/angular-cookies/angular-cookies.js"></script>
+	<script src="/angular/bower_components/underscore/underscore.js"></script>
+	<script src="/angular/modules/container/container.js"></script>
+	<script src="/angular/modules/tasks/tasks.js"></script>
+	<script src="/angular/modules/tasks/tasksController.js"></script>
+	<script src="/angular/modules/login/login.js"></script>
+	<script src="/angular/modules/login/loginController.js"></script>
+	<script src="/angular/modules/about/about.js"></script>
+	<script src="/angular/modules/about/aboutController.js"></script>
+	<script src="/angular/modules/analytics/analytics.js"></script>
+	<script src="/angular/modules/analytics/analyticsController.js"></script>
+	<script src="/angular/modules/account/account.js"></script>
+	<script src="/angular/modules/account/accountController.js"></script>
+	<script src="/angular/modules/container/containerController.js"></script>
+	<script src="/angular/modules/container/containerService.js"></script>
+	<script src="/angular/modules/container/contentTypeFilter.js"></script>
+	<script src="/angular/modules/container/halfFilter.js"></script>
+	<script src="/angular/modules/container/httpHeaderFieldFilter.js"></script>
+	<script src="/angular/modules/container/metadataHeaderFieldFilter.js"></script>
+<!-- 	<script src="/angular/modules/dateInput/dateInput.js"></script> -->
+	<script src="/angular/modules/filter/filter.js"></script>
+	<script src="/angular/modules/filter/bytesFilter.js"></script>
+	<script src="/angular/modules/filter/pickerFilter.js"></script>
+	<script src="/angular/modules/filter/urlEncodeFilter.js"></script>
+	<script src="/angular/modules/deleteConfirmation/deleteConfirmation.js"></script>
+	<script
+		src="/angular/modules/deleteConfirmation/deleteConfirmationController.js"></script>
+	<script
+		src="/angular/modules/deleteConfirmation/deleteConfirmationModal.js"></script>
+	<script src="/angular/modules/fileSystem/fileSystem.js"></script>
+	<script src="/angular/modules/fileSystem/fileSystemController.js"></script>
+	<script src="/angular/modules/fileSystem/fileSystemService.js"></script>
+	<script src="/angular/modules/infiniteScroll/infiniteScroll.js"></script>
+	<script src="/angular/modules/messageBag/messageBag.js"></script>
+	<script src="/angular/modules/objectClass/objectClass.js"></script>
+	<script src="/angular/modules/objectClass/dynamicInput.js"></script>
+	<script src="/angular/modules/objectClass/jsonSchemaFilter.js"></script>
+	<script
+		src="/angular/modules/objectClass/objectClassModalController.js"></script>
+	<script src="/angular/modules/objectClass/objectClassSelector.js"></script>
+	<script src="/angular/modules/objectClass/objectClassService.js"></script>
+	<script src="/angular/modules/objectClass/renamingModalController.js"></script>
+
+	<script src="/angular/app.js"></script>
+
+
 </body>
 </html>

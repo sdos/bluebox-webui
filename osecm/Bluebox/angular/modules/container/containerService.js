@@ -51,7 +51,7 @@ containerModule.factory(
                     }
                 }).then(function(response) {
                     var objects = response.data.objects;
-                    currentMarker = objects.length > 0 ? _.last(objects).name : currentMarker;
+                    currentMarker = 1; //objects.length > 0 ? _.last(objects).name : currentMarker;
                     isEndOfListReached = objects.length < limit;
                     return response.data;
                 });

@@ -7,7 +7,7 @@
  */
 deleteConfirmationModule.factory(
     'deleteConfirmationModal',
-    ['$uibModal', function($uibModal) {
+    [function($uibModal) {
         return {
 
             /**

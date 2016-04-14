@@ -5,9 +5,7 @@
  * module for the about page
  */
 var aboutModule = angular.module('bluebox.about', [
-        'ui.bootstrap',
-        'ui.router',
-        'elif'
+        'ui.router'
     ])
 
     .config(['$stateProvider', function($stateProvider) {
