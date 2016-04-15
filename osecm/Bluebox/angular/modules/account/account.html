@@ -1,20 +1,21 @@
 <!-- Account & Security card -->
-<div layout="row">
+<div layout="row" ng-controller="AccountController">
 	<div flex></div>
 	<div
-		flex="30"
+		flex="50"
 		flex-xs="90"
 		class="md-whiteframe-4dp bb-container"
 	>
 		<md-toolbar class="md-hue-2">
 		<div class="md-toolbar-tools">
 			<h2>
-				<span>Account & Security</span>
+				<span>Session token</span>
 			</h2>
 		</div>
 		</md-toolbar>
 		<md-content class="bb-container">
-		<p>Actions regarding your account, authentication and authorization are found here</p>
+		<p>The <code>SDOS</code> back end gives us a token that identifies our session after successful authentication. Currently SDOS has no way of invalidating these tokens; we can only forget them in order to log out.</p>
+		<p>Your current token is: <code>{{tokenText}}</code></p>
 		<md-button
 			class="md-raised md-warn"
 			ng-click="forgetToken()"
