@@ -13,12 +13,25 @@
 		<md-toolbar class="md-hue-2">
 		<div class="md-toolbar-tools">
 			<h2>
-				<span class="md-headline">Authentication required</span>
+				<span>Authentication required</span>
 			</h2>
 		</div>
 		</md-toolbar>
-		<md-content>
+		<md-content class="bb-container">
 		<form ng-submit="login()">
+
+			<!-- Input of the customer -->
+			<md-input-container
+				class="md-icon-float md-block"
+				flex-gt-sm=""
+			> <label>Customer</label> 
+			<md-icon md-font-set="material-icons">domain</md-icon>
+			<input
+				id="tenant"
+				type="text"
+				disabled
+				ng-model="credentials.tenant"
+			> </md-input-container>
 
 			<!-- Input of the username -->
 			<md-input-container

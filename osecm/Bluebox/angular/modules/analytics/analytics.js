@@ -5,7 +5,8 @@
  * module for the analytics page
  */
 var analyticsModule = angular.module('bluebox.analytics', [
-        'ui.router'
+        'ui.router',
+        'ngMaterial'
     ])
 
     .config(['$stateProvider', function($stateProvider) {

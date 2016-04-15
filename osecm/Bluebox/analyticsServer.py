@@ -15,7 +15,7 @@ from datetime import datetime
 from functools import wraps
 import json, logging, time, re
 
-from bokeh.charts import Area, show, vplot, output_file, Bar
+from bokeh.charts import Area, show, vplot, output_file, Bar, Line
 from bokeh.io import vform
 from bokeh.embed import components 
 from flask import request, Response, send_file, render_template
@@ -54,7 +54,12 @@ def getNodeRedEndpoint():
 
 
 def doPlot1(data, nrDataSource):
-	p = Bar(data, data.columns[0], values=data.columns[1], title="Bar graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1], plot_width=900, responsive=True)
+	p = Bar(data, data.columns[0], values=data.columns[1], title="Bar graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1], responsive=True)
+	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
+	return c
+
+def doPlot11(data, nrDataSource):
+	p = Line(data, data.columns[0], values=data.columns[1], title="Line graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1], responsive=True)
 	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
 	return c
 
@@ -62,7 +67,7 @@ def doPlot1(data, nrDataSource):
 def doPlot2(data, nrDataSource):
 	plots = []
 	for thisColumn in data.columns[1:]:
-		plots.append(Bar(data, data.columns[0], values=thisColumn, title="Bar graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=thisColumn, plot_width=900, responsive=True))
+		plots.append(Bar(data, data.columns[0], values=thisColumn, title="Bar graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=thisColumn, responsive=True))
 	c = components(vplot(*plots), resources=None, wrap_script=False, wrap_plot_info=True)
 	return c
 
@@ -96,6 +101,8 @@ def doPlot(plotType):
 			c = doPlot2(data=df, nrDataSource=nrDataSource)
 		elif('bar' == plotType):
 			c = doPlot1(data=df, nrDataSource=nrDataSource)
+		elif('line' == plotType):
+			c = doPlot11(data=df, nrDataSource=nrDataSource)
 			
 			
 		print(nrDataSource, plotType)

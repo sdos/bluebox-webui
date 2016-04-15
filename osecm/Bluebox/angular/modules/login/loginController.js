@@ -15,7 +15,7 @@ loginModule.controller('LoginController',
             });    		
     	}
     	
-    	$scope.credentials = {};
+    	$scope.credentials = {tenant: "test"};
     	$scope.login = function() {
     		$http.post('swift/login', $scope.credentials)
     		.success(function() {

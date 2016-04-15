@@ -33,6 +33,7 @@
     <script src="/angular/external/smart-table.min.js"></script>
     <script src="/angular/external/socket.io-1.4.5.js"></script> -->
 
+<link rel="shortcut icon" href="/angular/favicon.ico">
 
 <meta name="viewport"
 	content="initial-scale=1, maximum-scale=1, user-scalable=no" />
@@ -49,14 +50,14 @@
 
 </head>
 <body ng-app="bluebox">
-	<div layout="column" layout-align="start stretch" ng-controller="bbController" ng-cloak>
+	<div layout="column" layout-fill ng-controller="bbController" ng-cloak>
 		<md-toolbar class="md-hue-2 md-tall">
-		<h2 class="md-toolbar-tools">
+		<div class="md-toolbar-tools">
 			 <img alt="BlueBox Logo"
-				src="/angular/icons/bluebox_icon.png" height="60px"> <span><h1>BlueBox
-				Content Management</h1>
+				src="/angular/icons/bluebox_icon.png" height="60px"> <span class="md-headline">BlueBox
+				Content Management
 			</span>
-		</h2>
+		</div>
 		<span flex> </span> 
 		<md-tabs md-dynamic-height md-border-bottom
 			md-selected="selectedTabIndex" class="md-hue2"> <md-tab
@@ -82,6 +83,17 @@
 
 
 
+
+<!--   
+     _______ ____  _____   ____                                 _       _  __ _          _ 
+	|__   __/ __ \|  __ \ / __ \ _                             (_)     (_)/ _(_)        | |
+	   | | | |  | | |  | | |  | (_)  _   _ ___  ___   _ __ ___  _ _ __  _| |_ _  ___  __| |
+	   | | | |  | | |  | | |  | |   | | | / __|/ _ \ | '_ ` _ \| | '_ \| |  _| |/ _ \/ _` |
+	   | | | |__| | |__| | |__| |_  | |_| \__ \  __/ | | | | | | | | | | | | | |  __/ (_| |
+	   |_|  \____/|_____/ \____/(_)  \__,_|___/\___| |_| |_| |_|_|_| |_|_|_| |_|\___|\__,_|
+
+ -->
+
 	<script src="/angular/bower_components/angular/angular.js"></script>
 	<script
 		src="/angular/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
@@ -102,6 +114,11 @@
 	<script
 		src="/angular/bower_components/angular-inview/angular-inview.js"></script>
 	<script src="/angular/bower_components/underscore/underscore.js"></script>
+	<script src="/angular/bokeh/js/bokeh.js"></script>
+<!-- 	
+	INTERNAL
+	
+ -->	
 	<script src="/angular/modules/container/container.js"></script>
 	<script src="/angular/modules/tasks/tasks.js"></script>
 	<script src="/angular/modules/tasks/tasksController.js"></script>

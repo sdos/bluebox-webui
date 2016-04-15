@@ -1,37 +1,56 @@
 <!-- Card where you can create a new container -->
-<div
-	flex
-	class="md-whiteframe-4dp bb-container"
->
-	<md-toolbar class="md-hue-2">
-	<div class="md-toolbar-tools">
-		<h2>
-			<span class="md-headline">Create a new container</span>
-		</h2>
+
+
+<div layout="row">
+
+	<div
+		flex="40"
+		flex-xs="90"
+		class="md-whiteframe-4dp bb-container"
+	>
+		<md-toolbar class="md-hue-2">
+		<div class="md-toolbar-tools">
+			<h2>
+				<span>Create a new container</span>
+			</h2>
+		</div>
+		</md-toolbar>
+		<md-content class="bb-container">
+		<form ng-submit="createContainer()">
+
+			<!-- Input of the container name -->
+			<md-input-container
+				class="md-block md-icon-float"
+				flex-gt-sm=""
+			> <label>Container name</label> <md-icon md-font-set="material-icons">chevron_right</md-icon> <input
+				id="containerName"
+				type="text"
+				ng-model="container.name"
+				ng-trim="false"
+			> </md-input-container>
+
+			<!-- Button to submit the form and create a new container -->
+			<md-button
+				type="submit"
+				class="md-raised md-primary"
+			> <md-icon md-font-set="material-icons">create_new_folder</md-icon>Create </md-button>
+		</form>
+		</md-content>
 	</div>
-	</md-toolbar>
-	<md-content>
-	<form ng-submit="createContainer()">
-
-		<!-- Input of the container name -->
-		<md-input-container
-			class="md-block"
-			flex-gt-sm=""
-		> <label>Container name</label> <input
-			id="containerName"
-			type="text"
-			ng-model="container.name"
-			ng-trim="false"
-		> </md-input-container>
-
-		<!-- Button to submit the form and create a new container -->
-		<md-button
-			type="submit"
-			class="md-raised md-primary"
-		> <md-icon md-font-set="material-icons">add</md-icon>Create </md-button>
-	</form>
-	</md-content>
+	<div flex></div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 <!-- Card which lists all available containers -->
 <div
@@ -41,7 +60,7 @@
 	<md-toolbar class="md-hue-2">
 	<div class="md-toolbar-tools">
 		<h2>
-			<span class="md-headline">List of {{fileSystem.metadata.containerCount}} containers</span>
+			<span>List of {{fileSystem.metadata.containerCount}} containers</span>
 		</h2>
 	</div>
 	</md-toolbar>
@@ -50,23 +69,13 @@
 
 
 
-	<md-content class="md-no-momentum"> <!-- Text input to filter containers --> <md-input-container
+	<md-content class="bb-container"> <!-- Text input to filter containers --> <md-input-container
 		class="md-icon-float md-block"
 		flex-gt-sm=""
-	> 
- 	
-	
-	<label>Filter containers by name
-	</label> 
-	<md-icon md-font-set="material-icons">filter_list</md-icon>
-	<input
+	> <label>Filter containers by name </label> <md-icon md-font-set="material-icons">filter_list</md-icon> <input
 		ng-model="prefix"
 		ng-change="getContainers(true)"
-	> </md-input-container> 
-	
-	
-	
-	<!-- Lists all containers in a table --> <dtable
+	> </md-input-container> <!-- Lists all containers in a table --> <dtable
 		options="containerTableOptions"
 		rows="fileSystem.containers"
 		class="material dt"
@@ -75,7 +84,9 @@
 		name="Name"
 		prop="name"
 		flex-grow="3"
-	> <column-header> <b>{{$header}}</b></column-header> <b>{{$cell}}</b> </column> <column
+	> <column-header> <b>{{$header}}</b></column-header>
+	<md-icon md-font-set="material-icons">folder_open</md-icon>
+	<i>{{$cell}}</i></column> <column
 		name="Size"
 		prop="bytes"
 		flex-grow="1"

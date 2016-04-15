@@ -2,8 +2,10 @@
 	<!-- Top buttons -->
 	<md-button
 		ui-sref="fileSystemState()"
-		class="md-fab mi mi-36 mi-chevron-left" aria-label="Back to containers"
-	></md-button>
+		class="md-fab bb-pin-button" aria-label="Back to containers"
+	>
+	<md-icon md-font-set="material-icons">chevron_left</md-icon>
+	</md-button>
 
 
 
@@ -20,11 +22,11 @@
 		<md-toolbar class="md-hue-2">
 		<div class="md-toolbar-tools">
 			<h2>
-				<span class="md-headline">List of {{container.metadata.objectCount}} objects in <q>{{ container.name }}</q></span>
+				<span>List of {{container.metadata.objectCount}} objects in <q>{{ container.name }}</q></span>
 			</h2>
 		</div>
 		</md-toolbar>
-		<md-content> <dtable
+		<md-content class="bb-container"> <dtable
 			options="objectTableOptions"
 			rows="container.objects"
 			class="material dt"

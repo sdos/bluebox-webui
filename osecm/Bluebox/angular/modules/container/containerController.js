@@ -23,7 +23,7 @@ containerModule.controller('ContainerController',
 	            	  name: "Name", 
 	            	  prop: "name",
 	            	  cellRenderer: function() {
-	            		  return '<b>{{$cell}}</b>';
+	            		  return '<i>{{$cell}}</i>';
 	            	  }
 	              },
 	              { 
