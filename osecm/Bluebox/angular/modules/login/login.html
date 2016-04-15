@@ -1,29 +1,67 @@
 <!-- Login card -->
-<md-card>
-	<md-card-title>
-          <md-card-title-text>
-            <span class="md-headline">Please log in</span>
-          </md-card-title-text>
-    </md-card-title>
-	<md-card-content>
-          <form ng-submit="login()">
 
-                <!-- Input of the username -->
-                <md-input-container class="md-block" flex-gt-sm="">
-                        <label>Username</label>
-                        <input id="username" type="text" ng-model="credentials.username">
-                </md-input-container>
+<div layout="row">
+	<div flex></div>
 
-			  	<!-- Input of the password -->
-                <md-input-container class="md-block" flex-gt-sm="">
-                        <label>Password</label>
-                        <input id="password" type="password" ng-model="credentials.password">
-                </md-input-container>
 
-                <!-- Button to submit the form and log in -->
-                <md-button type="submit" class="md-raised md-primary">
-                        Log in
-                </md-button>
-          </form>
-    </md-card-content>
-</md-card>
+
+	<div
+		flex="30"
+		flex-xs="90"
+		class="md-whiteframe-4dp bb-container"
+	>
+		<md-toolbar class="md-hue-2">
+		<div class="md-toolbar-tools">
+			<h2>
+				<span class="md-headline">Authentication required</span>
+			</h2>
+		</div>
+		</md-toolbar>
+		<md-content>
+		<form ng-submit="login()">
+
+			<!-- Input of the username -->
+			<md-input-container
+				class="md-icon-float md-block"
+				flex-gt-sm=""
+			> <label>Username</label> 
+			<md-icon md-font-set="material-icons">person</md-icon>
+			<input
+				id="username"
+				type="text"
+				ng-model="credentials.username"
+			> </md-input-container>
+
+			<!-- Input of the password -->
+			<md-input-container
+				class="md-block"
+				flex-gt-sm=""
+			> <label>Password</label> 
+			<md-icon md-font-set="material-icons">vpn_key</md-icon>
+			<input
+				id="password"
+				type="password"
+				ng-model="credentials.password"
+			> </md-input-container>
+
+			<!-- Button to submit the form and log in -->
+			<md-button
+				type="submit"
+				class="md-raised md-accent"
+			> <md-icon md-font-set="material-icons">check</md-icon>Log in </md-button>
+		</form>
+		</md-content>
+	</div>
+
+
+
+
+
+
+
+
+	<div flex></div>
+</div>
+
+
+

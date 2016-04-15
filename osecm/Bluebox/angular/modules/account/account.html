@@ -1,18 +1,25 @@
 <!-- Account & Security card -->
-<md-card>
-	<md-card-title>
-          <md-card-title-text>
-            <span class="md-headline">Account & Security</span>
-          </md-card-title-text>
-    </md-card-title>
-	<md-card-content>
-		<p>
-			Actions regarding your account, authentication and authorization are
-			found here
-		</p>
-
-		<md-button class="md-raised md-warn" ng-click="forgetToken()">
-			Forget authentication token
-		</md-button>
-	</md-card-content>
-</md-card>
+<div layout="row">
+	<div flex></div>
+	<div
+		flex="30"
+		flex-xs="90"
+		class="md-whiteframe-4dp bb-container"
+	>
+		<md-toolbar class="md-hue-2">
+		<div class="md-toolbar-tools">
+			<h2>
+				<span class="md-headline">Account & Security</span>
+			</h2>
+		</div>
+		</md-toolbar>
+		<md-content>
+		<p>Actions regarding your account, authentication and authorization are found here</p>
+		<md-button
+			class="md-raised md-warn"
+			ng-click="forgetToken()"
+		> <md-icon md-font-set="material-icons">delete</md-icon>Forget authentication token </md-button> 
+		</md-content>
+	</div>
+	<div flex></div>
+</div>

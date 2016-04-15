@@ -1,7 +1,11 @@
 .bb-container {
-	margin: 50px;
+	margin: 2em;
 }
 
 h2 {
 	color: white;
+}
+
+md-content {
+	margin: 1em;
 }

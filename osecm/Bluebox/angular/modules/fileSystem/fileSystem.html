@@ -6,7 +6,7 @@
 	<md-toolbar class="md-hue-2">
 	<div class="md-toolbar-tools">
 		<h2>
-			<span>Create new container</span>
+			<span class="md-headline">Create a new container</span>
 		</h2>
 	</div>
 	</md-toolbar>
@@ -28,7 +28,7 @@
 		<md-button
 			type="submit"
 			class="md-raised md-primary"
-		> <span class="glyphicon glyphicon-plus"></span> Create </md-button>
+		> <md-icon md-font-set="material-icons">add</md-icon>Create </md-button>
 	</form>
 	</md-content>
 </div>
@@ -41,7 +41,7 @@
 	<md-toolbar class="md-hue-2">
 	<div class="md-toolbar-tools">
 		<h2>
-			<span>List of {{fileSystem.metadata.containerCount}} containers</span>
+			<span class="md-headline">List of {{fileSystem.metadata.containerCount}} containers</span>
 		</h2>
 	</div>
 	</md-toolbar>
@@ -50,14 +50,23 @@
 
 
 
-	<md-content> <!-- Text input to filter containers --> <md-input-container
-		class="md-block"
+	<md-content class="md-no-momentum"> <!-- Text input to filter containers --> <md-input-container
+		class="md-icon-float md-block"
 		flex-gt-sm=""
-	> <label> <span class="glyphicon glyphicon-filter"></span> Filter containers by name:
-	</label> <input
+	> 
+ 	
+	
+	<label>Filter containers by name
+	</label> 
+	<md-icon md-font-set="material-icons">filter_list</md-icon>
+	<input
 		ng-model="prefix"
 		ng-change="getContainers(true)"
-	> </md-input-container> <!-- Lists all containers in a table --> <dtable
+	> </md-input-container> 
+	
+	
+	
+	<!-- Lists all containers in a table --> <dtable
 		options="containerTableOptions"
 		rows="fileSystem.containers"
 		class="material dt"
