@@ -16,12 +16,6 @@ fileSystemModule.factory(
             var limit = 20;
 
             /**
-             * name of the last retrieved container
-             * @type {string}
-             */
-            var currentMarker = "";
-
-            /**
              * true, if there are no more containers to retrieve from the backend
              * @type {boolean}
              */
@@ -80,21 +74,18 @@ fileSystemModule.factory(
                  * @returns {promise} resolved to the response data,
                  *                    rejected to the plain response if unsuccessful
                  */
-                getContainers: function(reload, prefix) {
-                    // reset marker if list shall be reloaded
-                    currentMarker = reload ? "" : currentMarker;
+                getContainers: function(reload, prefix, marker) {
 
                     return $http({
                         "method": "GET",
                         "url":    BACKEND_BASE_URL + "containers",
                         "params": {
                             "limit":  limit,
-                            "marker": currentMarker,
+                            "marker": marker,
                             "prefix": prefix ? prefix : ""
                         }
                     }).then(function(response) {
                         var containers = response.data.containers;
-                        currentMarker = containers.length > 0 ? _.last(containers).name : currentMarker;
                         isEndOfListReached = containers.length < limit;
                         return response.data;
                     });

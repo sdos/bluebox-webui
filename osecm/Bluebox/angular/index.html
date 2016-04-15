@@ -36,8 +36,7 @@
 
 <meta name="viewport"
 	content="initial-scale=1, maximum-scale=1, user-scalable=no" />
-<link rel="stylesheet"
-	href="/angular/css/app.css">
+<link rel="stylesheet" href="/angular/css/app.css">
 <link rel="stylesheet"
 	href="/angular/bower_components/angular-material/angular-material.css">
 <link rel="stylesheet"
@@ -46,35 +45,34 @@
 	href="/angular/bower_components/angular-data-table/release/material.css">
 
 
-<link rel="stylesheet"
-	href="http://fontastic.s3.amazonaws.com/Jnf54BZCm7mSjGCxNRbfp3/icons.css">
-
-
 
 </head>
 <body ng-app="bluebox">
-	<div class="container" ng-controller="bbController">
-		<div class="header">
-			<h1 class="text-muted">
-				<img alt="BlueBox Logo" src="/angular/icons/bluebox_icon.png">BlueBox
+	<div layout="column" layout-fill ng-controller="bbController">
+		<md-toolbar class="md-hue-2 md-tall">
+		<h2 class="md-toolbar-tools">
+			<span> <img alt="BlueBox Logo"
+				src="/angular/icons/bluebox_icon.png" height="60px"> BlueBox
 				Content Management
-			</h1>
-		</div>
-		<hr />
-
-		<md-tabs md-dynamic-height md-border-bottom md-selected="selectedTabIndex">
-		<md-tab label="Content Management"></md-tab>
-		<md-tab label="Tasks & Scheduling"></md-tab>
-		<md-tab label="About"></md-tab>
-		<md-tab label="Analytics"></md-tab>
-		<md-tab label="Account & Security"></md-tab>
+			</span>
+		</h2>
+		<span flex> </span> <md-tabs md-dynamic-height md-border-bottom
+			md-selected="selectedTabIndex"> <md-tab
+			label="Content Management"></md-tab> <md-tab
+			label="Tasks & Scheduling"></md-tab> <md-tab label="About"></md-tab>
+		<md-tab label="Analytics"></md-tab> <md-tab label="Account & Security"></md-tab>
 		</md-tabs>
 
 
 
 		<div ng-controller="messageBagController"></div>
 
+		</md-toolbar>
+		<br>
+		<md-content>
 		<div ui-view></div>
+
+		</md-content>
 	</div>
 
 
@@ -83,16 +81,24 @@
 
 
 	<script src="/angular/bower_components/angular/angular.js"></script>
-	<script src="/angular/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+	<script
+		src="/angular/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
 	<script src="/angular/bower_components/angular-aria/angular-aria.js"></script>
-	<script src="/angular/bower_components/angular-animate/angular-animate.js"></script>
-	<script src="/angular/bower_components/angular-material/angular-material.js"></script>
-	<script src="/angular/bower_components/ng-file-upload/ng-file-upload.js"></script>
+	<script
+		src="/angular/bower_components/angular-animate/angular-animate.js"></script>
+	<script
+		src="/angular/bower_components/angular-material/angular-material.js"></script>
+	<script
+		src="/angular/bower_components/ng-file-upload/ng-file-upload.js"></script>
 	<script src="/angular/bower_components/ng-elif/src/elif.js"></script>
-	<script src="/angular/bower_components/angular-sanitize/angular-sanitize.js"></script>
-	<script src="/angular/bower_components/angular-data-table/release/dataTable.helpers.js"></script>
-	<script src="/angular/bower_components/angular-cookies/angular-cookies.js"></script>
-	<script src="/angular/bower_components/angular-inview/angular-inview.js"></script>
+	<script
+		src="/angular/bower_components/angular-sanitize/angular-sanitize.js"></script>
+	<script
+		src="/angular/bower_components/angular-data-table/release/dataTable.helpers.js"></script>
+	<script
+		src="/angular/bower_components/angular-cookies/angular-cookies.js"></script>
+	<script
+		src="/angular/bower_components/angular-inview/angular-inview.js"></script>
 	<script src="/angular/bower_components/underscore/underscore.js"></script>
 	<script src="/angular/modules/container/container.js"></script>
 	<script src="/angular/modules/tasks/tasks.js"></script>
@@ -111,7 +117,7 @@
 	<script src="/angular/modules/container/halfFilter.js"></script>
 	<script src="/angular/modules/container/httpHeaderFieldFilter.js"></script>
 	<script src="/angular/modules/container/metadataHeaderFieldFilter.js"></script>
-<!-- 	<script src="/angular/modules/dateInput/dateInput.js"></script> -->
+	<!-- 	<script src="/angular/modules/dateInput/dateInput.js"></script> -->
 	<script src="/angular/modules/filter/filter.js"></script>
 	<script src="/angular/modules/filter/bytesFilter.js"></script>
 	<script src="/angular/modules/filter/pickerFilter.js"></script>

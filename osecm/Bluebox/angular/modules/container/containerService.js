@@ -14,6 +14,13 @@ containerModule.factory(
          */
         var isEndOfListReached = false;
 
+        /**
+         * the limit of objs to retrieve at once
+         * @type {number}
+         */
+        var limit = 20;
+        
+        
         return {
 
             /**
@@ -25,7 +32,7 @@ containerModule.factory(
              * @returns {promise} resolved to the data of the response,
              *                    rejected to the plain response if unsuccessful
              */
-            getObjects: function(container, prefix, marker, limit) {
+            getObjects: function(container, prefix, marker) {
 
                 return $http({
                     "method": "GET",

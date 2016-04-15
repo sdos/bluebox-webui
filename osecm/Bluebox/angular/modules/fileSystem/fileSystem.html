@@ -27,7 +27,7 @@
 <md-card>
     <md-card-title>
           <md-card-title-text>
-            <span class="md-headline">List of all containers</span>
+            <span class="md-headline">List of {{fileSystem.metadata.containerCount}} containers</span>
           </md-card-title-text>
     </md-card-title>
 
@@ -81,9 +81,17 @@
             </tr> -->
         </dtable>
 
-        <!-- Show spinner while loading -->
+
+
+        <div in-view="$inview&&getContainers()" layout="row" layout-sm="column" layout-align="space-around">
+		<h3><span ng-hide="isAllDataLoaded">Scroll down to load more</span></h3>
+		</div>
+		 <br>
+
+
+<!--         Show spinner while loading
         <div layout="row" layout-sm="column" layout-align="space-around" ng-show="isGetContainersRequestPending">
               <md-progress-circular md-mode="indeterminate"></md-progress-circular>
-        </div>
+        </div> -->
     </md-card-content>
 </md-card>

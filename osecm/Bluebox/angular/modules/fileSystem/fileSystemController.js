@@ -8,18 +8,32 @@ fileSystemModule.controller('FileSystemController',
     ['$scope', '$rootScope', 'deleteConfirmationModal', 'fileSystemService', '$state',
         function($scope, $rootScope, deleteConfirmationModal, fileSystemService, $state) {
     	
-    	
+
+    	$scope.isAllDataLoaded = false;
     	
     	
     	  $scope.containerTableOptions = {
-    	            headerHeight: 50,
-    	            rowHeight: 50,
-    	            scrollbarV: false,
-    	            footerHeight: 50,
-    	            columnMode: 'force',     
+	            headerHeight: 50,
+	            rowHeight: 50,
+	            footerHeight: false,
+	            columnMode: 'force',
+	            scrollbarV: false,     
     	            columns: [
-    	              { name: "Name", prop: "name", },
-    	              { name: "Bytes", prop: "bytes", },
+    	              { 
+    	            	  name: "Name", 
+    	            	  prop: "name",
+    	            	  cellRenderer: function() {
+    	            		  return '<b>{{$cell}}</b>';
+    	            	  } 
+    	            	  
+    	              },
+    	              { 
+    	            	  name: "Size", 
+    	            	  prop: "bytes", 
+    	            	  cellRenderer: function() {
+    	            		  return '<span>{{$cell | bytes}}</span>';
+    	            	  }
+    	              },
     	              { name: "Number of Objects", prop: "count" }
     	            ]
     	          };
@@ -62,12 +76,26 @@ fileSystemModule.controller('FileSystemController',
              * @param {boolean} reload if true, the list will be reloaded from the beginning
              */
             $scope.getContainers = function (reload) {
+            	
+            	var numCtsWeHave = $scope.fileSystem.containers.length;
+            	var lastCt = $scope.fileSystem.containers[numCtsWeHave - 1]; 
+            	var marker = lastCt ? lastCt.name : "";
+            	
+            	if ($scope.isGetContainersRequestPending) return;
                 $scope.isGetContainersRequestPending = true;
-                fileSystemService.getContainers(reload, $scope.prefix)
+                
+                
+                fileSystemService.getContainers(reload, $scope.prefix, marker)
                     .then(function(response) {
                         $scope.fileSystem.containers = reload ? response.containers : $scope.fileSystem.containers.concat(response.containers);
                         $scope.fileSystem.metadata = response.metadata;
                         $scope.isGetContainersRequestPending = false;
+                        
+                        
+                        $scope.isAllDataLoaded = (response.metadata.containerCount == $scope.fileSystem.containers.length);
+                        
+                        
+                        
                     })
                     .catch(function (response) {
                     	$scope.isGetContainersRequestPending = false;

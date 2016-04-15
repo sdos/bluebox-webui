@@ -10,12 +10,12 @@ containerModule.controller('ContainerController',
 
     	
     	$scope.isGetObjectsRequestPending = false;
-    	$scope.isFirstRequest = true;
+    	$scope.isAllDataLoaded = false;
     	
   	  $scope.objectTableOptions = {
 	            headerHeight: 50,
 	            rowHeight: 50,
-	            footerHeight: 50,
+	            footerHeight: false,
 	            columnMode: 'force',
 	            scrollbarV: false,
 	            columns: [
@@ -175,15 +175,15 @@ containerModule.controller('ContainerController',
              * @param {boolean} reload if true, the list will be reloaded from the beginning
              */
             $scope.getObjects = function() {
-            	//$scope.objectTableOptions.paging.loadingIndicator = true;
+            	
             	var numObjsWeHave = $scope.container.objects.length;
             	var lastObj = $scope.container.objects[numObjsWeHave - 1]; 
             	var marker = lastObj ? lastObj.name : "";
             	
-            	console.log("numObjsWeHave ", numObjsWeHave, "marker ", marker);
             	if ($scope.isGetObjectsRequestPending) return;
-            	if (!$scope.isFirstRequest && numObjsWeHave == $scope.container.metadata.objectCount) return;
                 $scope.isGetObjectsRequestPending = true;
+                
+                
                 containerService
                     .getObjects($scope.container, $scope.prefix, marker, 20)
                     .then(function (response) {
@@ -199,19 +199,13 @@ containerModule.controller('ContainerController',
                             getMetadataFields(response.metadata.objectClass);
                         }
 
-                        console.log("md: ", response.metadata);
-                        console.log("rsp: ", response.objects);
-                        
                         
                         $scope.container.objects = $scope.container.objects.concat(response.objects);
                         $scope.container.metadata = response.metadata;
-                        $scope.objectTableOptions.paging.count=$scope.container.metadata.objectCount;
-                        
-                        console.log("mydata: ", $scope.container.objects);
                         
                         $scope.isGetObjectsRequestPending = false;
-                        $scope.isFirstRequest = false;
                         
+                        $scope.isAllDataLoaded = (response.metadata.objectCount == $scope.container.objects.length);
 
                         if (isAnyMetadataFieldShownInColumn()) {
                             getAllMissingDetails();

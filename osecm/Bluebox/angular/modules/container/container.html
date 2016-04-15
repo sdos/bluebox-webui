@@ -1,3 +1,4 @@
+<div ng-controller="ContainerController">
 <!-- Top buttons -->
 <md-button ui-sref="fileSystemState()" class="md-raised">
 	<span class="glyphicon glyphicon-level-up"></span>
@@ -29,19 +30,21 @@
           >
         </dtable>
         
-        
-		<md-button class="md-raised md-primary" ng-click="getObjects()" in-view="$inview&&getObjects()">
-			<span class="glyphicon glyphicon-plus"></span>
-			Load more
-		</md-button>
-		
-		
+        <div in-view="$inview&&getObjects()" layout="row" layout-sm="column" layout-align="space-around">
+<!-- 		<md-progress-circular 
+		ng-disabled="!ctr.isGetObjectsRequestPending" 
+		class="md-accent md-hue-1" 
+		md-diameter="120"></md-progress-circular> -->
+		<h3><span ng-hide="isAllDataLoaded">Scroll down to load more</span></h3>
+		</div>
+		 <br>
+		 
     </md-card-content>
 </md-card>
 
 
 
-
+</div>
 
 
 
