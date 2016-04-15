@@ -26,10 +26,16 @@
           options="objectTableOptions" 
           rows="container.objects" 
           class="material dt"
-          on-page="getObjects(offset, size)"
           >
         </dtable>
-
+        
+        
+		<md-button class="md-raised md-primary" ng-click="getObjects()" in-view="$inview&&getObjects()">
+			<span class="glyphicon glyphicon-plus"></span>
+			Load more
+		</md-button>
+		
+		
     </md-card-content>
 </md-card>
 

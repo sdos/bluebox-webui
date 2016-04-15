@@ -7,6 +7,7 @@
 var containerModule = angular.module('bluebox.container', [
         'ngFileUpload',
         'ui.router',
+        'angular-inview',
         'elif',
         'bluebox.deleteConfirmation',
         'bluebox.filter',
