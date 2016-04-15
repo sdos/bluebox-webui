@@ -43,12 +43,15 @@
 	href="/angular/bower_components/angular-data-table/release/dataTable.css">
 <link rel="stylesheet"
 	href="/angular/bower_components/angular-data-table/release/material.css">
+<link rel="stylesheet"
+	href="/angular/bower_components/material-icons/css/material-icons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
 
 
 </head>
 <body ng-app="bluebox">
-	<div layout="column" layout-fill ng-controller="bbController">
+	<div layout="column" layout-fill ng-controller="bbController" ng-cloak>
 		<md-toolbar class="md-hue-2 md-tall">
 		<h2 class="md-toolbar-tools">
 			<span> <img alt="BlueBox Logo"
@@ -56,8 +59,9 @@
 				Content Management
 			</span>
 		</h2>
-		<span flex> </span> <md-tabs md-dynamic-height md-border-bottom
-			md-selected="selectedTabIndex"> <md-tab
+		<span flex> </span> 
+		<md-tabs md-dynamic-height md-border-bottom
+			md-selected="selectedTabIndex" class="md-hue2"> <md-tab
 			label="Content Management"></md-tab> <md-tab
 			label="Tasks & Scheduling"></md-tab> <md-tab label="About"></md-tab>
 		<md-tab label="Analytics"></md-tab> <md-tab label="Account & Security"></md-tab>
@@ -68,8 +72,8 @@
 		<div ng-controller="messageBagController"></div>
 
 		</md-toolbar>
-		<br>
 		<md-content>
+		
 		<div ui-view></div>
 
 		</md-content>

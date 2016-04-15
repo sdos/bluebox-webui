@@ -1,9 +1,9 @@
 <div ng-controller="ContainerController">
-<!-- Top buttons -->
-<md-button ui-sref="fileSystemState()" class="md-raised">
-	<span class="glyphicon glyphicon-level-up"></span>
-	Back to containers
-</md-button>
+	<!-- Top buttons -->
+	<md-button
+		ui-sref="fileSystemState()"
+		class="md-fab mi mi-36 mi-chevron-left" aria-label="Back to containers"
+	></md-button>
 
 
 
@@ -12,38 +12,42 @@
 
 
 
-<!-- Card which lists all objects in this container -->
-<md-card>
-    <md-card-title>
-          <md-card-title-text>
-            <span class="md-headline">List of {{container.metadata.objectCount}} objects in {{ container.name }}</span>
-          </md-card-title-text>
-    </md-card-title>
+	<!-- Card which lists all objects in this container -->
+	<div
+		flex
+		class="md-whiteframe-4dp bb-container"
+	>
+		<md-toolbar class="md-hue-2">
+		<div class="md-toolbar-tools">
+			<h2>
+				<span>List of {{container.metadata.objectCount}} objects in <q>{{ container.name }}</q></span>
+			</h2>
+		</div>
+		</md-toolbar>
+		<md-content> <dtable
+			options="objectTableOptions"
+			rows="container.objects"
+			class="material dt"
+		> </dtable>
 
-
-    <!-- Lists all objs -->
-    <md-card-content>
-          <dtable 
-          options="objectTableOptions" 
-          rows="container.objects" 
-          class="material dt"
-          >
-        </dtable>
-        
-        <div in-view="$inview&&getObjects()" layout="row" layout-sm="column" layout-align="space-around">
-<!-- 		<md-progress-circular 
+		<div
+			in-view="$inview&&getObjects()"
+			layout="row"
+			layout-sm="column"
+			layout-align="space-around"
+		>
+			<!-- 		<md-progress-circular 
 		ng-disabled="!ctr.isGetObjectsRequestPending" 
 		class="md-accent md-hue-1" 
 		md-diameter="120"></md-progress-circular> -->
-		<h3><span ng-hide="isAllDataLoaded">Scroll down to load more</span></h3>
+			<h3>
+				<span ng-hide="isAllDataLoaded">Scroll down to load more</span>
+			</h3>
 		</div>
-		 <br>
-		 
-    </md-card-content>
-</md-card>
+		<br>
 
-
-
+		</mdcontent> </md-content>
+	</div>
 </div>
 
 

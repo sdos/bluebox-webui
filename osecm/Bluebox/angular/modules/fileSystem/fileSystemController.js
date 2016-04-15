@@ -18,24 +18,6 @@ fileSystemModule.controller('FileSystemController',
 	            footerHeight: false,
 	            columnMode: 'force',
 	            scrollbarV: false,     
-    	            columns: [
-    	              { 
-    	            	  name: "Name", 
-    	            	  prop: "name",
-    	            	  cellRenderer: function() {
-    	            		  return '<b>{{$cell}}</b>';
-    	            	  } 
-    	            	  
-    	              },
-    	              { 
-    	            	  name: "Size", 
-    	            	  prop: "bytes", 
-    	            	  cellRenderer: function() {
-    	            		  return '<span>{{$cell | bytes}}</span>';
-    	            	  }
-    	              },
-    	              { name: "Number of Objects", prop: "count" }
-    	            ]
     	          };
     	
 

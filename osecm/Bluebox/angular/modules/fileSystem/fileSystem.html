@@ -1,61 +1,84 @@
 <!-- Card where you can create a new container -->
-<md-card>
-    <md-card-title>
-          <md-card-title-text>
-            <span class="md-headline">Create new container</span>
-          </md-card-title-text>
-    </md-card-title>
-    <md-card-content>
-          <form ng-submit="createContainer()">
+<div
+	flex
+	class="md-whiteframe-4dp bb-container"
+>
+	<md-toolbar class="md-hue-2">
+	<div class="md-toolbar-tools">
+		<h2>
+			<span>Create new container</span>
+		</h2>
+	</div>
+	</md-toolbar>
+	<md-content>
+	<form ng-submit="createContainer()">
 
-                <!-- Input of the container name -->
-                <md-input-container class="md-block" flex-gt-sm="">
-                        <label>Container name</label>
-                        <input id="containerName" type="text" ng-model="container.name"
-                                ng-trim="false">
-                </md-input-container>
+		<!-- Input of the container name -->
+		<md-input-container
+			class="md-block"
+			flex-gt-sm=""
+		> <label>Container name</label> <input
+			id="containerName"
+			type="text"
+			ng-model="container.name"
+			ng-trim="false"
+		> </md-input-container>
 
-                <!-- Button to submit the form and create a new container -->
-                <md-button type="submit" class="md-raised md-primary">
-                        <span class="glyphicon glyphicon-plus"></span> Create
-                </md-button>
-          </form>
-    </md-card-content>
-</md-card>
+		<!-- Button to submit the form and create a new container -->
+		<md-button
+			type="submit"
+			class="md-raised md-primary"
+		> <span class="glyphicon glyphicon-plus"></span> Create </md-button>
+	</form>
+	</md-content>
+</div>
 
 <!-- Card which lists all available containers -->
-<md-card>
-    <md-card-title>
-          <md-card-title-text>
-            <span class="md-headline">List of {{fileSystem.metadata.containerCount}} containers</span>
-          </md-card-title-text>
-    </md-card-title>
+<div
+	flex
+	class="md-whiteframe-4dp bb-container"
+>
+	<md-toolbar class="md-hue-2">
+	<div class="md-toolbar-tools">
+		<h2>
+			<span>List of {{fileSystem.metadata.containerCount}} containers</span>
+		</h2>
+	</div>
+	</md-toolbar>
 
-    <!-- Text input to filter containers -->
-    <md-card-actions layout="row" layout-align="end center">
-          <md-input-container class="md-block" flex-gt-sm="">
-            <label>
-                <span class="glyphicon glyphicon-filter"></span>
-                    Filter:
-            </label>
-            <input ng-model="prefix" ng-change="getContainers(true)">
-          </md-input-container>
-    </md-card-actions>
 
-    <!-- Lists all containers in a table -->
-    <md-card-content>
-          <dtable 
-          options="containerTableOptions" 
-          rows="fileSystem.containers" 
-          class="material dt"
-          on-row-click="enterContainer({containerName: row.name})"
-          >
-<!--                 infinite-scroll="getContainers()"
+
+
+
+	<md-content> <!-- Text input to filter containers --> <md-input-container
+		class="md-block"
+		flex-gt-sm=""
+	> <label> <span class="glyphicon glyphicon-filter"></span> Filter containers by name:
+	</label> <input
+		ng-model="prefix"
+		ng-change="getContainers(true)"
+	> </md-input-container> <!-- Lists all containers in a table --> <dtable
+		options="containerTableOptions"
+		rows="fileSystem.containers"
+		class="material dt"
+		on-row-click="enterContainer({containerName: row.name})"
+	> <column
+		name="Name"
+		prop="name"
+		flex-grow="3"
+	> <column-header> <b>{{$header}}</b></column-header> <b>{{$cell}}</b> </column> <column
+		name="Size"
+		prop="bytes"
+		flex-grow="1"
+	> <column-header> <b>{{$header}}</b></column-header>{{$cell | bytes}}</column> <column
+		name="Count"
+		prop="count"
+		flex-grow="1"
+	> <column-header> <b>{{$header}}</b></column-header>{{$cell}}</column> </dtable> <!--                 infinite-scroll="getContainers()"
                 threshold="100"
                 can-load="!isGetContainersRequestPending && !isEndOfListReached()"
                 global
-                class="material"> -->
-<!--             <tr>
+                class="material"> --> <!--             <tr>
                 <th>Name</th>
                 <th>Size</th>
                 <th>Objects</th>
@@ -79,19 +102,25 @@
                     </md-button>
                 </td>
             </tr> -->
-        </dtable>
 
 
 
-        <div in-view="$inview&&getContainers()" layout="row" layout-sm="column" layout-align="space-around">
-		<h3><span ng-hide="isAllDataLoaded">Scroll down to load more</span></h3>
-		</div>
-		 <br>
+
+	<div
+		in-view="$inview&amp;&amp;getContainers()"
+		layout="row"
+		layout-sm="column"
+		layout-align="space-around"
+	>
+		<h3>
+			<span ng-hide="isAllDataLoaded">Scroll down to load more</span>
+		</h3>
+	</div>
+	<br>
 
 
-<!--         Show spinner while loading
+	<!--         Show spinner while loading
         <div layout="row" layout-sm="column" layout-align="space-around" ng-show="isGetContainersRequestPending">
               <md-progress-circular md-mode="indeterminate"></md-progress-circular>
-        </div> -->
-    </md-card-content>
-</md-card>
+        </div> --> </md-content>
+</div>
