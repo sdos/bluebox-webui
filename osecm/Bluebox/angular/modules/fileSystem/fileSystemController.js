@@ -71,6 +71,7 @@ fileSystemModule.controller('FileSystemController',
                     .then(function(response) {
                         $scope.fileSystem.containers = reload ? response.containers : $scope.fileSystem.containers.concat(response.containers);
                         $scope.fileSystem.metadata = response.metadata;
+                        
                         $scope.isGetContainersRequestPending = false;
                         
                         

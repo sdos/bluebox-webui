@@ -33,7 +33,7 @@ containerModule.controller('ContainerController',
 	            		  return '<span>{{$cell | bytes}}</span>';
 	            	  }
 	              },
-	              { name: "Content Type", prop: "content_type" }
+	              { name: "Content type", prop: "content_type" }
 	            ]
 	          };
     	

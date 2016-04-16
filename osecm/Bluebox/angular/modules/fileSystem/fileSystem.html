@@ -34,7 +34,7 @@
 				type="submit"
 				class="md-raised md-primary"
 				ng-disabled="!container.name"
-			>Create </md-button>
+			><md-icon md-font-set="material-icons">add</md-icon></md-button>
 		</form>
 		</md-content>
 	</div>
@@ -73,7 +73,7 @@
 	<md-content class="bb-container"> <!-- Text input to filter containers --> <md-input-container
 		class="md-icon-float md-block"
 		flex-gt-sm=""
-	> <label>Filter containers by name </label> <md-icon md-font-set="material-icons">filter_list</md-icon> <input
+	> <label>Filter containers by their name </label> <md-icon md-font-set="material-icons">filter_list</md-icon> <input
 		ng-model="prefix"
 		ng-change="getContainers(true)"
 	> </md-input-container> <!-- Lists all containers in a table --> <dtable
@@ -113,12 +113,6 @@
 		<!-- Option buttons -->
 	<md-button
 		ui-sref="fileSystemState(cell)"
-		class="md-fab md-mini md-primary md-hue-1" aria-label="Delete container"
-	>
-	<md-icon md-font-set="material-icons">delete</md-icon>
-	</md-button>
-	<md-button
-		ui-sref="fileSystemState(cell)"
 		class="md-fab md-mini md-primary md-hue-1" aria-label="Details"
 	>
 	<md-icon md-font-set="material-icons">info_outline</md-icon>
@@ -129,7 +123,7 @@
 		ui-sref="fileSystemState(cell)"
 		class="md-fab md-mini md-primary md-hue-1" aria-label="Container menu"
 	>
-	<md-icon md-font-set="material-icons">menu</md-icon>
+	<md-icon md-font-set="material-icons">more_vert</md-icon>
 	</md-button>
 	
 	
@@ -179,7 +173,7 @@
 		layout-align="space-around"
 	>
 		<h3>
-			<span ng-hide="isAllDataLoaded"><md-icon md-font-set="material-icons">mouse</md-icon>Scroll down to load more containers.</span>
+			<span ng-hide="isAllDataLoaded"><md-icon md-font-set="material-icons">mouse</md-icon>Scroll further down to load more containers.</span>
 		</h3>
 	</div>
 	<br>

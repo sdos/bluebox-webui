@@ -15,9 +15,13 @@ var app = angular.module('bluebox', [
         // works only if <base href="/"> is set in html head and URL rewriting is set up properly
         $locationProvider.html5Mode(true);
         
+//        $mdThemingProvider.theme('default')
+//        .primaryPalette('blue')
+//        .accentPalette('red')
+//        .backgroundPalette('grey');
         $mdThemingProvider.theme('default')
-        .primaryPalette('blue')
-        .accentPalette('red')
+        .primaryPalette('grey')
+        .accentPalette('blue')
         .backgroundPalette('grey');
         
     }])
