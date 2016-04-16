@@ -13,7 +13,7 @@ fileSystemModule.factory(
              * the limit of containers to retrieve at once
              * @type {number}
              */
-            var limit = 20;
+            var limit = 10;
 
             /**
              * true, if there are no more containers to retrieve from the backend

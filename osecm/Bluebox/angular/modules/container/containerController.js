@@ -185,7 +185,7 @@ containerModule.controller('ContainerController',
                 
                 
                 containerService
-                    .getObjects($scope.container, $scope.prefix, marker, 20)
+                    .getObjects($scope.container, $scope.prefix, marker)
                     .then(function (response) {
 
                         // if the object class has changed

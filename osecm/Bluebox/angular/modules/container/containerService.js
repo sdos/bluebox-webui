@@ -18,7 +18,7 @@ containerModule.factory(
          * the limit of objs to retrieve at once
          * @type {number}
          */
-        var limit = 20;
+        var limit = 10;
         
         
         return {

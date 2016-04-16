@@ -81,21 +81,66 @@
 		rows="fileSystem.containers"
 		class="material dt"
 		on-row-click="enterContainer({containerName: row.name})"
-	> <column
+	> 
+	
+	<column
 		name="Name"
 		prop="name"
 		flex-grow="3"
 	> <column-header> <b>{{$header}}</b></column-header>
 	<md-icon md-font-set="material-icons">folder_open</md-icon>
-	<i>{{$cell}}</i></column> <column
+	<i>{{$cell}}</i></column> 
+	
+	<column
 		name="Size"
 		prop="bytes"
 		flex-grow="1"
-	> <column-header> <b>{{$header}}</b></column-header>{{$cell | bytes}}</column> <column
+	> <column-header> <b>{{$header}}</b></column-header>{{$cell | bytes}}</column> 
+	
+	<column
 		name="Count"
 		prop="count"
 		flex-grow="1"
-	> <column-header> <b>{{$header}}</b></column-header>{{$cell}}</column> </dtable> <!--                 infinite-scroll="getContainers()"
+	> <column-header> <b>{{$header}}</b></column-header>{{$cell}}</column> 
+	
+	
+	<column
+		name=""
+		prop="name"
+		flex-grow="1"
+	> <column-header> &nbsp;</column-header>
+	
+		<!-- Option buttons -->
+	<md-button
+		ui-sref="fileSystemState(cell)"
+		class="md-fab md-mini md-primary md-hue-1" aria-label="Delete container"
+	>
+	<md-icon md-font-set="material-icons">delete</md-icon>
+	</md-button>
+	<md-button
+		ui-sref="fileSystemState(cell)"
+		class="md-fab md-mini md-primary md-hue-1" aria-label="Details"
+	>
+	<md-icon md-font-set="material-icons">info_outline</md-icon>
+	</md-button>
+	
+	
+	<md-button
+		ui-sref="fileSystemState(cell)"
+		class="md-fab md-mini md-primary md-hue-1" aria-label="Container menu"
+	>
+	<md-icon md-font-set="material-icons">menu</md-icon>
+	</md-button>
+	
+	
+	</column> 
+	
+	
+	
+	
+	
+	
+	</dtable> <!--                 infinite-scroll="getContainers()"
                 threshold="100"
                 can-load="!isGetContainersRequestPending && !isEndOfListReached()"
                 global
@@ -134,7 +179,7 @@
 		layout-align="space-around"
 	>
 		<h3>
-			<span ng-hide="isAllDataLoaded">Scroll down to load the next {{limit}} objects.</span>
+			<span ng-hide="isAllDataLoaded"><md-icon md-font-set="material-icons">mouse</md-icon>Scroll down to load more containers.</span>
 		</h3>
 	</div>
 	<br>
