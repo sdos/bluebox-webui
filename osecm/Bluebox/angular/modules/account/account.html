@@ -1,5 +1,8 @@
 <!-- Account & Security card -->
-<div layout="row" ng-controller="AccountController">
+<div
+	layout="row"
+	ng-controller="AccountController"
+>
 	<div flex></div>
 	<div
 		flex="50"
@@ -14,13 +17,20 @@
 		</div>
 		</md-toolbar>
 		<md-content class="bb-container">
-		<p>The <code>SDOS</code> back end gives us a token that identifies our session after successful authentication. Currently SDOS has no way of invalidating these tokens; we can only forget them in order to log out.</p>
-		<p>Your current token is: <code>{{tokenText}}</code></p>
+		<p>
+			The
+			<code>SDOS</code>
+			back end gives us a token that identifies our session after successful authentication. Currently, SDOS has no way of invalidating these tokens; we
+			can only forget them in order to log out.
+		</p>
+		<p>
+			Your current token is:
+			<code>{{tokenText}}</code>
+		</p>
 		<md-button
 			class="md-raised md-warn"
 			ng-click="forgetToken()"
-		> <md-icon md-font-set="material-icons">clear</md-icon>Forget authentication token </md-button> 
-		</md-content>
+		> <md-icon md-font-set="material-icons">clear</md-icon>Forget authentication token </md-button> </md-content>
 	</div>
 	<div flex></div>
 </div>
