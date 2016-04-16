@@ -74,6 +74,7 @@
 	<!-- Dropdown to choose Node-RED endpoints --> 
 	
 	<md-input-container
+		ng-click="updateNodeRedSources()"
 		class="md-block md-icon-float"
 		flex-gt-sm="50"
 	> <label>Select your data source here</label> 
@@ -103,7 +104,7 @@
 	</div>
 	</md-toolbar>
 	<md-content class="bb-container">
-	<p>BB-insights uses  <a href="http://bokeh.pydata.org" target="_blank">Bokeh</a> and <a href="http://bokeh.pydata.org/en/latest/docs/dev_guide/bokehjs.html" target="_blank">BokehJS</a> to visualize your data. You can now choose which type of visualization you want to use.</p>
+	<p>BB-Insights uses  <a href="http://bokeh.pydata.org" target="_blank">Bokeh</a> and <a href="http://bokeh.pydata.org/en/latest/docs/dev_guide/bokehjs.html" target="_blank">BokehJS</a> to visualize your data. You can now choose which type of visualization you want to use.</p>
 	<p>Each type supports different data structures. All data from Node-RED has to come in tables or matrixes, the different visualization types
 		support different amounts of rows and columns.</p>
 

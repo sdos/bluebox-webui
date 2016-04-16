@@ -16,7 +16,7 @@ analyticsModule
 						'$http',
 						function($scope, $rootScope, $state, $stateParams,
 								$timeout, $filter, $http) {
-
+							
 							$scope.waitingForPlot = false;
 
 							console.log("BB-Insights!");

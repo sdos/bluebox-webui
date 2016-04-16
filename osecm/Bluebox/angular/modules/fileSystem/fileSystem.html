@@ -33,7 +33,8 @@
 			<md-button
 				type="submit"
 				class="md-raised md-primary"
-			> <md-icon md-font-set="material-icons">create_new_folder</md-icon>Create </md-button>
+				ng-disabled="!container.name"
+			>Create </md-button>
 		</form>
 		</md-content>
 	</div>
@@ -60,7 +61,7 @@
 	<md-toolbar class="md-hue-2">
 	<div class="md-toolbar-tools">
 		<h2>
-			<span>List of {{fileSystem.metadata.containerCount}} containers</span>
+			<span>Listing {{fileSystem.metadata.containerCount}} containers</span>
 		</h2>
 	</div>
 	</md-toolbar>
@@ -133,7 +134,7 @@
 		layout-align="space-around"
 	>
 		<h3>
-			<span ng-hide="isAllDataLoaded">Scroll down to load more</span>
+			<span ng-hide="isAllDataLoaded">Scroll down to load the next {{limit}} objects.</span>
 		</h3>
 	</div>
 	<br>

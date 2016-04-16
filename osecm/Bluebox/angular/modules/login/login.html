@@ -37,7 +37,7 @@
 			<md-input-container
 				class="md-icon-float md-block"
 				flex-gt-sm=""
-			> <label>Username</label> 
+			> <label>User</label> 
 			<md-icon md-font-set="material-icons">person</md-icon>
 			<input
 				id="username"
@@ -61,6 +61,7 @@
 			<md-button
 				type="submit"
 				class="md-raised md-accent"
+				ng-disabled="!credentials.username"
 			> <md-icon md-font-set="material-icons">check</md-icon>Log in </md-button>
 		</form>
 		</md-content>
