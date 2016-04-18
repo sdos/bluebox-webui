@@ -11,7 +11,7 @@ angular.module('bluebox.messageBag', [ 'ngAnimate', 'ngSanitize' ]).controller(
 			function showMessage(message) {
 				$mdToast.show({
 			          hideDelay   : 5000,
-			          position    : 'top right',
+			          position    : 'bottom left',
 			          controller  : 'ToastCtrl',
 			          locals: {message: message},
 			          templateUrl : 'angular/modules/messageBag/messageBag.html'
