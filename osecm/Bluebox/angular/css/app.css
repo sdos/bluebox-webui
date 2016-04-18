@@ -1,11 +1,11 @@
-.bb-container {
-	margin: 2em;
-}
-
 h2 {
 	color: white;
 }
 
 .bb-container {
+	margin: 1em;
+}
+
+.bb-margin {
 	margin: 1em;
 }
