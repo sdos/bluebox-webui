@@ -1,7 +1,7 @@
 <md-dialog aria-label="Container Details"  ng-cloak>
     <md-toolbar>
       <div class="md-toolbar-tools">
-        <h2>{{selectedRow.name}}</h2>
+        <h2 ng-click="enterContainer()">{{selectedRow.name}}</h2>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="cancel()">
          <md-icon md-font-set="material-icons">close</md-icon>
@@ -24,9 +24,52 @@
       </md-button>
       <span flex></span>
       
-      <md-button class="md-raised md-warn" ng-click="answer('not useful')">
+      
+      
+      
+      
+        <md-fab-toolbar md-open="false" count="0"
+                  md-direction="left">
+    <md-fab-trigger class="align-with-text">
+    
+    
+      <md-button class="md-raised md-warn">
        <md-icon md-font-set="material-icons">delete_forever</md-icon>
        Delete
       </md-button>
+      
+      
+    </md-fab-trigger>
+    
+    <md-toolbar>
+      <md-fab-actions class="md-toolbar-tools">
+      
+      <md-button ng-disabled="true" aria-label="really delete?" class="">Really delete?</md-button>
+        <md-button aria-label="delete" class="md-raised md-warn" ng-click="deleteContainer()">
+          <md-icon md-font-set="material-icons">delete_forever</md-icon>
+          Yes, delete.
+        </md-button>
+        <md-button aria-label="cancel" class="md-raised">
+          <md-icon md-font-set="material-icons">done</md-icon>
+          No, cancel.
+        </md-button>
+       
+      </md-fab-actions>
+    </md-toolbar>
+  </md-fab-toolbar>
+      
+      
+      
+      
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
     </md-dialog-actions>
 </md-dialog>
