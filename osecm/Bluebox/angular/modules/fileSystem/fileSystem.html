@@ -70,17 +70,22 @@
 
 
 
-	<md-content class="bb-container"> <!-- Text input to filter containers --> <md-input-container
+	<md-content class="bb-container"> 
+	<!-- Text input to filter containers --> 
+	<md-input-container
 		class="md-icon-float md-block"
 		flex-gt-sm=""
-	> <label>Filter containers by their name </label> <md-icon md-font-set="material-icons">filter_list</md-icon> <input
+	> <label>Filter containers by prefix </label> <md-icon md-font-set="material-icons">filter_list</md-icon> <input
 		ng-model="prefix"
 		ng-change="getContainers(true)"
-	> </md-input-container> <!-- Lists all containers in a table --> <dtable
+	> </md-input-container> 
+	
+	<!-- Lists all containers in a table --> 
+	<dtable
 		options="containerTableOptions"
 		rows="fileSystem.containers"
 		class="material dt"
-		on-row-click="enterContainer({containerName: row.name})"
+		on-row-click="showDetailSheet($event, row)"
 	> 
 	
 	<column
@@ -104,13 +109,13 @@
 	> <column-header> <b>{{$header}}</b></column-header>{{$cell}}</column> 
 	
 	
-	<column
+<!-- 	<column
 		name=""
 		prop="name"
 		flex-grow="1"
 	> <column-header> &nbsp;</column-header>
 	
-		<!-- Option buttons -->
+		Option buttons
 	<md-button
 		ui-sref="fileSystemState(cell)"
 		class="md-fab md-mini md-primary md-hue-1" aria-label="Details"
@@ -120,14 +125,14 @@
 	
 	
 	<md-button
-		ui-sref="fileSystemState(cell)"
+		ui-sref="showDetailSheet(cell)"
 		class="md-fab md-mini md-primary md-hue-1" aria-label="Container menu"
 	>
 	<md-icon md-font-set="material-icons">more_vert</md-icon>
 	</md-button>
 	
 	
-	</column> 
+	</column>  -->
 	
 	
 	
@@ -182,5 +187,11 @@
 	<!--         Show spinner while loading
         <div layout="row" layout-sm="column" layout-align="space-around" ng-show="isGetContainersRequestPending">
               <md-progress-circular md-mode="indeterminate"></md-progress-circular>
-        </div> --> </md-content>
+        </div> --> 
+        
+        
+        
+        </md-content>
+        
+        
 </div>

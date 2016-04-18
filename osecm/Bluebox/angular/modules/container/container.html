@@ -17,7 +17,7 @@
 
 
 
-
+<!-- Upload form -->
 <div layout="row">
 
 	<div
@@ -33,7 +33,41 @@
 		</div>
 		</md-toolbar>
 		<md-content class="bb-container">
-dsf dsgsd gsd gds gds dsgdsgsdgs gds s 
+			<form name="uploadForm" ng-show="!isGetObjectClassRequestPending" ng-submit="uploadObject()">
+
+				Choose File to upload
+				<input ngf-select ng-model="fileModel.file" ng-change="uploadProgressPercentage = 0;" type="file"
+					   class="form-control-static" id="file" required/>
+
+<!-- 				Date input retention date
+				<md-datepicker class="md-block" flex-gt-sm="" ng-model="fileModel.retentionDate"
+								md-placeholder="Retention date" date="retentionDatePicker.minDate">
+				</md-datepicker>
+
+				Additional meta data input fields
+				<md-input-container ng-repeat="metadataField in container.metadataFields" class="md-block" flex-gt-sm="">
+					 <label for="{{ metaField.name }}">
+						 {{ metadataField.name }}
+					 </label>
+					 <input ng-if="metadataField.required" required="" ng-model="fileModel.metadata[metadataField.name]">
+					 <input ng-if="!metadataField.required" ng-model="fileModel.metadata[metadataField.name]">
+					<div ng-if="metadataField.required" ng-message="required">Required field</div>
+				</md-input-container> -->
+
+
+				Button to upload File
+				<md-button type="submit" class="md-raised md-primary">
+							<span class="glyphicon glyphicon-cloud-upload"></span> Upload
+				</md-button>
+
+				Upload progress percentage with bar
+				<div ng-show="uploadProgress.percentage">
+					{{ uploadProgress.percentage }} % ({{ uploadProgress.loaded | bytes }} / {{ uploadProgress.total | bytes }})
+				</div>
+				<md-progress-linear ng-show="uploadProgress.percentage" md-mode="determinate" value="{{uploadProgress.percentage}}">
+				</md-progress-linear>
+
+			</form>
 		</md-content>
 	</div>
 	<div flex></div>
@@ -63,7 +97,27 @@ dsf dsgsd gsd gds gds dsgdsgsdgs gds s
 			</h2>
 		</div>
 		</md-toolbar>
-		<md-content class="bb-container"> <dtable
+		<md-content class="bb-container"> 
+		
+		
+		<!-- Text input to filter objects --> 
+	<md-input-container
+		class="md-icon-float md-block"
+		flex-gt-sm=""
+	> <label>Filter objects by prefix </label> <md-icon md-font-set="material-icons">filter_list</md-icon> <input
+		ng-model="prefix"
+		ng-change="getObjects(true)"
+	> </md-input-container> 
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<dtable
 			options="objectTableOptions"
 			rows="container.objects"
 			class="material dt"

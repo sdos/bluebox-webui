@@ -174,11 +174,12 @@ containerModule.controller('ContainerController',
              *
              * @param {boolean} reload if true, the list will be reloaded from the beginning
              */
-            $scope.getObjects = function() {
+            $scope.getObjects = function(reload) {
             	
             	var numObjsWeHave = $scope.container.objects.length;
             	var lastObj = $scope.container.objects[numObjsWeHave - 1]; 
             	var marker = lastObj ? lastObj.name : "";
+            	marker = reload ? "" : marker;
             	
             	if ($scope.isGetObjectsRequestPending) return;
                 $scope.isGetObjectsRequestPending = true;
@@ -200,7 +201,7 @@ containerModule.controller('ContainerController',
                         }
 
                         
-                        $scope.container.objects = $scope.container.objects.concat(response.objects);
+                        $scope.container.objects = reload ? response.objects : $scope.container.objects.concat(response.objects);
                         $scope.container.metadata = response.metadata;
                         
                         $scope.isGetObjectsRequestPending = false;

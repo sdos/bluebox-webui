@@ -1,12 +1,11 @@
 'use strict';
 
 /**
- * FileSystemController
- * controller for the container overview
+ * FileSystemController controller for the container overview
  */
 fileSystemModule.controller('FileSystemController',
-    ['$scope', '$rootScope', 'deleteConfirmationModal', 'fileSystemService', '$state',
-        function($scope, $rootScope, deleteConfirmationModal, fileSystemService, $state) {
+    ['$scope', '$rootScope', 'deleteConfirmationModal', 'fileSystemService', '$state', '$mdDialog', '$mdMedia',
+        function($scope, $rootScope, deleteConfirmationModal, fileSystemService, $state, $mdDialog, $mdMedia) {
     	
 
     	$scope.isAllDataLoaded = false;
@@ -14,7 +13,7 @@ fileSystemModule.controller('FileSystemController',
     	
     	  $scope.containerTableOptions = {
 	            headerHeight: 50,
-	            rowHeight: 50,
+	            rowHeight: 30,
 	            footerHeight: false,
 	            columnMode: 'force',
 	            scrollbarV: false,     
@@ -22,46 +21,45 @@ fileSystemModule.controller('FileSystemController',
     	
 
             /**
-             * contains the relevant information about the containers
-             * @type {{containers: Array, metadata: object}}
-             */
+			 * contains the relevant information about the containers
+			 * 
+			 * @type {{containers: Array, metadata: object}}
+			 */
             $scope.fileSystem = {
                 containers: [],
                 metadata:   {}
             };
 
             /**
-             * true, if we are currently waiting for an answer to a getContainers request
-             * used to prevent multiple requests at once
-             * @type {boolean}
-             */
+			 * true, if we are currently waiting for an answer to a
+			 * getContainers request used to prevent multiple requests at once
+			 * 
+			 * @type {boolean}
+			 */
             $scope.isGetContainersRequestPending = false;
 
             /**
-             * returns true, if there are no more containers to retrieve from the backend
-             * used to prevent further requests
-             * @type {function}
-             */
+			 * returns true, if there are no more containers to retrieve from
+			 * the backend used to prevent further requests
+			 * 
+			 * @type {function}
+			 */
             $scope.isEndOfListReached = fileSystemService.isEndOfListReached;
 
             
-            $scope.enterContainer = function (params) {
-            	
-            	console.log(params);
-            	$state.go('containerState', params);
-            	};
-            
-            
             /**
-             * GET new containers from the fileSystemService
-             *
-             * @param {boolean} reload if true, the list will be reloaded from the beginning
-             */
+			 * GET new containers from the fileSystemService
+			 * 
+			 * @param {boolean}
+			 *            reload if true, the list will be reloaded from the
+			 *            beginning
+			 */
             $scope.getContainers = function (reload) {
             	
             	var numCtsWeHave = $scope.fileSystem.containers.length;
             	var lastCt = $scope.fileSystem.containers[numCtsWeHave - 1]; 
             	var marker = lastCt ? lastCt.name : "";
+            	marker = reload ? "" : marker;
             	
             	if ($scope.isGetContainersRequestPending) return;
                 $scope.isGetContainersRequestPending = true;
@@ -96,8 +94,8 @@ fileSystemModule.controller('FileSystemController',
             };
 
             /**
-             * create a new container by the name entered in the form
-             */
+			 * create a new container by the name entered in the form
+			 */
             $scope.createContainer = function() {
                 fileSystemService.createContainer($scope.container)
                     .then(
@@ -118,10 +116,11 @@ fileSystemModule.controller('FileSystemController',
             };
 
             /**
-             * DELETE a container
-             *
-             * @param {object} container the container to delete
-             */
+			 * DELETE a container
+			 * 
+			 * @param {object}
+			 *            container the container to delete
+			 */
             $scope.deleteContainer = function(container) {
                 deleteConfirmationModal
                     .open(container.name, "container")
@@ -146,7 +145,76 @@ fileSystemModule.controller('FileSystemController',
                             });
                     });
             };
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            /**
+			 * 
+			 * Detail Sheet...
+			 * 
+			 */
+            
+            
+            $scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm');
+            
+            
+            $scope.showDetailSheet = function(ev, row) {
+            	
+            	
+                var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
+                $mdDialog.show({
+                  controller: DialogController,
+                  templateUrl: 'angular/modules/fileSystem/detailSheet.html',
+                  parent: angular.element(document.body),
+                  targetEvent: ev,
+                  clickOutsideToClose:true,
+                  fullscreen: useFullScreen,
+                  //scope: $scope,
+                  locals: {selectedRow: row, test: 777}
+                })
+                .then(
+                function() {
+                  console.log('You cancelled the dialog.');
+                });
+                
+                $scope.$watch(function() {
+                  return $mdMedia('xs') || $mdMedia('sm');
+                }, function(wantsFullScreen) {
+                  $scope.customFullscreen = (wantsFullScreen === true);
+                });
+              };
+            
+            
+
+              
+            
+            
+            
 
             // initial retrieval
             $scope.getContainers(true);
         }]);
+
+function DialogController($state, $scope, $mdDialog, test, selectedRow) {
+	
+	$scope.selectedRow = selectedRow;
+	
+	  $scope.hide = function() {
+	    $mdDialog.hide();
+	  };
+	  $scope.cancel = function() {
+	    $mdDialog.cancel();
+	  };
+	  $scope.enterContainer = function() {
+	    $mdDialog.hide();
+	    $state.go('containerState', {containerName: $scope.selectedRow.name});
+	  };
+	};
