@@ -97,15 +97,16 @@ fileSystemModule.controller('FileSystemController',
 			 * create a new container by the name entered in the form
 			 */
 			$scope.createContainer = function() {
-				fileSystemService.createContainer($scope.container)
+				fileSystemService.createContainer($scope.newContainer)
 				.then(
 						function () {
 							$rootScope.$broadcast('FlashMessage', {
 								"type": "success",
-								"text": "Container \"" + $scope.container.name + "\" created."
+								"text": "Container \"" + $scope.newContainer.name + "\" created."
 							});
 							// reload containers
 							$scope.getContainers(true);
+							$scope.newContainer = undefined;
 						})
 						.catch(function (response) {
 							$rootScope.$broadcast('FlashMessage', {
@@ -130,7 +131,7 @@ fileSystemModule.controller('FileSystemController',
 
 			$scope.showDetailSheet = function(ev, row) {
 
-
+				$scope.container = row;
 				var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
 				$mdDialog.show({
 					controller: DialogController,
@@ -141,7 +142,7 @@ fileSystemModule.controller('FileSystemController',
 					fullscreen: useFullScreen,
 					scope: $scope,
 					preserveScope: true,
-					locals: {selectedRow: row, fileSystemService: fileSystemService}
+					locals: {fileSystemService: fileSystemService}
 				})
 				.then(
 						function() {
@@ -166,9 +167,8 @@ fileSystemModule.controller('FileSystemController',
 			$scope.getContainers(true);
 		}]);
 
-function DialogController($rootScope, $state, $scope, $mdDialog, selectedRow, fileSystemService) {
+function DialogController($rootScope, $state, $scope, $mdDialog, fileSystemService) {
 
-	$scope.selectedRow = selectedRow;
 
 	$scope.hide = function() {
 		$mdDialog.hide();
@@ -178,20 +178,20 @@ function DialogController($rootScope, $state, $scope, $mdDialog, selectedRow, fi
 	};
 	$scope.enterContainer = function() {
 		$mdDialog.hide();
-		$state.go('containerState', {containerName: $scope.selectedRow.name});
+		$state.go('containerState', {containerName: $scope.container.name});
 	};
 	$scope.deleteContainer = function() {
 		$mdDialog.cancel();
-		fileSystemService.deleteContainer($scope.selectedRow)
+		fileSystemService.deleteContainer($scope.container)
 		.then(function() {
 			$rootScope.$broadcast('FlashMessage', {
 				"type": "success",
-				"text": "Container \"" + $scope.selectedRow.name + "\" deleted."
+				"text": "Container \"" + $scope.container.name + "\" deleted."
 			});
 			// update metadata and remove object from list
 			$scope.fileSystem.metadata.containerCount--;
-			$scope.fileSystem.metadata.objectCount -= $scope.selectedRow.count;
-			$scope.fileSystem.containers = _.reject($scope.fileSystem.containers, $scope.selectedRow);
+			$scope.fileSystem.metadata.objectCount -= $scope.container.count;
+			$scope.fileSystem.containers = _.reject($scope.fileSystem.containers, $scope.container);
 		})
 		.catch(function(response) {
 			$rootScope.$broadcast('FlashMessage', {

@@ -25,7 +25,7 @@
 			> <label>Container name</label> <md-icon md-font-set="material-icons">chevron_right</md-icon> <input
 				id="containerName"
 				type="text"
-				ng-model="container.name"
+				ng-model="newContainer.name"
 				ng-trim="false"
 			> </md-input-container>
 
@@ -33,7 +33,7 @@
 			<md-button
 				type="submit"
 				class="md-raised md-primary"
-				ng-disabled="!container.name"
+				ng-disabled="!newContainer.name"
 			><md-icon md-font-set="material-icons">add</md-icon></md-button>
 		</form>
 		</md-content>
