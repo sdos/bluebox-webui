@@ -57,6 +57,7 @@
 <div
 	flex
 	class="md-whiteframe-4dp bb-container"
+	ng-controller="FileSystemController"
 >
 	<md-toolbar class="md-hue-2">
 	<div class="md-toolbar-tools">
@@ -85,7 +86,7 @@
 		options="containerTableOptions"
 		rows="fileSystem.containers"
 		class="material dt"
-		on-row-click="showDetailSheet($event, row)"
+		aaaon-row-click="showDetailSheet($event, row)"
 	> 
 	
 	<column
@@ -93,8 +94,8 @@
 		prop="name"
 		flex-grow="3"
 	> <column-header> <b>{{$header}}</b></column-header>
-	<md-icon md-font-set="material-icons">folder_open</md-icon>
-	<i>{{$cell}}</i></column> 
+	<md-icon md-font-set="material-icons" ng-click="enterContainer($cell)">folder_open</md-icon>
+	<a ng-click="showDetailSheet($event, $row)">{{$cell}}</a></column> 
 	
 	<column
 		name="Size"

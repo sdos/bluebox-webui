@@ -115,6 +115,14 @@ fileSystemModule.controller('FileSystemController',
 							});
 						});
 			};
+			
+			
+			/**
+			 * enter a container --> we need to fix the routing; this is a workaround
+			 */
+			$scope.enterContainer = function(containerName) {
+				$state.go('containerState', {containerName: containerName});
+			};
 
 
 
@@ -124,10 +132,7 @@ fileSystemModule.controller('FileSystemController',
 			 * Detail Sheet...
 			 * 
 			 */
-
-
 			$scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm');
-
 
 			$scope.showDetailSheet = function(ev, row) {
 
