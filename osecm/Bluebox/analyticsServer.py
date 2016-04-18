@@ -18,6 +18,7 @@ import json, logging, time, re
 from bokeh.charts import Area, show, vplot, output_file, Bar, Line
 from bokeh.io import vform
 from bokeh.embed import components 
+from bokeh.charts.operations import blend
 from flask import request, Response, send_file, render_template
 import requests
 
@@ -59,7 +60,12 @@ def doPlot1(data, nrDataSource):
 	return c
 
 def doPlot11(data, nrDataSource):
-	p = Line(data, data.columns[0], values=data.columns[1], title="Line graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1], responsive=True)
+	p = Bar(data, 
+		label=data.columns[0],
+		group=data.columns[0],
+		y_mapper_type="log", 
+		values=blend(data.columns[1],data.columns[2], name="values", labels_name=data.columns[0]), 
+		title="Line graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1], responsive=True)
 	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
 	return c
 
@@ -108,6 +114,7 @@ def doPlot(plotType):
 		print(nrDataSource, plotType)
 		return Response(json.dumps(c), mimetype="application/json")
 	except:
+		log.exception("plotting error:")
 		raise HttpError("the Node-RED data source produced malformatted data", 500)
 
 
