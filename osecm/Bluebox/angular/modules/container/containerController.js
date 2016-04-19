@@ -5,8 +5,8 @@
  * controller for the view of a single container
  */
 containerModule.controller('ContainerController',
-    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', 'containerService', 'fileSystemService', 'objectClassService',
-        function($scope, $rootScope, $state, $stateParams, $timeout, $filter, containerService, fileSystemService, objectClassService) {
+    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', 'containerService', 'fileSystemService', 'objectClassService', '$mdDialog', '$mdMedia',
+        function($scope, $rootScope, $state, $stateParams, $timeout, $filter, containerService, fileSystemService, objectClassService, $mdDialog, $mdMedia) {
 
     	console.log("hello, ContainerController");
     	
@@ -537,4 +537,83 @@ containerModule.controller('ContainerController',
                 $scope.container.metadataFields = [];
                 $scope.fileModel.metadata = {};
             });
+            
+            
+            
+			/**
+			 * 
+			 * Detail Sheet...
+			 * 
+			 */
+			$scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm');
+
+			$scope.showDetailSheet = function(ev, row) {
+
+				$scope.object = row;
+				var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
+				$mdDialog.show({
+					controller: DialogController,
+					templateUrl: 'angular/modules/container/detailSheet.html',
+					parent: angular.element(document.body),
+					targetEvent: ev,
+					clickOutsideToClose:true,
+					fullscreen: useFullScreen,
+					scope: $scope,
+					preserveScope: true,
+					locals: {containerService: containerService}
+				})
+				.then(
+						function() {
+							console.log('You cancelled the dialog.');
+						});
+
+				$scope.$watch(function() {
+					return $mdMedia('xs') || $mdMedia('sm');
+				}, function(wantsFullScreen) {
+					$scope.customFullscreen = (wantsFullScreen === true);
+				});
+			};
+            
+            
+            
+            
+            
+            
+            
+            
         }]);
+
+
+
+function DialogController($rootScope, $state, $scope, $mdDialog, containerService) {
+
+
+	$scope.hide = function() {
+		$mdDialog.hide();
+	};
+	$scope.cancel = function() {
+		$mdDialog.cancel();
+	};
+
+	$scope.deleteContainer = function() {
+		$mdDialog.cancel();
+		containerService.deleteObject($scope.object)
+		.then(function() {
+			$rootScope.$broadcast('FlashMessage', {
+				"type": "success",
+				"text": "Object \"" + $scope.container.name + "\" deleted."
+			});
+			// update metadata and remove object from list
+			//$scope.fileSystem.metadata.containerCount--;
+			//$scope.fileSystem.metadata.objectCount -= $scope.container.count;
+			//$scope.fileSystem.containers = _.reject($scope.fileSystem.containers, $scope.container);
+		})
+		.catch(function(response) {
+			$rootScope.$broadcast('FlashMessage', {
+				"type":     "danger",
+				"text":     response.data
+			});
+		});
+	};
+};
+
