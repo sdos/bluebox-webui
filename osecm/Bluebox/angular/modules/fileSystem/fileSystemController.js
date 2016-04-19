@@ -11,15 +11,6 @@ fileSystemModule.controller('FileSystemController',
 			$scope.isAllDataLoaded = false;
 
 
-			$scope.containerTableOptions = {
-					headerHeight: 50,
-					rowHeight: 30,
-					footerHeight: false,
-					columnMode: 'force',
-					scrollbarV: false,     
-			};
-
-
 			/**
 			 * contains the relevant information about the containers
 			 * 
@@ -93,6 +84,7 @@ fileSystemModule.controller('FileSystemController',
 				});
 			};
 
+			
 			/**
 			 * create a new container by the name entered in the form
 			 */
