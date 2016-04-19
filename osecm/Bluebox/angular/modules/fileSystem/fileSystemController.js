@@ -4,9 +4,10 @@
  * FileSystemController controller for the container overview
  */
 fileSystemModule.controller('FileSystemController',
-		['$scope', '$rootScope', 'deleteConfirmationModal', 'fileSystemService', '$state', '$mdDialog', '$mdMedia',
-		 function($scope, $rootScope, deleteConfirmationModal, fileSystemService, $state, $mdDialog, $mdMedia) {
+		['$scope', '$rootScope', 'fileSystemService', '$state', '$mdDialog', '$mdMedia',
+		 function($scope, $rootScope, fileSystemService, $state, $mdDialog, $mdMedia) {
 
+			console.log("hello, FileSystemController");
 
 			$scope.isAllDataLoaded = false;
 
@@ -30,15 +31,6 @@ fileSystemModule.controller('FileSystemController',
 			$scope.isGetContainersRequestPending = false;
 
 			/**
-			 * returns true, if there are no more containers to retrieve from
-			 * the backend used to prevent further requests
-			 * 
-			 * @type {function}
-			 */
-			$scope.isEndOfListReached = fileSystemService.isEndOfListReached;
-
-
-			/**
 			 * GET new containers from the fileSystemService
 			 * 
 			 * @param {boolean}
@@ -47,27 +39,28 @@ fileSystemModule.controller('FileSystemController',
 			 */
 			$scope.getContainers = function (reload) {
 
-				var numCtsWeHave = $scope.fileSystem.containers.length;
-				var lastCt = $scope.fileSystem.containers[numCtsWeHave - 1]; 
-				var marker = lastCt ? lastCt.name : "";
-				marker = reload ? "" : marker;
-
 				if ($scope.isGetContainersRequestPending) return;
 				$scope.isGetContainersRequestPending = true;
 
+				var limit = 0;
+				var marker = "";
+				if (reload) {
+					limit = Math.max($scope.fileSystem.containers.length, 30);
+					limit = Math.min(limit, 100);
+					marker = "";
+				} else {
+					limit = 30;
+					marker = _.last($scope.fileSystem.containers) ? _.last($scope.fileSystem.containers).name : "";
+				}
 
-				fileSystemService.getContainers(reload, $scope.prefix, marker)
+				fileSystemService.getContainers($scope.prefix, marker, limit)
 				.then(function(response) {
-					$scope.fileSystem.containers = reload ? response.containers : $scope.fileSystem.containers.concat(response.containers);
+					console.log("bfore: ", $scope.fileSystem.containers.length);
+					$scope.fileSystem.containers = reload ? [].concat(response.containers) : $scope.fileSystem.containers.concat(response.containers);
 					$scope.fileSystem.metadata = response.metadata;
-
 					$scope.isGetContainersRequestPending = false;
-
-
-					$scope.isAllDataLoaded = (response.metadata.containerCount == $scope.fileSystem.containers.length);
-
-
-
+					$scope.isAllDataLoaded = (0 === response.containers.length);
+					console.log("after: ", $scope.fileSystem.containers.length);
 				})
 				.catch(function (response) {
 					$scope.isGetContainersRequestPending = false;
@@ -84,7 +77,7 @@ fileSystemModule.controller('FileSystemController',
 				});
 			};
 
-			
+
 			/**
 			 * create a new container by the name entered in the form
 			 */
@@ -97,8 +90,12 @@ fileSystemModule.controller('FileSystemController',
 								"text": "Container \"" + $scope.newContainer.name + "\" created."
 							});
 							// reload containers
-							$scope.getContainers(true);
 							$scope.newContainer = undefined;
+							setTimeout(function() {
+
+								$scope.getContainers(true);
+
+							}, 200);
 						})
 						.catch(function (response) {
 							$rootScope.$broadcast('FlashMessage', {
@@ -107,10 +104,11 @@ fileSystemModule.controller('FileSystemController',
 							});
 						});
 			};
-			
-			
+
+
 			/**
-			 * enter a container --> we need to fix the routing; this is a workaround
+			 * enter a container --> we need to fix the routing; this is a
+			 * workaround
 			 */
 			$scope.enterContainer = function(containerName) {
 				$state.go('containerState', {containerName: containerName});

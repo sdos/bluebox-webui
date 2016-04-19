@@ -1,4 +1,4 @@
-<div ng-controller="ContainerController">
+<div>
 	<!-- Top buttons -->
 	<md-button
 		ui-sref="fileSystemState()"
@@ -111,17 +111,37 @@
 		
 		
 		
-		
-		
-		
-		
-		
-		
-		<dtable
-			options="objectTableOptions"
-			rows="container.objects"
-			class="material dt"
-		> </dtable>
+
+
+<md-table-container>
+  <table md-table ng-model="container.objects">
+    <thead md-head>
+      <tr md-row>
+        <th md-column><span>Name</span></th>
+        <th md-column md-numeric><span>Size</span></th>
+        <th md-column md-numeric>Content type</th>
+      </tr>
+    </thead>
+    <tbody md-body>
+      <tr md-row md-select="object" md-select-id="name" md-auto-select ng-repeat="object in container.objects">
+        <td md-cell>
+        <a ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true"
+        target="_blank">
+        <md-icon md-font-set="material-icons">insert_drive_file</md-icon></a>
+        {{object.name}}
+        </td>
+        <td md-cell>{{object.bytes | bytes}}</td>
+        <td md-cell>{{object.content_type}}</td>
+      </tr>
+    </tbody>
+  </table>
+</md-table-container>
+
+
+
+
+
+
 	
 		<div
 			in-view="$inview&&getObjects()"
@@ -129,10 +149,6 @@
 			layout-sm="column"
 			layout-align="space-around"
 		>
-			<!-- 		<md-progress-circular 
-		ng-disabled="!ctr.isGetObjectsRequestPending" 
-		class="md-accent md-hue-1" 
-		md-diameter="120"></md-progress-circular> -->
 			<h3>
 				<span ng-hide="isAllDataLoaded"><md-icon md-font-set="material-icons">mouse</md-icon>Scroll further down to load more objects.</span>
 			</h3>

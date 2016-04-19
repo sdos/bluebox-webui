@@ -5,37 +5,14 @@
  * controller for the view of a single container
  */
 containerModule.controller('ContainerController',
-    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', 'containerService', 'fileSystemService', 'objectClassService', 'deleteConfirmationModal',
-        function($scope, $rootScope, $state, $stateParams, $timeout, $filter, containerService, fileSystemService, objectClassService, deleteConfirmationModal) {
+    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', 'containerService', 'fileSystemService', 'objectClassService',
+        function($scope, $rootScope, $state, $stateParams, $timeout, $filter, containerService, fileSystemService, objectClassService) {
 
+    	console.log("hello, ContainerController");
     	
     	$scope.isGetObjectsRequestPending = false;
     	$scope.isAllDataLoaded = false;
     	
-  	  $scope.objectTableOptions = {
-	            headerHeight: 50,
-	            rowHeight: 50,
-	            footerHeight: false,
-	            columnMode: 'force',
-	            scrollbarV: false,
-	            columns: [
-	              { 
-	            	  name: "Name", 
-	            	  prop: "name",
-	            	  cellRenderer: function() {
-	            		  return '<i>{{$cell}}</i>';
-	            	  }
-	              },
-	              { 
-	            	  name: "Size", 
-	            	  prop: "bytes", 
-	            	  cellRenderer: function() {
-	            		  return '<span>{{$cell | bytes}}</span>';
-	            	  }
-	              },
-	              { name: "Content type", prop: "content_type" }
-	            ]
-	          };
     	
             /**
              * contains the relevant information about the current container

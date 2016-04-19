@@ -57,7 +57,6 @@
 <div
 	flex
 	class="md-whiteframe-4dp bb-container"
-	ng-controller="FileSystemController"
 >
 	<md-toolbar class="md-hue-2">
 	<div class="md-toolbar-tools">
@@ -97,16 +96,20 @@
   <table md-table ng-model="fileSystem.containers">
     <thead md-head>
       <tr md-row>
+      <th md-column><span>&nbsp;</span></th>
         <th md-column><span>Name</span></th>
         <th md-column md-numeric><span>Size</span></th>
         <th md-column md-numeric>Count</th>
       </tr>
     </thead>
     <tbody md-body>
+    
       <tr md-row md-select="container" md-select-id="name" md-auto-select ng-repeat="container in fileSystem.containers">
-        <td md-cell>
-        <md-icon md-font-set="material-icons" ng-click="enterContainer(container.name)">folder_open</md-icon>
-        <a ng-click="showDetailSheet($event, container)">{{container.name}}</a>
+        <td md-cell ng-click="enterContainer(container.name)">
+        <md-icon md-font-set="material-icons">folder_open</md-icon>
+        </td>
+        <td md-cell ng-click="showDetailSheet($event, container)">
+        {{container.name}}
         </td>
         <td md-cell>{{container.bytes | bytes}}</td>
         <td md-cell>{{container.count}}</td>

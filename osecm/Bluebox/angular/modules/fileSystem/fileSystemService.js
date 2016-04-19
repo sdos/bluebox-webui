@@ -10,18 +10,6 @@ fileSystemModule.factory(
         function($http, $filter, BACKEND_BASE_URL) {
 
             /**
-             * the limit of containers to retrieve at once
-             * @type {number}
-             */
-            var limit = 10;
-
-            /**
-             * true, if there are no more containers to retrieve from the backend
-             * @type {boolean}
-             */
-            var isEndOfListReached = false;
-
-            /**
              * constructs the proper request data object from a container, omits all unnecessary properties
              *
              * @param {object} container the received container
@@ -72,9 +60,9 @@ fileSystemModule.factory(
                  * @param {boolean} reload if true, the marker will be reset and the whole list will be reloaded
                  * @param {string}  prefix filter containers for a certain prefix (optional)
                  * @returns {promise} resolved to the response data,
-                 *                    rejected to the plain response if unsuccessful
+                 *                    rejected to the plain response if uns$scope.fileSystem.containersuccessful
                  */
-                getContainers: function(reload, prefix, marker) {
+                getContainers: function(prefix, marker, limit) {
 
                     return $http({
                         "method": "GET",
@@ -85,19 +73,8 @@ fileSystemModule.factory(
                             "prefix": prefix ? prefix : ""
                         }
                     }).then(function(response) {
-                        var containers = response.data.containers;
-                        isEndOfListReached = containers.length < limit;
                         return response.data;
                     });
-                },
-
-                /**
-                 * true, if there are no more containers to retrieve from the backend
-                 *
-                 * @returns {boolean}
-                 */
-                isEndOfListReached: function() {
-                    return isEndOfListReached;
                 },
 
                 /**
