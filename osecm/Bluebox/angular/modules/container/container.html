@@ -1,45 +1,31 @@
-<div>
-	<!-- Top buttons -->
-	<md-button
-		ui-sref="fileSystemState()"
-		class="md-fab bb-pin-button" aria-label="Back to containers"
-	>
-	<md-icon md-font-set="material-icons">chevron_left</md-icon>
-	</md-button>
-
-
-
-
-
-
-
-
-
-
-
-<!-- Upload form -->
-<div layout="row">
-
-	<div
-		flex="40"
-		flex-xs="90"
-		class="md-whiteframe-4dp bb-container"
-	>
-		<md-toolbar class="md-hue-2">
-		<div class="md-toolbar-tools">
-			<h2>
-				<span>Upload new objects</span>
-			</h2>
-		</div>
-		</md-toolbar>
-		<md-content class="bb-container">
-			<form name="uploadForm" ng-show="!isGetObjectClassRequestPending" ng-submit="uploadObject()">
-
-				Choose File to upload
-				<input ngf-select ng-model="fileModel.file" ng-change="uploadProgressPercentage = 0;" type="file"
-					   class="form-control-static" id="file" required/>
-
-<!-- 				Date input retention date
+<html>
+ <head>
+ </head>
+ <body>
+  <div>
+   <!-- Top buttons -->
+   <md-button aria-label="Back to containers" class="md-fab bb-pin-button" ui-sref="fileSystemState()">
+    <md-icon md-font-set="material-icons">
+     chevron_left
+    </md-icon>
+   </md-button>
+   <!-- Upload form -->
+   <div layout="row">
+    <div class="md-whiteframe-4dp bb-container" flex="40" flex-xs="90">
+     <md-toolbar class="md-hue-2">
+      <div class="md-toolbar-tools">
+       <h2>
+        <span>
+         Upload new objects
+        </span>
+       </h2>
+      </div>
+     </md-toolbar>
+     <md-content class="bb-container">
+      <form name="uploadForm" ng-show="!isGetObjectClassRequestPending" ng-submit="uploadObject()">
+       Choose File to upload
+       <input class="form-control-static" id="file" ng-change="uploadProgressPercentage = 0;" ng-model="fileModel.file" ngf-select="" required="" type="file"/>
+       <!-- 				Date input retention date
 				<md-datepicker class="md-block" flex-gt-sm="" ng-model="fileModel.retentionDate"
 								md-placeholder="Retention date" date="retentionDatePicker.minDate">
 				</md-datepicker>
@@ -53,121 +39,109 @@
 					 <input ng-if="!metadataField.required" ng-model="fileModel.metadata[metadataField.name]">
 					<div ng-if="metadataField.required" ng-message="required">Required field</div>
 				</md-input-container> -->
-
-
-				Button to upload File
-				<md-button type="submit" class="md-raised md-primary">
-							<span class="glyphicon glyphicon-cloud-upload"></span> Upload
-				</md-button>
-
-				Upload progress percentage with bar
-				<div ng-show="uploadProgress.percentage">
-					{{ uploadProgress.percentage }} % ({{ uploadProgress.loaded | bytes }} / {{ uploadProgress.total | bytes }})
-				</div>
-				<md-progress-linear ng-show="uploadProgress.percentage" md-mode="determinate" value="{{uploadProgress.percentage}}">
-				</md-progress-linear>
-
-			</form>
-		</md-content>
-	</div>
-	<div flex></div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-	<!-- Card which lists all objects in this container -->
-	<div
-		flex
-		class="md-whiteframe-4dp bb-container"
-	>
-		<md-toolbar class="md-hue-2">
-		<div class="md-toolbar-tools">
-			<h2>
-				<span>Listing {{container.metadata.objectCount}} objects in <q>{{ container.name }}</q></span>
-			</h2>
-		</div>
-		</md-toolbar>
-		<md-content class="bb-container"> 
-		
-		
-		<!-- Text input to filter objects --> 
-	<md-input-container
-		class="md-icon-float md-block"
-		flex-gt-sm=""
-	> <label>Filter objects by prefix </label> <md-icon md-font-set="material-icons">filter_list</md-icon> <input
-		ng-model="prefix"
-		ng-change="getObjects(true)"
-	> </md-input-container> 
-		
-		
-		
-
-
-<md-table-container>
-  <table md-table ng-model="container.objects">
-    <thead md-head>
-      <tr md-row>
-        <th md-column><span>Name</span></th>
-        <th md-column md-numeric><span>Size</span></th>
-        <th md-column md-numeric>Content type</th>
-      </tr>
-    </thead>
-    <tbody md-body>
-      <tr md-row md-select="object" md-select-id="name" md-auto-select ng-repeat="object in container.objects">
-        <td md-cell>
-        <a ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true"
-        target="_blank">
-        <md-icon md-font-set="material-icons">insert_drive_file</md-icon></a>
-        {{object.name}}
-        </td>
-        <td md-cell>{{object.bytes | bytes}}</td>
-        <td md-cell>{{object.content_type}}</td>
-      </tr>
-    </tbody>
-  </table>
-</md-table-container>
-
-
-
-
-
-
-	
-		<div
-			in-view="$inview&&getObjects()"
-			layout="row"
-			layout-sm="column"
-			layout-align="space-around"
-		>
-			<h3>
-				<span ng-hide="isAllDataLoaded"><md-icon md-font-set="material-icons">mouse</md-icon>Scroll further down to load more objects.</span>
-			</h3>
-		</div>
-		<br>
-
-		</mdcontent> </md-content>
-	</div>
-</div>
-
-
-
-
-
-
-
-
-
-<!-- 
+       Button to upload File
+       <md-button class="md-raised md-primary" type="submit">
+        <span class="glyphicon glyphicon-cloud-upload">
+        </span>
+        Upload
+       </md-button>
+       Upload progress percentage with bar
+       <div ng-show="uploadProgress.percentage">
+        {{ uploadProgress.percentage }} % ({{ uploadProgress.loaded | bytes }} / {{ uploadProgress.total | bytes }})
+       </div>
+       <md-progress-linear md-mode="determinate" ng-show="uploadProgress.percentage" value="{{uploadProgress.percentage}}">
+       </md-progress-linear>
+      </form>
+     </md-content>
+    </div>
+    <div flex="">
+    </div>
+   </div>
+   <!-- Card which lists all objects in this container -->
+   <div class="md-whiteframe-4dp bb-container" flex="">
+    <md-toolbar class="md-hue-2">
+     <div class="md-toolbar-tools">
+      <h2>
+       <span>
+        Listing {{container.metadata.objectCount}} objects in
+        <q>
+         {{ container.name }}
+        </q>
+       </span>
+      </h2>
+     </div>
+    </md-toolbar>
+    <md-content class="bb-container">
+     <!-- Text input to filter objects -->
+     <md-input-container class="md-icon-float md-block" flex-gt-sm="">
+      <label>
+       Filter objects by prefix
+      </label>
+      <md-icon md-font-set="material-icons">
+       filter_list
+      </md-icon>
+      <input ng-change="getObjects(true)" ng-model="prefix"/>
+     </md-input-container>
+     <md-table-container>
+      <table md-table="" ng-model="container.objects">
+       <thead md-head="">
+        <tr md-row="">
+         <th md-column="">
+         </th>
+         <th md-column="" md-order-by="name">
+          <span>
+           Name
+          </span>
+         </th>
+         <th md-column="" md-numeric="" md-order-by="bytes">
+          <span>
+           Size
+          </span>
+         </th>
+         <th md-column="" md-order-by="content_type">
+          Content type
+         </th>
+        </tr>
+       </thead>
+       <tbody md-body="">
+        <tr md-auto-select="" md-row="" md-select="object" md-select-id="name" ng-repeat="object in container.objects">
+         <td class="bb-icon-column" md-cell="">
+          <a ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true" target="_blank">
+           <md-icon md-font-set="material-icons">
+            insert_drive_file
+           </md-icon>
+          </a>
+         </td>
+         <td md-cell="">
+          <b>
+           {{object.name}}
+          </b>
+         </td>
+         <td md-cell="">
+          {{object.bytes | bytes}}
+         </td>
+         <td md-cell="">
+          {{object.content_type}}
+         </td>
+        </tr>
+       </tbody>
+      </table>
+     </md-table-container>
+     <div in-view="$inview&amp;&amp;getObjects()" layout="row" layout-align="space-around" layout-sm="column">
+      <h3>
+       <span ng-hide="isAllDataLoaded">
+        <md-icon md-font-set="material-icons">
+         mouse
+        </md-icon>
+        Scroll further down to load more objects.
+       </span>
+      </h3>
+     </div>
+     <br/>
+    </md-content>
+   </div>
+  </div>
+  <!-- 
 
 
 
@@ -498,3 +472,5 @@ Card which shows all files inside the container
 		</div>
 	</md-card-content>
 </md-card> -->
+ </body>
+</html>

@@ -55,12 +55,10 @@ fileSystemModule.controller('FileSystemController',
 
 				fileSystemService.getContainers($scope.prefix, marker, limit)
 				.then(function(response) {
-					console.log("bfore: ", $scope.fileSystem.containers.length);
 					$scope.fileSystem.containers = reload ? [].concat(response.containers) : $scope.fileSystem.containers.concat(response.containers);
 					$scope.fileSystem.metadata = response.metadata;
 					$scope.isGetContainersRequestPending = false;
 					$scope.isAllDataLoaded = (0 === response.containers.length);
-					console.log("after: ", $scope.fileSystem.containers.length);
 				})
 				.catch(function (response) {
 					$scope.isGetContainersRequestPending = false;
