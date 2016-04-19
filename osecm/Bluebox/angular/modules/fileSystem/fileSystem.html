@@ -81,93 +81,45 @@
 		ng-change="getContainers(true)"
 	> </md-input-container> 
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	<!-- Lists all containers in a table --> 
-	<dtable
-		options="containerTableOptions"
-		rows="fileSystem.containers"
-		class="material dt"
-		aaaon-row-click="showDetailSheet($event, row)"
-	> 
 	
-	<column
-		name="Name"
-		prop="name"
-		flex-grow="3"
-	> <column-header> <b>{{$header}}</b></column-header>
-	<md-icon md-font-set="material-icons" ng-click="enterContainer($cell)">folder_open</md-icon>
-	<a ng-click="showDetailSheet($event, $row)">{{$cell}}</a></column> 
-	
-	<column
-		name="Size"
-		prop="bytes"
-		flex-grow="1"
-	> <column-header> <b>{{$header}}</b></column-header>{{$cell | bytes}}</column> 
-	
-	<column
-		name="Count"
-		prop="count"
-		flex-grow="1"
-	> <column-header> <b>{{$header}}</b></column-header>{{$cell}}</column> 
-	
-	
-<!-- 	<column
-		name=""
-		prop="name"
-		flex-grow="1"
-	> <column-header> &nbsp;</column-header>
-	
-		Option buttons
-	<md-button
-		ui-sref="fileSystemState(cell)"
-		class="md-fab md-mini md-primary md-hue-1" aria-label="Details"
-	>
-	<md-icon md-font-set="material-icons">info_outline</md-icon>
-	</md-button>
-	
-	
-	<md-button
-		ui-sref="showDetailSheet(cell)"
-		class="md-fab md-mini md-primary md-hue-1" aria-label="Container menu"
-	>
-	<md-icon md-font-set="material-icons">more_vert</md-icon>
-	</md-button>
-	
-	
-	</column>  -->
+<md-table-container>
+  <table md-table ng-model="fileSystem.containers">
+    <thead md-head>
+      <tr md-row>
+        <th md-column><span>Name</span></th>
+        <th md-column md-numeric><span>Size</span></th>
+        <th md-column md-numeric>Count</th>
+      </tr>
+    </thead>
+    <tbody md-body>
+      <tr md-row md-select="container" md-select-id="name" md-auto-select ng-repeat="container in fileSystem.containers">
+        <td md-cell>
+        <md-icon md-font-set="material-icons" ng-click="enterContainer(container.name)">folder_open</md-icon>
+        <a ng-click="showDetailSheet($event, container)">{{container.name}}</a>
+        </td>
+        <td md-cell>{{container.bytes | bytes}}</td>
+        <td md-cell>{{container.count}}</td>
+      </tr>
+    </tbody>
+  </table>
+</md-table-container>
 	
 	
 	
 	
 	
 	
-	</dtable> <!--                 infinite-scroll="getContainers()"
-                threshold="100"
-                can-load="!isGetContainersRequestPending && !isEndOfListReached()"
-                global
-                class="material"> --> <!--             <tr>
-                <th>Name</th>
-                <th>Size</th>
-                <th>Objects</th>
-                <th></th>
-            </tr>
-
-            <tr ng-repeat="container in fileSystem.containers">
-                <td ui-sref="containerState({containerName: container.name})" class="clickable">
-                    <img
-                            alt="Container icon"
-                            ng-src="/angular/icons/file_icon_{{ container.count > 0 ? 'full' : 'empty' }}_32.png">
-                    {{ container.name }}
-                </td>
-                <td ui-sref="containerState({containerName: container.name})" class="clickable">{{ container.bytes | bytes}}</td>
-                <td ui-sref="containerState({containerName: container.name})" class="clickable">{{ container.count }}</td>
-
-                Button to delete containers
-                <td>
-                    <md-button ng-click="deleteContainer(container)" class="md-raised md-warn">
-                        <span class="glyphicon glyphicon-trash"></span>
-                    </md-button>
-                </td>
-            </tr> -->
 
 
 
