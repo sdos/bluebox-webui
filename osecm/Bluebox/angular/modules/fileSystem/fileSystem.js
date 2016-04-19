@@ -12,7 +12,7 @@ var fileSystemModule = angular.module('bluebox.fileSystem', [
         'bluebox.infiniteScroll',
         'bluebox.objectClass',
         'bluebox.messageBag',
-        'data-table'
+        'md.data.table'
     ])
 
     .config(['$stateProvider', function($stateProvider) {

@@ -14,7 +14,7 @@ var containerModule = angular.module('bluebox.container', [
         'bluebox.fileSystem',
         'bluebox.infiniteScroll',
         'bluebox.objectClass',
-        'data-table'
+        'md.data.table'
     ])
 
     .config(['$stateProvider', function($stateProvider) {
