@@ -5,7 +5,6 @@
  * module for the object class management
  */
 var objectClassModule = angular.module('bluebox.objectClass', [
-        'bluebox.deleteConfirmation',
         'bluebox.filter',
         'bluebox.messageBag'
     ])

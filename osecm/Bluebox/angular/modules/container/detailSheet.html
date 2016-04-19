@@ -4,7 +4,7 @@
    <md-toolbar>
     <div class="md-toolbar-tools">
      <h2>
-      Object: {{object.name}}
+      Object <q>{{object.name}}</q>
      </h2>
      <span flex="">
      </span>
@@ -23,14 +23,26 @@
     </p>
    </md-dialog-content>
    <md-dialog-actions class="" layout="row">
-    <md-button aria-label="Enter Container" class="md-fab" ng-click="">
+   
+    <md-button aria-label="Download" class="md-fab" ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}" target="_blank">
      <md-tooltip md-direction="top">
-      ???
+      Download
      </md-tooltip>
      <md-icon md-font-set="material-icons">
-      chevron_right
+      cloud_download
      </md-icon>
     </md-button>
+   
+    <md-button aria-label="Preview" class="md-fab" ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true" target="_blank">
+     <md-tooltip md-direction="top">
+      Preview
+     </md-tooltip>
+     <md-icon md-font-set="material-icons">
+      pageview
+     </md-icon>
+    </md-button>
+    
+    
     <span flex="">
     </span>
     <md-fab-toolbar count="0" md-direction="left" md-open="false">
@@ -55,7 +67,7 @@
         </md-icon>
         No, cancel
        </md-button>
-       <md-button aria-label="delete" class="md-raised md-warn" ng-click="">
+       <md-button aria-label="delete" class="md-raised md-warn" ng-click="deleteObject()">
         <md-icon md-font-set="material-icons">
          delete_forever
         </md-icon>

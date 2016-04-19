@@ -55,7 +55,7 @@ fileSystemModule.controller('FileSystemController',
 
 				fileSystemService.getContainers($scope.prefix, marker, limit)
 				.then(function(response) {
-					$scope.fileSystem.containers = reload ? [].concat(response.containers) : $scope.fileSystem.containers.concat(response.containers);
+					$scope.fileSystem.containers = reload ? response.containers : $scope.fileSystem.containers.concat(response.containers);
 					$scope.fileSystem.metadata = response.metadata;
 					$scope.isGetContainersRequestPending = false;
 					$scope.isAllDataLoaded = (0 === response.containers.length);
@@ -174,6 +174,7 @@ function DialogController($rootScope, $state, $scope, $mdDialog, fileSystemServi
 		$state.go('containerState', {containerName: $scope.container.name});
 	};
 	$scope.deleteContainer = function() {
+		console.log("im new!");
 		$mdDialog.cancel();
 		fileSystemService.deleteContainer($scope.container)
 		.then(function() {
@@ -185,6 +186,7 @@ function DialogController($rootScope, $state, $scope, $mdDialog, fileSystemServi
 			$scope.fileSystem.metadata.containerCount--;
 			$scope.fileSystem.metadata.objectCount -= $scope.container.count;
 			$scope.fileSystem.containers = _.reject($scope.fileSystem.containers, $scope.container);
+			delete $scope.container;
 		})
 		.catch(function(response) {
 			$rootScope.$broadcast('FlashMessage', {

@@ -9,10 +9,8 @@ var containerModule = angular.module('bluebox.container', [
         'ui.router',
         'angular-inview',
         'elif',
-        'bluebox.deleteConfirmation',
         'bluebox.filter',
         'bluebox.fileSystem',
-        'bluebox.infiniteScroll',
         'bluebox.objectClass',
         'md.data.table'
     ])

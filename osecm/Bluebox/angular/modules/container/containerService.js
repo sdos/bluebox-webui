@@ -8,19 +8,6 @@ containerModule.factory(
     'containerService',
     ['$http', '$filter', 'Upload', 'BACKEND_BASE_URL', function($http, $filter, Upload, BACKEND_BASE_URL) {
 
-        /**
-         * true, if there are no more objects to retrieve from the backend
-         * @type {boolean}
-         */
-        var isEndOfListReached = false;
-
-        /**
-         * the limit of objs to retrieve at once
-         * @type {number}
-         */
-        var limit = 30;
-        
-        
         return {
 
             /**
@@ -32,7 +19,7 @@ containerModule.factory(
              * @returns {promise} resolved to the data of the response,
              *                    rejected to the plain response if unsuccessful
              */
-            getObjects: function(container, prefix, marker) {
+            getObjects: function(container, prefix, marker, limit) {
 
                 return $http({
                     "method": "GET",

@@ -12,8 +12,8 @@ objectClassModule.directive('objectClassSelector', function() {
             id:         '@'
         },
         templateUrl: "/angular/modules/objectClass/objectClassSelector.html",
-        controller:  ['$scope', '$uibModal', '$rootScope', 'objectClassService', 'deleteConfirmationModal',
-            function($scope, $uibModal, $rootScope, objectClassService, deleteConfirmationModal) {
+        controller:  ['$scope', '$uibModal', '$rootScope', 'objectClassService',
+            function($scope, $uibModal, $rootScope, objectClassService) {
 
                 /**
                  * retrieves the object classes for the selector
@@ -89,32 +89,7 @@ objectClassModule.directive('objectClassSelector', function() {
                             "text": "Could not delete object class: no object class selected."
                         });
                     } else {
-                        deleteConfirmationModal
-                            .open($scope.ngModel, "object class")
-                            .result
-                            .then(function () {
-                                return objectClassService
-                                    .deleteObjectClass($scope.ngModel)
-                                    .then(function () {
-                                        $rootScope.$broadcast('FlashMessage', {
-                                            "type": "success",
-                                            "text": "Object class \"" + $scope.ngModel + "\" deleted."
-                                        });
-                                        // remove object class from list
-                                        $scope.objectClasses = _.reject($scope.objectClasses, function(objectClass) {
-                                            return objectClass === $scope.ngModel;
-                                        });
-                                        // emit an event
-                                        $scope.$emit('objectClassDeleted', $scope.ngModel);
-                                    })
-                                    .catch(function (response) {
-                                        $rootScope.$broadcast('FlashMessage', {
-                                            "type":     "danger",
-                                            "text":     response.data,
-                                            "timeout":  "never"
-                                        });
-                                    });
-                            });
+                        console.log("MISSING :(");
                     }
                 };
 
