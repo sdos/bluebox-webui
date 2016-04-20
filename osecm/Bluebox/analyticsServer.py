@@ -33,26 +33,11 @@ log = logging.getLogger()
 
 
 
+"""
 
-# create some example data
-data = dict(
-    python=[2, 3, 7, 5, 26, 221, 44, 233, 254, 265, 266, 267, 120, 111],
-    pypy=[12, 33, 47, 15, 126, 121, 144, 233, 254, 225, 226, 267, 110, 130],
-    jython=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139, 160],
-)
+PLOTS
 
-area = Area(data, title="Area Chart", legend="top_left",
-            xlabel='time', ylabel='memory')
-
-
-@app.route("/api_analytics/nrendpoint", methods=["GET"])
-def getNodeRedEndpoint():
-	e = {"url":appConfig.nodered_url}
-	return Response(json.dumps(e), mimetype="application/json")
-
-
-
-
+"""
 
 def doPlot1(data, nrDataSource):
 	p = Bar(data, data.columns[0], values=data.columns[1], title="Bar graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1], responsive=True)
@@ -60,12 +45,7 @@ def doPlot1(data, nrDataSource):
 	return c
 
 def doPlot11(data, nrDataSource):
-	p = Bar(data, 
-		label=data.columns[0],
-		group=data.columns[0],
-		y_mapper_type="log", 
-		values=blend(data.columns[1],data.columns[2], name="values", labels_name=data.columns[0]), 
-		title="Line graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1], responsive=True)
+	p = Line(data, title="Line graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1], responsive=True)
 	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
 	return c
 
@@ -85,6 +65,13 @@ def getListOfKeys(d):
 	return keys
 
 
+
+
+"""
+
+HTTP-API endpoints
+
+"""
 
 @app.route("/api_analytics/plot/<plotType>", methods=["GET"])
 def doPlot(plotType):
@@ -116,6 +103,16 @@ def doPlot(plotType):
 	except:
 		log.exception("plotting error:")
 		raise HttpError("the Node-RED data source produced malformatted data", 500)
+
+
+
+
+@app.route("/api_analytics/nrendpoint", methods=["GET"])
+def getNodeRedEndpoint():
+	e = {"url":appConfig.nodered_url}
+	return Response(json.dumps(e), mimetype="application/json")
+
+
 
 
 @app.route("/api_analytics/nrsources", methods=["GET"])
