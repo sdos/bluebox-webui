@@ -14,6 +14,8 @@ accountModule.controller('AccountController', [
 		'$cookies',
 		function($scope, $rootScope, $state, $stateParams, $timeout, $filter,
 				$cookies) {
+			
+			console.log("Hello, AccountController");
 
 			var c = $cookies.get('XSRF-TOKEN');
 
