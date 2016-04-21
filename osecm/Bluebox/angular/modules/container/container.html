@@ -100,59 +100,58 @@
     <md-menu-content width="4">
     
     
-    <md-menu-item>
-    <md-button class="md-accent md-hue-2" disabled="disabled">
-       <md-icon md-font-set="material-icons">
-        label
-       </md-icon>
-    <b>Internal</b>
-    </md-button>
-    </md-menu-item>
-    <md-menu-divider></md-menu-divider>
-    <md-menu-item ng-repeat="field in availableInternalMetadataFields">
-	    <md-button ng-click="addInternalMenuColumn(field)">{{field}}</md-button>
-	   
-	    </md-menu-item>
+   <!-- INTERNAL MD MENU -->
+   <md-menu-item>
+   <md-menu>
+   	<md-button>
+    	Internal
+   	</md-button>
+   <md-menu-content width="4">
+   	<md-menu-item ng-repeat="field in availableInternalMetadataFields">
+		<md-button ng-click="addInternalMenuColumn(field)">{{field}}</md-button>
+	</md-menu-item> 
+	</md-menu-content>
+   	</md-menu>
+   </md-menu-item>
    
    
-   
-       <md-menu-item>
-    <md-button class="md-accent md-hue-2" disabled="disabled">
-       <md-icon md-font-set="material-icons">
-        label
-       </md-icon>
-    <b>From extractor</b>
-    </md-button>
-    </md-menu-item>
-    <md-menu-divider></md-menu-divider>
-    
-    <div ng-repeat="(key, valueList) in availableMetadataFields" class="md-list-item-outer">
-    <md-menu-item>
+   <!-- EXTRACTOR MD MENU -->
+       <md-menu-divider></md-menu-divider>
+          <md-menu-item>
     <md-button disabled="disabled">
        <md-icon md-font-set="material-icons">
         label_outline
        </md-icon>
-    <b>{{key}}</b>
+    <b>From extractor</b>
     </md-button>
-    </md-menu-item>
-    <md-menu-divider></md-menu-divider>
-	    <md-menu-item ng-repeat="val in valueList">
+     </md-menu-item>
+    
+    <md-menu-item ng-repeat="(key, valueList) in availableMetadataFields">
+     <md-menu>
+   	<md-button>
+    {{key}}
+   	</md-button>
+   <md-menu-content width="4">
+   	<md-menu-item ng-repeat="val in valueList">
 	    <md-button ng-click="addMenuColumn(key, val)">{{val}}</md-button>
 	   
-	    </md-menu-item>
-    </div>
-    
-    
-           <md-menu-item>
-    <md-button class="md-accent md-hue-2" disabled="disabled">
+	    </md-menu-item> 
+	</md-menu-content>
+   	</md-menu> 
+   </md-menu-item>
+  
+   
+   <!-- OBJECT CLASS MD MENU -->
+       <md-menu-divider></md-menu-divider>
+   
+              <md-menu-item>
+    <md-button disabled="disabled">
        <md-icon md-font-set="material-icons">
-        label
+        label_outline
        </md-icon>
-    <b>From object class</b>
+    From object class
     </md-button>
     </md-menu-item>
-    <md-menu-divider></md-menu-divider>
-    
     </md-menu-content>
     
     
