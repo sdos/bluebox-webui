@@ -4,14 +4,17 @@
  <body>
   <div>
    <!-- Top buttons -->
-   <md-button aria-label="Back to containers" class="md-fab bb-pin-button" ui-sref="fileSystemState()">
+   <md-subheader class="sticky-return">
+    <md-button aria-label="Back to containers" class="md-fab bb-pin-button" ui-sref="fileSystemState()">
       <md-tooltip md-direction="right">
         Back to container list
-       </md-tooltip>
-    <md-icon md-font-set="material-icons">
-     chevron_left
-    </md-icon>
-   </md-button>
+      </md-tooltip>
+      <md-icon md-font-set="material-icons">
+      chevron_left
+      </md-icon>
+    </md-button>
+   </md-subheader>
+
    <!-- Upload form -->
    <div layout="row">
     <div class="md-whiteframe-4dp bb-container" flex="40" flex-xs="90">
