@@ -196,7 +196,7 @@ containerModule.controller('ContainerController',
                         
                         $scope.isAllDataLoaded = ($scope.container.objects.length == response.metadata.objectCount);
 
-                        if (isAnyMetadataFieldShownInColumn()) {
+                        if ($scope.selectedMetadataFields.length > 0) {
                             getAllMissingDetails();
                         }
                     })
@@ -485,21 +485,6 @@ containerModule.controller('ContainerController',
                 return _.findWhere($scope.specialMetadataFields.concat($scope.container.metadataFields), {headerKey: headerKey})
             };
 
-            /**
-			 * toggles the column for a given metadata field and loads the
-			 * objects' details if necessary
-			 * 
-			 * @param metadataField
-			 *            the metadata field to toggle the column for
-			 */
-            $scope.toggleMetadataFieldColumn = function(metadataField) {
-                metadataField.isShownInColumn = !metadataField.isShownInColumn;
-
-                // if the metadataField is set to be shown
-                if (metadataField.isShownInColumn) {
-                    getAllMissingDetails();
-                }
-            };
 
             /**
 			 * get the details for all objects that are missing them
@@ -509,16 +494,6 @@ containerModule.controller('ContainerController',
                     return !object.details;
                 });
                 angular.forEach(objectsWithoutDetails, getDetails);
-            };
-
-            /**
-			 * checks if there is any metadata field that is shown in a column
-			 * 
-			 * @returns {boolean} true if there is at least one metadata field
-			 *          that is shown in a column, else false
-			 */
-            var isAnyMetadataFieldShownInColumn = function() {
-            	return Boolean(_.findWhere($scope.container.metadataFields.concat($scope.specialMetadataFields), {isShownInColumn: true}));
             };
 
 
@@ -564,8 +539,11 @@ containerModule.controller('ContainerController',
             	$mdOpenMenu(ev);
             };
             
-            $scope.addMenuColumn = function(columnName) {
-            	console.log(columnName);
+            $scope.addMenuColumn = function(filterName, columnName) {
+            	getAllMissingDetails();
+            	var fieldName = 'x-object-meta-filter-' + filterName + '-' + columnName;
+            	if(_.indexOf($scope.selectedMetadataFields, fieldName)<0) $scope.selectedMetadataFields.push(fieldName);
+            	console.log(fieldName);
             };
             
             $scope.removeMenuColumn = function(columnName) {

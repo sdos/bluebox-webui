@@ -43,11 +43,11 @@
        <tr md-auto-select="" md-row="" md-select="key" md-select-id="" ng-repeat="(key, value) in object.details">
         <td md-cell="" ng-click="">
          <b>
-          {{key}}
+          {{key | metaPrefix}}
          </b>
         </td>
         <td md-cell="">
-         {{value}}
+         {{key == "content-length" ? (value | bytes) : value}}
         </td>
        </tr>
       </tbody>
