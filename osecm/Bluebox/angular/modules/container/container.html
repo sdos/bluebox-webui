@@ -97,13 +97,13 @@
        </md-icon>
       </md-button>
     
-    <md-menu-content width="4">
+    <md-menu-content width="2">
     
     
    <!-- INTERNAL MD MENU -->
    <md-menu-item>
-   <md-menu>
-   	<md-button>
+   <md-menu md-offset="60 0">
+   	<md-button ng-click="">
     	Internal
    	</md-button>
    <md-menu-content width="4">
@@ -118,17 +118,14 @@
    <!-- EXTRACTOR MD MENU -->
        <md-menu-divider></md-menu-divider>
           <md-menu-item>
-    <md-button disabled="disabled">
-       <md-icon md-font-set="material-icons">
-        label_outline
-       </md-icon>
+    <md-button disabled="disabled" ng-click="">
     <b>From extractor</b>
     </md-button>
      </md-menu-item>
     
     <md-menu-item ng-repeat="(key, valueList) in availableMetadataFields">
-     <md-menu>
-   	<md-button>
+     <md-menu md-offset="60 0">
+   	<md-button ng-click="">
     {{key}}
    	</md-button>
    <md-menu-content width="4">
@@ -145,10 +142,7 @@
        <md-menu-divider></md-menu-divider>
    
               <md-menu-item>
-    <md-button disabled="disabled">
-       <md-icon md-font-set="material-icons">
-        label_outline
-       </md-icon>
+    <md-button disabled="disabled" ng-click="">
     From object class
     </md-button>
     </md-menu-item>
