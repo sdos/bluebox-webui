@@ -101,31 +101,57 @@
     
     
     <md-menu-item>
-    <md-button disabled="disabled">
+    <md-button class="md-accent md-hue-2" disabled="disabled">
+       <md-icon md-font-set="material-icons">
+        label
+       </md-icon>
     <b>Internal</b>
     </md-button>
     </md-menu-item>
     <md-menu-divider></md-menu-divider>
     <md-menu-item ng-repeat="field in availableInternalMetadataFields">
-	    <md-button ng-click="addInternalMenuColumn(field)">- {{field}}</md-button>
+	    <md-button ng-click="addInternalMenuColumn(field)">{{field}}</md-button>
 	   
 	    </md-menu-item>
+   
+   
+   
+       <md-menu-item>
+    <md-button class="md-accent md-hue-2" disabled="disabled">
+       <md-icon md-font-set="material-icons">
+        label
+       </md-icon>
+    <b>From extractor</b>
+    </md-button>
+    </md-menu-item>
     <md-menu-divider></md-menu-divider>
-    
     
     <div ng-repeat="(key, valueList) in availableMetadataFields" class="md-list-item-outer">
     <md-menu-item>
     <md-button disabled="disabled">
+       <md-icon md-font-set="material-icons">
+        label_outline
+       </md-icon>
     <b>{{key}}</b>
     </md-button>
     </md-menu-item>
     <md-menu-divider></md-menu-divider>
 	    <md-menu-item ng-repeat="val in valueList">
-	    <md-button ng-click="addMenuColumn(val)">- {{val}}</md-button>
+	    <md-button ng-click="addMenuColumn(key, val)">{{val}}</md-button>
 	   
 	    </md-menu-item>
     </div>
     
+    
+           <md-menu-item>
+    <md-button class="md-accent md-hue-2" disabled="disabled">
+       <md-icon md-font-set="material-icons">
+        label
+       </md-icon>
+    <b>From object class</b>
+    </md-button>
+    </md-menu-item>
+    <md-menu-divider></md-menu-divider>
     
     </md-menu-content>
     
@@ -177,18 +203,25 @@
           </h3>
          </th>
         <th ng-repeat="field in selectedMetadataFields" md-column>
-         {{field}}
-			<md-icon md-font-set="material-icons" ng-click="removeMenuColumn(field)">
+        <h3>
+         {{field | metaPrefix}}
+         <md-button class="md-icon-button md-warn" ng-click="removeMenuColumn(field)">
+			<md-icon md-font-set="material-icons">
             close
            </md-icon>
+           </md-button>
+           </h3>
          </th>
         <th ng-repeat="field in selectedInternalMetadataFields" md-column>
+        <h3>
          {{field}}
+         
          <md-button class="md-icon-button md-warn" ng-click="removeInternalMenuColumn(field)">
 			<md-icon md-font-set="material-icons">
             close
            </md-icon>
            </md-button>
+           </h3>
          </th>
         </tr>
        </thead>
@@ -218,7 +251,7 @@
          </td>
          
          <td md-cell ng-repeat="field in selectedInternalMetadataFields">
-         {{object[field]}}
+         {{field == "bytes" ? (object[field] | bytes) : object[field]}}
          </td>
          
          
