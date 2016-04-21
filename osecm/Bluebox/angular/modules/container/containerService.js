@@ -6,7 +6,7 @@
  */
 containerModule.factory(
     'containerService',
-    ['$http', '$filter', 'Upload', 'BACKEND_BASE_URL', function($http, $filter, Upload, BACKEND_BASE_URL) {
+    ['$http', '$filter', 'Upload', 'BACKEND_BASE_URL', 'BACKEND_BASE_URL_METADATA_API', function($http, $filter, Upload, BACKEND_BASE_URL, BACKEND_BASE_URL_METADATA_API) {
 
         return {
 
@@ -83,8 +83,23 @@ containerModule.factory(
              * @returns {promise} resolved to the response data if successful, else rejected to the plain response
              */
             getDetails: function(container, object) {
+            	return $http
+            	.get(BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(container.name) + "/objects/" + $filter('urlEncode')(object.name) + "/details")
+            	.then(function(response) {
+            		return response.data;
+            	});
+            },
+            
+            
+            
+            /**
+             * GET the list of available metadata fields
+             *
+             *
+             */
+            getAvailableMetadataFields: function() {
                 return $http
-                    .get(BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(container.name) + "/objects/" + $filter('urlEncode')(object.name) + "/details")
+                    .get(BACKEND_BASE_URL_METADATA_API + "filterFields")
                     .then(function(response) {
                         return response.data;
                     });
