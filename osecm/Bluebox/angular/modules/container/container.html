@@ -60,6 +60,9 @@
     <div flex="">
     </div>
    </div>
+   
+   
+   
    <!-- Card which lists all objects in this container -->
    <div class="md-whiteframe-4dp bb-container" flex="">
     <md-toolbar class="md-hue-2">
@@ -75,7 +78,68 @@
      </div>
     </md-toolbar>
     <md-content class="bb-container">
+    
+    
+    <section layout="row">
+    
+     <!-- ###################################################################### -->
+     <!-- Select columns -->
+     <!-- ###################################################################### -->
+    
+    <md-menu>
+    
+      <md-button class="md-fab md-mini" ng-click="openColumnsMenu($mdOpenMenu, $event)">
+       <md-tooltip md-direction="bottom">
+        Add table column
+       </md-tooltip>
+       <md-icon md-font-set="material-icons">
+        add
+       </md-icon>
+      </md-button>
+    
+    <md-menu-content width="4">
+    
+    
+    <md-menu-item>
+    <md-button disabled="disabled">
+    <b>Internal</b>
+    </md-button>
+    </md-menu-item>
+    <md-menu-divider></md-menu-divider>
+    <md-menu-item ng-repeat="field in availableInternalMetadataFields">
+	    <md-button ng-click="addInternalMenuColumn(field)">- {{field}}</md-button>
+	   
+	    </md-menu-item>
+    <md-menu-divider></md-menu-divider>
+    
+    
+    <div ng-repeat="(key, valueList) in availableMetadataFields" class="md-list-item-outer">
+    <md-menu-item>
+    <md-button disabled="disabled">
+    <b>{{key}}</b>
+    </md-button>
+    </md-menu-item>
+    <md-menu-divider></md-menu-divider>
+	    <md-menu-item ng-repeat="val in valueList">
+	    <md-button ng-click="addMenuColumn(val)">- {{val}}</md-button>
+	   
+	    </md-menu-item>
+    </div>
+    
+    
+    </md-menu-content>
+    
+    
+    
+    </md-menu>
+    
+    
+    
+    
+    
+     <!-- ###################################################################### -->
      <!-- Text input to filter objects -->
+     <!-- ###################################################################### -->
      <md-input-container class="md-icon-float md-block" flex-gt-sm="">
       <label>
        Filter objects by prefix
@@ -85,26 +149,46 @@
       </md-icon>
       <input ng-change="getObjects(true)" ng-model="prefix"/>
      </md-input-container>
+     
+     
+	</section>     
+     
+     
+     
+     
+     
+     
+     
+     
+     <!-- ###################################################################### -->
+     <!-- Table -->
+     <!-- ###################################################################### -->
+     
+     
      <md-table-container>
       <table md-table="" ng-model="container.objects">
        <thead md-head="">
         <tr md-row="">
          <th md-column="">
          </th>
-         <th md-column="" md-order-by="name">
+         <th md-column="" >
           <h3>
            Name
           </h3>
          </th>
-         <th md-column="" md-numeric="" md-order-by="bytes">
-          <h3>
-           Size
-          </h3>
+        <th ng-repeat="field in selectedMetadataFields" md-column>
+         {{field}}
+			<md-icon md-font-set="material-icons" ng-click="removeMenuColumn(field)">
+            close
+           </md-icon>
          </th>
-         <th md-column="" md-order-by="content_type">
-         <h3>
-          Content type
-          </h3>
+        <th ng-repeat="field in selectedInternalMetadataFields" md-column>
+         {{field}}
+         <md-button class="md-icon-button md-warn" ng-click="removeInternalMenuColumn(field)">
+			<md-icon md-font-set="material-icons">
+            close
+           </md-icon>
+           </md-button>
          </th>
         </tr>
        </thead>
@@ -128,12 +212,17 @@
            {{object.name}}
           </b>
          </td>
-         <td md-cell="">
-          {{object.bytes | bytes}}
+         
+         <td md-cell ng-repeat="field in selectedMetadataFields">
+         {{object.details[field]}}
          </td>
-         <td md-cell="">
-          {{object.content_type}}
+         
+         <td md-cell ng-repeat="field in selectedInternalMetadataFields">
+         {{object[field]}}
          </td>
+         
+         
+         
         </tr>
        </tbody>
       </table>

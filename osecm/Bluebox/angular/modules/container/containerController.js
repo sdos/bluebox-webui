@@ -9,8 +9,46 @@ containerModule.controller('ContainerController',
 
     	console.log("hello, ContainerController");
     	
+        /** 
+         * ****************************************************************
+         * State
+         * 
+         * ****************************************************************
+         * */
+    	
+    	
+    	
     	$scope.isGetObjectsRequestPending = false;
     	$scope.isAllDataLoaded = false;
+    	
+    	
+    	
+    	
+        /** 
+         * ****************************************************************
+         * Model
+         * 
+         * ****************************************************************
+         * */
+    	
+    	
+    	
+    	/** 
+    	 * 
+    	 * contains all available metadata field names
+    	 * for use in the table column selection.
+    	 * fields can come from:
+    	 * 	* filters
+    	 * 	* the document class of the container
+    	 * 
+    	 * */
+    	
+    	
+    	$scope.availableMetadataFields = {};
+    	$scope.availableInternalMetadataFields = ["bytes", "content_type", "last_modified", "hash"];
+    	
+    	$scope.selectedMetadataFields = [];
+    	$scope.selectedInternalMetadataFields = ["bytes"];
     	
     	
             /**
@@ -75,39 +113,6 @@ containerModule.controller('ContainerController',
             };
 
             /**
-			 * list of the basic object properties that are served directly with
-			 * the object list (without having to GET details)
-			 * 
-			 * @type {Array}
-			 */
-            $scope.basicMetadataFields = [
-                {
-                    name: "Size",
-                    objectProperty: "bytes",
-                    filter: "bytes",
-                    isShownInColumn: true
-                },
-                {
-                    name: "Type",
-                    objectProperty: "content_type",
-                    filter: "contentType",
-                    isShownInColumn: true
-                },
-                {
-                    name: "Hash",
-                    objectProperty: "hash",
-                    isShownInColumn: false
-                },
-                {
-                    name: "Last modified (UTC)",
-                    objectProperty: "last_modified",
-                    filter: "date",
-                    dateFormat: "medium",
-                    isShownInColumn: false
-                }
-            ];
-
-            /**
 			 * list of special metadata fields that are not part of the object
 			 * class, but shall possibly be shown in a column
 			 * 
@@ -135,6 +140,14 @@ containerModule.controller('ContainerController',
             ];
 
 
+            /** 
+             * ****************************************************************
+             * Model / Backend interaction
+             * 
+             * ****************************************************************
+             * */
+            
+            
             /**
 			 * GET new objects from the container service
 			 * 
@@ -421,6 +434,29 @@ containerModule.controller('ContainerController',
                         });
                     });
             };
+            
+            
+            /**
+			 * GET the list of metadata fields
+			 * 
+			 */
+            var getAvailableMetadataFields = function(object) {
+                containerService
+                    .getAvailableMetadataFields()
+                    .then(function (fields) {
+                        $scope.availableMetadataFields = fields;
+                        console.log(fields);
+                    })
+                    .catch(function (response) {
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type":     "danger",
+                            "text":     response.data
+                        });
+                    });
+            };
+            
+            
+            
 
             /**
 			 * parses all dates in a metadata array to Date objects
@@ -491,7 +527,8 @@ containerModule.controller('ContainerController',
                 quitContainer("Cannot enter container: no container name provided.");
             } else {
                 // initial retrieval
-                $scope.getObjects(0,10);
+                $scope.getObjects(true);
+                getAvailableMetadataFields();
                 $scope.isInitialRetrievalDone = true;
             }
 
@@ -511,6 +548,39 @@ containerModule.controller('ContainerController',
                 $scope.container.metadataFields = [];
                 $scope.fileModel.metadata = {};
             });
+            
+            
+            
+            
+            /** 
+             * ****************************************************************
+             * UI Components
+             * 
+             * ****************************************************************
+             * */
+            
+            
+            $scope.openColumnsMenu = function($mdOpenMenu, ev) {
+            	$mdOpenMenu(ev);
+            };
+            
+            $scope.addMenuColumn = function(columnName) {
+            	console.log(columnName);
+            };
+            
+            $scope.removeMenuColumn = function(columnName) {
+            	console.log(columnName);
+            };
+            
+            $scope.removeInternalMenuColumn = function(columnName) {
+            	$scope.selectedInternalMetadataFields = _.without($scope.selectedInternalMetadataFields, columnName); 
+            };
+            
+            $scope.addInternalMenuColumn = function(columnName) {
+                if(_.indexOf($scope.selectedInternalMetadataFields, columnName)<0) $scope.selectedInternalMetadataFields.push(columnName);
+             };
+              
+            
             
             
             
@@ -548,6 +618,8 @@ containerModule.controller('ContainerController',
 					$scope.customFullscreen = (wantsFullScreen === true);
 				});
 			};
+			
+			
             
             
             

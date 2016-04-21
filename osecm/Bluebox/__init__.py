@@ -22,6 +22,7 @@ app = Flask(__name__, static_folder="angular")
 import osecm.Bluebox.APIServer
 import osecm.Bluebox.TasksServer
 import osecm.Bluebox.analyticsServer
+import osecm.Bluebox.metadataServer
 
 
 
