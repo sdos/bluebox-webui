@@ -5,6 +5,9 @@
   <div>
    <!-- Top buttons -->
    <md-button aria-label="Back to containers" class="md-fab bb-pin-button" ui-sref="fileSystemState()">
+      <md-tooltip md-direction="right">
+        Back to container list
+       </md-tooltip>
     <md-icon md-font-set="material-icons">
      chevron_left
     </md-icon>
@@ -89,23 +92,28 @@
          <th md-column="">
          </th>
          <th md-column="" md-order-by="name">
-          <span>
+          <h3>
            Name
-          </span>
+          </h3>
          </th>
          <th md-column="" md-numeric="" md-order-by="bytes">
-          <span>
+          <h3>
            Size
-          </span>
+          </h3>
          </th>
          <th md-column="" md-order-by="content_type">
+         <h3>
           Content type
+          </h3>
          </th>
         </tr>
        </thead>
        <tbody md-body="">
         <tr md-auto-select="" md-row="" md-select="object" md-select-id="name" ng-repeat="object in container.objects">
          <td class="bb-icon-column" md-cell="">
+       <md-tooltip md-direction="top">
+        Preview object
+       </md-tooltip>
           <a ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true" target="_blank">
            <md-icon md-font-set="material-icons">
             insert_drive_file
@@ -114,6 +122,9 @@
          </td>
          <td md-cell="" ng-click="showDetailSheet($event, object)">
           <b>
+       <md-tooltip md-direction="top">
+        Show details
+       </md-tooltip>
            {{object.name}}
           </b>
          </td>

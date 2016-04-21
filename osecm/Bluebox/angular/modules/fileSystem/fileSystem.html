@@ -68,29 +68,37 @@
         <th md-column="">
         </th>
         <th md-column="">
-         <span>
+         <h3>
           Name
-         </span>
+         </h3>
         </th>
         <th md-column="" md-numeric="">
-         <span>
+         <h3>
           Size
-         </span>
+         </h3>
         </th>
         <th md-column="" md-numeric="">
+        <h3>
          Count
+         </h3>
         </th>
        </tr>
       </thead>
       <tbody md-body="">
        <tr md-auto-select="" md-row="" md-select="container" md-select-id="name" ng-repeat="container in fileSystem.containers">
         <td class="bb-icon-column" md-cell="" ng-click="enterContainer(container.name)">
+       <md-tooltip md-direction="top">
+        Enter container
+       </md-tooltip>
          <md-icon md-font-set="material-icons">
           folder_open
          </md-icon>
         </td>
         <td md-cell="" ng-click="showDetailSheet($event, container)">
          <b>
+      <md-tooltip md-direction="top">
+        Show details
+       </md-tooltip>
           {{container.name}}
          </b>
         </td>
