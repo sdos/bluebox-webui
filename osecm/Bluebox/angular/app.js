@@ -41,6 +41,8 @@ var app = angular.module('bluebox', [
                 case 3:
                     $state.go("analyticsState");
                     break;
+
+
                 case 4:
                     $state.go("accountState");
                     break;
