@@ -1,38 +1,15 @@
-/* spinning loader icon */
-.glyphicon-refresh-animate {
-    animation: spin .7s infinite linear;
-    -webkit-animation: spin2 .7s infinite linear;
+h2 {
+	color: white;
 }
 
-@-webkit-keyframes spin2 {
-    from { -webkit-transform: rotate(0deg);}
-    to { -webkit-transform: rotate(360deg);}
+.bb-container {
+	margin: 1em;
 }
 
-@keyframes spin {
-    from { transform: scale(1) rotate(0deg);}
-    to { transform: scale(1) rotate(360deg);}
+.bb-margin {
+	margin: 1em;
 }
 
-/* icon size */
-.glyphicon-lg {
-    font-size: 2em;
-}
-
-/* cursor for clickable elements that are neither a nor buttons */
-.clickable {
-    cursor: pointer;
-}
-
-/* vertical centered elements */
-.vertical-center {
-    min-height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* checkboxes that remain properly aligned */
-.checkbox input[type=checkbox].no-label {
-    margin-left: 0;
+.bb-icon-column {
+	width: 10px;
 }

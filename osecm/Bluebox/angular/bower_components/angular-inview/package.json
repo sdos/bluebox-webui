@@ -1,0 +1,59 @@
+{
+  "name": "angular-inview",
+  "version": "1.5.7",
+  "description": "AngularJS directive to check if a DOM element is in the browser viewport.",
+  "main": "angular-inview.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "karma-chrome-launcher": "^0.1.12",
+    "karma-jasmine": "^0.2.3",
+    "karma-coffee-preprocessor": "^0.2.1",
+    "karma": "^0.12.24"
+  },
+  "scripts": {
+    "test": "./node_modules/karma/bin/karma start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thenikso/angular-inview.git"
+  },
+  "author": {
+    "name": "Nicola Peduzzi",
+    "email": "thenikso@gmail.com",
+    "url": "http://nikso.net"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thenikso/angular-inview/issues"
+  },
+  "homepage": "https://github.com/thenikso/angular-inview",
+  "gitHead": "36112b2877056dda606dea2add72a3c851297447",
+  "_id": "angular-inview@1.5.7",
+  "_shasum": "0eb72cc70a47a44766ca4424852b2957c82b4ef7",
+  "_from": "angular-inview@",
+  "_npmVersion": "3.6.0",
+  "_nodeVersion": "5.6.0",
+  "_npmUser": {
+    "name": "nikso",
+    "email": "thenikso@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "nikso",
+      "email": "thenikso@gmail.com"
+    }
+  ],
+  "dist": {
+    "shasum": "0eb72cc70a47a44766ca4424852b2957c82b4ef7",
+    "tarball": "https://registry.npmjs.org/angular-inview/-/angular-inview-1.5.7.tgz"
+  },
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/angular-inview-1.5.7.tgz_1457722018289_0.2756729160901159"
+  },
+  "_resolved": "https://registry.npmjs.org/angular-inview/-/angular-inview-1.5.7.tgz"
+}

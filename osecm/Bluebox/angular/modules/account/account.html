@@ -1,14 +1,46 @@
-<div class="panel panel-default">
-	<div class="panel-heading">
-		<h2>Account & Security</h2>
-	</div>
-	<div class="panel-body">
-		Actions regarding your account, authentication and authorization are
-		found here
-
-		<div class="row">
-			<button ng-click="forgetToken()">Forget authentication token</button>
-
-		</div>
-	</div>
-</div>
+<!-- Account & Security card -->
+<html>
+ <head>
+ </head>
+ <body>
+  <div layout="row">
+   <div flex="">
+   </div>
+   <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
+    <md-toolbar class="md-hue-2">
+     <div class="md-toolbar-tools">
+      <h2>
+       <span>
+        Session token
+       </span>
+      </h2>
+     </div>
+    </md-toolbar>
+    <md-content class="bb-container">
+     <p>
+      The
+      <code>
+       SDOS
+      </code>
+      back end gives us a token that identifies our session after successful authentication. Currently, SDOS has no way of invalidating these tokens; we
+			can only forget them in order to log out.
+     </p>
+     <p>
+      Your current token is:
+      <code>
+       {{tokenText}}
+      </code>
+     </p>
+     <md-button class="md-raised md-warn" ng-click="forgetToken()">
+      <md-icon md-font-set="material-icons">
+       clear
+      </md-icon>
+      Forget authentication token
+     </md-button>
+    </md-content>
+   </div>
+   <div flex="">
+   </div>
+  </div>
+ </body>
+</html>

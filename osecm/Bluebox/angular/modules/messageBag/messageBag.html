@@ -1,6 +1,7 @@
-<div class="message-bag" ng-class="{fixed: isFixed}">
-    <div ng-repeat="message in messages" ng-class="{animated: isAnimated}" class="alert alert-{{message.type}} message-item">
-        <a ng-click="close(message.id)" class="close">&times;</a>
-        <p ng-bind-html="message.text"></p>
-    </div>
-</div>
+<md-toast>
+<md-icon md-font-set="material-icons" ng-class="icon.style">{{icon.name}}</md-icon>
+  <span class="md-toast-text" flex>{{message.text}}</span>
+  <md-button class="md-icon-button" ng-click="closeToast()">
+         <md-icon md-font-set="material-icons">close</md-icon>
+  </md-button>
+</md-toast>

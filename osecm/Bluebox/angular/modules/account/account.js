@@ -5,9 +5,7 @@
  * module for the account page
  */
 var accountModule = angular.module('bluebox.account', [
-        'ui.bootstrap',
         'ui.router',
-        'elif',
         'ngCookies'
     ])
 

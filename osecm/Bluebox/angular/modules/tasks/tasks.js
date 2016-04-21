@@ -5,9 +5,7 @@
  * module for the container contents page
  */
 var tasksModule = angular.module('bluebox.tasks', [
-        'ui.bootstrap',
-        'ui.router',
-        'smart-table'
+        'ui.router'
     ])
 
     .config(['$stateProvider', function($stateProvider) {

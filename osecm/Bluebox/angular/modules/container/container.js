@@ -6,15 +6,13 @@
  */
 var containerModule = angular.module('bluebox.container', [
         'ngFileUpload',
-        'ui.bootstrap',
         'ui.router',
+        'angular-inview',
         'elif',
-        'bluebox.deleteConfirmation',
-        'bluebox.dateInput',
         'bluebox.filter',
         'bluebox.fileSystem',
-        'bluebox.infiniteScroll',
-        'bluebox.objectClass'
+        'bluebox.objectClass',
+        'md.data.table'
     ])
 
     .config(['$stateProvider', function($stateProvider) {

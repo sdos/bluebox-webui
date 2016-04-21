@@ -14,12 +14,17 @@ accountModule.controller('AccountController', [
 		'$cookies',
 		function($scope, $rootScope, $state, $stateParams, $timeout, $filter,
 				$cookies) {
+			
+			console.log("Hello, AccountController");
 
-			console.log("nothing to do here...");
+			var c = $cookies.get('XSRF-TOKEN');
 
+			$scope.tokenText= c ? c : "None";
+			
 			$scope.forgetToken = function() {
 				console.log("bye bye token...");
 				$cookies.remove('XSRF-TOKEN');
+				$scope.tokenText= "None";
 
 			};
 

@@ -1,118 +1,180 @@
+<html>
+ <head>
+  <link href="/angular/css/bokeh-0.11.1.min.css" rel="stylesheet" type="text/css"/>
+  <link href="/angular/css/bokeh-widgets-0.11.1.min.css" rel="stylesheet" type="text/css"/>
+  <!-- Import doesn't work here; just left as a TODO... currently the import is happening in the header in index.html -->
+  <!-- <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js"></script> -->
+  <!-- Analytics card root -->
+ </head>
+ <body>
+  <div layout="row">
+   <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
+    <md-toolbar class="md-hue-2">
+     <div class="md-toolbar-tools">
+      <h2>
+       <span>
+        <b>
+         Step 1:
+        </b>
+        Open the Node-RED editor and create your queries
+       </span>
+      </h2>
+     </div>
+    </md-toolbar>
+    <md-content class="bb-container">
+     <p>
+      BB-Insights comes with a Node-RED instance that is connected to your metadata warehouse. You can create SQL queries, pull in external data
+		sources, and use JavaScript functions to analyze your data and prepare it for visualization.
+     </p>
+     <p>
+      After you have created your flow in Node-RED, turn it into a data source for BB-Insights. Use the HTTP node to create an endpoint, connect
+		your query to the HTTP node, and give it any URL and name you like.
+     </p>
+     <p>
+      Check out the included examples in Node-RED to get an idea. When you're done, come back here.
+     </p>
+     <p>
+      Don't forget to hit
+      <i>
+       <q>
+        Deploy
+       </q>
+      </i>
+      in Node-Red.
+     </p>
+     <md-button class="md-raised md-primary" ng-href="{{ nodered.url }}" target="_blank">
+      <md-icon md-font-set="material-icons">
+       timeline
+      </md-icon>
+      Open Node-RED editor
+     </md-button>
+    </md-content>
+   </div>
+   <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
+    <md-toolbar class="md-hue-2">
+     <div class="md-toolbar-tools">
+      <h2>
+       <span>
+        <b>
+         Step 2:
+        </b>
+        Select your Node-RED data source
+       </span>
+      </h2>
+     </div>
+    </md-toolbar>
+    <md-content class="bb-container">
+     <p>
+      The following list shows all your endpoints from Node-RED. Select the one you want to use for this analysis.
+     </p>
+     <!-- Dropdown to choose Node-RED endpoints -->
+     <md-input-container class="md-block md-icon-float" flex-gt-sm="50" ng-click="updateNodeRedSources()">
+      <label>
+       Select your data source here
+      </label>
+      <md-icon md-font-set="material-icons">
+       open_in_browser
+      </md-icon>
+      <md-select ng-model="selectedSource">
+       <md-option ng-repeat="source in availableSources" value="{{source}}">
+        {{source.url}}
+        <b>
+         {{source.name}}
+        </b>
+       </md-option>
+      </md-select>
+     </md-input-container>
+    </md-content>
+   </div>
+  </div>
+  <div class="md-whiteframe-4dp bb-container" ng-hide="!selectedSource">
+   <md-toolbar class="md-hue-2">
+    <div class="md-toolbar-tools">
+     <h2>
+      <span>
+       <b>
+        Step 3:
+       </b>
+       Select a suitable visualization for your data
+      </span>
+     </h2>
+    </div>
+   </md-toolbar>
+   <md-content class="bb-container">
+    <p>
+     BB-Insights uses
+     <a href="http://bokeh.pydata.org" target="_blank">
+      Bokeh
+     </a>
+     and
+     <a href="http://bokeh.pydata.org/en/latest/docs/dev_guide/bokehjs.html" target="_blank">
+      BokehJS
+     </a>
+     to visualize your data. You can now choose which type of visualization you want to use.
+    </p>
+    <p>
+     Each type supports different data structures. All data from Node-RED has to come in tables or matrixes, the different visualization types
+		support different amounts of rows and columns.
+    </p>
+    <md-button class="md-raised md-primary" ng-click="drawPlot('line')" ng-disabled="!selectedSource">
+     <md-icon md-font-set="material-icons">
+      trending_up
+     </md-icon>
+     <p>
+      Line graph
+     </p>
+     <p>
+      * rows, 1 column
+     </p>
+    </md-button>
+    <md-button class="md-raised md-primary" ng-click="drawPlot('bar')" ng-disabled="!selectedSource">
+     <md-icon md-font-set="material-icons">
+      equalizer
+     </md-icon>
+     <p>
+      Bar graph
+     </p>
+     <p>
+      * rows, 1 column
+     </p>
+    </md-button>
+    <md-button class="md-raised md-primary" ng-click="drawPlot('2bar')" ng-disabled="!selectedSource">
+     <md-icon md-font-set="material-icons">
+      equalizer
+     </md-icon>
+     <p>
+      Multiple bar graphs
+     </p>
+     <p>
+      * rows, * column
+     </p>
+    </md-button>
+    <md-progress-linear class="md-accent" md-mode="query" ng-hide="!waitingForPlot">
+    </md-progress-linear>
+   </md-content>
+  </div>
+  
+  
+  
+  <div class="md-whiteframe-4dp bb-container" ng-hide="!bbplot" layout="row">
 
-<div class="panel panel-default">
-	<div class="panel-heading">
-		<h2>BB-Insights</h2>
-	</div>
-	<div class="panel-body">
+   <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
+   <md-toolbar class="md-accent md-hue-2">
+    <div class="md-toolbar-tools">
+     <h2>
+      <span>
+       Your results
+      </span>
+     </h2>
+    </div>
+   </md-toolbar>
+   <md-content class="bb-container" ng-bind-html="bbplot | to_trusted">
+   </md-content>
+  </div>
+  
 
-
-		<div class="panel panel-info">
-			<div class="panel-heading">
-				<h4><b>Step 1:</b> Open the Node-RED editor and create your queries</h4>
-			</div>
-			<div class="panel-body">
-				<p>BB-Insights comes with a Node-RED instance that is connected
-					to your metadata warehouse. You can create SQL queries, pull in
-					external data sources, and use JavaScript functions to analyze your data and prepare it for visualization.</p>
-				<p>After you have created your flow in Node-RED, turn it into a data
-					source for BB-Insights. Use the HTTP node to create an endpoint,
-					connect your query to the HTTP node, and give it any URL and name
-					you like.</p>
-
-				<p>Check out the included examples in Node-RED to get an idea.
-					When you're done, come back here.</p>
-
-				<p>
-					Don't forget to hit <i>"Deploy"</i> in Node-Red.
-				</p>
-				<a type="button" class="btn btn-info" target="_blank"
-					ng-href="{{nodered.url}}">Open the Node-RED editor</a>
-			</div>
-		</div>
-
-		<div class="panel panel-info">
-			<div class="panel-heading">
-				<h4><b>Step 2:</b> Select your Node-RED data source</h4>
-			</div>
-			<div class="panel-body">
-				<p>The following list shows all your endpoints from Node-RED.
-					Select the one you want to use for this analysis.</p>
-
-
-				<div class="dropdown">
-					<button class="btn btn-info dropdown-toggle" type="button"
-						id="sourceSelector" data-toggle="dropdown" aria-haspopup="true"
-						aria-expanded="true" ng-click="updateNodeRedSources()">
-						{{selectedSource.url}} <b>{{selectedSource.name}}</b>
-						{{selectedSource.initialLabel}}<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" aria-labelledby="sourceSelector">
-						<li ng-repeat="s in availableSources track by s.url"><a
-							href="#" ng-click="selectSource(s)">{{s.url}} <b>{{s.name}}</b></a></li>
-
-					</ul>
-				</div>
-
-
-
-				<!-- 				<div class="input-group"> -->
-				<!-- 					<span class="input-group-addon" id="basic-addon1">{{nodered.url}}/</span> -->
-				<!-- 					<input id="noderedUrlField" type="text" class="form-control" placeholder="endpoint name" -->
-				<!-- 						aria-describedby="basic-addon1" ng-model="nrDataSource"> -->
-				<!-- 				</div> -->
-
-
-
-			</div>
-		</div>
-
-
-		<div class="panel panel-info">
-			<div class="panel-heading">
-				<h4><b>Step 3:</b> Select a suitable visualization for your data</h4>
-			</div>
-			<div class="panel-body">
-				<p>BB-insights uses Bokeh and D3.js to visualize your data. You
-					can now choose which type of visualization you want to use.</p>
-				<p>Each type supports different data structures. All data from
-					Node-RED has to come in tables or matrixes, the different
-					visualization types support different amounts of rows and columns.</p>
-
-				<button type="button" class="btn btn-success"
-					ng-disabled="!selectedSource.url" ng-click="drawPlot('bar')">
-					<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-					<p>Bar graph</p>
-					<p>* rows, 1 column</p>
-				</button>
-				<button type="button" class="btn btn-success"
-					ng-disabled="!selectedSource.url" ng-click="drawPlot('2bar')">
-					<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-					<p>2 Bar graphs</p>
-					<p>* rows, 2 columns</p>
-				</button>
-
-			</div>
-		</div>
-
-
-		<link href="/angular/css/bokeh-0.11.1.min.css" rel="stylesheet"
-			type="text/css">
-		<link href="/angular/css/bokeh-widgets-0.11.1.min.css"
-			rel="stylesheet" type="text/css">
-
-		<!-- Import doesn't work here; just left as a TODO... currently the import is happening in the header in index.html -->
-		<!-- <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js"></script> -->
-
-
-		<div class="panel panel-success" ng-hide="!bbplot">
-			<div class="panel-heading">
-				<h4><b>Your results</b></h4>
-			</div>
-			<div class="panel-body" ng-bind-html="bbplot | to_trusted"></div>
-		</div>
-
-
-
-
-	</div>
-</div>
+   <div flex="">
+   </div> 
+  </div>
+ </body>
+</html>
