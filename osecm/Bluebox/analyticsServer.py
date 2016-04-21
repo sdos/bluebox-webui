@@ -26,6 +26,8 @@ from osecm.Bluebox import app
 from osecm.Bluebox import appConfig
 from osecm.Bluebox.exceptions import HttpError
 import pandas
+from bokeh.models.tickers import SingleIntervalTicker
+from bokeh.models.axes import LinearAxis
 
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
@@ -45,7 +47,8 @@ def doPlot1(data, nrDataSource):
 	return c
 
 def doPlot11(data, nrDataSource):
-	p = Line(data, title="Line graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1], responsive=True)
+	p = Line(data, y_mapper_type="log", x=data.columns[0], xlabel=data.columns[0], ylabel=data.columns[1], title="Line graph: " + nrDataSource['name'], responsive=True)
+	p._xaxis.ticker = SingleIntervalTicker(interval=5, num_minor_ticks=10)
 	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
 	return c
 
