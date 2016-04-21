@@ -524,6 +524,7 @@ containerModule.controller('ContainerController',
 			$scope.showDetailSheet = function(ev, row) {
 
 				$scope.object = row;
+				getDetails($scope.object);
 				var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
 				$mdDialog.show({
 					controller: ContainerDialogController,
