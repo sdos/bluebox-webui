@@ -44,7 +44,7 @@ containerModule.controller('ContainerController',
     	 * */
     	
     	
-    	$scope.availableMetadataFields = {};
+    	$scope.availableMetadataFields = {"dummy":["dummy"]};
     	$scope.availableInternalMetadataFields = ["bytes", "content_type", "last_modified", "hash"];
     	
     	$scope.selectedMetadataFields = [];
@@ -543,11 +543,10 @@ containerModule.controller('ContainerController',
             	getAllMissingDetails();
             	var fieldName = 'x-object-meta-filter-' + filterName + '-' + columnName;
             	if(_.indexOf($scope.selectedMetadataFields, fieldName)<0) $scope.selectedMetadataFields.push(fieldName);
-            	console.log(fieldName);
             };
             
             $scope.removeMenuColumn = function(columnName) {
-            	console.log(columnName);
+            	$scope.selectedMetadataFields = _.without($scope.selectedMetadataFields, columnName); 
             };
             
             $scope.removeInternalMenuColumn = function(columnName) {
