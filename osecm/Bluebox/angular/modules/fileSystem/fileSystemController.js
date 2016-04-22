@@ -102,6 +102,34 @@ fileSystemModule.controller('FileSystemController',
 							});
 						});
 			};
+			
+			
+            /**
+			 * GET the details for a container
+			 * 
+			 */
+            var getContainerMetadata = function(container) {
+            	fileSystemService
+                    .getContainerMetadata(container)
+                    .then(function (metadata) {
+                        container.metadata = metadata;
+                    })
+                    .catch(function (response) {
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type":     "danger",
+                            "text":     response.data
+                        });
+                    });
+            };
+			
+			
+			
+			
+			
+			
+			
+			
+			
 
 
 			/**
@@ -125,6 +153,7 @@ fileSystemModule.controller('FileSystemController',
 			$scope.showDetailSheet = function(ev, row) {
 
 				$scope.container = row;
+				getContainerMetadata($scope.container);
 				var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
 				$mdDialog.show({
 					controller: DialogController,
