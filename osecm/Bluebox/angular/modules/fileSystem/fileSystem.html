@@ -91,7 +91,7 @@
         Enter container
        </md-tooltip>
          <md-icon md-font-set="material-icons">
-          folder_open
+          {{container.count==0 ? "folder_open" : "folder"}}
          </md-icon>
         </td>
         <td md-cell="" ng-click="showDetailSheet($event, container)">
