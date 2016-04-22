@@ -361,13 +361,13 @@ def change_container(container_name):
 	try:
 		internal_fields = container_definition.get("mdfi")
 		print(internal_fields)
-		if (internal_fields): container_metadata = {"x-container-meta-mdfi": json.dumps(internal_fields)}
+		if (internal_fields != None): container_metadata = {"x-container-meta-mdfi": json.dumps(internal_fields)}
 	except AttributeError:
 		pass  # ignore empty or missing class definition
 	try:
 		fields = container_definition.get("mdf")
 		print(fields)
-		if (fields): container_metadata = {"x-container-meta-mdf": json.dumps(fields)}
+		if (fields != None): container_metadata = {"x-container-meta-mdf": json.dumps(fields)}
 	except AttributeError:
 		pass  # ignore empty or missing class definition
 	
