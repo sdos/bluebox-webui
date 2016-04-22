@@ -221,9 +221,16 @@ containerModule.controller('ContainerController',
 				console.log($scope.container.metadata);
 				var mdf = [];
 				var mdfi = [];
+				
+				
+				try {
+					mdfi = JSON.parse($scope.container.metadata['x-container-meta-mdfi']);
+				} catch (err) {
+					console.log(err);
+				}
+				
 				try {
 					mdf = JSON.parse($scope.container.metadata['x-container-meta-mdf']);
-					mdfi = JSON.parse($scope.container.metadata['x-container-meta-mdfi']);
 				} catch (err) {
 					console.log(err);
 				}
