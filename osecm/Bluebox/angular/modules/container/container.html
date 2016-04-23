@@ -42,13 +42,19 @@
 					 <input ng-if="!metadataField.required" ng-model="fileModel.metadata[metadataField.name]">
 					<div ng-if="metadataField.required" ng-message="required">Required field</div>
 				</md-input-container> -->
-       Button to upload File
-       <md-button class="md-raised md-primary" type="submit">
-        <span class="glyphicon glyphicon-cloud-upload">
-        </span>
-        Upload
+      <!-- Button to choose file to upload -->
+       <md-button class="md-raised">
+        <label for="file-upload">Select File</label>
        </md-button>
-       Upload progress percentage with bar
+       <input id="file-upload" class="ng-hide" type="file" ng-change="uploadProgressPercentage = 0;"
+                ng-model="fileModel.file" ngf-select="" required=""/>
+
+       <!-- Input container shows the name of the selected file -->
+       <md-input-container md-no-float>
+        <input id="textInput" ng-model="fileModel.file.name" type="text" placeholder="No file chosen"
+               ng-readonly="true">
+       </md-input-container>
+
        <div ng-show="uploadProgress.percentage">
         {{ uploadProgress.percentage }} % ({{ uploadProgress.loaded | bytes }} / {{ uploadProgress.total | bytes }})
        </div>
