@@ -116,9 +116,9 @@ def doTable():
 	r = {
 		"table" : data[:50].to_json(orient="records"),
 		"info" : info.getvalue(),
-		"truncated" : "Showing only the first 50 rows" if (len(data) > 50) else ""
+		"truncated" : (len(data) > 50)
 		}
-	print(r)
+	#print(r)
 	return Response(json.dumps(r), mimetype="application/json")
 	
 	
