@@ -14,8 +14,10 @@ analyticsModule
 						'$timeout',
 						'$filter',
 						'$http',
+						'$location',
+						'$anchorScroll',
 						function($scope, $rootScope, $state, $stateParams,
-								$timeout, $filter, $http) {
+								$timeout, $filter, $http , $location, $anchorScroll) {
 							
 							$scope.waitingForPlot = false;
 
@@ -146,7 +148,18 @@ analyticsModule
 																				+ response.data
 																	});
 												});
+							};
 
-							}
-							;
+							$scope.scrollDown = function(){
+                                console.log('hier koennte ihre rapline stehen');
+
+                                // set the location.hash to the id of
+                                // the element you wish to scroll to.
+                                $location.hash('bottom');
+
+                                // call $anchorScroll()
+                                $anchorScroll();
+
+                            };
+
 						} ]);

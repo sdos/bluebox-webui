@@ -48,6 +48,9 @@
       </md-icon>
       Open Node-RED editor
      </md-button>
+     <md-button ng-click="scrollDown()">
+      Scroll
+     </md-button>
     </md-content>
    </div>
    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
@@ -158,6 +161,8 @@
   
   <div class="md-whiteframe-4dp bb-container" ng-hide="!bbplot" layout="row">
 
+   <!-- Anchor to define position for autoscroll -->
+   <a id="bottom"></a>
    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
    <md-toolbar class="md-accent md-hue-2">
     <div class="md-toolbar-tools">
@@ -174,7 +179,8 @@
   
 
    <div flex="">
-   </div> 
+   </div>
+
   </div>
  </body>
 </html>

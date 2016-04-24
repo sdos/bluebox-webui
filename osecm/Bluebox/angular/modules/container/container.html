@@ -26,8 +26,6 @@
      </md-toolbar>
      <md-content class="bb-container">
       <form name="uploadForm" ng-show="!isGetObjectClassRequestPending" ng-submit="uploadObject()">
-       Choose File to upload
-       <input class="form-control-static" id="file" ng-change="uploadProgressPercentage = 0;" ng-model="fileModel.file" ngf-select="" required="" type="file"/>
        <!-- 				Date input retention date
 				<md-datepicker class="md-block" flex-gt-sm="" ng-model="fileModel.retentionDate"
 								md-placeholder="Retention date" date="retentionDatePicker.minDate">
@@ -54,6 +52,13 @@
         <input id="textInput" ng-model="fileModel.file.name" type="text" placeholder="No file chosen"
                ng-readonly="true">
        </md-input-container>
+
+       <md-button class="md-raised md-primary" type="submit">
+        <md-icon md-font-set="material-icons">
+         backup
+        </md-icon>
+        Upload
+       </md-button>
 
        <div ng-show="uploadProgress.percentage">
         {{ uploadProgress.percentage }} % ({{ uploadProgress.loaded | bytes }} / {{ uploadProgress.total | bytes }})
