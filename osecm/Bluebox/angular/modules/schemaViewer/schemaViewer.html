@@ -1,22 +1,98 @@
-<!-- About card -->
-<div layout="row">
-	<div flex></div>
-	<div
-		flex="70"
-		flex-xs="90"
-		class="md-whiteframe-4dp bb-container"
-	>
-		<md-toolbar class="md-hue-2">
-		<div class="md-toolbar-tools">
-			<h2>
-				<span>Database structure</span>
-			</h2>
-		</div>
-		</md-toolbar>
-		<md-content class="bb-container">
-		<p>The Database has the following structure</p>
-		<p>Insert Database represented as Tree structure</p>
-		</md-content>
-	</div>
-	<div flex></div>
-</div>
+<!-- Schema card -->
+<html>
+ <body>
+  <div layout="row">
+
+	<!-- empty container on the left -->
+   <div flex="">
+   </div>
+
+   <div class="md-whiteframe-4dp bb-container" flex="70" flex-xs="90">
+    <md-toolbar class="md-hue-2">
+     <div class="md-toolbar-tools">
+      <h2>
+       <span>
+        Data Tables
+       </span>
+      </h2>
+     </div>
+    </md-toolbar>
+    <md-content class="bb-container">
+
+	<!-- data tables with the first five entries within a card -->
+	 <md-card ng-repeat="n in [0,1,2,3,4] track by $index">
+		 <md-card-title>
+          <md-card-title-text>
+            <span class="md-headline">Name of Table {{n}}</span>
+          </md-card-title-text>
+        </md-card-title>
+		<md-card-content>
+			<md-table-container>
+			  <table md-table="">
+			   <thead md-head="">
+				<tr md-row="">
+				 <th md-column="">
+					 <h3>
+						 Column1
+					 </h3>
+				 </th>
+				 <th md-column="" >
+				  <h3>
+				   Column 2
+				  </h3>
+				 </th>
+				</tr>
+			   </thead>
+
+			   <tbody md-body="">
+				<tr>
+					<td> Hallo 1</td>
+					<td> Hallo 2</td>
+				</tr>
+			    <tr>
+					<td>Hallo 3</td>
+					<td>Hallo 4</td>
+				</tr>
+			   </tbody>
+			  </table>
+			 </md-table-container>
+		</md-card-content>
+	 </md-card>
+    </md-content>
+   </div>
+
+	<!-- empty container on the right -->
+   <div flex="">
+   </div>
+  </div>
+
+  <!-- Card where database structure will be shown as tree -->
+  <div layout="row">
+
+	<!-- empty container on the left -->
+   <div flex="">
+   </div>
+
+   <div class="md-whiteframe-4dp bb-container" flex="70" flex-xs="90">
+    <md-toolbar class="md-hue-2">
+     <div class="md-toolbar-tools">
+      <h2>
+       <span>
+        Tree structure
+       </span>
+      </h2>
+     </div>
+    </md-toolbar>
+    <md-content class="bb-container">
+     <p>
+		 Database will be shown as a tree
+     </p>
+    </md-content>
+   </div>
+
+	<!-- empty container on the right -->
+   <div flex="">
+   </div>
+  </div>
+ </body>
+</html>
