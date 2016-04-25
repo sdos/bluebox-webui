@@ -7,7 +7,36 @@
   <!-- Analytics card root -->
  </head>
  <body>
+
+ <!-- container where plotted results will be shown -->
+ <div class="md-whiteframe-4dp bb-container" ng-hide="!bbplot" layout="row">
+
+   <div flex="">
+   </div>
+
+   <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
+   <md-toolbar class="md-accent md-hue-2">
+    <div class="md-toolbar-tools">
+     <h2>
+      <span>
+       Your results
+      </span>
+     </h2>
+    </div>
+   </md-toolbar>
+   <md-content class="bb-container" ng-bind-html="bbplot | to_trusted">
+   </md-content>
+  </div>
+
+
+   <div flex="">
+   </div>
+
+  </div>
+
   <div layout="row">
+
+   <!-- container with step 1 -->
    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
     <md-toolbar class="md-hue-2">
      <div class="md-toolbar-tools">
@@ -48,11 +77,10 @@
       </md-icon>
       Open Node-RED editor
      </md-button>
-     <md-button ng-click="scrollDown()">
-      Scroll
-     </md-button>
     </md-content>
    </div>
+
+   <!-- container where you choose your Node-Red data source -->
    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
     <md-toolbar class="md-hue-2">
      <div class="md-toolbar-tools">
@@ -70,6 +98,7 @@
      <p>
       The following list shows all your endpoints from Node-RED. Select the one you want to use for this analysis.
      </p>
+
      <!-- Dropdown to choose Node-RED endpoints -->
      <md-input-container class="md-block md-icon-float" flex-gt-sm="50" ng-click="updateNodeRedSources()">
       <label>
@@ -90,6 +119,8 @@
     </md-content>
    </div>
   </div>
+
+ <!-- container where you can chose the type of your plot -->
   <div class="md-whiteframe-4dp bb-container" ng-hide="!selectedSource">
    <md-toolbar class="md-hue-2">
     <div class="md-toolbar-tools">
@@ -155,32 +186,6 @@
     <md-progress-linear class="md-accent" md-mode="query" ng-hide="!waitingForPlot">
     </md-progress-linear>
    </md-content>
-  </div>
-  
-  
-  
-  <div class="md-whiteframe-4dp bb-container" ng-hide="!bbplot" layout="row">
-
-   <!-- Anchor to define the position for autoscroll -->
-   <a id="bottom"></a>
-   <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
-   <md-toolbar class="md-accent md-hue-2">
-    <div class="md-toolbar-tools">
-     <h2>
-      <span>
-       Your results
-      </span>
-     </h2>
-    </div>
-   </md-toolbar>
-   <md-content class="bb-container" ng-bind-html="bbplot | to_trusted">
-   </md-content>
-  </div>
-  
-
-   <div flex="">
-   </div>
-
   </div>
  </body>
 </html>

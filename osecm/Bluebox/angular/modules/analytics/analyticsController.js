@@ -75,6 +75,10 @@ analyticsModule
 														response) {
 													$scope.bbplot = response.data[1];
 													$scope.waitingForPlot = false;
+
+                                                    // Automatically scroll to the generated result
+													// $scope.scrollDown();
+
 													// There has to be a better
 													// way...
 													setTimeout(function() {
@@ -149,17 +153,4 @@ analyticsModule
 																	});
 												});
 							};
-
-							$scope.scrollDown = function(){
-                                console.log('hier koennte ihre rapline stehen');
-
-                                // set the location.hash to the id of
-                                // the element you wish to scroll to.
-                                $location.hash('bottom');
-
-                                // call $anchorScroll()
-                                $anchorScroll();
-
-                            };
-
 						} ]);
