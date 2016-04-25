@@ -185,10 +185,10 @@
      
      
      <md-table-container>
-      <table md-table="" ng-model="container.objects">
+      <table md-table="" ng-model="container.objects" class="bb-table">
        <thead md-head="">
         <tr md-row="">
-         <th md-column="">
+         <th md-column="" class="bb-table-icon-col">
          </th>
          <th md-column="" >
           <h3>
@@ -230,7 +230,7 @@
            </md-icon>
           </a>
          </td>
-         <td md-cell="" ng-click="showDetailSheet($event, object)">
+         <td md-cell="" ng-click="showDetailSheet($event, object)" class="bb-table-col">
           <b>
        <md-tooltip md-direction="top">
         Show details
@@ -239,11 +239,19 @@
           </b>
          </td>
          
+<<<<<<< HEAD
          <td md-cell ng-repeat="field in selectedMetadataFields">
          {{object.details[field]}}
          </td>
          
          <td md-cell ng-repeat="field in selectedInternalMetadataFields">
+=======
+         <td md-cell ng-repeat="field in selectedMetadataFields" class="bb-table-col">
+         {{object.details[field]}}
+         </td>
+         
+         <td md-cell ng-repeat="field in selectedInternalMetadataFields" class="bb-table-col">
+>>>>>>> 55e6971d9da0e92245689b413584644f36a95c69
          {{field == "bytes" ? (object[field] | bytes) : object[field]}}
          </td>
          
