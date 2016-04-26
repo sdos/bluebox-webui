@@ -60,6 +60,8 @@
      </md-icon>
      <input ng-change="getContainers(true)" ng-model="prefix"/>
     </md-input-container>
+    
+    
     <!-- Lists all containers in a table -->
     <md-table-container>
      <table md-table="" ng-model="fileSystem.containers" class="bb-table">
@@ -85,28 +87,28 @@
        </tr>
       </thead>
       <tbody md-body="">
-       <tr md-auto-select="" md-row="" md-select="container" md-select-id="name" ng-repeat="container in fileSystem.containers">
-        <td md-cell="" ng-click="enterContainer(container.name)">
+       <tr md-row ng-repeat="thisContainer in fileSystem.containers">
+        <td md-cell="" ng-click="enterContainer(thisContainer.name)">
        <md-tooltip md-direction="top">
         Enter container
        </md-tooltip>
          <md-icon md-font-set="material-icons">
-          {{container.count==0 ? "folder_open" : "folder"}}
+          {{thisContainer.count==0 ? "folder_open" : "folder"}}
          </md-icon>
         </td>
-        <td md-cell="" ng-click="showDetailSheet($event, container)" class="bb-table-col">
+        <td md-cell="" ng-click="showDetailSheet($event, thisContainer)" class="bb-table-col">
          <b>
       <md-tooltip md-direction="top">
         Show details
        </md-tooltip>
-          {{container.name}}
+          {{thisContainer.name}}
          </b>
         </td>
         <td md-cell="" class="bb-table-col">
-         {{container.bytes | bytes}}
+         {{thisContainer.bytes | bytes}}
         </td>
         <td md-cell="" class="bb-table-col">
-         {{container.count}}
+         {{thisContainer.count}}
         </td>
        </tr>
       </tbody>

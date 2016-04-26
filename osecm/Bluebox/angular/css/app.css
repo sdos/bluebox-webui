@@ -22,3 +22,6 @@ h2 {
 	table-layout: fixed;
 }
 
+table.md-table tbody.md-body > tr.md-row {
+	height: 2em;
+}

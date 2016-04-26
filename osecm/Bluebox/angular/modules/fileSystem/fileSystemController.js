@@ -137,6 +137,7 @@ fileSystemModule.controller('FileSystemController',
 			 * workaround
 			 */
 			$scope.enterContainer = function(containerName) {
+				$mdDialog.hide();
 				$state.go('containerState', {containerName: containerName});
 			};
 
@@ -198,12 +199,7 @@ function DialogController($rootScope, $state, $scope, $mdDialog, fileSystemServi
 	$scope.cancel = function() {
 		$mdDialog.cancel();
 	};
-	$scope.enterContainer = function() {
-		$mdDialog.hide();
-		$state.go('containerState', {containerName: $scope.container.name});
-	};
 	$scope.deleteContainer = function() {
-		console.log("im new!");
 		$mdDialog.cancel();
 		fileSystemService.deleteContainer($scope.container)
 		.then(function() {

@@ -24,6 +24,7 @@
     
 	<!-- Metata about the object-->
 	<h3>Container metadata</h3>
+	<md-table-container>
 	<table md-table="" ng-model="object.details">
       <thead md-head="">
        <tr md-row="">
@@ -40,7 +41,7 @@
        </tr>
       </thead>
       <tbody md-body="">
-       <tr md-auto-select="" md-row="" md-select="key" md-select-id="" ng-repeat="(key, value) in container.metadata">
+       <tr md-row ng-repeat="(key, value) in container.metadata">
         <td md-cell="" ng-click="">
          <b>
           {{key}}
@@ -52,7 +53,7 @@
        </tr>
       </tbody>
      </table>	
-    
+    </md-table-container>
     
     
     
@@ -68,7 +69,7 @@
     
    </md-dialog-content>
    <md-dialog-actions class="" layout="row">
-    <md-button aria-label="Enter Container" class="md-fab" ng-click="enterContainer()">
+    <md-button aria-label="Enter Container" class="md-fab" ng-click="enterContainer(container.name)">
      <md-tooltip md-direction="top">
       Enter container
      </md-tooltip>
