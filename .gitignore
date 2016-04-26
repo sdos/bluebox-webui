@@ -55,6 +55,7 @@ docs/_build/
 
 # PyBuilder
 target/
+/osecm/Bluebox/temp
 
 # IDE config
 .idea

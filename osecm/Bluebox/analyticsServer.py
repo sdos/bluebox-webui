@@ -17,7 +17,7 @@ import json, logging, time, re
 
 from bokeh.charts import Area, show, vplot, output_file, Bar, Line
 from bokeh.io import vform
-from bokeh.embed import components 
+from bokeh.embed import components
 from bokeh.charts.operations import blend
 from flask import request, Response, send_file, render_template
 import requests
@@ -29,10 +29,25 @@ import pandas
 from bokeh.models.tickers import SingleIntervalTicker
 from bokeh.models.axes import LinearAxis
 
+import sqlite3
+
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
 log = logging.getLogger()
 
+# Establish connection to the SQLite Database
+connection = sqlite3.connect('/Users/christophtrybek/Documents/IPVS/git/swift-bluebox/osecm/Bluebox/temp/MetaData.db')
+
+"""
+
+Data schema
+
+"""
+
+@app.route("/api_analytics/tablestructure", methods=["GET"])
+def getTableStructure():
+	x = "hello python"
+	return Response(json.dumps(x), mimetype="application/json")
 
 
 """
@@ -45,6 +60,7 @@ def doPlot1(data, nrDataSource):
 	p = Bar(data, data.columns[0], values=data.columns[1], title="Bar graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1], responsive=True)
 	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
 	return c
+
 
 def doPlot11(data, nrDataSource):
 	p = Line(data, y_mapper_type="log", x=data.columns[0], xlabel=data.columns[0], ylabel=data.columns[1], title="Line graph: " + nrDataSource['name'], responsive=True)
@@ -88,19 +104,19 @@ def doPlot(plotType):
 	try:
 		data = json.JSONDecoder(object_pairs_hook=collections.OrderedDict).decode(r.content.decode())
 		dataKeys = getListOfKeys(data[0])
-		
+
 		df = pandas.DataFrame(data, columns=dataKeys)
 		df[dataKeys[0]] = df[dataKeys[0]].map(lambda x: str(x)[:20])
 		print(df)
-		
+
 		if('2bar' == plotType):
 			c = doPlot2(data=df, nrDataSource=nrDataSource)
 		elif('bar' == plotType):
 			c = doPlot1(data=df, nrDataSource=nrDataSource)
 		elif('line' == plotType):
 			c = doPlot11(data=df, nrDataSource=nrDataSource)
-			
-			
+
+
 		print(nrDataSource, plotType)
 		return Response(json.dumps(c), mimetype="application/json")
 	except:
@@ -126,6 +142,6 @@ def getNodeRedEnpointList():
 		# Node-RED has a strange API... we can't reconstruct node/flow relationships...
 		# if ('tab' == s['type'] and 'label' in s):
 		# 	thisFlowName = s['label'] + "->"
-		if ('http in' == s['type'] and 'url' in s): 
+		if ('http in' == s['type'] and 'url' in s):
 			sources.append({"url": s['url'], "name": s['name']})
 	return Response(json.dumps(sources), mimetype="application/json")

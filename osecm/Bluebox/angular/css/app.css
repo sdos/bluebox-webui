@@ -13,3 +13,7 @@ h2 {
 .bb-icon-column {
 	width: 10px;
 }
+
+.return-header{
+    z-index: 70 !important;
+}

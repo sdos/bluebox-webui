@@ -76,9 +76,6 @@ analyticsModule
 													$scope.bbplot = response.data[1];
 													$scope.waitingForPlot = false;
 
-                                                    // Automatically scroll to the generated result
-													// $scope.scrollDown();
-
 													// There has to be a better
 													// way...
 													setTimeout(function() {
@@ -135,7 +132,7 @@ analyticsModule
 																		'FlashMessage',
 																		{
 																			"type" : "danger",
-																			"text" : "unable to retrieve Node-RED enpoint list..."
+																			"text" : "unable to retrieve Node-RED endpoint list..."
 																		});
 													}
 												},
@@ -153,4 +150,38 @@ analyticsModule
 																	});
 												});
 							};
-						} ]);
+
+                            // retrieve table structure from the analytics data base
+							$scope.showTableStructure = function(){
+
+    	                        $http.get('api_analytics/tablestructure').then(
+
+    	                            function successCallback(response){
+    	                                console.log(response.data);
+
+    	                                $scope.tableData = response.data;
+
+    	                                if(!response.data){
+    	                                    $rootScope.$broadcast(
+    	                                        'FlashMessage',{
+    	                                        'type' : 'danger',
+    	                                        'text' : 'unable to retrieve data tables'}
+    	                                        );
+    	                                }
+    	                            },
+
+    	                            function errorCallback(response){
+    	                                console.log(JSON.stringify(response));
+
+    	                                $rootScope.broadcast(
+    	                                    'FlashMessage', {
+    	                                    'type' : 'danger',
+    	                                    'text' : 'Error: ' + response.data
+    	                                    });
+    	                            }
+
+    	                        );
+
+    	                    };
+
+						}]);
