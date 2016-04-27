@@ -78,12 +78,18 @@
       Open Node-RED editor
      </md-button>
 
-     <md-button class="md-raised md-primary" ng-click="showTableStructure()">
+     <md-button class="md-raised md-primary" ng-click="showTableStructure(); showTable = !showTable">
       <md-icon md-font-set="material-icons">
        list
       </md-icon>
       Show table structure
      </md-button>
+
+     <!-- card which shows all alvailable tables -->
+     <md-card ng-show="showTable">
+      {{ tableData }}
+     </md-card>
+
     </md-content>
    </div>
 

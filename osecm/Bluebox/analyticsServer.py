@@ -35,8 +35,7 @@ import sqlite3
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
 log = logging.getLogger()
 
-# Establish connection to the SQLite Database
-connection = sqlite3.connect('/Users/christophtrybek/Documents/IPVS/git/swift-bluebox/osecm/Bluebox/temp/MetaData.db')
+
 
 """
 
@@ -46,8 +45,28 @@ Data schema
 
 @app.route("/api_analytics/tablestructure", methods=["GET"])
 def getTableStructure():
-	x = "hello python"
-	return Response(json.dumps(x), mimetype="application/json")
+
+	# Establish connection to the SQLite database
+	connection = sqlite3.connect("/Users/christophtrybek/Documents/IPVS/git/swift-bluebox/osecm/Bluebox/temp/MetaData.db")
+	cursor = connection.cursor()
+
+	# Retrieve all table names
+	cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+	tableNames = cursor.fetchall()
+
+	tableData = {}
+
+	for table in tableNames:
+		cursor.execute("PRAGMA table_info(" + table[0] + ")")
+
+		tableData[table[0]] = cursor.fetchall()
+
+
+
+	# Close database connection after retrieval
+	connection.close()
+
+	return Response(json.dumps(tableData), mimetype="application/json")
 
 
 """

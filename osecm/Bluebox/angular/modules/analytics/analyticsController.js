@@ -157,7 +157,8 @@ analyticsModule
     	                        $http.get('api_analytics/tablestructure').then(
 
     	                            function successCallback(response){
-    	                                console.log(response.data);
+
+                                        console.log(response.data)
 
     	                                $scope.tableData = response.data;
 
