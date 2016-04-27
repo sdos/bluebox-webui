@@ -216,8 +216,8 @@ fileSystemModule.controller('FileSystemController',
 
 				var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
 				$mdDialog.show({
-					controller: ObjectClassModalController,
-					templateUrl: 'angular/modules/objectClass/objectClassSheet.html',
+					controller: 'ObjectClassController',
+					templateUrl: 'angular/modules/objectClass/configObjectClassSheet.html',
 					parent: angular.element(document.body),
 					targetEvent: ev,
 					clickOutsideToClose:true,

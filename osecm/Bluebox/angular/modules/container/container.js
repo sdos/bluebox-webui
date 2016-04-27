@@ -11,7 +11,6 @@ var containerModule = angular.module('bluebox.container', [
         'elif',
         'bluebox.filter',
         'bluebox.fileSystem',
-        'bluebox.objectClass',
         'md.data.table'
     ])
 
