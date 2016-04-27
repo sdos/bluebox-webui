@@ -22,5 +22,6 @@ netHost = os.getenv("VCAP_APP_HOST", "0.0.0.0")
 app.run(
 			host=netHost,
 			port=int(netPort),
-			debug=True
+			debug=True,
+			threaded=True
 )

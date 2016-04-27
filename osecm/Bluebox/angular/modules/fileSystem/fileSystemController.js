@@ -150,9 +150,9 @@ fileSystemModule.controller('FileSystemController',
 			 * 
 			 */
 			$scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm');
-
+			
 			$scope.showDetailSheet = function(ev, row) {
-
+				
 				$scope.container = row;
 				getContainerMetadata($scope.container);
 				var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
@@ -166,6 +166,64 @@ fileSystemModule.controller('FileSystemController',
 					scope: $scope,
 					preserveScope: true,
 					locals: {fileSystemService: fileSystemService}
+				})
+				.then(
+						function() {
+							console.log('You cancelled the dialog.');
+						});
+				
+				$scope.$watch(function() {
+					return $mdMedia('xs') || $mdMedia('sm');
+				}, function(wantsFullScreen) {
+					$scope.customFullscreen = (wantsFullScreen === true);
+				});
+			};
+			/**
+			 * 
+			 * Create container sheet
+			 * 
+			 */
+			$scope.showCreateContainerSheet = function(ev, row) {
+				
+				var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
+				$mdDialog.show({
+					controller: DialogController,
+					templateUrl: 'angular/modules/fileSystem/createContainerSheet.html',
+					parent: angular.element(document.body),
+					targetEvent: ev,
+					clickOutsideToClose:true,
+					fullscreen: useFullScreen,
+					scope: $scope,
+					preserveScope: true
+				})
+				.then(
+						function() {
+							console.log('You cancelled the dialog.');
+						});
+				
+				$scope.$watch(function() {
+					return $mdMedia('xs') || $mdMedia('sm');
+				}, function(wantsFullScreen) {
+					$scope.customFullscreen = (wantsFullScreen === true);
+				});
+			};
+			/**
+			 * 
+			 * Manage Object Class Sheet
+			 * 
+			 */
+			$scope.showObjectClassSheet = function(ev, row) {
+
+				var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
+				$mdDialog.show({
+					controller: ObjectClassModalController,
+					templateUrl: 'angular/modules/objectClass/objectClassSheet.html',
+					parent: angular.element(document.body),
+					targetEvent: ev,
+					clickOutsideToClose:true,
+					fullscreen: useFullScreen,
+					scope: $scope,
+					preserveScope: true
 				})
 				.then(
 						function() {

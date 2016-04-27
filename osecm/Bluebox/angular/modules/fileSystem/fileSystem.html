@@ -3,41 +3,29 @@
  <head>
  </head>
  <body>
-  <div layout="row">
-   <div class="md-whiteframe-4dp bb-container" flex="40" flex-xs="90">
-    <md-toolbar class="md-hue-2">
-     <div class="md-toolbar-tools">
-      <h2>
-       <span>
-        Create a new container
-       </span>
-      </h2>
-     </div>
-    </md-toolbar>
-    <md-content class="bb-container">
-     <form ng-submit="createContainer()">
-      <!-- Input of the container name -->
-      <md-input-container class="md-block md-icon-float" flex-gt-sm="">
-       <label>
-        Container name
-       </label>
-       <md-icon md-font-set="material-icons">
-        chevron_right
-       </md-icon>
-       <input id="containerName" ng-model="newContainer.name" ng-trim="false" type="text"/>
-      </md-input-container>
-      <!-- Button to submit the form and create a new container -->
-      <md-button class="md-raised md-primary" ng-disabled="!newContainer.name" type="submit">
-       <md-icon md-font-set="material-icons">
-        add
-       </md-icon>
-      </md-button>
-     </form>
-    </md-content>
-   </div>
-   <div flex="">
-   </div>
-  </div>
+ 
+ 
+ 
+    <!-- Top buttons -->
+   <md-button aria-label="Create new container" class="md-raised md-accent" ng-click="showCreateContainerSheet($event)">
+    <md-icon md-font-set="material-icons">
+     create_new_folder
+    </md-icon>
+    Create new container
+   </md-button>
+   
+   <md-button aria-label="Manage object classes" class="md-raised md-accent">
+    <md-icon md-font-set="material-icons">
+     settings
+    </md-icon>
+    Manage object classes
+   </md-button>
+ 
+ 
+ 
+ 
+ 
+ 
   <!-- Card which lists all available containers -->
   <div class="md-whiteframe-4dp bb-container" flex="">
    <md-toolbar class="md-hue-2">
