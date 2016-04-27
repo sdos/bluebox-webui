@@ -59,9 +59,13 @@ def getTableStructure():
 	for table in tableNames:
 		cursor.execute("PRAGMA table_info(" + table[0] + ")")
 
-		tableData[table[0]] = cursor.fetchall()
+		columnNames = cursor.fetchall()
+		columnList = []
 
+		for column in columnNames:
+			columnList.append(column[1])
 
+		tableData[table[0]] = columnList
 
 	# Close database connection after retrieval
 	connection.close()

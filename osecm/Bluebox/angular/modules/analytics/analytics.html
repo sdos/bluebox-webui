@@ -86,8 +86,11 @@
      </md-button>
 
      <!-- card which shows all alvailable tables -->
-     <md-card ng-show="showTable">
-      {{ tableData }}
+     <md-card ng-show="showTable" ng-repeat="(key, value) in tableData">
+      <h3>{{ key }}</h3>
+      <p ng-repeat="v in value">
+       {{ v }}
+      </p>
      </md-card>
 
     </md-content>
