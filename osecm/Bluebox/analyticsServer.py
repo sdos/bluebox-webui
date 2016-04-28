@@ -56,21 +56,29 @@ def getTableStructure():
 
 	tableData = {}
 
+	# Retrieve the column names for the corresponding tables
 	for table in tableNames:
 		cursor.execute("PRAGMA table_info(" + table[0] + ")")
-
 		columnNames = cursor.fetchall()
-		columnList = []
+
+		# Retrieve the first 5 entries from each table LIMIT SQL
+		cursor.execute("SELECT * FROM " + table[0])
+		rowValues = cursor.fetchmany(5)
+
+		print(rowValues)
+
+		columnList = {}
 
 		for column in columnNames:
-			columnList.append(column[1])
+			print(column[1])
 
 		tableData[table[0]] = columnList
 
 	# Close database connection after retrieval
 	connection.close()
 
-	return Response(json.dumps(tableData), mimetype="application/json")
+	x = "Hier koennte ihre rapline stehen"
+	return Response(json.dumps(x), mimetype="application/json")
 
 
 """
