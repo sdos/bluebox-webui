@@ -85,12 +85,25 @@
       Show table structure
      </md-button>
 
-     <!-- card which shows all alvailable tables -->
+     <!-- card which contains information to all alvailable tables -->
      <md-card ng-show="showTable" ng-repeat="(key, value) in tableData">
       <h3>{{ key }}</h3>
-      <p ng-repeat="v in value">
-       {{ v }}
-      </p>
+
+       <md-table-container>
+         <table md-table>
+           <thead md-head >
+             <tr md-row>
+               <th md-column ng-repeat="columnName in value.columnNames"><span>{{columnName}}</span></th>
+             </tr>
+           </thead>
+           <tbody md-body>
+             <tr md-row ng-repeat="row in value.rowEntries">
+               <td md-cell ng-repeat="field in row track by $index">{{field}}</td>
+             </tr>
+           </tbody>
+         </table>
+       </md-table-container>
+
      </md-card>
 
     </md-content>

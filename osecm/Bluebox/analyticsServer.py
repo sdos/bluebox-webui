@@ -51,7 +51,7 @@ def getTableStructure():
 	cursor = connection.cursor()
 
 	# Retrieve all table names
-	cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+	cursor.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC")
 	tableNames = cursor.fetchall()
 
 	tableData = {}
@@ -61,24 +61,28 @@ def getTableStructure():
 		cursor.execute("PRAGMA table_info(" + table[0] + ")")
 		columnNames = cursor.fetchall()
 
-		# Retrieve the first 5 entries from each table LIMIT SQL
-		cursor.execute("SELECT * FROM " + table[0])
-		rowValues = cursor.fetchmany(5)
+		# Retrieve the first 5 entries from each table
+		cursor.execute("SELECT * FROM " + table[0] + " LIMIT 5")
+		rowValues = cursor.fetchall()
 
-		print(rowValues)
+		# Dictionary which combines column names and row entries
+		columnStructure = {}
 
-		columnList = {}
+		# Strip columnNames from not required data
+		columnList = []
 
 		for column in columnNames:
-			print(column[1])
+			columnList.append(column[1])
 
-		tableData[table[0]] = columnList
+		# Populate final dictionary table Data
+		columnStructure['columnNames'] = columnList
+		columnStructure['rowEntries'] = rowValues
+		tableData[table[0]] = columnStructure
 
 	# Close database connection after retrieval
 	connection.close()
 
-	x = "Hier koennte ihre rapline stehen"
-	return Response(json.dumps(x), mimetype="application/json")
+	return Response(json.dumps(tableData), mimetype="application/json")
 
 
 """
