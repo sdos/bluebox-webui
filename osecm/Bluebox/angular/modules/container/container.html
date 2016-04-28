@@ -26,8 +26,6 @@
      </md-toolbar>
      <md-content class="bb-container">
       <form name="uploadForm" ng-show="!isGetObjectClassRequestPending" ng-submit="uploadObject()">
-       Choose File to upload
-       <input class="form-control-static" id="file" ng-change="uploadProgressPercentage = 0;" ng-model="fileModel.file" ngf-select="" required="" type="file"/>
        <!-- 				Date input retention date
 				<md-datepicker class="md-block" flex-gt-sm="" ng-model="fileModel.retentionDate"
 								md-placeholder="Retention date" date="retentionDatePicker.minDate">
@@ -58,11 +56,11 @@
 
 
        <md-button class="md-raised md-primary" type="submit">
-        <span class="glyphicon glyphicon-cloud-upload">
-        </span>
+              <md-icon md-font-set="material-icons">
+        cloud_upload
+       </md-icon>
         Upload
        </md-button>
-       Upload progress percentage with bar
        <div ng-show="uploadProgress.percentage">
         {{ uploadProgress.percentage }} % ({{ uploadProgress.loaded | bytes }} / {{ uploadProgress.total | bytes }})
        </div>
