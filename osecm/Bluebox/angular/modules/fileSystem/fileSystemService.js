@@ -19,7 +19,9 @@ fileSystemModule.factory(
                 return {
                     "container": {
                         "name":         container.name,
-                        "objectClass":  container.objectClass
+                        "objectClass":  container.objectClass,
+                        "mdf":  container.mdf,
+                        "mdfi":  container.mdfi
                     }
                 };
             };
@@ -47,6 +49,7 @@ fileSystemModule.factory(
                  * @returns {promise} resolved or rejected to the plain response from the backend
                  */
                 updateContainer: function(container) {
+                	console.log(container);
                     return $http({
                         "method":   "PUT",
                         "url":      BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(container.name),
@@ -85,6 +88,20 @@ fileSystemModule.factory(
                  */
                 deleteContainer: function(container) {
                     return $http.delete(BACKEND_BASE_URL + 'containers/' + $filter('urlEncode')(container.name));
-                }
+                },
+                
+                
+                
+                /**
+                 * GET the details of a container
+                 *
+                 */
+                getContainerMetadata: function(container) {
+                	return $http
+                	.get(BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(container.name) + "/details")
+                	.then(function(response) {
+                		return response.data;
+                	});
+                },
             };
         }]);

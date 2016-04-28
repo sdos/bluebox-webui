@@ -102,6 +102,34 @@ fileSystemModule.controller('FileSystemController',
 							});
 						});
 			};
+			
+			
+            /**
+			 * GET the details for a container
+			 * 
+			 */
+            var getContainerMetadata = function(container) {
+            	fileSystemService
+                    .getContainerMetadata(container)
+                    .then(function (metadata) {
+                        container.metadata = metadata;
+                    })
+                    .catch(function (response) {
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type":     "danger",
+                            "text":     response.data
+                        });
+                    });
+            };
+			
+			
+			
+			
+			
+			
+			
+			
+			
 
 
 			/**
@@ -109,6 +137,7 @@ fileSystemModule.controller('FileSystemController',
 			 * workaround
 			 */
 			$scope.enterContainer = function(containerName) {
+				$mdDialog.hide();
 				$state.go('containerState', {containerName: containerName});
 			};
 
@@ -121,10 +150,11 @@ fileSystemModule.controller('FileSystemController',
 			 * 
 			 */
 			$scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm');
-
+			
 			$scope.showDetailSheet = function(ev, row) {
-
+				
 				$scope.container = row;
+				getContainerMetadata($scope.container);
 				var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
 				$mdDialog.show({
 					controller: DialogController,
@@ -136,6 +166,64 @@ fileSystemModule.controller('FileSystemController',
 					scope: $scope,
 					preserveScope: true,
 					locals: {fileSystemService: fileSystemService}
+				})
+				.then(
+						function() {
+							console.log('You cancelled the dialog.');
+						});
+				
+				$scope.$watch(function() {
+					return $mdMedia('xs') || $mdMedia('sm');
+				}, function(wantsFullScreen) {
+					$scope.customFullscreen = (wantsFullScreen === true);
+				});
+			};
+			/**
+			 * 
+			 * Create container sheet
+			 * 
+			 */
+			$scope.showCreateContainerSheet = function(ev, row) {
+				
+				var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
+				$mdDialog.show({
+					controller: DialogController,
+					templateUrl: 'angular/modules/fileSystem/createContainerSheet.html',
+					parent: angular.element(document.body),
+					targetEvent: ev,
+					clickOutsideToClose:true,
+					fullscreen: useFullScreen,
+					scope: $scope,
+					preserveScope: true
+				})
+				.then(
+						function() {
+							console.log('You cancelled the dialog.');
+						});
+				
+				$scope.$watch(function() {
+					return $mdMedia('xs') || $mdMedia('sm');
+				}, function(wantsFullScreen) {
+					$scope.customFullscreen = (wantsFullScreen === true);
+				});
+			};
+			/**
+			 * 
+			 * Manage Object Class Sheet
+			 * 
+			 */
+			$scope.showObjectClassSheet = function(ev, row) {
+
+				var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
+				$mdDialog.show({
+					controller: 'ObjectClassController',
+					templateUrl: 'angular/modules/objectClass/configObjectClassSheet.html',
+					parent: angular.element(document.body),
+					targetEvent: ev,
+					clickOutsideToClose:true,
+					fullscreen: useFullScreen,
+					scope: $scope,
+					preserveScope: true
 				})
 				.then(
 						function() {
@@ -169,12 +257,7 @@ function DialogController($rootScope, $state, $scope, $mdDialog, fileSystemServi
 	$scope.cancel = function() {
 		$mdDialog.cancel();
 	};
-	$scope.enterContainer = function() {
-		$mdDialog.hide();
-		$state.go('containerState', {containerName: $scope.container.name});
-	};
 	$scope.deleteContainer = function() {
-		console.log("im new!");
 		$mdDialog.cancel();
 		fileSystemService.deleteContainer($scope.container)
 		.then(function() {

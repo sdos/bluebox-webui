@@ -10,6 +10,18 @@ h2 {
 	margin: 1em;
 }
 
-.bb-icon-column {
-	width: 10px;
+.bb-table-col {
+	 word-wrap:break-word;
+}
+
+.bb-table-icon-col {
+	width: 1em;
+}
+
+.bb-table {
+	table-layout: fixed;
+}
+
+table.md-table tbody.md-body > tr.md-row {
+	height: 2em;
 }

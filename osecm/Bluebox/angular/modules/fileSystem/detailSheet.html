@@ -16,14 +16,60 @@
     </div>
    </md-toolbar>
    <md-dialog-content class="bb-margin">
+   <h3>Details</h3>
     <p>
-     <code>
-      {{container}}
-     </code>
-    </p>
+     <span><b>Size:</b> {{container.bytes | bytes}}, </span><span><b>Number of objects:</b> {{container.count}}, </span>
+ 	</p>
+    
+    
+	<!-- Metata about the object-->
+	<h3>Container metadata</h3>
+	<md-table-container>
+	<table md-table="" ng-model="object.details">
+      <thead md-head="">
+       <tr md-row="">
+        <th md-column="">
+         <span>
+          Key
+         </span>
+        </th>
+        <th md-column="">
+         <span>
+          Value
+         </span>
+        </th>
+       </tr>
+      </thead>
+      <tbody md-body="">
+       <tr md-row ng-repeat="(key, value) in container.metadata">
+        <td md-cell="" ng-click="">
+         <b>
+          {{key}}
+         </b>
+        </td>
+        <td md-cell="">
+         {{key == "content-length" ? (value | bytes) : value}}
+        </td>
+       </tr>
+      </tbody>
+     </table>	
+    </md-table-container>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
    </md-dialog-content>
    <md-dialog-actions class="" layout="row">
-    <md-button aria-label="Enter Container" class="md-fab" ng-click="enterContainer()">
+    <md-button aria-label="Enter Container" class="md-fab" ng-click="enterContainer(container.name)">
      <md-tooltip md-direction="top">
       Enter container
      </md-tooltip>

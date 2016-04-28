@@ -42,7 +42,21 @@
 					 <input ng-if="!metadataField.required" ng-model="fileModel.metadata[metadataField.name]">
 					<div ng-if="metadataField.required" ng-message="required">Required field</div>
 				</md-input-container> -->
-       Button to upload File
+
+       <!-- Button to choose file to upload -->
+       <md-button class="md-raised">
+        <label for="file-upload">Select File</label>
+       </md-button>
+       <input id="file-upload" class="ng-hide" type="file" ng-change="uploadProgressPercentage = 0;"
+                ng-model="fileModel.file" ngf-select="" required=""/>
+
+       <!-- Input container shows the name of the selected file -->
+       <md-input-container md-no-float>
+        <input id="textInput" ng-model="fileModel.file.name" type="text" placeholder="No file chosen"
+               ng-readonly="true">
+       </md-input-container>
+
+
        <md-button class="md-raised md-primary" type="submit">
         <span class="glyphicon glyphicon-cloud-upload">
         </span>
@@ -60,6 +74,9 @@
     <div flex="">
     </div>
    </div>
+   
+   
+   
    <!-- Card which lists all objects in this container -->
    <div class="md-whiteframe-4dp bb-container" flex="">
     <md-toolbar class="md-hue-2">
@@ -75,7 +92,87 @@
      </div>
     </md-toolbar>
     <md-content class="bb-container">
+    
+    
+    <section layout="row">
+    
+     <!-- ###################################################################### -->
+     <!-- Select columns -->
+     <!-- ###################################################################### -->
+    
+    <md-menu>
+    
+      <md-button class="md-fab md-mini" ng-click="openColumnsMenu($mdOpenMenu, $event)">
+       <md-tooltip md-direction="bottom">
+        Add table column
+       </md-tooltip>
+       <md-icon md-font-set="material-icons">
+        add
+       </md-icon>
+      </md-button>
+    
+    <md-menu-content width="2">
+    
+    
+   <!-- INTERNAL MD MENU -->
+   <md-menu-item>
+   <md-menu md-offset="60 0">
+   	<md-button ng-click="">
+    	Internal
+   	</md-button>
+   <md-menu-content width="4">
+   	<md-menu-item ng-repeat="field in availableInternalMetadataFields">
+		<md-button ng-click="addInternalMenuColumn(field)">{{field}}</md-button>
+	</md-menu-item> 
+	</md-menu-content>
+   	</md-menu>
+   </md-menu-item>
+   
+   
+   <!-- EXTRACTOR MD MENU -->
+       <md-menu-divider></md-menu-divider>
+          <md-menu-item>
+    <md-button disabled="disabled" ng-click="">
+    <b>From extractor</b>
+    </md-button>
+     </md-menu-item>
+    
+    <md-menu-item ng-repeat="(key, valueList) in availableMetadataFields">
+     <md-menu md-offset="60 0">
+   	<md-button ng-click="">
+    {{key}}
+   	</md-button>
+   <md-menu-content width="4">
+   	<md-menu-item ng-repeat="val in valueList">
+	    <md-button ng-click="addMenuColumn(key, val)">{{val}}</md-button>
+	   
+	    </md-menu-item> 
+	</md-menu-content>
+   	</md-menu> 
+   </md-menu-item>
+  
+   
+   <!-- OBJECT CLASS MD MENU -->
+       <md-menu-divider></md-menu-divider>
+   
+              <md-menu-item>
+    <md-button disabled="disabled" ng-click="">
+    From object class
+    </md-button>
+    </md-menu-item>
+    </md-menu-content>
+    
+    
+    
+    </md-menu>
+    
+    
+    
+    
+    
+     <!-- ###################################################################### -->
      <!-- Text input to filter objects -->
+     <!-- ###################################################################### -->
      <md-input-container class="md-icon-float md-block" flex-gt-sm="">
       <label>
        Filter objects by prefix
@@ -85,42 +182,69 @@
       </md-icon>
       <input ng-change="getObjects(true)" ng-model="prefix"/>
      </md-input-container>
+     
+     
+	</section>     
+     
+     
+     
+     
+     
+     
+     
+     
+     <!-- ###################################################################### -->
+     <!-- Table -->
+     <!-- ###################################################################### -->
+     
+     
      <md-table-container>
-      <table md-table="" ng-model="container.objects">
+      <table md-table="" ng-model="container.objects" class="bb-table">
        <thead md-head="">
         <tr md-row="">
-         <th md-column="">
+         <th md-column="" class="bb-table-icon-col">
          </th>
-         <th md-column="" md-order-by="name">
+         <th md-column="" >
           <h3>
            Name
           </h3>
          </th>
-         <th md-column="" md-numeric="" md-order-by="bytes">
-          <h3>
-           Size
-          </h3>
+        <th ng-repeat="field in selectedMetadataFields" md-column>
+        <h3>
+         {{field | metaPrefix}}
+         <md-button class="md-icon-button md-warn" ng-click="removeMenuColumn(field)">
+			<md-icon md-font-set="material-icons">
+            close
+           </md-icon>
+           </md-button>
+           </h3>
          </th>
-         <th md-column="" md-order-by="content_type">
-         <h3>
-          Content type
-          </h3>
+        <th ng-repeat="field in selectedInternalMetadataFields" md-column>
+        <h3>
+         {{field}}
+         
+         <md-button class="md-icon-button md-warn" ng-click="removeInternalMenuColumn(field)">
+			<md-icon md-font-set="material-icons">
+            close
+           </md-icon>
+           </md-button>
+           </h3>
          </th>
         </tr>
        </thead>
        <tbody md-body="">
-        <tr md-auto-select="" md-row="" md-select="object" md-select-id="name" ng-repeat="object in container.objects">
+        <tr md-row ng-repeat="object in container.objects">
          <td class="bb-icon-column" md-cell="">
        <md-tooltip md-direction="top">
         Preview object
        </md-tooltip>
           <a ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true" target="_blank">
            <md-icon md-font-set="material-icons">
-            insert_drive_file
+            {{object.content_type | fileTypeIcon}}
            </md-icon>
           </a>
          </td>
-         <td md-cell="" ng-click="showDetailSheet($event, object)">
+         <td md-cell="" ng-click="showDetailSheet($event, object)" class="bb-table-col">
           <b>
        <md-tooltip md-direction="top">
         Show details
@@ -128,12 +252,17 @@
            {{object.name}}
           </b>
          </td>
-         <td md-cell="">
-          {{object.bytes | bytes}}
+         
+         <td md-cell ng-repeat="field in selectedMetadataFields" class="bb-table-col">
+         {{object.details[field]}}
          </td>
-         <td md-cell="">
-          {{object.content_type}}
+         
+         <td md-cell ng-repeat="field in selectedInternalMetadataFields" class="bb-table-col">
+         {{field == "bytes" ? (object[field] | bytes) : object[field]}}
          </td>
+         
+         
+         
         </tr>
        </tbody>
       </table>

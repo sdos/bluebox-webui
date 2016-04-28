@@ -1,0 +1,231 @@
+<html>
+ <head>
+ </head>
+ <body>
+  <md-dialog aria-label="Manage Object Classes" flex="60" flex-xs="90" ng-cloak="">
+   <md-toolbar>
+    <div class="md-toolbar-tools">
+     <h2>
+      Manage Object Classes
+     </h2>
+     <span flex="">
+     </span>
+     <md-button class="md-icon-button" ng-click="cancel()">
+      <md-icon md-font-set="material-icons">
+       close
+      </md-icon>
+     </md-button>
+    </div>
+   </md-toolbar>
+   <md-dialog-content class="bb-margin">
+    <!--    ############################################ -->
+    <!--    Create new -->
+    <!--    ############################################ -->
+    <div ng-hide="!uiMode.newEntry">
+     <h3>
+      Create new object class
+     </h3>
+     <form ng-submit="initNewClass()" name="createNewForm">
+      <div flex="" layout="row">
+       <md-input-container class="md-block md-icon-float" flex="">
+        <label>
+         Enter new object class name
+        </label>
+        <md-icon md-font-set="material-icons">
+         chevron_right
+        </md-icon>
+        <input id="newObjectClassName" ng-disabled="uiMode.edit" ng-model="objectClassModel.name" type="text"/>
+       </md-input-container>
+       <div>
+        <md-button class="md-raised md-primary" ng-disabled="!objectClassModel.name || uiMode.edit" type="submit">
+         <md-icon md-font-set="material-icons">
+          add
+         </md-icon>
+         Create
+        </md-button>
+       </div>
+      </div>
+     </form>
+     <md-divider>
+     </md-divider>
+    </div>
+    <!--    ############################################ -->
+    <!--    Select existing -->
+    <!--    ############################################ -->
+    <div ng-hide="!uiMode.selectExisting">
+     <h3>
+      Modify/delete existing class
+     </h3>
+     <md-input-container class="md-block" flex-gt-sm="">
+      <label>
+       Select object class
+      </label>
+      <md-icon md-font-set="material-icons">
+       chevron_right
+      </md-icon>
+      <md-select ng-disabled="uiMode.edit" ng-model="objectClassModel.name">
+       <md-option ng-click="loadSelectedClass(c)" ng-repeat="c in allObjectClasses" value="{{ c }}">
+        {{ c }}
+       </md-option>
+      </md-select>
+     </md-input-container>
+     <md-divider ng-hide="!uiMode.edit">
+     </md-divider>
+    </div>
+    
+    
+    
+    <!--    ############################################ -->
+    <!--    Field settings -->
+    <!--    ############################################ -->
+    <div ng-hide="!uiMode.edit">
+     <h3>
+      Editing object class
+      <q>
+       {{objectClassModel.name}}
+      </q>
+     </h3>
+     <md-list>
+      <md-list-item ng-repeat="metadataField in objectClassModel.metadataFields">
+      <div layout="row" layout-fill>
+      
+       <!--    ############################################ -->
+       <!--    1) Name -->
+       <div flex="30">
+       <md-input-container>
+        <label>
+         Field name
+        </label>
+        <input ng-model="metadataField.name" type="text"/>
+       </md-input-container>
+       </div>
+       
+       
+       <!--    ############################################ -->
+       <!--    2) Type -->
+       <div flex="15">
+       <md-input-container>
+        <label>
+         Type
+        </label>
+        <md-select ng-model="metadataField.type" ng-model-options="{trackBy: '$value.name'}">
+         <md-option ng-repeat="typeOption in typeOptions" ng-value="typeOption">
+          {{ typeOption.name }}
+         </md-option>
+        </md-select>
+       </md-input-container>
+       </div>
+       
+       
+       
+       <!--    ############################################ -->
+       <!--    3) Default value -->
+       <div flex="20">
+       <md-input-container>
+        <label>
+         Default value
+        </label>
+        <input ng-model="metadataField.default" type="text"/>
+       </md-input-container>
+       </div>
+       
+       
+       <!--    ############################################ -->
+       <!--    4) Required -->
+       <div class="md-checkbox-div" ng-repeat="v in [0]" flex><!-- workaround: https://github.com/angular/material/issues/2819 -->
+        <md-switch aria-label="Required?" ng-model="metadataField.required"> 
+         Required?
+        </md-switch>
+       </div>
+       
+       
+       <!--    ############################################ -->
+       <!--    5) remove -->
+       <div flex>
+       <md-button class="md-raised md-primary" ng-click="removeMetadataField(metadataField)" ng-disabled="$first &amp;&amp; $last">
+        <md-icon md-font-set="material-icons">
+         delete
+        </md-icon>
+        remove
+       </md-button>
+       </div>
+       <md-divider md-inset="" ng-hide="$last">
+       </md-divider>
+       
+       </div>
+      </md-list-item>
+     </md-list>
+     
+     
+     
+     <md-button class="md-raised md-primary" ng-click="addMetadataField()">
+      <md-icon md-font-set="material-icons">
+       add
+      </md-icon>
+      Add field
+     </md-button>
+     <!--                 <select ng-model="metadataField.type"
+                        ng-options="typeOption.name for typeOption in typeOptions"
+                        ng-change="metadataField.default = undefined"
+                        class="form-control"
+                        id="fieldType"
+                        required>
+                    <option value="">Select type</option>
+                </select> -->
+     <!--             <dynamic-input
+                    type="metadataField.type.inputType"
+                    ng-model="metadataField.default"
+                    placeholder="Default {{ metadataField.type.inputType }}"
+                    inline="true"
+                    class="col-sm-3"></dynamic-input> -->
+    </div>
+   </md-dialog-content>
+   <!--    ############################################ -->
+   <!--    Delete/Create buttons -->
+   <!--    ############################################ -->
+   <md-dialog-actions class="" layout="row">
+    <md-button aria-label="Create/modify" class="md-fab" ng-click="submitObjectClass()">
+     <md-tooltip md-direction="top">
+      Create/modify
+     </md-tooltip>
+     <md-icon md-font-set="material-icons">
+      check
+     </md-icon>
+    </md-button>
+    <span flex="">
+    </span>
+    <md-fab-toolbar count="0" md-direction="left" md-open="false">
+     <md-fab-trigger class="align-with-text">
+      <md-button class="md-fab md-warn">
+       <md-tooltip md-direction="top">
+        Delete class
+       </md-tooltip>
+       <md-icon md-font-set="material-icons">
+        delete_forever
+       </md-icon>
+      </md-button>
+     </md-fab-trigger>
+     <md-toolbar class="">
+      <md-fab-actions class="md-toolbar-tools">
+       <md-button aria-label="really delete?" class="" ng-disabled="true">
+        Really delete?
+       </md-button>
+       <md-button aria-label="cancel" class="md-raised">
+        <md-icon md-font-set="material-icons">
+         done
+        </md-icon>
+        No, cancel
+       </md-button>
+       <md-button aria-label="delete" class="md-raised md-warn" ng-click="deleteObjectClass()">
+        <md-icon md-font-set="material-icons">
+         delete_forever
+        </md-icon>
+        Yes, delete
+       </md-button>
+      </md-fab-actions>
+     </md-toolbar>
+    </md-fab-toolbar>
+   </md-dialog-actions>
+  </md-dialog>
+ </body>
+</html>

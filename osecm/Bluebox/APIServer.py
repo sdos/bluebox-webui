@@ -345,6 +345,7 @@ def change_container(container_name):
 	
 	container_metadata = {}
 	
+	# object class
 	try:
 		class_name = container_definition.get("objectClass")
 		internal_data = InternalStorageManager(swift)
@@ -352,7 +353,21 @@ def change_container(container_name):
 		if class_name:
 			if class_definition is None:
 				raise HttpError("class does not exist", 404)
-			container_metadata = {"x-container-meta-object-class": class_name}
+			container_metadata["x-container-meta-object-class"] = class_name
+	except AttributeError:
+		pass  # ignore empty or missing class definition	
+	
+	# selected fields
+	try:
+		internal_fields = container_definition.get("mdfi")
+		print(internal_fields)
+		if (internal_fields != None): container_metadata["x-container-meta-mdfi"] = json.dumps(internal_fields)
+	except AttributeError:
+		pass  # ignore empty or missing class definition
+	try:
+		fields = container_definition.get("mdf")
+		print(fields)
+		if (fields != None): container_metadata["x-container-meta-mdf"] = json.dumps(fields)
 	except AttributeError:
 		pass  # ignore empty or missing class definition
 	
@@ -389,10 +404,44 @@ def get_objects_in_container(container_name):
 	cts = swift.get_object_list(container_name, **optional_params)
 	
 	resp = {}
-	resp["metadata"] = {"objectClass": cts[0].get("x-container-meta-object-class"),
-						"objectCount": cts[0].get("x-container-object-count")}
+	resp["metadata"] = cts[0]
+	resp["metadata"]["objectClass"] = cts[0].get("x-container-meta-object-class")
+	resp["metadata"]["objectCount"] = cts[0].get("x-container-object-count")
 	resp["objects"] = cts[1]
 	return Response(json.dumps(resp, sort_keys=True), mimetype="application/json")
+
+
+
+##############################################################################
+
+"""
+	returns the meta data of the specified container as json
+"""
+@app.route("/swift/containers/<container_name>/details", methods=["GET"])
+@log_requests
+def get_container_metadata(container_name):
+	swift = createConnection(request)
+	metadata = swift.get_container_metadata(container_name)
+	
+	as_json = json.dumps(metadata, sort_keys=True)
+	return Response(as_json, mimetype="application/json")
+
+
+"""
+	changes the meta data of the specified object
+"""
+@app.route("/swift/containers/<container_name>/details", methods=["PUT"])
+@log_requests
+def change_container_metadata(container_name, metadata):
+	print(metadata)
+	raise HttpError("funcion not implemented yet")
+
+##############################################################################
+
+
+
+
+
 
 
 """
