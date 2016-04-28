@@ -1,0 +1,59 @@
+<html>
+ <body>
+  <md-dialog aria-label="Create Container" ng-cloak="">
+   <md-toolbar>
+    <div class="md-toolbar-tools">
+     <h2 >
+      Create Container
+     </h2>
+     <span flex="">
+     </span>
+     <md-button class="md-icon-button" ng-click="cancel()">
+      <md-icon md-font-set="material-icons">
+       close
+      </md-icon>
+     </md-button>
+    </div>
+   </md-toolbar>
+   <md-dialog-content class="bb-margin">
+
+
+
+
+     <form ng-submit="createContainer()">
+      <!-- Input of the container name -->
+      <md-input-container class="md-block md-icon-float" flex-gt-sm="">
+       <label>
+        Container name
+       </label>
+       <md-icon md-font-set="material-icons">
+        chevron_right
+       </md-icon>
+       <input id="containerName" ng-model="newContainer.name" ng-trim="false" type="text"/>
+      </md-input-container>
+      <!-- Button to submit the form and create a new container -->
+      <md-button class="md-raised md-primary" ng-disabled="!newContainer.name" type="submit">
+       <md-icon md-font-set="material-icons">
+        add
+       </md-icon>
+       Create
+      </md-button>
+      <md-button class="md-raised md-primary" ng-disabled="!newContainer.name" type="submit" ng-click="cancel()">
+       <md-icon md-font-set="material-icons">
+        add
+       </md-icon>
+       Create & Close
+      </md-button>
+     </form>
+
+
+    
+    
+    
+    
+    
+    
+   </md-dialog-content>
+  </md-dialog>
+ </body>
+</html>
