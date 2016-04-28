@@ -40,6 +40,8 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
   <link href="/angular/css/app.css" rel="stylesheet"/>
  </head>
+
+
  <body ng-app="bluebox">
   <div layout="column" layout-fill="" ng-cloak="" ng-controller="bbController">
    <md-toolbar class="md-tall md-hue-2">
@@ -60,6 +62,8 @@
      </md-tab>
      <md-tab label="Analytics">
      </md-tab>
+     <md-tab label="Schema">
+     </md-tab>
      <md-tab label="Account &amp; Security">
      </md-tab>
     </md-tabs>
@@ -71,6 +75,9 @@
     </div>
    </md-content>
   </div>
+
+
+
   <!--   
      _______ ____  _____   ____                                 _       _  __ _          _ 
 	|__   __/ __ \|  __ \ / __ \ _                             (_)     (_)/ _(_)        | |
@@ -123,6 +130,10 @@
   <script src="/angular/modules/about/about.js">
   </script>
   <script src="/angular/modules/about/aboutController.js">
+  </script>
+  <script src="/angular/modules/schemaViewer/schemaViewer.js">
+  </script>
+  <script src="/angular/modules/schemaViewer/schemaViewerController.js">
   </script>
   <script src="/angular/modules/analytics/analytics.js">
   </script>

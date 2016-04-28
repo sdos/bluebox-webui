@@ -2,6 +2,7 @@
 
 var app = angular.module('bluebox', [
     'ngMaterial',
+    'bluebox.schemaViewer',
     'bluebox.fileSystem',
     'bluebox.messageBag',
     'bluebox.tasks',
@@ -41,9 +42,10 @@ var app = angular.module('bluebox', [
                 case 3:
                     $state.go("analyticsState");
                     break;
-
-
                 case 4:
+                    $state.go("schemaViewerState");
+                    break;
+                case 5:
                     $state.go("accountState");
                     break;
             }

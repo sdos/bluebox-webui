@@ -4,14 +4,19 @@
  <body>
   <div>
    <!-- Top buttons -->
-   <md-button aria-label="Back to containers" class="md-fab bb-pin-button" ui-sref="fileSystemState()">
+   <md-subheader class="sticky-return">
+    <md-button aria-label="Back to containers" class="md-fab bb-pin-button" ui-sref="fileSystemState()">
       <md-tooltip md-direction="right">
         Back to container list
-       </md-tooltip>
-    <md-icon md-font-set="material-icons">
-     chevron_left
-    </md-icon>
-   </md-button>
+      </md-tooltip>
+      <md-icon md-font-set="material-icons">
+      chevron_left
+      </md-icon>
+    </md-button>
+   </md-subheader>
+
+
+
    <!-- Upload form -->
    <div layout="row">
     <div class="md-whiteframe-4dp bb-container" flex="40" flex-xs="90">
@@ -27,28 +32,33 @@
      <md-content class="bb-container">
       <form name="uploadForm" ng-show="!isGetObjectClassRequestPending" ng-submit="uploadObject()">
        Choose File to upload
-       <input class="form-control-static" id="file" ng-change="uploadProgressPercentage = 0;" ng-model="fileModel.file" ngf-select="" required="" type="file"/>
-       <!-- 				Date input retention date
-				<md-datepicker class="md-block" flex-gt-sm="" ng-model="fileModel.retentionDate"
-								md-placeholder="Retention date" date="retentionDatePicker.minDate">
-				</md-datepicker>
+       <input class="form-control-static" id="file" ng-change="uploadProgressPercentage = 0;"
+              ng-model="fileModel.file" ngf-select="" required="" type="file"/>
 
-				Additional meta data input fields
-				<md-input-container ng-repeat="metadataField in container.metadataFields" class="md-block" flex-gt-sm="">
-					 <label for="{{ metaField.name }}">
-						 {{ metadataField.name }}
-					 </label>
-					 <input ng-if="metadataField.required" required="" ng-model="fileModel.metadata[metadataField.name]">
-					 <input ng-if="!metadataField.required" ng-model="fileModel.metadata[metadataField.name]">
-					<div ng-if="metadataField.required" ng-message="required">Required field</div>
-				</md-input-container> -->
-       Button to upload File
+       <md-datepicker class="md-block" flex-gt-sm="" ng-model="fileModel.retentionDate"
+                      md-placeholder="Retention date" date="retentionDatePicker.minDate">
+       </md-datepicker>
+
+        <!-- Button to choose file to upload -->
+       <md-button class="md-raised">
+        <label for="file-upload">Select File</label>
+       </md-button>
+       <input id="file-upload" class="ng-hide" type="file" ng-change="uploadProgressPercentage = 0;"
+                ng-model="fileModel.file" ngf-select="" required=""/>
+
+       <!-- Input container shows the name of the selected file -->
+       <md-input-container md-no-float>
+        <input id="textInput" ng-model="fileModel.file.name" type="text" placeholder="No file chosen"
+               ng-readonly="true">
+       </md-input-container>
+
        <md-button class="md-raised md-primary" type="submit">
         <span class="glyphicon glyphicon-cloud-upload">
         </span>
         Upload
        </md-button>
-       Upload progress percentage with bar
+
+
        <div ng-show="uploadProgress.percentage">
         {{ uploadProgress.percentage }} % ({{ uploadProgress.loaded | bytes }} / {{ uploadProgress.total | bytes }})
        </div>
@@ -238,12 +248,23 @@
            {{object.name}}
           </b>
          </td>
+
+
+
          
+<<<<<<< HEAD
+         <td md-cell ng-repeat="field in selectedMetadataFields">
+         {{object.details[field]}}
+         </td>
+         
+         <td md-cell ng-repeat="field in selectedInternalMetadataFields">
+=======
          <td md-cell ng-repeat="field in selectedMetadataFields" class="bb-table-col">
          {{object.details[field]}}
          </td>
          
          <td md-cell ng-repeat="field in selectedInternalMetadataFields" class="bb-table-col">
+>>>>>>> 55e6971d9da0e92245689b413584644f36a95c69
          {{field == "bytes" ? (object[field] | bytes) : object[field]}}
          </td>
          
