@@ -39,21 +39,18 @@
                       md-placeholder="Retention date" date="retentionDatePicker.minDate">
        </md-datepicker>
 
+        <!-- Button to choose file to upload -->
+       <md-button class="md-raised">
+        <label for="file-upload">Select File</label>
+       </md-button>
+       <input id="file-upload" class="ng-hide" type="file" ng-change="uploadProgressPercentage = 0;"
+                ng-model="fileModel.file" ngf-select="" required=""/>
 
-       <!-- 				Date input retention date
-				<md-datepicker class="md-block" flex-gt-sm="" ng-model="fileModel.retentionDate"
-								md-placeholder="Retention date" date="retentionDatePicker.minDate">
-				</md-datepicker>
-
-				Additional meta data input fields
-				<md-input-container ng-repeat="metadataField in container.metadataFields" class="md-block" flex-gt-sm="">
-					 <label for="{{ metaField.name }}">
-						 {{ metadataField.name }}
-					 </label>
-					 <input ng-if="metadataField.required" required="" ng-model="fileModel.metadata[metadataField.name]">
-					 <input ng-if="!metadataField.required" ng-model="fileModel.metadata[metadataField.name]">
-					<div ng-if="metadataField.required" ng-message="required">Required field</div>
-				</md-input-container> -->
+       <!-- Input container shows the name of the selected file -->
+       <md-input-container md-no-float>
+        <input id="textInput" ng-model="fileModel.file.name" type="text" placeholder="No file chosen"
+               ng-readonly="true">
+       </md-input-container>
 
        <md-button class="md-raised md-primary" type="submit">
         <span class="glyphicon glyphicon-cloud-upload">
