@@ -47,7 +47,7 @@ Data schema
 def getTableStructure():
 
 	# Establish connection to the SQLite database
-	connection = sqlite3.connect("/Users/christophtrybek/Documents/IPVS/git/swift-bluebox/osecm/Bluebox/temp/MetaData.db")
+	connection = sqlite3.connect("/home/tim/Downloads/MetaData.db")
 	cursor = connection.cursor()
 
 	# Retrieve all table names
