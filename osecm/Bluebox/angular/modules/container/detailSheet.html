@@ -24,6 +24,7 @@
     
 	<!-- Metata about the object-->
 	<h3>Object metadata</h3>
+	<md-table-container>
 	<table md-table="" ng-model="object.details">
       <thead md-head="">
        <tr md-row="">
@@ -40,7 +41,7 @@
        </tr>
       </thead>
       <tbody md-body="">
-       <tr md-auto-select="" md-row="" md-select="key" md-select-id="" ng-repeat="(key, value) in object.details">
+       <tr md-row ng-repeat="(key, value) in object.details">
         <td md-cell="" ng-click="">
          <b>
           {{key | metaPrefix}}
@@ -52,7 +53,7 @@
        </tr>
       </tbody>
      </table>	    
-    
+    </md-table-container>
     
     
     
