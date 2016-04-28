@@ -15,9 +15,10 @@ analyticsModule
 						'$filter',
 						'$http',
 						'$location',
-						'$anchorScroll',
+						'$mdDialog',
+						'$mdMedia',
 						function($scope, $rootScope, $state, $stateParams,
-								$timeout, $filter, $http , $location, $anchorScroll) {
+								$timeout, $filter, $http , $location, $mdDialog, $mdMedia) {
 							
 							$scope.waitingForPlot = false;
 
@@ -184,5 +185,39 @@ analyticsModule
     	                        );
 
     	                    };
+
+
+    	                    /**
+                             *
+                             * Detail Sheet...
+                             *
+                             */
+                             $scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm');
+
+                            $scope.showDetailSheet = function(event) {
+
+                                var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
+                                $mdDialog.show({
+                                    controller: AnalyticsDialogController,
+                                    templateUrl: 'angular/modules/analytics/tableStructure.html',
+                                    parent: angular.element(document.body),
+                                    targetEvent: event,
+                                    clickOutsideToClose:true,
+                                    fullscreen: useFullScreen,
+                                    scope: $scope,
+                                    preserveScope: true,
+                                    locals: {containerService: containerService}
+                                })
+                                .then(
+                                        function() {
+                                            console.log('You cancelled the dialog.');
+                                        });
+
+                                $scope.$watch(function() {
+                                    return $mdMedia('xs') || $mdMedia('sm');
+                                }, function(wantsFullScreen) {
+                                    $scope.customFullscreen = (wantsFullScreen === true);
+                                });
+                            };
 
 						}]);
