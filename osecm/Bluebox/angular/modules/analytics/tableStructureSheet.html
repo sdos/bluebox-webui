@@ -4,7 +4,7 @@
             <md-toolbar>
                 <div class="md-toolbar-tools">
                     <h2>
-                        Table structure
+                        Table structure {{ test }}
                     </h2>
                     <span flex="">
                     </span>
@@ -16,6 +16,7 @@
                 </div>
             </md-toolbar>
         <md-dialog-content class="bb-margin">
+
             <!-- card which contains information to all alvailable tables -->
             <md-card ng-show="showTable" ng-repeat="(key, value) in tableData">
                 <h3>{{ key }}</h3>

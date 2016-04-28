@@ -22,8 +22,14 @@ analyticsModule
 							
 							$scope.waitingForPlot = false;
 
+							$scope.tableData={};
+
 							console.log("BB-Insights!");
+
 							updateNodeRedSources();
+
+							getTableStructure();
+
 							$scope.nodered = {
 								url : "...Endpoint URL unknown..."
 							};
@@ -152,61 +158,63 @@ analyticsModule
 												});
 							};
 
-                            // retrieve table structure from the analytics data base
-							$scope.showTableStructure = function(){
-
-    	                        $http.get('api_analytics/tablestructure').then(
-
-    	                            function successCallback(response){
-
-                                        console.log(response.data)
-
-    	                                $scope.tableData = response.data;
-
-    	                                if(!response.data){
-    	                                    $rootScope.$broadcast(
-    	                                        'FlashMessage',{
-    	                                        'type' : 'danger',
-    	                                        'text' : 'unable to retrieve data tables'}
-    	                                        );
-    	                                }
-    	                            },
-
-    	                            function errorCallback(response){
-    	                                console.log(JSON.stringify(response));
-
-    	                                $rootScope.broadcast(
-    	                                    'FlashMessage', {
-    	                                    'type' : 'danger',
-    	                                    'text' : 'Error: ' + response.data
-    	                                    });
-    	                            }
-
-    	                        );
-
-    	                    };
-
 
     	                    /**
                              *
                              * Detail Sheet...
                              *
                              */
+
+                             // retrieve table structure from the analytics data base
+                                function getTableStructure(){
+
+                                    $http.get('api_analytics/tablestructure').then(
+
+                                        function successCallback(response){
+
+                                            console.log(response.data)
+
+                                            $scope.tableData = response.data;
+
+
+                                            if(!response.data){
+                                                $rootScope.$broadcast(
+                                                    'FlashMessage',{
+                                                    'type' : 'danger',
+                                                    'text' : 'unable to retrieve data tables'}
+                                                    );
+                                            }
+                                        },
+
+                                        function errorCallback(response){
+                                            console.log(JSON.stringify(response));
+
+                                            $rootScope.broadcast(
+                                                'FlashMessage', {
+                                                'type' : 'danger',
+                                                'text' : 'Error: ' + response.data
+                                                });
+                                        }
+
+                                    );
+
+                                };
+
                              $scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm');
 
-                            $scope.showDetailSheet = function(event) {
+                            $scope.showTableStructure = function(event) {
+
 
                                 var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
                                 $mdDialog.show({
                                     controller: AnalyticsDialogController,
-                                    templateUrl: 'angular/modules/analytics/tableStructure.html',
+                                    templateUrl: 'angular/modules/analytics/tableStructureSheet.html',
                                     parent: angular.element(document.body),
                                     targetEvent: event,
                                     clickOutsideToClose:true,
                                     fullscreen: useFullScreen,
                                     scope: $scope,
-                                    preserveScope: true,
-                                    locals: {containerService: containerService}
+                                    preserveScope:true
                                 })
                                 .then(
                                         function() {
@@ -221,3 +229,20 @@ analyticsModule
                             };
 
 						}]);
+
+
+function AnalyticsDialogController($rootScope, $state, $scope, $mdDialog, $http) {
+
+
+	$scope.hide = function() {
+		$mdDialog.hide();
+	};
+	$scope.cancel = function() {
+		$mdDialog.cancel();
+
+		console.log("Closed Dialog");
+	};
+
+
+
+};
