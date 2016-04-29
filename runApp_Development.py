@@ -10,18 +10,14 @@
 """
 
 from osecm.Bluebox import app#, socketio
+from osecm.Bluebox import appConfig
 
-
-import os
-
-netPort = os.getenv("VCAP_APP_PORT", "5000")
-netHost = os.getenv("VCAP_APP_HOST", "127.0.0.1")
 
 # socketio.run(
 # 			app,
 app.run(
-			host=netHost,
-			port=int(netPort),
+			host=appConfig.netHostDev,
+			port=int(appConfig.netPortDev),
 			debug=True,
 			threaded=True
 )

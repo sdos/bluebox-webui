@@ -9,14 +9,11 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 
-import os
+from osecm.Bluebox import appConfig
 import multiprocessing
 
-netPort = os.getenv("VCAP_APP_PORT", "5000")
-netHost = os.getenv("VCAP_APP_HOST", "0.0.0.0")
 
-
-bind = "{}:{}".format(netHost, netPort)
+bind = "{}:{}".format(appConfig.netHostProd, appConfig.netPortProd)
 workers = multiprocessing.cpu_count() * 2 + 1
 #workers = 1 #
 timeout = 600

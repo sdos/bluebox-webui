@@ -7,9 +7,28 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
+import os
 
 """
-this is the current config file for bluebox. define the server connection below:
+this is the current config file for bluebox. 
+"""
+
+"""
+################################################################################
+Server / runtime config
+################################################################################
+"""
+netPortDev = os.getenv("VCAP_APP_PORT", "5000")
+netHostDev = os.getenv("VCAP_APP_HOST", "127.0.0.1")
+
+netPortProd = os.getenv("VCAP_APP_PORT", "5000")
+netHostProd = os.getenv("VCAP_APP_HOST", "0.0.0.0")
+
+
+"""
+################################################################################
+define the server connection below:
+################################################################################
 
 when using the Object Storage service on Bluemix:
 swift_url = <url>/v3
