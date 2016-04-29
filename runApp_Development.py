@@ -15,7 +15,7 @@ from osecm.Bluebox import app#, socketio
 import os
 
 netPort = os.getenv("VCAP_APP_PORT", "5000")
-netHost = os.getenv("VCAP_APP_HOST", "0.0.0.0")
+netHost = os.getenv("VCAP_APP_HOST", "127.0.0.1")
 
 # socketio.run(
 # 			app,
