@@ -7,6 +7,84 @@
   <!-- Analytics card root -->
  </head>
  <body>
+ 
+ 
+ 
+ 
+ 
+ 
+   
+<!--   ############################################################################# -->  
+  <!-- PLOT AREA -->
+<!--   ############################################################################# -->
+  <div ng-hide="!bbplot" layout="row">
+   <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
+   <md-toolbar class="md-accent md-hue-2">
+    <div class="md-toolbar-tools">
+     <h2>
+      <span>
+       Your results
+      </span>
+     </h2>
+    </div>
+   </md-toolbar>
+   <md-content class="bb-container" ng-bind-html="bbplot | to_trusted">
+   </md-content>
+  </div>
+   <div flex="">
+   </div> 
+  </div>
+  
+<!--   ############################################################################# -->  
+  <!-- TABLE AREA -->
+<!--   ############################################################################# -->
+  <div ng-hide="!bbTableData" layout="row">
+   <div class="md-whiteframe-4dp bb-container" flex="90" flex-xs="90">
+   <md-toolbar class="md-accent md-hue-2">
+    <div class="md-toolbar-tools">
+     <h2>
+      <span>
+       Raw results
+      </span>
+     </h2>
+    </div>
+   </md-toolbar>
+   <md-content class="bb-container">
+   <pre>{{bbTableData.info}}</pre>
+   <p ng-hide="!bbTableData.truncated"><b>Showing only the first 50 rows</b></p>
+   
+   <md-table-container>
+  <table md-table ng-model="bbTableData.table">
+    <thead md-head >
+      <tr md-row>
+        <th md-column ng-repeat="(k, v) in bbTableData.table[0]"><span>{{k}}</span></th>
+      </tr>
+    </thead>
+    <tbody md-body>
+      <tr md-row ng-repeat="row in bbTableData.table">
+        <td md-cell ng-repeat="(k, v) in row">{{v}}</td>
+      </tr>
+    </tbody>
+  </table>
+</md-table-container>
+
+   
+   </md-content>
+  </div>
+   <div flex="">
+   </div> 
+  </div>
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
   <div layout="row">
    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
     <md-toolbar class="md-hue-2">
@@ -173,67 +251,7 @@
    </md-content>
   </div>
   
-  
-<!--   ############################################################################# -->  
-  <!-- PLOT AREA -->
-<!--   ############################################################################# -->
-  <div ng-hide="!bbplot" layout="row">
-   <div class="md-whiteframe-4dp bb-container" flex="90" flex-xs="90">
-   <md-toolbar class="md-accent md-hue-2">
-    <div class="md-toolbar-tools">
-     <h2>
-      <span>
-       Your results
-      </span>
-     </h2>
-    </div>
-   </md-toolbar>
-   <md-content class="bb-container" ng-bind-html="bbplot | to_trusted">
-   </md-content>
-  </div>
-   <div flex="">
-   </div> 
-  </div>
-  
-<!--   ############################################################################# -->  
-  <!-- TABLE AREA -->
-<!--   ############################################################################# -->
-  <div ng-hide="!bbTableData" layout="row">
-   <div class="md-whiteframe-4dp bb-container" flex="90" flex-xs="90">
-   <md-toolbar class="md-accent md-hue-2">
-    <div class="md-toolbar-tools">
-     <h2>
-      <span>
-       Raw results
-      </span>
-     </h2>
-    </div>
-   </md-toolbar>
-   <md-content class="bb-container">
-   <pre>{{bbTableData.info}}</pre>
-   <p ng-hide="!bbTableData.truncated"><b>Showing only the first 50 rows</b></p>
-   
-   <md-table-container>
-  <table md-table ng-model="bbTableData.table">
-    <thead md-head >
-      <tr md-row>
-        <th md-column ng-repeat="(k, v) in bbTableData.table[0]"><span>{{k}}</span></th>
-      </tr>
-    </thead>
-    <tbody md-body>
-      <tr md-row ng-repeat="row in bbTableData.table">
-        <td md-cell ng-repeat="(k, v) in row">{{v}}</td>
-      </tr>
-    </tbody>
-  </table>
-</md-table-container>
 
-   
-   </md-content>
-  </div>
-   <div flex="">
-   </div> 
-  </div>
   
   
   
