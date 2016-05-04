@@ -41,7 +41,7 @@
   <link href="/angular/css/app.css" rel="stylesheet"/>
  </head>
  <body ng-app="bluebox">
-  <div layout="column" layout-fill="" ng-cloak="" ng-controller="bbController" id="messageBagContainer">
+  <div layout="column" layout-fill="" ng-cloak="" id="messageBagContainer">
    <md-toolbar class="md-tall md-hue-2">
     <div class="md-toolbar-tools">
      <img alt="BlueBox Logo" height="60px" src="/angular/icons/bluebox_icon.png"/>
@@ -52,15 +52,15 @@
     <span flex="">
     </span>
     <md-tabs class="" md-border-bottom="" md-dynamic-height="" md-selected="selectedTabIndex">
-     <md-tab label="Content Management">
+     <md-tab label="Content Management" ui-sref="fileSystemState">
      </md-tab>
-     <md-tab label="Tasks &amp; Scheduling">
+     <md-tab label="Tasks &amp; Scheduling" ui-sref="tasksState">
      </md-tab>
-     <md-tab label="About">
+     <md-tab label="About" ui-sref="aboutState">
      </md-tab>
-     <md-tab label="Analytics">
+     <md-tab label="Analytics" ui-sref="analyticsState">
      </md-tab>
-     <md-tab label="Account &amp; Security">
+     <md-tab label="Account &amp; Security" ui-sref="accountState">
      </md-tab>
     </md-tabs>
     <div ng-controller="messageBagController">
