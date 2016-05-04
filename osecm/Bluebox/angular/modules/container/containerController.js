@@ -42,7 +42,7 @@ containerModule.controller('ContainerController',
 			 */
 
 
-			$scope.availableMetadataFields = {};
+			$scope.availableMetadataFields = {"mgmt" :["retentiondate"]};
 			$scope.availableInternalMetadataFields = ["bytes", "content_type", "last_modified", "hash"];
 
 			$scope.selectedMetadataFields = [];
@@ -118,22 +118,16 @@ containerModule.controller('ContainerController',
 			 */
 			$scope.specialMetadataFields = [
 			                                {
-			                                	name: "Date",
 			                                	headerKey: "date",
-			                                	dateFormat: "medium",
-			                                	isShownInColumn: false
+			                                	dateFormat: "medium"
 			                                },
 			                                {
-			                                	name: "Last modified",
 			                                	headerKey: "last-modified",
-			                                	dateFormat: "medium",
-			                                	isShownInColumn: false
+			                                	dateFormat: "medium"
 			                                },
 			                                {
-			                                	name: "Retention Date",
-			                                	headerKey: "x-object-meta-retentiontime",
-			                                	dateFormat: "mediumDate",
-			                                	isShownInColumn: false
+			                                	headerKey: "x-object-meta-mgmt-retentiondate",
+			                                	dateFormat: "mediumDate"
 			                                }
 			                                ];
 
@@ -244,8 +238,8 @@ containerModule.controller('ContainerController',
 
 
 
-
-
+			
+			
 			/**
 			 * PUT a container update to the file system service
 			 */
@@ -273,6 +267,29 @@ containerModule.controller('ContainerController',
 				});
 			};
 
+
+			/**
+			 * PUT an object update
+			 */
+			$scope.updateObject = function() {
+				containerService
+				.updateObject($scope.container, $scope.object)
+				.then(function() {
+					$rootScope.$broadcast('FlashMessage', {
+						"type": "success",
+						"text": "Object updated."
+					});
+					getDetails($scope.object);
+				})
+				.catch(function (response) {
+					$rootScope.$broadcast('FlashMessage', {
+						"type":     "danger",
+						"text":     response.data
+					});
+				});
+			};
+
+			
 
 
 
@@ -330,6 +347,7 @@ containerModule.controller('ContainerController',
 				containerService
 				.getDetails($scope.container, object)
 				.then(function (details) {
+					console.log(details);
 					parseMetadataDates(details);
 					object.details = details;
 				})
@@ -350,7 +368,8 @@ containerModule.controller('ContainerController',
 				containerService
 				.getAvailableMetadataFields()
 				.then(function (fields) {
-					$scope.availableMetadataFields = fields;
+					$scope.availableMetadataFields = _.extend($scope.availableMetadataFields, fields);
+					//console.log(fields);
 				})
 				.catch(function (response) {
 					$rootScope.$broadcast('FlashMessage', {
@@ -540,7 +559,7 @@ containerModule.controller('ContainerController',
 				for (var key in metadata) {
 					var metadataField = $scope.getMetadataField(key);
 					if (metadataField && metadataField.dateFormat) {
-						var parsedDate = Date.parse(metadata[key]);
+						var parsedDate = new Date(metadata[key]);
 						metadata[key] = isNaN(parsedDate) ? metadata[key] : parsedDate;
 					}
 				}
@@ -570,9 +589,9 @@ containerModule.controller('ContainerController',
 				$mdOpenMenu(ev);
 			};
 
-			$scope.addMenuColumn = function(filterName, columnName) {
+			$scope.addMenuColumn = function(sourceName, columnName) {
 				getAllMissingDetails();
-				var fieldName = 'x-object-meta-filter-' + filterName + '-' + columnName;
+				var fieldName = 'x-object-meta-' + sourceName + '-' + columnName;
 				if(_.indexOf($scope.selectedMetadataFields, fieldName)<0) $scope.selectedMetadataFields.push(fieldName);
 				$scope.updateContainer();
 			};

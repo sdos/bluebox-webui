@@ -2,6 +2,10 @@ h2 {
 	color: white;
 }
 
+md-dialog-content h2 {
+	color: black;
+}
+
 .bb-container {
 	margin: 1em;
 }

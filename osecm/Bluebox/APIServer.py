@@ -445,6 +445,28 @@ def change_container_metadata(container_name, metadata):
 
 
 """
+	updates an object
+"""
+@app.route("/swift/containers/<container_name>/objects/<path:object_name>", methods=["POST"])
+@log_requests
+def update_object(container_name, object_name):
+	swift = createConnection(request)
+	try:
+		object_definition = request.json.get("metadata")
+	except AttributeError:
+		raise HttpError("malformed request", 400)
+	
+	if not object_definition:
+		raise HttpError("object_definition is missing", 400)
+	
+	print(object_definition)
+	h = cleanHeaders(object_definition)
+	print(h)	
+	rsp = swift.update_object_metadata(object_name=object_name, container_name=container_name, metadata_dict=h)
+	return rsp["reason"], rsp["status"]
+
+
+"""
 	creates a new object
 """
 @app.route("/swift/containers/<container_name>/objects", methods=["POST"])
@@ -578,6 +600,15 @@ def isRetentionPeriodExpired(timestamp):
 	if (calcTimeDifference(timestamp)):
 		return calcTimeDifference(timestamp) <= 0
 	return False
+
+
+def cleanHeaders(metadataDict):
+	n = dict()
+	for k, v in metadataDict.items():
+		if k.startswith("x-object-meta-"):
+			n[k] = v
+	return n
+
 
 def xform_header_names(name):
 	tmp = name.strip()

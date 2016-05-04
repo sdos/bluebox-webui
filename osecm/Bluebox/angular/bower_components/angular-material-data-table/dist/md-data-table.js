@@ -2,7 +2,7 @@
  * Angular Material Data Table
  * https://github.com/daniel-nagy/md-data-table
  * @license MIT
- * v0.10.5
+ * v0.10.9
  */
 (function (window, angular, undefined) {
 'use strict';
@@ -25,7 +25,7 @@ angular.module('md-table-pagination.html', []).run(['$templateCache', function($
     '  <div class="label">{{$pagination.label.rowsPerPage}}</div>\n' +
     '\n' +
     '  <md-select class="md-table-select" ng-model="$pagination.limit" md-container-class="md-pagination-select" ng-disabled="$pagination.disabled" aria-label="Rows" placeholder="{{ $pagination.limitOptions[0] }}">\n' +
-    '    <md-option ng-repeat="rows in $pagination.limitOptions" ng-value="rows">{{rows}}</md-option>\n' +
+    '    <md-option ng-repeat="option in $pagination.limitOptions" ng-value="option.value ? $pagination.eval(option.value) : option">{{::option.label ? option.label : option}}</md-option>\n' +
     '  </md-select>\n' +
     '</div>\n' +
     '\n' +
@@ -176,7 +176,7 @@ function mdCell() {
 angular.module('md.data.table').directive('mdColumn', mdColumn);
 
 function mdColumn($compile, $mdUtil) {
-  
+
   function compile(tElement) {
     tElement.addClass('md-column');
     return postLink;
@@ -185,47 +185,47 @@ function mdColumn($compile, $mdUtil) {
   function postLink(scope, element, attrs, ctrls) {
     var headCtrl = ctrls.shift();
     var tableCtrl = ctrls.shift();
-    
+
     function attachSortIcon() {
       var sortIcon = angular.element('<md-icon md-svg-icon="arrow-up.svg">');
-      
+
       $compile(sortIcon.addClass('md-sort-icon').attr('ng-class', 'getDirection()'))(scope);
-      
+
       if(element.hasClass('md-numeric')) {
         element.prepend(sortIcon);
       } else {
         element.append(sortIcon);
       }
     }
-    
+
     function detachSortIcon() {
       Array.prototype.some.call(element.find('md-icon'), function (icon) {
         return icon.classList.contains('md-sort-icon') && element[0].removeChild(icon);
       });
     }
-    
+
     function disableSorting() {
       detachSortIcon();
       element.removeClass('md-sort').off('click', setOrder);
     }
-    
+
     function enableSorting() {
       attachSortIcon();
       element.addClass('md-sort').on('click', setOrder);
     }
-    
+
     function getIndex() {
       return Array.prototype.indexOf.call(element.parent().children(), element[0]);
     }
-    
+
     function isActive() {
       return scope.orderBy && (headCtrl.order === scope.orderBy || headCtrl.order === '-' + scope.orderBy);
     }
-    
+
     function isNumeric() {
       return attrs.mdNumeric === '' || scope.numeric;
     }
-    
+
     function setOrder() {
       scope.$applyAsync(function () {
         if(isActive()) {
@@ -233,7 +233,7 @@ function mdColumn($compile, $mdUtil) {
         } else {
           headCtrl.order = scope.getDirection() === 'md-asc' ? scope.orderBy : '-' + scope.orderBy;
         }
-        
+
         if(angular.isFunction(headCtrl.onReorder)) {
           $mdUtil.nextTick(function () {
             headCtrl.onReorder(headCtrl.order);
@@ -241,25 +241,25 @@ function mdColumn($compile, $mdUtil) {
         }
       });
     }
-    
+
     function updateColumn(index, column) {
       tableCtrl.$$columns[index] = column;
-      
+
       if(column.numeric) {
         element.addClass('md-numeric');
       } else {
         element.removeClass('md-numeric');
       }
     }
-    
+
     scope.getDirection = function () {
       if(isActive()) {
         return headCtrl.order.charAt(0) === '-' ? 'md-desc' : 'md-asc';
       }
-      
+
       return attrs.mdDesc === '' || scope.$eval(attrs.mdDesc) ? 'md-desc' : 'md-asc';
     };
-    
+
     scope.$watch(isActive, function (active) {
       if(active) {
         element.addClass('md-active');
@@ -267,19 +267,21 @@ function mdColumn($compile, $mdUtil) {
         element.removeClass('md-active');
       }
     });
-    
+
     scope.$watch(getIndex, function (index) {
       updateColumn(index, {'numeric': isNumeric()});
     });
-    
+
     scope.$watch(isNumeric, function (numeric) {
       updateColumn(getIndex(), {'numeric': numeric});
     });
-    
+
     scope.$watch('orderBy', function (orderBy) {
       if(orderBy) {
-        enableSorting();
-      } else {
+        if(!element.hasClass('md-sort')) {
+          enableSorting();
+        }
+      } else if(element.hasClass('md-sort')) {
         disableSorting();
       }
     });
@@ -1298,6 +1300,10 @@ function mdTablePagination() {
       return parseInt(number, 10) > 0;
     }
 
+    self.eval = function (expression) {
+      return $scope.$eval(expression);
+    };
+
     self.first = function () {
       self.page = 1;
       self.onPaginationChange();
@@ -1426,27 +1432,27 @@ function virtualPageSelect() {
   function Controller($element, $scope) {
     var self = this;
     var content = $element.find('md-content');
-    
+
     self.pages = [];
-    
+
     function getMin(pages, total) {
       return Math.min(pages, isFinite(total) && isPositive(total) ? total : 1);
     }
-    
+
     function isPositive(number) {
       return number > 0;
     }
-    
+
     function setPages(max) {
       if(self.pages.length > max) {
         return self.pages.splice(max);
       }
-      
+
       for(var i = self.pages.length; i < max; i++) {
         self.pages.push(i + 1);
       }
     }
-    
+
     content.on('scroll', function () {
       if((content.prop('clientHeight') + content.prop('scrollTop')) >= content.prop('scrollHeight')) {
         $scope.$applyAsync(function () {
@@ -1454,9 +1460,15 @@ function virtualPageSelect() {
         });
       }
     });
-    
+
     $scope.$watch('$pageSelect.total', function (total) {
       setPages(getMin(Math.max(self.pages.length, 10), total));
+    });
+
+    $scope.$watch('$pagination.page', function (page) {
+      for(var i = self.pages.length; i < page; i++) {
+        self.pages.push(i + 1);
+      }
     });
   }
 

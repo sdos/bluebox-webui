@@ -7,7 +7,7 @@
 var filterModule = angular.module('bluebox.filter', [
 ]).filter('metaPrefix', function() {
 	return function(input) {
-		return input.replace("x-object-meta-filter-", "");
+		return input.replace("x-object-meta-", "");
 	}
 }).filter('fileTypeIcon', function() {
 	return function(input) {

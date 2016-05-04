@@ -126,6 +126,15 @@ class SwiftConnect:
 	def remove_metadata(self, key):
 		self.conn.delete_object("internal-object-class-store", key)
 	
+	@exception_wrapper(404, "resource does not exist", log)
+	def update_object_metadata(self, object_name, container_name, metadata_dict):
+		log.debug("updating object: {} in container: {} mith md: {}".format(object_name, container_name, metadata_dict))
+		rsp=dict()
+		self.conn.post_object(container=container_name, obj=object_name, headers=metadata_dict, response_dict=rsp)
+		print(rsp)
+		return rsp
+		
+	
 	
 ##############################################################################
 

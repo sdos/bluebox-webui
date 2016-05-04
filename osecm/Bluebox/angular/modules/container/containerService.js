@@ -74,6 +74,19 @@ containerModule.factory(
                     }
                 });
             },
+            
+            /**
+             * PUT an update of a container
+             *
+             */
+            updateObject: function(container, object) {
+            	//console.log(object);
+                return $http({
+                    "method":   "POST",
+                    "url":      BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(container.name) + "/objects/" + $filter('urlEncode')(object.name),
+                    "data":     {"metadata": object.details}
+                })
+            },
 
             /**
              * GET the details of an object

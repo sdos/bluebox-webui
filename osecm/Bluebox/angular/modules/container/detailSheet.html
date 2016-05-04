@@ -16,14 +16,17 @@
     </div>
    </md-toolbar>
    <md-dialog-content class="bb-margin">
-   <h3>Details</h3>
     <p>
-     <span><b>Size:</b> {{object.bytes | bytes}}, </span><span><b>Type:</b> {{object.content_type}}, </span>
+     <span><b>Size:</b> {{object.bytes | bytes}}, </span><span><b>Type:</b> {{object.content_type}}</span>
  	</p>
+    
+    <h3>Retention date</h3>
+    <md-datepicker ng-model="object.details['x-object-meta-mgmt-retentiondate']" md-placeholder="None">
+     </md-datepicker>
     
     
 	<!-- Metata about the object-->
-	<h3>Object metadata</h3>
+	<h3>All object metadata</h3>
 	<md-table-container>
 	<table md-table="" ng-model="object.details">
       <thead md-head="">
@@ -81,10 +84,19 @@
    
     <md-button aria-label="Preview" class="md-fab" ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true" target="_blank">
      <md-tooltip md-direction="top">
-      Preview
+      Preview in browser
      </md-tooltip>
      <md-icon md-font-set="material-icons">
       pageview
+     </md-icon>
+    </md-button>
+   
+    <md-button aria-label="Update metadata" class="md-fab md-accent md-hue-3" ng-click="updateObject()">
+     <md-tooltip md-direction="top">
+      Update metadata
+     </md-tooltip>
+     <md-icon md-font-set="material-icons">
+      check
      </md-icon>
     </md-button>
     

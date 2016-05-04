@@ -6,34 +6,76 @@
  */
 angular.module('bluebox.messageBag', [ 'ngAnimate', 'ngSanitize' ]).controller(
 		'messageBagController',
-		function($scope, $mdToast) {
-			
+		function($scope, $mdToast, $mdDialog, $mdMedia) {
+
+
+
+			/**
+			 * 
+			 * Message receiver
+			 * 
+			 * */
+
+			$scope.$on('FlashMessage', function(event, message) {
+				if ("success" == message.type) showMessage(message);
+				if ("danger" == message.type) showAlert(message);
+				
+				console.log(message.type + ": " + message.text);
+			});	
+
+
+
+			/**
+			 * 
+			 * Handle the toasts
+			 * 	for info etc.
+			 * 
+			 * */
 			function showMessage(message) {
 				$mdToast.show({
-			          hideDelay   : 5000,
-			          position    : 'bottom left',
-			          controller  : 'ToastCtrl',
-			          locals: {message: message},
-			          templateUrl : 'angular/modules/messageBag/messageBag.html'
-			        });
+					hideDelay   : 5000,
+					position    : 'bottom left',
+					controller  : 'ToastCtrl',
+					locals: {message: message},
+					templateUrl : 'angular/modules/messageBag/messageBag.html'
+				});
 			};
-			
-			
-			$scope.$on('FlashMessage', function(event, message) {
-				showMessage(message);
-				console.log(message.type + ": " + message.text);
-			});
-			
-			
+
+
+
+			/**
+			 * 
+			 * Handle the dialogs
+			 * 	for errors
+			 * 
+			 * */
+			function showAlert(message) {
+				$mdDialog.show(
+						$mdDialog.alert()
+						.parent(angular.element(document.querySelector('#messageBagContainer')))
+						.clickOutsideToClose(true)
+						.title('Problem...')
+						.textContent(message.text)
+						.ariaLabel('Problem...')
+						.ok('Got it!')
+						//.targetEvent(ev)
+				);
+			};
+
+
+
+			/**
+			 * 
+			 * Controllers
+			 * 
+			 * 
+			 * */  
+
 
 		}).controller('ToastCtrl', function($scope, $mdToast, message) {
 			$scope.message = message;
-			if ("danger" == message.type) $scope.icon = {name: 'error', style: 'md-warn'};
-			if ("success" == message.type) $scope.icon = {name: 'info', style: 'md-accent'};
-			
-			
 			$scope.closeToast = function() {
 				$mdToast.hide();
 			};
-});
+		});
 
