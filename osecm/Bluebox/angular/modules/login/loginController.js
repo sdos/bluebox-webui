@@ -10,7 +10,7 @@ loginModule.controller('LoginController',
 
     	if ($stateParams.noAuth) {
 			$rootScope.$broadcast('FlashMessage', {
-                "type":     "danger",
+                "type":     "success",
                 "text":     "Authentication required"
             });    		
     	}
