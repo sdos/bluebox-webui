@@ -199,7 +199,11 @@ containerModule.controller('ContainerController',
 						return;
 					}
 					if (response.status === 404) {
-						quitContainer("Container \"" + $scope.container.name + "\" not found.");
+						$state.go('fileSystemState');
+						$rootScope.$broadcast('FlashMessage', {
+							"type": "danger",
+							"text": "Container \"" + $scope.container.name + "\" not found."
+						});
 					} else {
 						$rootScope.$broadcast('FlashMessage', {
 							"type": "danger",
@@ -298,42 +302,49 @@ containerModule.controller('ContainerController',
 			 * upload the file of the uploadForm
 			 */
 			$scope.uploadObject = function() {
-				$scope.uploadProgress.percentage = 0;
-				containerService
-				.uploadObject($scope.fileModel.file, $scope.container.name, $scope.fileModel.metadata, $scope.fileModel.retentionDate)
-				.then(
-						function() {
-							$rootScope.$broadcast('FlashMessage', {
-								"type": "success",
-								"text": "File \"" + $scope.fileModel.file.name + "\" uploaded."
-							});
-							resetProgressBar();
+				for (var thisFile of $scope.fileModel.files) {
+					
+					thisFile.uploadProgress = {
+							percentage : 0,
+							loaded : 0,
+							total : 0};
+					containerService
+					.uploadObject(thisFile, $scope.container.name, undefined, undefined)
+					.then(
+							function() {
+								$rootScope.$broadcast('FlashMessage', {
+									"type": "success",
+									"text": "File \"" + thisFile.name + "\" uploaded."
+								});
+								resetProgressBar(thisFile);
 
-							// reload objects
-							$scope.getObjects(true);
-						},
-						function(response) {
-							$rootScope.$broadcast('FlashMessage', {
-								"type":     "danger",
-								"text":     response.data
-							});
-							resetProgressBar();
-						},
-						function(event) {
-							// update upload progress
-							$scope.uploadProgress.loaded = parseInt(event.loaded);
-							$scope.uploadProgress.total = parseInt(event.total);
-							$scope.uploadProgress.percentage = parseInt(100.0 * event.loaded / event.total);
-						}
-				);
+								// reload objects
+								$scope.getObjects(true);
+							},
+							function(response) {
+								$rootScope.$broadcast('FlashMessage', {
+									"type":     "danger",
+									"text":     response.data
+								});
+								resetProgressBar(thisFile);
+							},
+							function(event) {
+								// update upload progress
+								thisFile.uploadProgress.loaded = parseInt(event.loaded);
+								thisFile.uploadProgress.total = parseInt(event.total);
+								thisFile.uploadProgress.percentage = parseInt(100.0 * event.loaded / event.total);
+							}
+					);
+
+				}
 			};
 
 			/**
 			 * resets the upload progress bar after 0.5s delay
 			 */
-			var resetProgressBar = function() {
+			var resetProgressBar = function(thisFile) {
 				$timeout(function() {
-					$scope.uploadProgress.percentage = 0;
+					thisFile.uploadProgress.percentage = 0;
 				}, 500);
 			};
 
@@ -394,7 +405,11 @@ containerModule.controller('ContainerController',
 
 			// quit the container if there is no name provided
 			if (!$stateParams.containerName) {
-				quitContainer("Cannot enter container: no container name provided.");
+				$state.go('fileSystemState');
+				$rootScope.$broadcast('FlashMessage', {
+					"type": "danger",
+					"text": "Cannot enter container: no container name provided."
+				});
 			} else {
 				// initial retrieval
 				$scope.getObjects(true);

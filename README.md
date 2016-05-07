@@ -10,7 +10,7 @@ The "frontend" is served by the python app as well but any static HTTP server co
 
 ## Running
 
-* install the requirements stated in requirements.txt (or simply run it and see what's missing...)
+* install the requirements stated in requirements.txt (or simply run it and see what's missing...) `pip3 install -r requirements.txt`
 * for local development/testing: `python runApp_Development.py`
 * for production: `./runApp_Production.sh`
 
@@ -25,3 +25,21 @@ configuration of the host/port is done inside the two "run" scripts mentioned ab
 
 configuration of the swift backend connection is in the `appConfig.py` file. An example is given by `appConfig.example.py`
 
+## Dev setup
+### use a python virtualenv
+in the main directory
+    virtualenv venv
+    source venv/bin/activate
+    
+to leave venv
+    deactivate
+    
+### use pip to install requirements
+just install the existing reqs
+    pip3 install -r requirements.txt
+    
+install new packages
+    pip3 install <package>
+
+save new packages to requirements:
+    pip3 freeze --local > requirements.txt
