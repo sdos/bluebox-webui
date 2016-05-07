@@ -1,123 +1,120 @@
 <!-- Card where you can create a new container -->
 <html>
- <head>
- </head>
- <body>
- 
- 
- 
-    <!-- Top buttons -->
-   <md-button aria-label="Create new container" class="md-raised md-accent" ng-click="showCreateContainerSheet($event)">
+<head>
+</head>
+<body>
+
+
+<!-- Top buttons -->
+<md-button aria-label="Create new container" class="md-fab md-accent" ng-click="showCreateContainerSheet($event)">
+    <md-tooltip md-direction="down">
+        Create new container
+    </md-tooltip>
     <md-icon md-font-set="material-icons">
-     create_new_folder
+        create_new_folder
     </md-icon>
-    Create new container
-   </md-button>
-   
-   <md-button aria-label="Manage object classes" class="md-raised md-accent" ng-click="showObjectClassSheet($event)">
+</md-button>
+
+<md-button aria-label="Manage object classes" class="md-fab md-accent" ng-click="showObjectClassSheet($event)">
+    <md-tooltip md-direction="down">
+        Manage object classes
+    </md-tooltip>
     <md-icon md-font-set="material-icons">
-     settings
+        settings
     </md-icon>
-    Manage object classes
-   </md-button>
- 
- 
- 
- 
- 
- 
-  <!-- Card which lists all available containers -->
-  <div class="md-whiteframe-4dp bb-container" flex="">
-   <md-toolbar class="md-hue-2">
-    <div class="md-toolbar-tools">
-     <h2>
+</md-button>
+
+
+<!-- Card which lists all available containers -->
+<div class="md-whiteframe-4dp bb-container" flex="">
+    <md-toolbar class="md-hue-2">
+        <div class="md-toolbar-tools">
+            <h2>
       <span>
-       Listing {{fileSystem.metadata.containerCount}} containers
+       Listing {{ fileSystem.metadata.containerCount }} containers
       </span>
-     </h2>
-    </div>
-   </md-toolbar>
-   <md-content class="bb-container">
-    <!-- Text input to filter containers -->
-    <md-input-container class="md-icon-float md-block" flex-gt-sm="">
-     <label>
-      Filter containers by prefix
-     </label>
-     <md-icon md-font-set="material-icons">
-      filter_list
-     </md-icon>
-     <input ng-change="getContainers(true)" ng-model="prefix"/>
-    </md-input-container>
-    
-    
-    <!-- Lists all containers in a table -->
-    <md-table-container>
-     <table md-table="" ng-model="fileSystem.containers" class="bb-table">
-      <thead md-head="">
-       <tr md-row="">
-        <th md-column="" class="bb-table-icon-col">
-        </th>
-        <th md-column="">
-         <h3>
-          Name
-         </h3>
-        </th>
-        <th md-column="" md-numeric="">
-         <h3>
-          Size
-         </h3>
-        </th>
-        <th md-column="" md-numeric="">
-        <h3>
-         Count
-         </h3>
-        </th>
-       </tr>
-      </thead>
-      <tbody md-body="">
-       <tr md-row ng-repeat="thisContainer in fileSystem.containers">
-        <td md-cell="" ng-click="enterContainer(thisContainer.name)">
-       <md-tooltip md-direction="top">
-        Enter container
-       </md-tooltip>
-         <md-icon md-font-set="material-icons">
-          {{thisContainer.count==0 ? "folder_open" : "folder"}}
-         </md-icon>
-        </td>
-        <td md-cell="" ng-click="showDetailSheet($event, thisContainer)" class="bb-table-col">
-         <b>
-      <md-tooltip md-direction="top">
-        Show details
-       </md-tooltip>
-          {{thisContainer.name}}
-         </b>
-        </td>
-        <td md-cell="" class="bb-table-col">
-         {{thisContainer.bytes | bytes}}
-        </td>
-        <td md-cell="" class="bb-table-col">
-         {{thisContainer.count}}
-        </td>
-       </tr>
-      </tbody>
-     </table>
-    </md-table-container>
-    <div in-view="$inview&&getContainers()" layout="row" layout-align="space-around" layout-sm="column">
-     <h3>
+            </h2>
+        </div>
+    </md-toolbar>
+    <md-content class="bb-container">
+        <!-- Text input to filter containers -->
+        <md-input-container class="md-icon-float md-block" flex-gt-sm="">
+            <label>
+                Filter containers by prefix
+            </label>
+            <md-icon md-font-set="material-icons">
+                filter_list
+            </md-icon>
+            <input ng-change="getContainers(true)" ng-model="prefix"/>
+        </md-input-container>
+
+
+        <!-- Lists all containers in a table -->
+        <md-table-container>
+            <table md-table="" ng-model="fileSystem.containers" class="bb-table">
+                <thead md-head="">
+                <tr md-row="">
+                    <th md-column="" class="bb-table-icon-col">
+                    </th>
+                    <th md-column="">
+                        <h3>
+                            Name
+                        </h3>
+                    </th>
+                    <th md-column="" md-numeric="">
+                        <h3>
+                            Size
+                        </h3>
+                    </th>
+                    <th md-column="" md-numeric="">
+                        <h3>
+                            Count
+                        </h3>
+                    </th>
+                </tr>
+                </thead>
+                <tbody md-body="">
+                <tr md-row ng-repeat="thisContainer in fileSystem.containers">
+                    <td md-cell="" ng-click="enterContainer(thisContainer.name)">
+                        <md-tooltip md-direction="top">
+                            Enter container
+                        </md-tooltip>
+                        <md-icon md-font-set="material-icons">
+                            {{ thisContainer.count==0 ? "folder_open" : "folder"}}
+                        </md-icon>
+                    </td>
+                    <td md-cell="" ng-click="showDetailSheet($event, thisContainer)" class="bb-table-col">
+                        <md-tooltip md-direction="top">
+                            Show details
+                        </md-tooltip>
+                        {{ thisContainer.name }}
+                    </td>
+                    <td md-cell="" class="bb-table-col">
+                        {{ thisContainer.bytes | bytes }}
+                    </td>
+                    <td md-cell="" class="bb-table-col">
+                        {{ thisContainer.count }}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </md-table-container>
+        <div in-view="$inview&&getContainers()" layout="row" layout-align="space-around" layout-sm="column">
+            <h3>
       <span ng-hide="isAllDataLoaded">
        <md-icon md-font-set="material-icons">
         mouse
        </md-icon>
        Scroll further down to load more containers.
       </span>
-     </h3>
-    </div>
-    <br/>
-    <!--         Show spinner while loading
-        <div layout="row" layout-sm="column" layout-align="space-around" ng-show="isGetContainersRequestPending">
-              <md-progress-circular md-mode="indeterminate"></md-progress-circular>
-        </div> -->
-   </md-content>
-  </div>
- </body>
+            </h3>
+        </div>
+        <br/>
+        <!--         Show spinner while loading
+            <div layout="row" layout-sm="column" layout-align="space-around" ng-show="isGetContainersRequestPending">
+                  <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+            </div> -->
+    </md-content>
+</div>
+</body>
 </html>

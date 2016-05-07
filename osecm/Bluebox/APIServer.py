@@ -10,6 +10,8 @@
 """
 
 from datetime import datetime
+
+import dateutil
 from functools import wraps
 import json, logging, time, re
 
@@ -27,7 +29,8 @@ from osecm.Bluebox.internal_storage import InternalStorageManager
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
 log = logging.getLogger()
 CLASS_SCHEMA = json.loads(open("osecm/Bluebox/include/object_class_schema").read())
-
+RETENTIONFIELD = 'x-object-meta-mgmt-retentiondate'
+OBJECTCLASSFIELD = 'x-container-meta-objectclass'
 
 ##############################################################################
 # decorators
@@ -162,7 +165,7 @@ def create_objectclass():
 
 	internal_data = InternalStorageManager(swift)
 	try:
-		class_definition = request.json.get("objectClass")
+		class_definition = xform_header_names_on_classdef(request.json.get("objectClass"))
 		class_name = class_definition.get("name")
 		class_schema = class_definition.get("schema")
 	except AttributeError:
@@ -216,7 +219,7 @@ def change_objectclass(class_name):
 	swift = createConnection(request)
 	internal_data = InternalStorageManager(swift)
 	try:
-		class_definition = request.json.get("objectClass")
+		class_definition = xform_header_names_on_classdef(request.json.get("objectClass"))
 		class_name = class_definition.get("name")
 		class_schema = class_definition.get("schema")
 	except AttributeError:
@@ -324,7 +327,7 @@ def create_container():
 		if class_name:
 			if class_definition is None:
 				raise HttpError("class does not exist", 404)
-			container_metadata = {"x-container-meta-object-class": class_name}
+			container_metadata = {OBJECTCLASSFIELD: class_name}
 	except AttributeError:
 		pass  # ignore empty or missing class definition
 
@@ -381,7 +384,7 @@ def change_container(container_name):
 		if class_name:
 			if class_definition is None:
 				raise HttpError("class does not exist", 404)
-			container_metadata["x-container-meta-object-class"] = class_name
+			container_metadata[OBJECTCLASSFIELD] = class_name
 	except AttributeError:
 		pass  # ignore empty or missing class definition	
 
@@ -436,7 +439,7 @@ def get_objects_in_container(container_name):
 
 	resp = {}
 	resp["metadata"] = cts[0]
-	resp["metadata"]["objectClass"] = cts[0].get("x-container-meta-object-class")
+	resp["metadata"]["objectClass"] = cts[0].get(OBJECTCLASSFIELD)
 	resp["metadata"]["objectCount"] = cts[0].get("x-container-object-count")
 	resp["objects"] = cts[1]
 	return Response(json.dumps(resp, sort_keys=True), mimetype="application/json")
@@ -523,25 +526,22 @@ def create_object(container_name):
 		raise HttpError("object with this name already exists in this container", 422)
 
 	headers = {}
-	retentime = request.form["RetentionPeriod"]
-	if retentime:
+	retentionDate = request.form["retentionDate"]
+	if retentionDate:
 		try:
-			converted_retentime = datetime.strptime(retentime, "%Y-%m-%d")
-			reten_timestamp = int(time.mktime(converted_retentime.timetuple()))
-			headers["X-Object-Meta-RetentionTime"] = reten_timestamp
+			dateutil.parser.parse(retentionDate)
+			headers[RETENTIONFIELD] = retentionDate
 		except Exception as e:
 			log.debug(
-				"invalid date format for form parameter RetentionPeriod: {}, for request: {}. Expected format: yyyy-mm-dd".format(
-					retentime))
+				"invalid date format for form parameter retentionDate: {}".format(retentionDate))
 			raise HttpError(
-				"invalid date format for form parameter RetentionPeriod: {}. Expected format: yyyy-mm-dd".format(
-					retentime), 400)
+				"invalid date format for form parameter retentionDate: {}".format(retentionDate), 400)
 
 	class_metadata_json = request.form["metadata"]
 	if class_metadata_json:
 		class_metadata = json.loads(class_metadata_json)
 
-		class_name = swift.get_container_metadata(container_name).get("x-container-meta-object-class")
+		class_name = swift.get_container_metadata(container_name).get(OBJECTCLASSFIELD)
 		if class_name:
 			internal_data = InternalStorageManager(swift)
 			class_definition = json.loads(internal_data.get_data("object classes", class_name))
@@ -552,7 +552,7 @@ def create_object(container_name):
 			if val is not None:
 				field_header = xform_header_names(field)
 				xformed_class_name = xform_header_names(class_name)
-				headers["X-Object-Meta-" + xformed_class_name + "-Class-" + field_header] = class_metadata[field]
+				headers["X-Object-Meta-Class-" + xformed_class_name + "-" + field_header] = class_metadata[field]
 
 	swift.streaming_object_upload(object_name, container_name, file, headers)
 	return "", 201
@@ -678,3 +678,16 @@ def xform_header_names(name):
 	tmp = tmp.replace("ß", "ss")
 	tmp = re.sub("[^A-Za-z0-9-]+", "", tmp)  # remove special characters
 	return tmp
+
+
+def xform_header_names_on_classdef(classdef):
+	print(classdef)
+	classdef["name"] = xform_header_names(classdef["name"])
+	classdef["schema"]["description"] = xform_header_names(classdef["schema"]["description"])
+	newP = {}
+	for oldP in classdef["schema"]["properties"]:
+		newP[xform_header_names(oldP)] = classdef["schema"]["properties"][oldP]
+		print(newP)
+	classdef["schema"]["properties"] = newP
+	print(classdef)
+	return classdef

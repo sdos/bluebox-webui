@@ -4,8 +4,8 @@
  * FileSystemController controller for the container overview
  */
 fileSystemModule.controller('FileSystemController',
-		['$scope', '$rootScope', 'fileSystemService', '$state', '$mdDialog', '$mdMedia',
-		 function($scope, $rootScope, fileSystemService, $state, $mdDialog, $mdMedia) {
+		['$scope', '$rootScope', 'fileSystemService', '$state', '$mdDialog', '$mdMedia', 'objectClassService',
+		 function($scope, $rootScope, fileSystemService, $state, $mdDialog, $mdMedia, objectClassService) {
 
 			console.log("hello, FileSystemController");
 
@@ -102,17 +102,41 @@ fileSystemModule.controller('FileSystemController',
 							});
 						});
 			};
-			
+
+
+
+
+			/**
+			 * updates container ( sets new object class )
+			 */
+			$scope.updateContainer = function() {
+				fileSystemService.updateContainer($scope.container)
+				.then(
+						function () {
+							$rootScope.$broadcast('FlashMessage', {
+								"type": "success",
+								"text": "Container updated."
+							});
+							getContainerMetadata();
+						})
+						.catch(function (response) {
+							$rootScope.$broadcast('FlashMessage', {
+								"type":     "danger",
+								"text":     response.data
+							});
+						});
+			};
 			
             /**
 			 * GET the details for a container
 			 * 
 			 */
-            var getContainerMetadata = function(container) {
+            var getContainerMetadata = function() {
             	fileSystemService
-                    .getContainerMetadata(container)
+                    .getContainerMetadata($scope.container)
                     .then(function (metadata) {
-                        container.metadata = metadata;
+                        $scope.container.metadata = metadata;
+						$scope.container.objectClass = metadata['x-container-meta-objectclass'];
                     })
                     .catch(function (response) {
                         $rootScope.$broadcast('FlashMessage', {
@@ -142,6 +166,24 @@ fileSystemModule.controller('FileSystemController',
 			};
 
 
+        /**
+		 * GET list of all object classes
+		 *
+		 */
+         var getAllObjectClasses = function() {
+        	objectClassService
+                .getObjectClasses()
+                .then(function (classes) {
+                	$scope.allObjectClasses = classes;
+                })
+                .catch(function (response) {
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type":     "danger",
+                        "text":     response.data
+                    });
+                });
+        };
+
 
 
 			/**
@@ -149,12 +191,14 @@ fileSystemModule.controller('FileSystemController',
 			 * Detail Sheet...
 			 * 
 			 */
+			$scope.allObjectClasses = [];
 			$scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm');
 			
 			$scope.showDetailSheet = function(ev, row) {
 				
 				$scope.container = row;
-				getContainerMetadata($scope.container);
+				getContainerMetadata();
+				getAllObjectClasses();
 				var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
 				$mdDialog.show({
 					controller: DialogController,
@@ -249,7 +293,6 @@ fileSystemModule.controller('FileSystemController',
 		}]);
 
 function DialogController($rootScope, $state, $scope, $mdDialog, fileSystemService) {
-
 
 	$scope.hide = function() {
 		$mdDialog.hide();

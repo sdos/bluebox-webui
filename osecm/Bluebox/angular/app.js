@@ -2,6 +2,7 @@
 
 var app = angular.module('bluebox', [
     'ngMaterial',
+    'ngAnimate',
     'ui.router',
     'bluebox.fileSystem',
     'bluebox.messageBag',
@@ -17,13 +18,9 @@ var app = angular.module('bluebox', [
         $locationProvider.html5Mode(true);
         $urlRouterProvider.otherwise("/about");
         
-//        $mdThemingProvider.theme('default')
-//        .primaryPalette('blue')
-//        .accentPalette('red')
-//        .backgroundPalette('grey');
         $mdThemingProvider.theme('default')
-        .primaryPalette('grey')
-        .accentPalette('blue')
+        .primaryPalette('blue')
+        .accentPalette('deep-orange')
         .backgroundPalette('grey');
         
     }]);

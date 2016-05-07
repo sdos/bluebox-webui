@@ -28,18 +28,28 @@ configuration of the swift backend connection is in the `appConfig.py` file. An 
 ## Dev setup
 ### use a python virtualenv
 in the main directory
+
+
     virtualenv venv
     source venv/bin/activate
+
     
 to leave venv
+
     deactivate
     
 ### use pip to install requirements
 just install the existing reqs
+
     pip3 install -r requirements.txt
     
 install new packages
+
     pip3 install <package>
 
+
 save new packages to requirements:
+
     pip3 freeze --local > requirements.txt
+
+
