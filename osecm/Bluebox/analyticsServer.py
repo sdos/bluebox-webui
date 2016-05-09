@@ -17,8 +17,7 @@ from functools import wraps
 import json, logging, time, re
 from urllib import parse as urlParse
 
-from bokeh.charts import Area, show, vplot, output_file, Bar, Line
-from pandas.tools.plotting import BoxPlot
+from bokeh.charts import Area, show, vplot, output_file, Bar, Line, BoxPlot
 from bokeh.io import vform
 from bokeh.embed import components 
 from bokeh.charts.operations import blend
