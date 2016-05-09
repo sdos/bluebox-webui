@@ -17,9 +17,9 @@ from functools import wraps
 import json, logging, time, re
 from urllib import parse as urlParse
 
-from bokeh.charts import Area, show, vplot, output_file, Bar, Line, BoxPlot
+from bokeh.charts import Area, show, vplot, output_file, Bar, Line, BoxPlot, defaults
 from bokeh.io import vform
-from bokeh.embed import components 
+from bokeh.embed import components
 from bokeh.charts.operations import blend
 from flask import request, Response, send_file, render_template
 import requests
@@ -119,16 +119,16 @@ def getDataFromNodeRed(nrDataSource):
 		df = pandas.DataFrame(data, columns=dataKeys)
 		df[dataKeys[0]] = df[dataKeys[0]].map(lambda x: str(x)[:20])
 		return df
-		
+
 	except:
 		log.exception("JSON parse error:")
 		raise HttpError("the Node-RED result is no valid JSON", 500)
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 @app.route("/api_analytics/table", methods=["GET"])
 def doTable():
 	nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
@@ -144,14 +144,14 @@ def doTable():
 		}
 	#print(r)
 	return Response(json.dumps(r), mimetype="application/json")
-	
-	
+
+
 @app.route("/api_analytics/plot", methods=["GET"])
 def doPlot():
 	nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
 	plotType = request.args.get("plotType")
 	log.debug("producing plot: {} for: {}".format(plotType, nrDataSource))
-	
+
 	df = getDataFromNodeRed(nrDataSource=nrDataSource)
 	try:
 		print(df)
@@ -195,6 +195,6 @@ def getNodeRedEnpointList():
 		# Node-RED has a strange API... we can't reconstruct node/flow relationships...
 		# if ('tab' == s['type'] and 'label' in s):
 		# 	thisFlowName = s['label'] + "->"
-		if ('http in' == s['type'] and 'url' in s): 
+		if ('http in' == s['type'] and 'url' in s):
 			sources.append({"url": s['url'], "name": s['name']})
 	return Response(json.dumps(sources), mimetype="application/json")

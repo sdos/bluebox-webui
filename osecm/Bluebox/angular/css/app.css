@@ -42,10 +42,10 @@ table.md-table tbody.md-body > tr.md-row {
     border: 5px dashed blue;
 }
 
-.fade.ng-enter {
+.fade.ng-show {
 	transition:0.5s linear all;
 	opacity:0;
 }
-.fade.ng-enter-active {
+.fade.ng-show-active {
 	opacity:1;
 }

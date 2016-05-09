@@ -1,46 +1,86 @@
 <!-- Account & Security card -->
 <html>
- <head>
- </head>
- <body>
-  <div layout="row">
-   <div flex="">
-   </div>
-   <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
-    <md-toolbar class="md-hue-2">
-     <div class="md-toolbar-tools">
-      <h2>
+<head>
+</head>
+<body>
+
+<div layout="row">
+    <div flex="">
+    </div>
+
+
+    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
+        <md-toolbar class="md-hue-2">
+            <div class="md-toolbar-tools">
+                <h2>
        <span>
         Session token
        </span>
-      </h2>
-     </div>
-    </md-toolbar>
-    <md-content class="bb-container">
-     <p>
-      The
+                </h2>
+            </div>
+        </md-toolbar>
+        <md-content class="bb-container">
+            <p>
+                The
+                <code>
+                    SDOS
+                </code>
+                back end gives us a token that identifies our session after successful authentication. Currently, SDOS
+                has no way of invalidating these tokens; we
+                can only forget them in order to log out.
+            </p>
+            <p>
+                Your current token is:
+                <code>
+                    {{ tokenText }}
+                </code>
+            </p>
+            <md-button class="md-raised md-warn" ng-click="forgetToken()">
+                <md-icon md-font-set="material-icons">
+                    clear
+                </md-icon>
+                Forget authentication token
+            </md-button>
+        </md-content>
+    </div>
+
+
+    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
+        <md-toolbar class="md-hue-2">
+            <div class="md-toolbar-tools">
+                <h2>
+       <span>
+        Connection details
+       </span>
+                </h2>
+            </div>
+        </md-toolbar>
+        <md-content class="bb-container">
+            <p>
+                You can connect to the back end using any Swift client. The following shows you the connection
+                information; just fill in your user name and password.
+            </p>
+            <p>
+                Back end connection as a Swift RC file
+         <pre>
       <code>
-       SDOS
+       {{ rcFileContent }}
       </code>
-      back end gives us a token that identifies our session after successful authentication. Currently, SDOS has no way of invalidating these tokens; we
-			can only forget them in order to log out.
-     </p>
-     <p>
-      Your current token is:
-      <code>
-       {{tokenText}}
-      </code>
-     </p>
-     <md-button class="md-raised md-warn" ng-click="forgetToken()">
-      <md-icon md-font-set="material-icons">
-       clear
-      </md-icon>
-      Forget authentication token
-     </md-button>
-    </md-content>
-   </div>
-   <div flex="">
-   </div>
-  </div>
- </body>
+        </pre>
+            <p>
+            Available clients include:
+                <ul>
+            <li>python-swiftclient: <a href="https://github.com/openstack/python-swiftclient" target="_blank">https://github.com/openstack/python-swiftclient</a></li>
+        </ul>
+
+            </p>
+
+        </md-content>
+    </div>
+
+
+    <div flex="">
+    </div>
+</div>
+</body>
 </html>
