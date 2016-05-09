@@ -263,7 +263,7 @@ containerModule.controller('ContainerController',
                 $scope.uploadErrorOccurred = false;
                 uploadObject(0);
 
-            }
+            };
 
 
             /**
@@ -272,6 +272,7 @@ containerModule.controller('ContainerController',
             var uploadObject = function (myIdx) {
                 if (myIdx >= $scope.fileModel.files.length) {
                     if (!$scope.uploadErrorOccurred) $scope.resetUploadList();
+                    $scope.getObjects(true);
                     return;
                 }
                 var thisFile = $scope.fileModel.files[myIdx];
@@ -286,7 +287,6 @@ containerModule.controller('ContainerController',
                     .then(
                         function () {
                             thisFile.uploadProgress.hasSuccess = true;
-                            $scope.getObjects(true);
                             uploadObject(++myIdx);
                         },
                         function (errorResponse) {
