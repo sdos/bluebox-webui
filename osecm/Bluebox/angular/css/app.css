@@ -41,3 +41,11 @@ table.md-table tbody.md-body > tr.md-row {
 .dragover {
     border: 5px dashed blue;
 }
+
+.fade.ng-enter {
+	transition:0.5s linear all;
+	opacity:0;
+}
+.fade.ng-enter-active {
+	opacity:1;
+}
