@@ -62,7 +62,7 @@ def doPlot11(data, nrDataSource):
 
 
 def doPlot_Box(data, nrDataSource):
-	p = BoxPlot(data, values=data.columns[2], label=data.columns[1], marker='square',
+	p = BoxPlot(data, values=data.columns[1], label=data.columns[0], marker='square',
 				color=data.columns[0],
 				title="BoxPlot: " + nrDataSource['name'])
 
@@ -173,9 +173,9 @@ def doPlot():
 		else:
 			return Response("Plot type unknown", status=500)
 		return Response(json.dumps(c), mimetype="application/json")
-	except:
+	except Exception as e:
 		log.exception("plotting error:")
-		raise HttpError("the Node-RED result could not be plotted. Maybe wrong data format for the plot type? Check result table", 500)
+		raise HttpError("the Node-RED result could not be plotted. Maybe wrong data format for the plot type? Check result table: {}".format(str(e)), 500)
 
 
 
