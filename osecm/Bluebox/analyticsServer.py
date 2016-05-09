@@ -18,6 +18,7 @@ import json, logging, time, re
 from urllib import parse as urlParse
 
 from bokeh.charts import Area, show, vplot, output_file, Bar, Line
+from pandas.tools.plotting import BoxPlot
 from bokeh.io import vform
 from bokeh.embed import components 
 from bokeh.charts.operations import blend
@@ -58,6 +59,30 @@ def doPlot11(data, nrDataSource):
 	p._xaxis.ticker = SingleIntervalTicker(interval=5, num_minor_ticks=10)
 	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
 	return c
+
+
+def doPlot_Box(data, nrDataSource):
+	p = BoxPlot(data, values=data.columns[2], label=data.columns[1], marker='square',
+				color=data.columns[0],
+				title="BoxPlot: " + nrDataSource['name'])
+
+	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
+	return c
+
+def doPlot_stackedBar(data, nrDataSource):
+	p = Bar(data, data.columns[0], values=data.columns[1], title="StackedBar graph: " + nrDataSource['name'],
+			xlabel=data.columns[0], ylabel=data.columns[1], plot_width=900, responsive=True)
+
+	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
+	return c
+
+def doPlot_Area(data, nrDataSource):
+	p = Area(data, title="Area Chart: " + nrDataSource['name'], legend="top_left",
+				xlabel=data.columns[0], ylabel=data.columns[1])
+
+	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
+	return c
+
 
 
 def doPlot2(data, nrDataSource):
@@ -139,6 +164,14 @@ def doPlot():
 			c = doPlot1log(data=df, nrDataSource=nrDataSource)
 		elif('line' == plotType):
 			c = doPlot11(data=df, nrDataSource=nrDataSource)
+		elif('box' == plotType):
+			c = doPlot_Box(data=df, nrDataSource=nrDataSource)
+		elif('stackedBar' == plotType):
+			c = doPlot_stackedBar(data=df, nrDataSource=nrDataSource)
+		elif('area' == plotType):
+			c = doPlot_Area(data=df, nrDataSource=nrDataSource)
+		else:
+			return Response("Plot type unknown", status=500)
 		return Response(json.dumps(c), mimetype="application/json")
 	except:
 		log.exception("plotting error:")
