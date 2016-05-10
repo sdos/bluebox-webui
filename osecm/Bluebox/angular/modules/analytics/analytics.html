@@ -1,306 +1,297 @@
 <html>
- <head>
-  <link href="/angular/css/bokeh-0.11.1.min.css" rel="stylesheet" type="text/css"/>
-  <link href="/angular/css/bokeh-widgets-0.11.1.min.css" rel="stylesheet" type="text/css"/>
-  <!-- Import doesn't work here; just left as a TODO... currently the import is happening in the header in index.html -->
-  <!-- <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js"></script> -->
-  <!-- Analytics card root -->
- </head>
- <body>
- 
- 
- 
- 
- 
- 
-   
-<!--   ############################################################################# -->  
-  <!-- PLOT AREA -->
+<head>
+    <link href="/angular/css/bokeh-0.11.1.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/angular/css/bokeh-widgets-0.11.1.min.css" rel="stylesheet" type="text/css"/>
+    <!-- Import doesn't work here; just left as a TODO... currently the import is happening in the header in index.html -->
+    <!-- <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js"></script> -->
+    <!-- Analytics card root -->
+</head>
+<body>
+
+
 <!--   ############################################################################# -->
-  <div ng-hide="!bbplot" layout="row">
-   <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
-   <md-toolbar class="md-accent md-hue-2">
-    <div class="md-toolbar-tools">
-     <h2>
+<!-- PLOT AREA -->
+<!--   ############################################################################# -->
+<div ng-hide="!bbplot" layout="row">
+    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
+        <md-toolbar class="md-accent md-hue-2">
+            <div class="md-toolbar-tools">
+                <h2>
       <span>
        Your results
       </span>
-     </h2>
+                </h2>
+            </div>
+        </md-toolbar>
+        <md-content class="bb-container" ng-bind-html="bbplot | to_trusted">
+        </md-content>
     </div>
-   </md-toolbar>
-   <md-content class="bb-container" ng-bind-html="bbplot | to_trusted">
-   </md-content>
-  </div>
-   <div flex="">
-   </div> 
-  </div>
-  
-<!--   ############################################################################# -->  
-  <!-- TABLE AREA -->
+    <div flex="">
+    </div>
+</div>
+
 <!--   ############################################################################# -->
-  <div ng-hide="!bbTableData" layout="row">
-   <div class="md-whiteframe-4dp bb-container" flex="90" flex-xs="90">
-   <md-toolbar class="md-accent md-hue-2">
-    <div class="md-toolbar-tools">
-     <h2>
+<!-- TABLE AREA -->
+<!--   ############################################################################# -->
+<div ng-hide="!bbTableData" layout="row">
+    <div class="md-whiteframe-4dp bb-container" flex="90" flex-xs="90">
+        <md-toolbar class="md-accent md-hue-2">
+            <div class="md-toolbar-tools">
+                <h2>
       <span>
        Raw results
       </span>
-     </h2>
-    </div>
-   </md-toolbar>
-   <md-content class="bb-container">
-   <pre>{{bbTableData.info}}</pre>
-   <p ng-hide="!bbTableData.truncated"><b>Showing only the first 50 rows</b></p>
-   
-   <md-table-container>
-  <table md-table ng-model="bbTableData.table">
-    <thead md-head >
-      <tr md-row>
-        <th md-column ng-repeat="(k, v) in bbTableData.table[0]"><span>{{k}}</span></th>
-      </tr>
-    </thead>
-    <tbody md-body>
-      <tr md-row ng-repeat="row in bbTableData.table">
-        <td md-cell ng-repeat="(k, v) in row">{{v}}</td>
-      </tr>
-    </tbody>
-  </table>
-</md-table-container>
+                </h2>
+            </div>
+        </md-toolbar>
+        <md-content class="bb-container">
+            <pre>{{ bbTableData.info }}</pre>
+            <p ng-hide="!bbTableData.truncated"><b>Showing only the first 50 rows</b></p>
 
-   
-   </md-content>
-  </div>
-   <div flex="">
-   </div> 
-  </div>
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-  <div layout="row" layout-xs="column">
-   <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
-    <md-toolbar class="md-hue-2">
-     <div class="md-toolbar-tools">
-      <h2>
+            <md-table-container>
+                <table md-table ng-model="bbTableData.table">
+                    <thead md-head>
+                    <tr md-row>
+                        <th md-column ng-repeat="(k, v) in bbTableData.table[0]"><span>{{ k }}</span></th>
+                    </tr>
+                    </thead>
+                    <tbody md-body>
+                    <tr md-row ng-repeat="row in bbTableData.table">
+                        <td md-cell ng-repeat="(k, v) in row">{{ v }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
+
+
+        </md-content>
+    </div>
+    <div flex="">
+    </div>
+</div>
+
+
+<div layout="row" layout-xs="column">
+    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
+        <md-toolbar class="md-hue-2">
+            <div class="md-toolbar-tools">
+                <h2>
        <span>
         <b>
          Step 1:
         </b>
         Open the Node-RED editor and create your queries
        </span>
-      </h2>
-     </div>
-    </md-toolbar>
-    <md-content class="bb-container">
-     <p>
-      BB-Insights comes with a Node-RED instance that is connected to your metadata warehouse. You can create SQL queries, pull in external data
-		sources, and use JavaScript functions to analyze your data and prepare it for visualization.
-     </p>
-     <p>
-      After you have created your flow in Node-RED, turn it into a data source for BB-Insights. Use the HTTP node to create an endpoint, connect
-		your query to the HTTP node, and give it any URL and name you like.
-     </p>
-     <p>
-      Don't forget to hit
-      <i>
-       <q>
-        Deploy
-       </q>
-      </i>
-      in Node-Red.
-     </p>
-     <md-button class="md-raised md-primary" ng-href="{{ nodered.url }}" target="_blank">
-      <md-icon md-font-set="material-icons">
-       timeline
-      </md-icon>
-      Open Node-RED editor
-     </md-button>
-    </md-content>
-   </div>
-   <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
-    <md-toolbar class="md-hue-2">
-     <div class="md-toolbar-tools">
-      <h2>
+                </h2>
+            </div>
+        </md-toolbar>
+        <md-content class="bb-container">
+            <p>
+                BB-Insights comes with a Node-RED instance that is connected to your metadata warehouse. You can create
+                SQL queries, pull in external data
+                sources, and use JavaScript functions to analyze your data and prepare it for visualization.
+            </p>
+            <p>
+                After you have created your flow in Node-RED, turn it into a data source for BB-Insights. Use the HTTP
+                node to create an endpoint, connect
+                your query to the HTTP node, and give it any URL and name you like.
+            </p>
+            <p>Before creating your queries, you can inspect the schema of the metadata warehouse below.</p>
+
+            <div>
+                <md-button class="md-raised md-primary">
+                    <md-icon md-font-set="material-icons">
+                        grid_on
+                    </md-icon>
+                    Inspect metadata warehouse
+                </md-button>
+            </div>
+            <div>
+                <md-button class="md-raised md-primary" ng-href="{{ nodered.url }}" target="_blank">
+                    <md-icon md-font-set="material-icons">
+                        timeline
+                    </md-icon>
+                    Open Node-RED editor
+                </md-button>
+            </div>
+        </md-content>
+    </div>
+    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
+        <md-toolbar class="md-hue-2">
+            <div class="md-toolbar-tools">
+                <h2>
        <span>
         <b>
          Step 2:
         </b>
         Select your Node-RED data source
        </span>
-      </h2>
-     </div>
-    </md-toolbar>
-    <md-content class="bb-container">
-     <p>
-      The following list shows all your endpoints from Node-RED. Select the one you want to use for this analysis.
-     </p>
-     <!-- Dropdown to choose Node-RED endpoints -->
-     <md-input-container class="md-block md-icon-float" flex-gt-sm="50" ng-click="updateNodeRedSources()">
-      <label>
-       Select your data source here
-      </label>
-      <md-icon md-font-set="material-icons">
-       open_in_browser
-      </md-icon>
-      <md-select ng-model="selectedSource">
-       <md-option ng-repeat="source in availableSources" value="{{source}}">
-        {{source.url}}
-        <b>
-         {{source.name}}
-        </b>
-       </md-option>
-      </md-select>
-     </md-input-container>
-    </md-content>
-   </div>
-  </div>
-  <div class="md-whiteframe-4dp bb-container fade" ng-hide="!selectedSource" >
-   <md-toolbar class="md-hue-2">
-    <div class="md-toolbar-tools">
-     <h2>
+                </h2>
+            </div>
+        </md-toolbar>
+        <md-content class="bb-container">
+            <p>
+                The following list shows all your endpoints from Node-RED. Select the one you want to use for this
+                analysis.
+            </p>
+            <!-- Dropdown to choose Node-RED endpoints -->
+            <md-input-container class="md-block md-icon-float" flex-gt-sm="50" ng-click="updateNodeRedSources()">
+                <label>
+                    Select your data source here
+                </label>
+                <md-icon md-font-set="material-icons">
+                    open_in_browser
+                </md-icon>
+                <md-select ng-model="selectedSource">
+                    <md-option ng-repeat="source in availableSources" value="{{ source }}">
+                        {{ source.url }}
+                        <b>
+                            {{ source.name }}
+                        </b>
+                    </md-option>
+                </md-select>
+            </md-input-container>
+        </md-content>
+    </div>
+</div>
+<div class="md-whiteframe-4dp bb-container fade" ng-hide="!selectedSource">
+    <md-toolbar class="md-hue-2">
+        <div class="md-toolbar-tools">
+            <h2>
       <span>
        <b>
         Step 3:
        </b>
        Select a suitable visualization for your data
       </span>
-     </h2>
-    </div>
-   </md-toolbar>
-   <md-content class="bb-container">
-    <p>
-     BB-Insights uses
-     <a href="http://bokeh.pydata.org" target="_blank">
-      Bokeh
-     </a>
-     and
-     <a href="http://bokeh.pydata.org/en/latest/docs/dev_guide/bokehjs.html" target="_blank">
-      BokehJS
-     </a>
-     to visualize your data. You can now choose which type of visualization you want to use.
-    </p>
-    <p>
-     Each type supports different data structures. All data from Node-RED has to come in tables or matrixes, the different visualization types
-		support different amounts of rows and columns.
-    </p>
-    <md-button class="md-raised md-primary" ng-click="showResultTable()" ng-disabled="!selectedSource">
-     <md-icon md-font-set="material-icons">
-      grid_on
-     </md-icon>
-     <p><b>
-      Table
-     </b></p>
-     <p>
-     raw results
-     </p>
-    </md-button>
-    <md-button class="md-raised md-primary" ng-click="drawPlot('line')" ng-disabled="!selectedSource">
-     <md-icon md-font-set="material-icons">
-      trending_up
-     </md-icon>
-     <p><b>
-      Line graph
-     </b></p>
-     <p>
-      * rows, 1 column
-     </p>
-    </md-button>
-    <md-button class="md-raised md-primary" ng-click="drawPlot('bar')" ng-disabled="!selectedSource">
-     <md-icon md-font-set="material-icons">
-      equalizer
-     </md-icon>
-     <p><b>
-      Bar graph
-     </b></p>
-     <p>
-      * rows, 1 column
-     </p>
-    </md-button>   
-    <md-button class="md-raised md-primary" ng-click="drawPlot('bar_log')" ng-disabled="!selectedSource">
-     <md-icon md-font-set="material-icons">
-      equalizer
-     </md-icon>
-     <p><b>
-      Bar graph - log scale
-     </b></p>
-     <p>
-      * rows, 1 column
-     </p>
-    </md-button>
+            </h2>
+        </div>
+    </md-toolbar>
+    <md-content class="bb-container">
+        <p>
+            BB-Insights uses
+            <a href="http://bokeh.pydata.org" target="_blank">
+                Bokeh
+            </a>
+            and
+            <a href="http://bokeh.pydata.org/en/latest/docs/dev_guide/bokehjs.html" target="_blank">
+                BokehJS
+            </a>
+            to visualize your data. You can now choose which type of visualization you want to use.
+        </p>
+        <p>
+            Each type supports different data structures. All data from Node-RED has to come in tables or matrixes, the
+            different visualization types
+            support different amounts of rows and columns.
+        </p>
+        <md-button class="md-raised md-primary" ng-click="showResultTable()" ng-disabled="!selectedSource">
+            <md-icon md-font-set="material-icons">
+                grid_on
+            </md-icon>
+            <p><b>
+                Table
+            </b></p>
+            <p>
+                raw results
+            </p>
+        </md-button>
+        <md-button class="md-raised md-primary" ng-click="drawPlot('line')" ng-disabled="!selectedSource">
+            <md-icon md-font-set="material-icons">
+                trending_up
+            </md-icon>
+            <p><b>
+                Line graph
+            </b></p>
+            <p>
+                * rows, 1 column
+            </p>
+        </md-button>
+        <md-button class="md-raised md-primary" ng-click="drawPlot('bar')" ng-disabled="!selectedSource">
+            <md-icon md-font-set="material-icons">
+                equalizer
+            </md-icon>
+            <p><b>
+                Bar graph
+            </b></p>
+            <p>
+                * rows, 1 column
+            </p>
+        </md-button>
+        <md-button class="md-raised md-primary" ng-click="drawPlot('bar_log')" ng-disabled="!selectedSource">
+            <md-icon md-font-set="material-icons">
+                equalizer
+            </md-icon>
+            <p><b>
+                Bar graph - log scale
+            </b></p>
+            <p>
+                * rows, 1 column
+            </p>
+        </md-button>
 
 
-    <md-button class="md-raised md-primary" ng-click="drawPlot('2bar')" ng-disabled="!selectedSource">
-     <md-icon md-font-set="material-icons">
-      equalizer
-     </md-icon>     <md-icon md-font-set="material-icons">
-      equalizer
-     </md-icon>     <md-icon md-font-set="material-icons">
-      equalizer
-     </md-icon>
-     <p><b>
-      Multiple bar graphs
-     </b></p>
-     <p>
-      * rows, * column
-     </p>
-    </md-button>
+        <md-button class="md-raised md-primary" ng-click="drawPlot('2bar')" ng-disabled="!selectedSource">
+            <md-icon md-font-set="material-icons">
+                equalizer
+            </md-icon>
+            <md-icon md-font-set="material-icons">
+                equalizer
+            </md-icon>
+            <md-icon md-font-set="material-icons">
+                equalizer
+            </md-icon>
+            <p><b>
+                Multiple bar graphs
+            </b></p>
+            <p>
+                * rows, * column
+            </p>
+        </md-button>
 
-    <md-button class="md-raised md-primary" ng-click="drawPlot('stackedBar')" ng-disabled="!selectedSource">
-     <md-icon md-font-set="material-icons">
-      poll
-     </md-icon>
-     <p><b>
-      Stacked bar graph
-     </b></p>
-     <p>
-      * rows, * column
-     </p>
-    </md-button>
-
-
-    <md-button class="md-raised md-primary" ng-click="drawPlot('box')" ng-disabled="!selectedSource">
-     <md-icon md-font-set="material-icons">
-      fullscreen
-     </md-icon>
-     <p><b>
-      Box plot
-     </b></p>
-     <p>
-      * rows, * column
-     </p>
-    </md-button>
+        <md-button class="md-raised md-primary" ng-click="drawPlot('stackedBar')" ng-disabled="!selectedSource">
+            <md-icon md-font-set="material-icons">
+                poll
+            </md-icon>
+            <p><b>
+                Stacked bar graph
+            </b></p>
+            <p>
+                * rows, * column
+            </p>
+        </md-button>
 
 
-    <md-button class="md-raised md-primary" ng-click="drawPlot('area')" ng-disabled="!selectedSource">
-     <md-icon md-font-set="material-icons">
-      terrain
-     </md-icon>
-     <p><b>
-      Area graph
-     </b></p>
-     <p>
-      * rows, * column
-     </p>
-    </md-button>
+        <md-button class="md-raised md-primary" ng-click="drawPlot('box')" ng-disabled="!selectedSource">
+            <md-icon md-font-set="material-icons">
+                fullscreen
+            </md-icon>
+            <p><b>
+                Box plot
+            </b></p>
+            <p>
+                * rows, * column
+            </p>
+        </md-button>
 
 
+        <md-button class="md-raised md-primary" ng-click="drawPlot('area')" ng-disabled="!selectedSource">
+            <md-icon md-font-set="material-icons">
+                terrain
+            </md-icon>
+            <p><b>
+                Area graph
+            </b></p>
+            <p>
+                * rows, * column
+            </p>
+        </md-button>
 
-    <md-progress-linear class="md-accent" md-mode="query" ng-hide="!waitingForPlot">
-    </md-progress-linear>
-   </md-content>
-  </div>
-  
 
-  
-  
-  
- </body>
+        <md-progress-linear class="md-accent" md-mode="query" ng-hide="!waitingForPlot">
+        </md-progress-linear>
+    </md-content>
+</div>
+
+
+</body>
 </html>
