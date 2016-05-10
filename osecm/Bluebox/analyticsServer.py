@@ -31,10 +31,60 @@ import pandas
 from bokeh.models.tickers import SingleIntervalTicker
 from bokeh.models.axes import LinearAxis
 
+import sqlite3
+
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
 log = logging.getLogger()
 
+
+
+"""
+
+Data schema
+
+"""
+
+@app.route("/api_analytics/tablestructure", methods=["GET"])
+def getTableStructure():
+
+	# Establish connection to the SQLite database
+	connection = sqlite3.connect("/home/tim/Downloads/MetaData.db")
+	cursor = connection.cursor()
+
+	# Retrieve all table names
+	cursor.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC")
+	tableNames = cursor.fetchall()
+
+	tableData = {}
+
+	# Retrieve the column names for the corresponding tables
+	for table in tableNames:
+		cursor.execute("PRAGMA table_info(" + table[0] + ")")
+		columnNames = cursor.fetchall()
+
+		# Retrieve the first 5 entries from each table
+		cursor.execute("SELECT * FROM " + table[0] + " LIMIT 5")
+		rowValues = cursor.fetchall()
+
+		# Dictionary which combines column names and row entries
+		columnStructure = {}
+
+		# Strip columnNames from not required data
+		columnList = []
+
+		for column in columnNames:
+			columnList.append(column[1])
+
+		# Populate final dictionary table Data
+		columnStructure['columnNames'] = columnList
+		columnStructure['rowEntries'] = rowValues
+		tableData[table[0]] = columnStructure
+
+	# Close database connection after retrieval
+	connection.close()
+
+	return Response(json.dumps(tableData), mimetype="application/json")
 
 
 """
@@ -54,8 +104,7 @@ def doPlot1log(data, nrDataSource):
 	return c
 
 def doPlot11(data, nrDataSource):
-	p = Line(data, y_mapper_type="log", x=data.columns[0], xlabel=data.columns[0], ylabel=data.columns[1], title="Line graph: " + nrDataSource['name'], responsive=True)
-	p._xaxis.ticker = SingleIntervalTicker(interval=5, num_minor_ticks=10)
+	p = Line(data, title="Line graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1], responsive=True)
 	c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
 	return c
 
