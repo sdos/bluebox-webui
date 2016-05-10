@@ -17,10 +17,11 @@
 <md-dialog aria-label="Object Details" ng-cloak="" flex="70" overflow="auto">
     <md-toolbar>
         <div class="md-toolbar-tools">
-            <h2>
+            <span>
                 Inspect metadata warehouse
-            </h2>
+            </span>
             <span flex="">
+
             </span>
             <md-button class="md-icon-button" ng-click="cancel()">
                 <md-icon md-font-set="material-icons">
@@ -31,11 +32,17 @@
     </md-toolbar>
     <md-dialog-content class="bb-margin">
 
+        <span>Showing the first 5 rows from all metadata tables</span>
+
         <!-- card which contains information to all available tables -->
-        <md-card ng-repeat="(key, value) in tableData">
-            <h3>
-                {{ key }}
-            </h3>
+        <md-card class="md-whiteframe-4dp" ng-repeat="(key, value) in tableData">
+            <md-card-header>
+                <md-card-header-text>
+
+                    <span class="md-title">{{ key }}</span>
+                </md-card-header-text>
+
+            </md-card-header>
 
             <md-table-container>
                 <table md-table="" cellpadding="10" cellspacing="10">
@@ -43,7 +50,7 @@
                     <tr md-row="">
                         <th md-column="" ng-repeat="columnName in value.columnNames">
                                 <span>
-                                    {{columnName}}
+                                    {{ columnName }}
                                 </span>
                         </th>
                     </tr>
@@ -56,7 +63,7 @@
                         ng-if="$even"
                         -->
                         <td md-cell="" id="shortTable" ng-repeat="field in row track by $index">
-                            {{field}}
+                            {{ field }}
                         </td>
                     </tr>
                     </tbody>
