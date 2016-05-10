@@ -49,7 +49,7 @@ Data schema
 def getTableStructure():
 
 	# Establish connection to the SQLite database
-	connection = sqlite3.connect("/home/tim/Downloads/MetaData.db")
+	connection = sqlite3.connect("/tmp/metadata.sqlite")
 	cursor = connection.cursor()
 
 	# Retrieve all table names
