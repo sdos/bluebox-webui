@@ -71,20 +71,24 @@
       </i>
       in Node-Red.
      </p>
+     <div class="row">
+      <div class="col-sm-4">
      <md-button class="md-raised md-primary" ng-href="{{ nodered.url }}" target="_blank">
       <md-icon md-font-set="material-icons">
        timeline
       </md-icon>
       Open Node-RED editor
      </md-button>
-
-     <md-button class="md-raised md-primary" ng-click="showTableStructure($event)">
+      </div>
+      <div class="col-sm-4">
+         <md-button class="md-raised md-primary" ng-click="showTableStructure($event)">
       <md-icon md-font-set="material-icons">
        list
       </md-icon>
       Show table structure
      </md-button>
-
+       </div>
+      </div>
      <!-- card which contains information to all alvailable tables -->
      <md-card ng-show="showTable" ng-repeat="(key, value) in tableData">
       <h3>{{ key }}</h3>

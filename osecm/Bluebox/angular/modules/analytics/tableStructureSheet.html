@@ -1,42 +1,69 @@
 <html>
-    <body>
-        <md-dialog aria-label="Object Details" ng-cloak="" flex="50">
-            <md-toolbar>
-                <div class="md-toolbar-tools">
-                    <h2>
-                        Table structure
-                    </h2>
-                    <span flex="">
-                    </span>
-                    <md-button class="md-icon-button" ng-click="cancel()">
-                        <md-icon md-font-set="material-icons">
-                            close
-                        </md-icon>
-                    </md-button>
-                </div>
-            </md-toolbar>
-        <md-dialog-content class="bb-margin">
+<head>
+    <style>
+        #shortTable {
+            margin: auto;
+            height: auto;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            -o-text-overflow: ellipsis;
+            white-space: nowrap;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+<md-dialog aria-label="Object Details" ng-cloak="" flex="70" overflow="auto">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>
+                Table structure
+            </h2>
+            <span flex="">
+            </span>
+            <md-button class="md-icon-button" ng-click="cancel()">
+                <md-icon md-font-set="material-icons">
+                    close
+                </md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-dialog-content class="bb-margin">
 
-            <!-- card which contains information to all alvailable tables -->
-            <md-card ng-repeat="(key, value) in tableData">
-                <h3>{{ key }}</h3>
+        <!-- card which contains information to all available tables -->
+        <md-card ng-repeat="(key, value) in tableData">
+            <h3>
+                {{ key }}
+            </h3>
 
-                <md-table-container>
-                    <table md-table>
-                        <thead md-head >
-                        <tr md-row>
-                            <th md-column ng-repeat="columnName in value.columnNames"><span>{{columnName}}</span></th>
-                        </tr>
-                        </thead>
-                        <tbody md-body>
-                        <tr md-row ng-repeat="row in value.rowEntries">
-                            <td md-cell ng-repeat="field in row track by $index">{{field}}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </md-table-container>
-            </md-card>
-        </md-dialog-content>
-        </md-dialog>
-    </body>
+            <md-table-container>
+                <table md-table="" cellpadding="10" cellspacing="10">
+                    <thead md-head="">
+                    <tr md-row="">
+                        <th md-column="" ng-repeat="columnName in value.columnNames">
+                                <span>
+                                    {{columnName}}
+                                </span>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody md-body="">
+                    <tr ng-repeat="row in value.rowEntries">
+                        <!--
+                        Should implemented in css:
+                        ng-if="$odd" style="background-color:#f1f1f1"
+                        ng-if="$even"
+                        -->
+                        <td md-cell="" id="shortTable" ng-repeat="field in row track by $index">
+                            {{field}}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
+        </md-card>
+    </md-dialog-content>
+</md-dialog>
+</body>
 </html>
