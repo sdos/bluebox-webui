@@ -80,7 +80,7 @@
                             Enter container
                         </md-tooltip>
                         <md-icon md-font-set="material-icons">
-                            {{ thisContainer.count==0 ? "folder_open" : "folder"}}
+                        	{{ thisContainer | containerTypeIcon }}
                         </md-icon>
                     </td>
                     <td md-cell="" ng-click="showDetailSheet($event, thisContainer)" class="bb-table-col">

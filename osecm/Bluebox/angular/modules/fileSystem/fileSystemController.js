@@ -4,8 +4,8 @@
  * FileSystemController controller for the container overview
  */
 fileSystemModule.controller('FileSystemController',
-		['$scope', '$rootScope', 'fileSystemService', '$state', '$mdDialog', '$mdMedia', 'objectClassService',
-		 function($scope, $rootScope, fileSystemService, $state, $mdDialog, $mdMedia, objectClassService) {
+		['$scope', '$rootScope', 'fileSystemService', '$state', '$mdDialog', '$mdMedia', 'objectClassService', '$filter',
+		 function($scope, $rootScope, fileSystemService, $state, $mdDialog, $mdMedia, objectClassService, $filter) {
 
 			console.log("hello, FileSystemController");
 

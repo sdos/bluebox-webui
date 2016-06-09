@@ -18,4 +18,10 @@ var filterModule = angular.module('bluebox.filter', [
 		if(input.startsWith("application/octet-stream")) 	return "help";
 		return "insert_drive_file";
 	}
+}).filter('containerTypeIcon', function() {
+	return function(c) {
+		if(c.name.endsWith(".sdos")) 						return "folder_special";
+		if(c.count == 0)			 						return "folder_open";
+		return "folder";
+	}
 });
