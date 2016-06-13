@@ -59,3 +59,4 @@ target/
 # IDE config
 .idea
 /appConfig.py
+venvBB/
