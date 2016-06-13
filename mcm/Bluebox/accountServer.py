@@ -15,9 +15,9 @@ from functools import wraps
 from flask import request, Response, send_file, render_template
 import requests
 
-from osecm.Bluebox import app
-from osecm.Bluebox import appConfig
-from osecm.Bluebox.exceptions import HttpError
+from mcm.Bluebox import app
+from mcm.Bluebox import appConfig
+from mcm.Bluebox.exceptions import HttpError
 
 
 log = logging.getLogger()

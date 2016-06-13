@@ -13,7 +13,7 @@
 """
 
 These values are just copied from the filter classes in 
-	/osecm-metadataExtractor/osecm/metadataExtractor
+	/mcm-metadataExtractor/mcm/metadataExtractor
 It would be better to import those classes here, but that makes running the thing 
 more complicated due to the many dependencies in the filters... 
 

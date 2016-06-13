@@ -9,7 +9,7 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 
-from osecm.Bluebox import appConfig
+from mcm.Bluebox import appConfig
 import multiprocessing
 
 

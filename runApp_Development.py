@@ -9,8 +9,8 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 
-from osecm.Bluebox import app#, socketio
-from osecm.Bluebox import appConfig
+from mcm.Bluebox import app
+from mcm.Bluebox import appConfig
 
 
 # socketio.run(

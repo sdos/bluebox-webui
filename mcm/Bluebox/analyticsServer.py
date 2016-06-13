@@ -24,9 +24,9 @@ from bokeh.charts.operations import blend
 from flask import request, Response, send_file, render_template
 import requests
 
-from osecm.Bluebox import app
-from osecm.Bluebox import appConfig
-from osecm.Bluebox.exceptions import HttpError
+from mcm.Bluebox import app
+from mcm.Bluebox import appConfig
+from mcm.Bluebox.exceptions import HttpError
 import pandas
 from bokeh.models.tickers import SingleIntervalTicker
 from bokeh.models.axes import LinearAxis

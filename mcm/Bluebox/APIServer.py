@@ -21,14 +21,14 @@ from jsonschema.exceptions import ValidationError
 from swiftclient.exceptions import ClientException
 from werkzeug import secure_filename
 
-from osecm.Bluebox import SwiftConnect
-from osecm.Bluebox import app
-from osecm.Bluebox.exceptions import HttpError
-from osecm.Bluebox.internal_storage import InternalStorageManager
+from mcm.Bluebox import SwiftConnect
+from mcm.Bluebox import app
+from mcm.Bluebox.exceptions import HttpError
+from mcm.Bluebox.internal_storage import InternalStorageManager
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
 log = logging.getLogger()
-CLASS_SCHEMA = json.loads(open("osecm/Bluebox/include/object_class_schema").read())
+CLASS_SCHEMA = json.loads(open("mcm/Bluebox/include/object_class_schema").read())
 RETENTIONFIELD = 'x-object-meta-mgmt-retentiondate'
 OBJECTCLASSFIELD = 'x-container-meta-objectclass'
 

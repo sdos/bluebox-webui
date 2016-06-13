@@ -19,11 +19,11 @@ log = logging.getLogger()
 app = Flask(__name__, static_folder="angular")
 #socketio = SocketIO(app)
 
-import osecm.Bluebox.APIServer
-import osecm.Bluebox.TasksServer
-import osecm.Bluebox.analyticsServer
-import osecm.Bluebox.metadataServer
-import osecm.Bluebox.accountServer
+import mcm.Bluebox.APIServer
+import mcm.Bluebox.TasksServer
+import mcm.Bluebox.analyticsServer
+import mcm.Bluebox.metadataServer
+import mcm.Bluebox.accountServer
 
 
 

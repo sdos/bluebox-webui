@@ -8,7 +8,7 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
-from osecm.Bluebox import app#, socketio
+from mcm.Bluebox import app#, socketio
 from flask import Response
 #import eventlet
 #from flask_socketio import SocketIO, emit, join_room, leave_room, close_room, rooms, disconnect

@@ -18,9 +18,9 @@ import json, logging, time, re
 from flask import request, Response, send_file, render_template
 import requests
 
-from osecm.Bluebox import app, metadataFieldDefinitions
-from osecm.Bluebox import appConfig
-from osecm.Bluebox.exceptions import HttpError
+from mcm.Bluebox import app, metadataFieldDefinitions
+from mcm.Bluebox import appConfig
+from mcm.Bluebox.exceptions import HttpError
 
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
