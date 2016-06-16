@@ -21,7 +21,8 @@ fileSystemModule.factory(
                         "name":         container.name,
                         "objectClass":  container.objectClass,
                         "mdf":  container.mdf,
-                        "mdfi":  container.mdfi
+                        "mdfi":  container.mdfi,
+                        "sdos": container.sdos
                     }
                 };
             };

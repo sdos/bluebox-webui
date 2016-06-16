@@ -309,6 +309,7 @@ def create_container():
 	try:
 		container_definition = request.json.get("container")
 		container_name = container_definition.get("name")
+		container_sdos = container_definition.get("sdos", False)
 	except AttributeError:
 		raise HttpError("malformed request", 400)
 
@@ -320,6 +321,9 @@ def create_container():
 		raise HttpError("container already exists", 422)
 
 	container_metadata = {}
+
+	if container_sdos:
+		container_metadata["x-container-meta-sdos"] = True
 
 	try:
 		class_name = container_definition.get("objectClass")

@@ -6,6 +6,10 @@ md-dialog-content h2 {
 	color: black;
 }
 
+.bb-large-icon {
+	font-size: 2em;
+}
+
 .bb-container {
 	margin: 1em;
 }

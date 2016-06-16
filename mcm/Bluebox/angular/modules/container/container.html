@@ -18,7 +18,7 @@
 
         </div>
 
-        <div flex="">
+        <div flex="" flex ng-if="!container.isMeta">
             <div class="md-whiteframe-4dp bb-container">
                 <md-toolbar class="md-hue-2">
                     <div class="md-toolbar-tools">
@@ -109,19 +109,21 @@
                             </div>
                         </div>
                         <div layout="row" layout-align="space-between center">
-                            <md-button class="md-raised md-primary" type="submit">
-                                <md-icon md-font-set="material-icons">
-                                    cloud_upload
-                                </md-icon>
-                                Upload
-                            </md-button>
+                            <p>
+                                <md-button class="md-raised md-primary" type="submit">
+                                    <md-icon md-font-set="material-icons">
+                                        cloud_upload
+                                    </md-icon>
+                                    Upload
+                                </md-button>
 
-                            <md-button ng-hide="!fileModel.files" class="md-flat" ng-click="fileModel = undefined">
-                                <md-icon md-font-set="material-icons">
-                                    clear
-                                </md-icon>
-                                Clear
-                            </md-button>
+                                <md-button ng-hide="!fileModel.files" class="md-flat" ng-click="fileModel = undefined">
+                                    <md-icon md-font-set="material-icons">
+                                        clear
+                                    </md-icon>
+                                    Clear
+                                </md-button>
+                            </p>
                         </div>
 
                     </form>
@@ -129,6 +131,17 @@
             </div>
 
         </div>
+
+        <div flex ng-if="container.isSdos">
+            <sdos-details container="container">
+            </sdos-details>
+        </div>
+        <div flex="50" ng-if="container.isMeta">
+            <mcm-meta-container>
+            </mcm-meta-container>
+        </div>
+
+
         <div flex="10"></div>
 
     </div>

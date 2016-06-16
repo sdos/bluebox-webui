@@ -1,59 +1,60 @@
 <html>
- <body>
-  <md-dialog aria-label="Create Container" ng-cloak="">
-   <md-toolbar>
-    <div class="md-toolbar-tools">
+<body>
+<md-dialog aria-label="Create Container" ng-cloak="">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
      <span>
       Create Container
      </span>
      <span flex="">
      </span>
-     <md-button class="md-icon-button" ng-click="cancel()">
-      <md-icon md-font-set="material-icons">
-       close
-      </md-icon>
-     </md-button>
-    </div>
-   </md-toolbar>
-   <md-dialog-content class="bb-margin">
+            <md-button class="md-icon-button" ng-click="cancel()">
+                <md-icon md-font-set="material-icons">
+                    close
+                </md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-dialog-content class="bb-margin">
 
 
+        <form ng-submit="createContainer()">
+            <!-- Input of the container name -->
+            <md-input-container class="md-block md-icon-float" flex-gt-sm="">
+                <label>
+                    Container name
+                </label>
+                <md-icon md-font-set="material-icons">
+                    chevron_right
+                </md-icon>
+                <input id="containerName" ng-model="newContainer.name" ng-trim="false" type="text"/>
+            </md-input-container>
+            <md-input-container>
+                <md-switch ng-model="newContainer.sdos" aria-label="sdos encryption">
+                    Enable SDOS encryption and cryptographic deletion
+                </md-switch>
+            </md-input-container>
+            <p>
+
+                <!-- Button to submit the form and create a new container -->
+                <md-button class="md-raised md-primary" ng-disabled="!newContainer.name" type="submit">
+                    <md-icon md-font-set="material-icons">
+                        done
+                    </md-icon>
+                    Create
+                </md-button>
+                <md-button class="md-raised md-primary" ng-disabled="!newContainer.name" type="submit"
+                           ng-click="cancel()">
+                    <md-icon md-font-set="material-icons">
+                        done_all
+                    </md-icon>
+                    Create & Close
+                </md-button>
+            </p>
+        </form>
 
 
-     <form ng-submit="createContainer()">
-      <!-- Input of the container name -->
-      <md-input-container class="md-block md-icon-float" flex-gt-sm="">
-       <label>
-        Container name
-       </label>
-       <md-icon md-font-set="material-icons">
-        chevron_right
-       </md-icon>
-       <input id="containerName" ng-model="newContainer.name" ng-trim="false" type="text"/>
-      </md-input-container>
-      <!-- Button to submit the form and create a new container -->
-      <md-button class="md-raised md-primary" ng-disabled="!newContainer.name" type="submit">
-       <md-icon md-font-set="material-icons">
-        done
-       </md-icon>
-       Create
-      </md-button>
-      <md-button class="md-raised md-primary" ng-disabled="!newContainer.name" type="submit" ng-click="cancel()">
-       <md-icon md-font-set="material-icons">
-        done_all
-       </md-icon>
-       Create & Close
-      </md-button>
-     </form>
-
-
-    
-    
-    
-    
-    
-    
-   </md-dialog-content>
-  </md-dialog>
- </body>
+    </md-dialog-content>
+</md-dialog>
+</body>
 </html>

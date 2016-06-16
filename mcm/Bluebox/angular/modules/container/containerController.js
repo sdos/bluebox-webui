@@ -59,7 +59,9 @@ containerModule.controller('ContainerController',
                     objectCount: 0
                 },
                 metadataFields: [],
-                objects: []
+                objects: [],
+                isSdos: false,
+                isMeta: $filter('isMetaContainer')($stateParams.containerName)
             };
 
             /**
@@ -207,6 +209,7 @@ containerModule.controller('ContainerController',
 
                 $scope.selectedMetadataFields = mdf;
                 $scope.selectedInternalMetadataFields = mdfi;
+                $scope.container.isSdos = $scope.container.metadata['x-container-meta-sdos'] == 'True';
 
             };
 
