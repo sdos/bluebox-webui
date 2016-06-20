@@ -9,6 +9,15 @@ md-dialog-content h2 {
 .bb-large-icon {
 	font-size: 2em;
 }
+.bb-huge-icon {
+	font-size: 5em;
+}
+
+.bbAllocBlocks {
+	max-width: 100%;
+	word-break: break-all;
+	font-family: monospace;
+}
 
 .bb-container {
 	margin: 1em;

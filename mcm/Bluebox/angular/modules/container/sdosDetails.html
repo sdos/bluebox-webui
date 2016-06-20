@@ -9,11 +9,20 @@
         </div>
     </md-toolbar>
     <md-content class="bb-container">
-        <ul>
-            <li ng-repeat="(k, v) in sdosStats"><b>{{ k }}:</b> {{ v | numberFormat }}</li>
+        <div flex layout="row">
+            <div flex="">
+                <ul>
+                    <li ng-repeat="(k, v) in sdosStats"><b>{{ k }}:</b> {{ v | numberFormat }}</li>
 
-        </ul>
+                </ul>
+            </div>
+            <div flex="">
+                <md-icon md-font-set="material-icons" class="bb-huge-icon">
+                    enhanced_encryption
+                </md-icon>
 
+            </div>
+        </div>
         <p>
             <md-button aria-label="Show Key Cascade" class="md-raised md-primary" ng-click="showCascadeSheet($event)">
                 <md-icon md-font-set="material-icons">
@@ -22,7 +31,8 @@
                 Show Key Cascade structure
             </md-button>
 
-            <md-button aria-label="Show key slot allocation" class="md-raised md-primary" ng-click="showMappingSheet($event)">
+            <md-button aria-label="Show key slot allocation" class="md-raised md-primary"
+                       ng-click="showMappingSheet($event)">
                 <md-icon md-font-set="material-icons">
                     gradient
                 </md-icon>

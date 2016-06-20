@@ -5,10 +5,12 @@ function sdosDetailsController($scope, $http, $mdMedia, $mdDialog) {
     console.log("SDOS");
     $scope.sdosStats = "";
     var ctrl = this;
+    $scope.availableSlotBlockCounts = [10, 100, 1000, 10000];
+    $scope.slotBlockCount = $scope.availableSlotBlockCounts[2];
 
     function getSdosStats() {
         $http
-            .get('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_slot_mapping_stats')
+            .get('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_cascade_stats')
             .then(
                 function successCallback(response) {
                     $scope.sdosStats = (response.data) ? response.data : "COULD NOT GET DETAILS FROM SERVER";
@@ -33,16 +35,18 @@ function sdosDetailsController($scope, $http, $mdMedia, $mdDialog) {
                 });
 
     };
-    function getSdosSlotAllocation() {
+    $scope.getSdosSlotAllocation = function () {
+
+        $scope.sdosSlotAllocation = undefined;
         $http
-            .get('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_slot_mapping')
+            .get('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_slot_utilization' + $scope.slotBlockCount)
             .then(
                 function successCallback(response) {
                     $scope.sdosSlotAllocation = response.data;
 
                 },
                 function errorCallback(response) {
-                    $scope.sdosSlotAllocation = "ERROR GETTING DETAILS FROM SERVER: " + response.data;
+                    console.log("ERROR GETTING DETAILS FROM SERVER: " + response.data);
                 });
 
     };
@@ -69,7 +73,7 @@ function sdosDetailsController($scope, $http, $mdMedia, $mdDialog) {
     };
 
     $scope.showMappingSheet = function (ev) {
-        getSdosSlotAllocation();
+        $scope.getSdosSlotAllocation();
         var useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen;
         $mdDialog.show({
             controller: SdosSheetController,
