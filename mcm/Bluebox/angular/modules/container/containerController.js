@@ -179,12 +179,15 @@ containerModule.controller('ContainerController',
                 fileSystemService.getContainerMetadata($scope.container)
                     .then(function (response) {
                         var objectClass = response['x-container-meta-objectclass'];
-                        objectClassService.getObjectClass(objectClass)
-                            .then(function (response) {
-                                $scope.objectClassModel = $filter('jsonSchema')(response.schema, true);
-                                parseObjectClassFieldsIntoColumnList();
-                                //console.log($scope.objectClassModel);
-                            });
+                        if (objectClass) {
+                            objectClassService.getObjectClass(objectClass)
+                                .then(function (response) {
+                                    $scope.objectClassModel = $filter('jsonSchema')(response.schema, true);
+                                    parseObjectClassFieldsIntoColumnList();
+                                    //console.log($scope.objectClassModel);
+                                });
+                        }
+
                     });
             };
 
