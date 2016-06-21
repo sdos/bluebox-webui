@@ -16,7 +16,17 @@
     <md-dialog-content class="bb-margin">
 
 
-    <p>{{ sdosCascadeStructure }}</p>
+        <div ng-if="!sdosCascadeStructure">
+            <h3>Collecting data... </h3>
+            <md-progress-circular class="md-warn" md-mode="indeterminate"
+                                  md-diameter="80"></md-progress-circular>
+        </div>
+
+
+
+        <div ng-if="sdosCascadeStructure">
+            <p>{{ sdosCascadeStructure }}</p>
+        </div>
 
     </md-dialog-content>
 </md-dialog>

@@ -50,7 +50,7 @@ fileSystemModule.factory(
                  * @returns {promise} resolved or rejected to the plain response from the backend
                  */
                 updateContainer: function(container) {
-                	console.log(container);
+                	//console.log(container);
                     return $http({
                         "method":   "PUT",
                         "url":      BACKEND_BASE_URL + "containers/" + $filter('urlEncode')(container.name),

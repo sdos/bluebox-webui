@@ -172,7 +172,7 @@ containerModule.controller('ContainerController',
                     fields.push(thisField.name);
                 }
                 $scope.availableMetadataFields['class-' + $scope.objectClassModel.name] = fields;
-                console.log($scope.availableMetadataFields);
+                //console.log($scope.availableMetadataFields);
             };
 
             var getObjectClassData = function () {
@@ -183,7 +183,7 @@ containerModule.controller('ContainerController',
                             .then(function (response) {
                                 $scope.objectClassModel = $filter('jsonSchema')(response.schema, true);
                                 parseObjectClassFieldsIntoColumnList();
-                                console.log($scope.objectClassModel);
+                                //console.log($scope.objectClassModel);
                             });
                     });
             };
@@ -219,7 +219,7 @@ containerModule.controller('ContainerController',
              * this is used for storing the selected table columns
              */
             $scope.updateContainer = function () {
-                console.log($scope.container);
+                //console.log($scope.container);
                 fileSystemService
                     .updateContainer({
                         name: $scope.container.name,

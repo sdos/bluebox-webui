@@ -31,7 +31,7 @@ var filterModule = angular.module('bluebox.filter', []).filter('metaPrefix', fun
     }
 }).filter('numberFormat', function () {
     return function (c) {
-        if (c > 1000)                        return c.toLocaleString('en-US', {minimumFractionDigits: 0});
+        if (parseInt(c) > 1000)                     return parseInt(c).toLocaleString('en-US', {minimumFractionDigits: 0});
         return c;
     }
 });

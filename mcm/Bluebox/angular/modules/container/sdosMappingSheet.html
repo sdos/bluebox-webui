@@ -29,20 +29,22 @@
         </p>
 
         <div ng-if="!sdosSlotAllocation">
-        <p>
-        <h3>Collecting data... </h3>
-        <md-progress-circular class="md-warn" md-mode="indeterminate" md-diameter="80"></md-progress-circular>
-        </p>
-            </div>
+            <p>
+            <h3>Collecting data... </h3>
+            <md-progress-circular class="md-warn" md-mode="indeterminate" md-diameter="80"></md-progress-circular>
+            </p>
+        </div>
 
         <div ng-if="sdosSlotAllocation">
             <h3>Allocation</h3>
             <p>Each number represents a block of {{ sdosSlotAllocation.groupSize | numberFormat }} key slots.
-                Numbers 0 through 9 indicate how many slots are used in that block; with 0 all slots are empty and with 9 all are utilized.
-                Note that these <q>blocks</q> are only used here for visualizing allocation. They don't align with key partitions or anything.</p>
+                Numbers 0 through 9 indicate how many slots are used in that block; with 0 all slots are empty and with
+                9 all are utilized.
+                Note that these <q>blocks</q> are only used here for visualizing allocation. They don't align with key
+                partitions or anything.</p>
             <div class="bbAllocBlocks">
-            {{ sdosSlotAllocation.alloc }}
-                </div>
+                {{ sdosSlotAllocation.alloc }}
+            </div>
         </div>
     </md-dialog-content>
 </md-dialog>

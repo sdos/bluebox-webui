@@ -181,9 +181,10 @@ class SwiftConnect:
 				contents=object_as_file, headers=metadata_dict,
 				chunk_size=65536)
 		else:
+			c = object_as_file if type(object_as_file) == str else object_as_file.read()
 			self.conn.put_object(
 				container=container_name, obj=object_name,
-				contents=object_as_file.read(), headers=metadata_dict)
+				contents=c, headers=metadata_dict)
 
 	# Stream object
 	@exception_wrapper(404, "requested resource does not exist", log)
