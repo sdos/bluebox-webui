@@ -79,20 +79,20 @@
                         <md-tooltip md-direction="top">
                             Enter container
                         </md-tooltip>
-                        <md-icon md-font-set="material-icons">
+                        <md-icon md-font-set="material-icons" style="{{ thisContainer | containerTypeColor }}">
                         	{{ thisContainer | containerTypeIcon }}
                         </md-icon>
                     </td>
-                    <td md-cell="" ng-click="showDetailSheet($event, thisContainer)" class="bb-table-col">
+                    <td md-cell="" ng-click="showDetailSheet($event, thisContainer)" class="bb-table-col" style="{{ thisContainer | containerTypeColor }}">
                         <md-tooltip md-direction="top">
                             Show details
                         </md-tooltip>
                         {{ thisContainer.name }}
                     </td>
-                    <td md-cell="" class="bb-table-col">
+                    <td md-cell="" class="bb-table-col" style="{{ thisContainer | containerTypeColor }}">
                         {{ thisContainer.bytes | bytes }}
                     </td>
-                    <td md-cell="" class="bb-table-col">
+                    <td md-cell="" class="bb-table-col" style="{{ thisContainer | containerTypeColor }}">
                         {{ thisContainer.count }}
                     </td>
                 </tr>

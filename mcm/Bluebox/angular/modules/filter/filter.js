@@ -19,9 +19,14 @@ var filterModule = angular.module('bluebox.filter', []).filter('metaPrefix', fun
     }
 }).filter('containerTypeIcon', function () {
     return function (c) {
-        if (c.name.endsWith(".sdos"))                        return "folder_special";
+        if (c.name.endsWith(".sdos") | c.name.startsWith("_internal_"))                        return "folder_special";
         if (c.count == 0)                                    return "folder_open";
         return "folder";
+    }
+}).filter('containerTypeColor', function () {
+    return function (c) {
+        if (c.name.endsWith(".sdos") | c.name.startsWith("_internal_"))                        return "color: grey; font-style: italic;";
+        return "";
     }
 }).filter('isMetaContainer', function () {
     return function (c) {
