@@ -54,7 +54,7 @@ def handle_invalid_usage(e):
 	if (ClientException == type(e)):
 		if (401 == e.http_status):
 			return "not authenticated", 401
-		return "swift back end error", 500
+		return e.http_response_content, e.http_status
 	if (HttpError == type(e)):
 		return e.to_string(), e.status_code
 	return "Internal Server Error", 500
@@ -524,11 +524,6 @@ def create_object(container_name):
 	file = request.files["objectName"]
 	object_name = secure_filename(file.filename)
 
-	# check whether an object with the same name already exists in the same container
-	all_objects = swift.get_object_list(container_name)[1]
-	if object_name in [obj.get("name") for obj in all_objects]:
-		raise HttpError("object with this name already exists in this container", 422)
-
 	headers = {}
 	retentionDate = request.form["retentionDate"]
 	if retentionDate:
@@ -558,7 +553,7 @@ def create_object(container_name):
 				xformed_class_name = xform_header_names(class_name)
 				headers["X-Object-Meta-Class-" + xformed_class_name + "-" + field_header] = class_metadata[field]
 
-	swift.streaming_object_upload(object_name, container_name, file, headers)
+	swift.object_upload(object_name, container_name, file, headers, as_stream=False)
 	return "", 201
 
 

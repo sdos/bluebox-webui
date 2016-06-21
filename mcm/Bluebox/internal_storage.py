@@ -25,7 +25,7 @@ class InternalStorageManager:
         if internal_cont_name not in [c.get("name") for c in containers]:
             self.swift.create_container(internal_cont_name)
             
-        self.swift.streaming_object_upload(key, internal_cont_name, value, {})
+        self.swift.object_upload(key, internal_cont_name, value, {})
     
     # returns the data for the specified key or None
     def get_data(self, container_name, key):

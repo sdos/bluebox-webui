@@ -3,8 +3,9 @@
 
 function sdosDetailsController($scope, $http, $mdMedia, $mdDialog) {
     console.log("SDOS");
-    $scope.sdosStats = "";
     var ctrl = this;
+    $scope.sdosStats = "";
+    $scope.container = ctrl.container;
     $scope.availableSlotBlockCounts = [10, 100, 1000, 10000];
     $scope.slotBlockCount = $scope.availableSlotBlockCounts[2];
 
@@ -94,7 +95,10 @@ function sdosDetailsController($scope, $http, $mdMedia, $mdDialog) {
     };
 
 
-    getSdosStats();
+    $scope.$watch('container.objects', function() {
+        console.log("refreshing SDOS stats");
+        getSdosStats();
+    })
 }
 
 angular.module('bluebox.container').component('sdosDetails', {

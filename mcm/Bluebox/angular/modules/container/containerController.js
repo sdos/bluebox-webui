@@ -312,7 +312,7 @@ containerModule.controller('ContainerController',
              */
             $scope.resetUploadList = function () {
                 $timeout(function () {
-                    $scope.fileModel = undefined;
+                    $scope.fileModel.files = null;
                 }, 2000);
             };
 
@@ -455,11 +455,7 @@ containerModule.controller('ContainerController',
                     scope: $scope,
                     preserveScope: true,
                     locals: {containerService: containerService}
-                })
-                    .then(
-                        function () {
-                            console.log('You cancelled the dialog.');
-                        });
+                });
 
                 $scope.$watch(function () {
                     return $mdMedia('xs') || $mdMedia('sm');

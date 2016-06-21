@@ -173,12 +173,17 @@ class SwiftConnect:
 
 ##############################################################################
 
-	def streaming_object_upload(self, object_name, container_name, object_as_file, metadata_dict):
-		log.debug("Putting object: {} in container: {} as stream".format(object_name, container_name))
-		self.conn.put_object(
-			container=container_name, obj=object_name,
-			contents=object_as_file, headers=metadata_dict,
-			chunk_size=65536)
+	def object_upload(self, object_name, container_name, object_as_file, metadata_dict, as_stream=False):
+		log.debug("Putting object: {} in container: {}".format(object_name, container_name))
+		if as_stream:
+			self.conn.put_object(
+				container=container_name, obj=object_name,
+				contents=object_as_file, headers=metadata_dict,
+				chunk_size=65536)
+		else:
+			self.conn.put_object(
+				container=container_name, obj=object_name,
+				contents=object_as_file.read(), headers=metadata_dict)
 
 	# Stream object
 	@exception_wrapper(404, "requested resource does not exist", log)
