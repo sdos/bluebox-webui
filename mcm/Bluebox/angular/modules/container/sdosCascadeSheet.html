@@ -16,17 +16,28 @@
     <md-dialog-content class="bb-margin">
 
 
-        <div ng-if="!sdosCascadeStructure">
+        <div ng-if="sdosStats">
+            <h3>sdosStats</h3>
+            <p>{{ sdosStats }}</p>
+        </div>
+
+        <div ng-if="sdosUsedPartitions">
+            <h3>sdosUsedPartitions</h3>
+            <p>{{ sdosUsedPartitions }}</p>
+        </div>
+
+        <div ng-if="sdosPartitionMapping">
+            <h3>sdosPartitionMapping</h3>
+            <p>{{ sdosPartitionMapping }}</p>
+        </div>
+
+
+        <div ng-if="!sdosStats || !sdosUsedPartitions || !sdosPartitionMapping">
             <h3>Collecting data... </h3>
             <md-progress-circular class="md-warn" md-mode="indeterminate"
                                   md-diameter="80"></md-progress-circular>
         </div>
 
-
-
-        <div ng-if="sdosCascadeStructure">
-            <p>{{ sdosCascadeStructure }}</p>
-        </div>
 
     </md-dialog-content>
 </md-dialog>
