@@ -31,6 +31,7 @@ log = logging.getLogger()
 CLASS_SCHEMA = json.loads(open("mcm/Bluebox/include/object_class_schema").read())
 RETENTIONFIELD = 'x-object-meta-mgmt-retentiondate'
 OBJECTCLASSFIELD = 'x-container-meta-objectclass'
+INTERNALOCNAME = "object-class-definitions"
 
 ##############################################################################
 # decorators
@@ -140,9 +141,9 @@ def get_objectclass_schema():
 def get_objectclasses():
 	swift = createConnection(request)
 	internal_data = InternalStorageManager(swift)
-	class_names = internal_data.get_keys("object classes")
+	class_names = internal_data.get_keys(INTERNALOCNAME)
 	for k in class_names:
-		value = internal_data.get_data("object classes", k)
+		value = internal_data.get_data(INTERNALOCNAME, k)
 	# TODO validate if invalid remove key
 	# class_names.append(json.loads(value).get("name"))
 	# log.debug("encountered invalid class definition stored in object store. key: {}, value: {}".format(k, value))
@@ -174,7 +175,7 @@ def create_objectclass():
 	if not class_name or not class_schema:
 		raise HttpError("class name or class schema definition missing", 400)
 
-	class_names = internal_data.get_keys("object classes")
+	class_names = internal_data.get_keys(INTERNALOCNAME)
 
 	if class_name in class_names:
 		raise HttpError("class already exists", 422)
@@ -184,7 +185,7 @@ def create_objectclass():
 	except ValidationError as e:
 		raise HttpError("invalid class definition: {}".format(e), 400)
 
-	internal_data.store_data("object classes", class_name, json.dumps(class_definition))
+	internal_data.store_data(INTERNALOCNAME, class_name, json.dumps(class_definition))
 	return "", 201
 
 
@@ -200,7 +201,7 @@ def create_objectclass():
 def get_objectclass(class_name):
 	swift = createConnection(request)
 	internal_data = InternalStorageManager(swift)
-	class_def = internal_data.get_data("object classes", class_name)
+	class_def = internal_data.get_data(INTERNALOCNAME, class_name)
 
 	if not class_def:
 		raise HttpError("class does not exist", 404)
@@ -233,7 +234,7 @@ def change_objectclass(class_name):
 	except ValidationError as e:
 		raise HttpError("invalid class definition: {}".format(e), 400)
 
-	internal_data.store_data("object classes", class_name, json.dumps(class_definition))
+	internal_data.store_data(INTERNALOCNAME, class_name, json.dumps(class_definition))
 	return "", 200
 
 
@@ -247,12 +248,12 @@ def change_objectclass(class_name):
 def delete_objectclass(class_name):
 	swift = createConnection(request)
 	internal_data = InternalStorageManager(swift)
-	class_def = internal_data.get_data("object classes", class_name)
+	class_def = internal_data.get_data(INTERNALOCNAME, class_name)
 
 	if not class_def:
 		raise HttpError("class does not exist", 404)
 
-	internal_data.remove_data("object classes", class_name)
+	internal_data.remove_data(INTERNALOCNAME, class_name)
 	return "", 204
 
 
@@ -316,6 +317,9 @@ def create_container():
 	if not container_name:
 		raise HttpError("container name is missing", 400)
 
+	if "/" in container_name:
+		raise HttpError("Container name contains '/'. This is only allowed in object names.", 400)
+
 	containers = swift.get_container_list()[1]
 	if container_name in [container.get("name") for container in containers]:
 		raise HttpError("container already exists", 422)
@@ -327,7 +331,7 @@ def create_container():
 
 	try:
 		class_name = container_definition.get("objectClass")
-		class_definition = internal_data.get_data("object classes", class_name)
+		class_definition = internal_data.get_data(INTERNALOCNAME, class_name)
 		if class_name:
 			if class_definition is None:
 				raise HttpError("class does not exist", 404)
@@ -384,7 +388,7 @@ def change_container(container_name):
 	try:
 		class_name = container_definition.get("objectClass")
 		internal_data = InternalStorageManager(swift)
-		class_definition = internal_data.get_data("object classes", class_name)
+		class_definition = internal_data.get_data(INTERNALOCNAME, class_name)
 		if class_name:
 			if class_definition is None:
 				raise HttpError("class does not exist", 404)
@@ -543,7 +547,7 @@ def create_object(container_name):
 		class_name = swift.get_container_metadata(container_name).get(OBJECTCLASSFIELD)
 		if class_name:
 			internal_data = InternalStorageManager(swift)
-			class_definition = json.loads(internal_data.get_data("object classes", class_name))
+			class_definition = json.loads(internal_data.get_data(INTERNALOCNAME, class_name))
 			Draft4Validator(class_definition, format_checker=FormatChecker()).validate(class_metadata)
 
 		for field in class_metadata.keys():

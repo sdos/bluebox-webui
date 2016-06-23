@@ -13,7 +13,7 @@
 
 class InternalStorageManager:
 
-    CONTAINER_PREFIX = "_internal_ "
+    CONTAINER_PREFIX = "_mcm-internal_"
     
     def __init__(self, swift):
         self.swift = swift
