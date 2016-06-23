@@ -1,3 +1,10 @@
+<html>
+<head>
+    <link href="/angular/css/cascade.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+
 <md-dialog aria-label="Key Cascade visualization" ng-cloak="">
     <md-toolbar>
         <div class="md-toolbar-tools">
@@ -14,6 +21,8 @@
         </div>
     </md-toolbar>
     <md-dialog-content class="bb-margin">
+
+        <div id="cascadeRendering"></div>
 
 
         <div ng-if="sdosStats">
@@ -32,7 +41,7 @@
         </div>
 
 
-        <div ng-if="!sdosStats || !sdosUsedPartitions || !sdosPartitionMapping">
+        <div ng-if="!sdosStats || !sdosUsedPartitions">
             <h3>Collecting data... </h3>
             <md-progress-circular class="md-warn" md-mode="indeterminate"
                                   md-diameter="80"></md-progress-circular>
@@ -41,3 +50,5 @@
 
     </md-dialog-content>
 </md-dialog>
+</body>
+</html>

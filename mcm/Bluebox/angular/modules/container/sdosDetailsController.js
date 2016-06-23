@@ -20,38 +20,12 @@ function sdosDetailsController($scope, $http, $mdMedia, $mdDialog) {
 
                 },
                 function errorCallback(response) {
-                    console.err("ERROR GETTING DETAILS FROM SERVER: " + response.data);
+                    console.error("ERROR GETTING DETAILS FROM SERVER: " + response.data);
                 });
 
     };
 
-    function getSdosPartitions() {
-        $http
-            .get('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_used_partitions')
-            .then(
-                function successCallback(response) {
-                    $scope.sdosUsedPartitions = response.data;
 
-                },
-                function errorCallback(response) {
-                    console.err("ERROR GETTING DETAILS FROM SERVER: " + response.data);
-                });
-
-    };
-    
-    function getSdosMapping() {
-        $http
-            .get('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_partition_mapping')
-            .then(
-                function successCallback(response) {
-                    $scope.sdosPartitionMapping = response.data;
-
-                },
-                function errorCallback(response) {
-                    console.err("ERROR GETTING DETAILS FROM SERVER: " + response.data);
-                });
-
-    };
     $scope.getSdosSlotAllocation = function () {
 
         $scope.sdosSlotAllocation = undefined;
@@ -63,14 +37,12 @@ function sdosDetailsController($scope, $http, $mdMedia, $mdDialog) {
 
                 },
                 function errorCallback(response) {
-                    console.err("ERROR GETTING DETAILS FROM SERVER: " + response.data);
+                    console.error("ERROR GETTING DETAILS FROM SERVER: " + response.data);
                 });
 
     };
 
     $scope.showCascadeSheet = function (ev) {
-        getSdosMapping();
-        getSdosPartitions();
         var useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen;
         $mdDialog.show({
             controller: SdosSheetController,
@@ -132,12 +104,10 @@ angular.module('bluebox.container').component('sdosDetails', {
 });
 
 
-function SdosSheetController($rootScope, $state, $scope, $mdDialog) {
 
-    $scope.hide = function () {
-        $mdDialog.hide();
-    };
-    $scope.cancel = function () {
-        $mdDialog.cancel();
-    };
-};
+
+
+
+
+
+
