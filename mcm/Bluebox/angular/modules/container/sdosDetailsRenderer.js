@@ -3,9 +3,6 @@
 
 function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
-    console.error("SdosSheetController render D3");
-
-    // Your beautiful D3 code will go here
     var dataset;
 
 
@@ -13,7 +10,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         duration = 750,
         root,
         height = 500,
-        width = 700;
+        width = 3000;
 
     var tree = d3.layout.tree()
         .size([height, width]);
@@ -86,7 +83,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     };
 
 
-    //getSdosMapping();
+    getSdosMapping();
     getSdosPartitions();
 
     /*
@@ -220,6 +217,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         }
         update(d);
     }
+
+    var children;
 
 
     function jsonToFlare(data) { // Depth
