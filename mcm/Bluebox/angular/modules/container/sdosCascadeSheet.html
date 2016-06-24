@@ -22,22 +22,25 @@
     </md-toolbar>
     <md-dialog-content class="bb-margin">
 
-        <div id="cascadeRendering"></div>
 
+        <div>
+            <h3>Key Cascade view</h3>
+            <div id="cascadeRendering"></div>
+        </div>
 
         <div ng-if="sdosStats">
             <h3>sdosStats</h3>
-            <p>{{ sdosStats }}</p>
+            <p class="bbAllocBlocks">{{ sdosStats }}</p>
         </div>
 
         <div ng-if="sdosUsedPartitions">
             <h3>sdosUsedPartitions</h3>
-            <p>{{ sdosUsedPartitions }}</p>
+            <p class="bbAllocBlocks">{{ sdosUsedPartitions }}</p>
         </div>
 
         <div ng-if="sdosPartitionMapping">
             <h3>sdosPartitionMapping</h3>
-            <p>{{ sdosPartitionMapping }}</p>
+            <p class="bbAllocBlocks">{{ sdosPartitionMapping }}</p>
         </div>
 
 

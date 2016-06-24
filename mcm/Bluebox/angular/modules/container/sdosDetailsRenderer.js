@@ -9,8 +9,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     var i = 0,
         duration = 750,
         root,
-        height = 500,
-        width = 3000;
+        height = 600,
+        width = 1000;
 
     var tree = d3.layout.tree()
         .size([height, width]);
