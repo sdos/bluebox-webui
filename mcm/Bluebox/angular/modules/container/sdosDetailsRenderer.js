@@ -60,6 +60,14 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
                     d3.select(self.frameElement).style("height", "500px");
 
+                    var open = [];
+                    for (var i = 0; i < cascadeData.levels; i++) {
+                        open.push(pidFop(cascadeData.partitionSize, i));
+                    }
+
+                    closeTree(root, open);
+                    update(root);
+
                 },
                 function errorCallback(response) {
                     console.error("ERROR GETTING DETAILS FROM SERVER: " + response.data);
@@ -94,6 +102,19 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
      *
      *
      * */
+
+
+    function closeTree(source, openNodes) {
+        var nodes = tree.nodes(source).reverse();
+
+        nodes.forEach(function (d) {
+            if (d.children != null && openNodes.indexOf(d.name) < 0) {
+                hideChildren(d);
+                //console.log(d);
+            }
+
+        });
+    }
 
 
     function update(source) {
@@ -208,6 +229,11 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
 // Toggle children on click.
     function click(d) {
+        hideChildren(d);
+        update(d);
+    }
+
+    function hideChildren(d) {
         if (d.children) {
             d._children = d.children;
             d.children = null;
@@ -215,7 +241,6 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             d.children = d._children;
             d._children = null;
         }
-        update(d);
     }
 
     var children;
