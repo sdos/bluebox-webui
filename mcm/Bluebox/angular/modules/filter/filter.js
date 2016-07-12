@@ -41,16 +41,15 @@ var filterModule = angular.module('bluebox.filter', []).filter('metaPrefix', fun
     }
 }).filter('paintBlocks', function () {
     return function (c) {
-        c=c.replace(/0/g, "<span class='bbBlock0'>&nbsp;0&nbsp;</span> ");
-        c=c.replace(/1/g, "<span class='bbBlock1'>&nbsp;1&nbsp;</span> ");
-        c=c.replace(/2/g, "<span class='bbBlock2'>&nbsp;2&nbsp;</span> ");
-        c=c.replace(/3/g, "<span class='bbBlock3'>&nbsp;3&nbsp;</span> ");
-        c=c.replace(/4/g, "<span class='bbBlock4'>&nbsp;4&nbsp;</span> ");
-        c=c.replace(/5/g, "<span class='bbBlock5'>&nbsp;5&nbsp;</span> ");
-        c=c.replace(/6/g, "<span class='bbBlock6'>&nbsp;6&nbsp;</span> ");
-        c=c.replace(/7/g, "<span class='bbBlock7'>&nbsp;7&nbsp;</span> ");
-        c=c.replace(/8/g, "<span class='bbBlock8'>&nbsp;8&nbsp;</span> ");
-        c=c.replace(/9/g, "<span class='bbBlock9'>&nbsp;9&nbsp;</span> ");
-        return c;
+        return c.replace(/0/g, "<span class='bbBlock0'>&nbsp;0&nbsp;</span> ")
+            .replace(/1/g, "<span class='bbBlock1'>&nbsp;1&nbsp;</span> ")
+            .replace(/2/g, "<span class='bbBlock2'>&nbsp;2&nbsp;</span> ")
+            .replace(/3/g, "<span class='bbBlock3'>&nbsp;3&nbsp;</span> ")
+            .replace(/4/g, "<span class='bbBlock4'>&nbsp;4&nbsp;</span> ")
+            .replace(/5/g, "<span class='bbBlock5'>&nbsp;5&nbsp;</span> ")
+            .replace(/6/g, "<span class='bbBlock6'>&nbsp;6&nbsp;</span> ")
+            .replace(/7/g, "<span class='bbBlock7'>&nbsp;7&nbsp;</span> ")
+            .replace(/8/g, "<span class='bbBlock8'>&nbsp;8&nbsp;</span> ")
+            .replace(/9/g, "<span class='bbBlock9'>&nbsp;9&nbsp;</span> ")
     }
 });
