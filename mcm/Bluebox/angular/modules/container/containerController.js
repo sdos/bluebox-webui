@@ -415,7 +415,7 @@ containerModule.controller('ContainerController',
 
             $scope.addMenuColumn = function (sourceName, columnName) {
                 getAllMissingDetails();
-                var fieldName = 'x-object-meta-' + sourceName + '-' + columnName;
+                var fieldName = 'x-object-meta-filter-' + sourceName + '-' + columnName;
                 if (_.indexOf($scope.selectedMetadataFields, fieldName) < 0) $scope.selectedMetadataFields.push(fieldName);
                 $scope.updateContainer();
             };
