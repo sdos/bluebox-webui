@@ -37,13 +37,26 @@
 
         <div ng-if="sdosSlotAllocation">
             <h3>Allocation</h3>
+            Scale:
+            <p class="bbAllocBlocks">
+                <span class='bbBlock0'>&nbsp;0&nbsp;</span>
+                <span class='bbBlock1'>&nbsp;1&nbsp;</span>
+                <span class='bbBlock2'>&nbsp;2&nbsp;</span>
+                <span class='bbBlock3'>&nbsp;3&nbsp;</span>
+                <span class='bbBlock4'>&nbsp;4&nbsp;</span>
+                <span class='bbBlock5'>&nbsp;5&nbsp;</span>
+                <span class='bbBlock6'>&nbsp;6&nbsp;</span>
+                <span class='bbBlock7'>&nbsp;7&nbsp;</span>
+                <span class='bbBlock8'>&nbsp;8&nbsp;</span>
+                <span class='bbBlock9'>&nbsp;9&nbsp;</span>
+
+            </p>
             <p>Each number represents a block of {{ sdosSlotAllocation.groupSize | numberFormat }} key slots.
                 Numbers 0 through 9 indicate how many slots are used in that block; with 0 all slots are empty and with
                 9 all are utilized.
                 Note that these <q>blocks</q> are only used here for visualizing allocation. They don't align with key
                 partitions or anything.</p>
-            <div class="bbAllocBlocks">
-                {{ sdosSlotAllocation.alloc }}
+            <div class="bbAllocBlocks" ng-bind-html="sdosSlotAllocation.alloc | paintBlocks">
             </div>
         </div>
     </md-dialog-content>

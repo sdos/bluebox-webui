@@ -17,6 +17,48 @@ md-dialog-content h2 {
 	max-width: 100%;
 	word-break: break-all;
 	font-family: monospace;
+	line-height: 150%;
+}
+
+.bbBlock0 {
+	color: black;
+	background-color: #ffffff;
+}
+.bbBlock1 {
+	color: white;
+	background-color: #ffb3b3;
+}
+.bbBlock2 {
+	color: white;
+	background-color: #ff8080;
+}
+.bbBlock3 {
+	color: white;
+	background-color: #ff4d4d;
+}
+.bbBlock4 {
+	color: white;
+	background-color: #ff1a1a;
+}
+.bbBlock5 {
+	color: white;
+	background-color: #e60000;
+}
+.bbBlock6 {
+	color: white;
+	background-color: #b30000;
+}
+.bbBlock7 {
+	color: white;
+	background-color: #990000;
+}
+.bbBlock8 {
+	color: white;
+	background-color: #800000;
+}
+.bbBlock9 {
+	color: white;
+	background-color: #660000;
 }
 
 .bb-container {

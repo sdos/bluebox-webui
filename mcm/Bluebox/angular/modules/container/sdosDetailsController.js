@@ -24,6 +24,7 @@ function sdosDetailsController($scope, $http, $mdMedia, $mdDialog) {
                 });
 
     };
+    
 
 
     $scope.getSdosSlotAllocation = function () {
