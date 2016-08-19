@@ -13,6 +13,45 @@ Bluebox consists of two parts:
 they communicate over an HTTP API. 
 The "frontend" is served by the python app as well but any static HTTP server could be used.  
 
+## Screenshots
+
+### Login screen
+![Bluebox](doc/1.png)
+
+### Container list
+![Bluebox](doc/2.png)
+
+### Object class editing
+![Bluebox](doc/3.png)
+
+### Create new container, enable SDOS encryption
+![Bluebox](doc/4.png)
+
+### Object list for SDOS enabled container
+![Bluebox](doc/5.png)
+
+### Allocation view shows how object keys are distributed in the Key Cascade leaves
+![Bluebox](doc/6.png)
+
+### Tree view shows the actual nodes of the Key Cascade; work in progress...
+![Bluebox](doc/7.png)
+
+### Metadata is stored unencrypted and can be shown in list columns 
+![Bluebox](doc/8.png)
+
+### All entity metadata (from swift) can be shown
+![Bluebox](doc/9.png)
+
+### Analytics module allows querying/visualizing metadata
+![Bluebox](doc/10.png)
+
+### Overview of all the metadata tables 
+![Bluebox](doc/11.png)
+
+### Visualization result
+![Bluebox](doc/12.png)
+
+
 ## Dev setup
 ### first setup after new checkout
 make sure to specify a python 3 or higher interpreter for your virtualenv (MCM doesn't support python 2)
