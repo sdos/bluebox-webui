@@ -109,7 +109,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             .attr("transform", "translate(20,0)");
 
 
-        update(root);
+        //update(root);
 
         d3.select(self.frameElement).style("height", "500px");
 

@@ -11,7 +11,7 @@
      <span>
       Key Cascade visualization
      </span>
-     <span flex="">
+            <span flex="">
      </span>
             <md-button class="md-icon-button" ng-click="cancel()">
                 <md-icon md-font-set="material-icons">
@@ -33,13 +33,27 @@
             <p class="bbAllocBlocks">{{ sdosStats }}</p>
         </div>
 
-        <div ng-if="sdosUsedPartitions">
-            <h3>sdosUsedPartitions</h3>
+        <h3>sdosUsedPartitions</h3>
+        <md-input-container>
+            <md-switch ng-model="showPartitions" aria-label="Show used partitions">
+                Show used partitions
+            </md-switch>
+        </md-input-container>
+
+        <div ng-if="sdosUsedPartitions && showPartitions">
+
             <p class="bbAllocBlocks">{{ sdosUsedPartitions }}</p>
         </div>
 
-        <div ng-if="sdosPartitionMapping">
-            <h3>sdosPartitionMapping</h3>
+        <h3>sdosPartitionMapping</h3>
+        <md-input-container>
+            <md-switch ng-model="showMapping" aria-label="Show partition mapping">
+                Show partition mapping
+            </md-switch>
+        </md-input-container>
+
+        <div ng-if="sdosPartitionMapping && showMapping">
+
             <p class="bbAllocBlocks">{{ sdosPartitionMapping }}</p>
         </div>
 
