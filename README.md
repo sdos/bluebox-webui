@@ -4,6 +4,15 @@ Bluebox - part of the Micro Content Management system (MCM)
 
 MCM consists of multiple components that form a small content management system.
 
+### The other parts of the MCM project are
+* [Bluebox web-UI](https://github.com/timwaizenegger/mcm-bluebox)
+* [SDOS (Secure Delete Object Store) Cryptographic Deletion](https://github.com/timwaizenegger/mcm-sdos)
+* [Metadata Extractor](https://github.com/timwaizenegger/mcm-metadataExtractor)
+* [Retention Manager](https://github.com/timwaizenegger/mcm-retentionManager)
+
+
+### This repo contains the web-UI
+
 Bluebox is a web UI for the swift object store with Enterprise Content Management extensions. This is the UI for our larger "MCM" research project
 
 Bluebox consists of two parts:
