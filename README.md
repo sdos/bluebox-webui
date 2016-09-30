@@ -5,6 +5,7 @@ Bluebox - part of the Micro Content Management system (MCM)
 MCM consists of multiple components that form a small content management system.
 
 ### The other parts of the MCM project are
+* [-- Deploy Environment (set up everything) --](https://github.com/timwaizenegger/mcm-deployEnvironment)
 * [Bluebox web-UI](https://github.com/timwaizenegger/mcm-bluebox)
 * [SDOS (Secure Delete Object Store) Cryptographic Deletion](https://github.com/timwaizenegger/mcm-sdos)
 * [Metadata Extractor](https://github.com/timwaizenegger/mcm-metadataExtractor)
