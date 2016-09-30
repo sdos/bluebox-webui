@@ -18,6 +18,12 @@ this is the current config file for bluebox.
 Server / runtime config
 ################################################################################
 """
+
+"""
+this is the socket that the "dev" runner will listen on.
+VCAP_APP_* variables are used in cloudfoundry environments; the second parameter is the fallback which will be used normally
+note that with this config, the DEV runner is only locally visible. Only the PROD runner listening on 0.0.0.0 will be accessible form th eoutside
+"""
 netPortDev = os.getenv("VCAP_APP_PORT", "5000")
 netHostDev = os.getenv("VCAP_APP_HOST", "127.0.0.1")
 
@@ -39,9 +45,12 @@ swift_tenant = <projectId>
 swift_store_url = <>
 """
 
-swift_tenant = ""
-swift_url = "http://?????/auth/v1.0"
-swift_store_url = "http://?????/v1/AUTH_" + swift_tenant
+"""
+endpoint for swift. localhost:3000 is the default for the SDOS API proxy.
+"""
+swift_tenant = "test"
+swift_url = "http://localhost:3000/auth/v1.0"
+swift_store_url = "http://localhost:3000/v1/AUTH_" + swift_tenant
 #swift_user = "<account>:<user>"
 #swift_pw = "<pw>"
 swift_auth_version = 1
