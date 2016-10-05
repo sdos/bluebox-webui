@@ -1,5 +1,5 @@
 {
-  "name": "Bluebox",
+  "name": "mcm-bluebox",
   "homepage": "https://github.com/timwaizenegger/swift-bluebox",
   "authors": [
     "Tim Waizenegger <tim.waizenegger@ipvs.uni-stuttgart.de>"
@@ -16,16 +16,16 @@
     "tests"
   ],
   "dependencies": {
-    "angular-cookies": "^1.5.3",
+    "angular-cookies": "^1",
     "angular-material-data-table": "^0.10.5",
     "angular-material": "^1.0.7",
     "angular-sanitize": "^1.5.3",
-    "angular-ui-router": "^0.2.18",
+    "angular-ui-router": "^1",
     "ng-elif": "^0.1.5",
-    "jquery": "^2.2.3",
+    "jquery": "^3",
     "ng-file-upload": "^12.0.4",
     "underscore": "^1.8.3",
     "angular": "^1.5.5",
-    "d3": "^3.5.17"
+    "d3": "^3"
   }
 }
