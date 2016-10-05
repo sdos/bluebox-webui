@@ -72,6 +72,10 @@ in the main directory
     . setenv.sh
     (included in setenv) source venvBB/bin/activate
     pip install -r requirements.txt
+    cd mcm/Bluebox/angular
+    npm install
+    
+    
     
 
  
@@ -81,10 +85,12 @@ to leave venv
     
     
     
-### use pip to install requirements
+### install requirements
 just install the existing reqs
 
     pip install -r requirements.txt
+    cd mcm/Bluebox/angular
+    npm install
     
 install new packages
 
