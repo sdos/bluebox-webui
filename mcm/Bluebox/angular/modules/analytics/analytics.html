@@ -1,7 +1,7 @@
 <html>
 <head>
-    <link href="/angular/css/bokeh-0.11.1.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/angular/css/bokeh-widgets-0.11.1.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/angular/node_modules/bokehjs/build/css/bokeh.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/angular/node_modules/bokehjs/build/css/bokeh-widgets.min.css" rel="stylesheet" type="text/css"/>
     <!-- Import doesn't work here; just left as a TODO... currently the import is happening in the header in index.html -->
     <!-- <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js"></script> -->
     <!-- Analytics card root -->
@@ -23,7 +23,7 @@
                 </h2>
             </div>
         </md-toolbar>
-        <md-content class="bb-container" ng-bind-html="bbplot | to_trusted">
+        <md-content ng-bind-html="bbplot | to_trusted">
         </md-content>
     </div>
     <div flex="">
