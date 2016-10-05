@@ -43,7 +43,9 @@ UndoTool = (function(superClass) {
 
   UndoTool.prototype.icon = "bk-tool-icon-undo";
 
-  UndoTool.prototype.disabled = true;
+  UndoTool.override({
+    disabled: true
+  });
 
   return UndoTool;
 

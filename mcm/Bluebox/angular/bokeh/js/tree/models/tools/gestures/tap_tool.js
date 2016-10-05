@@ -1,10 +1,12 @@
-var SelectTool, TapTool, TapToolView, _,
+var SelectTool, TapTool, TapToolView, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
 SelectTool = require("./select_tool");
+
+p = require("../../../core/properties");
 
 TapToolView = (function(superClass) {
   extend(TapToolView, superClass);
@@ -23,27 +25,43 @@ TapToolView = (function(superClass) {
   };
 
   TapToolView.prototype._select = function(vx, vy, final, append) {
-    var callback, ds, geometry, i, len, r, ref, sm;
+    var callback, cb_data, did_hit, ds, geometry, i, len, r, ref, sm, view;
     geometry = {
       type: 'point',
       vx: vx,
       vy: vy
     };
     callback = this.mget("callback");
-    ref = this.mget('renderers');
+    this._save_geometry(geometry, final, append);
+    cb_data = {
+      geometries: this.plot_model.plot.tool_events.get('geometries')
+    };
+    ref = this.mget('computed_renderers');
     for (i = 0, len = ref.length; i < len; i++) {
       r = ref[i];
       ds = r.get('data_source');
       sm = ds.get('selection_manager');
-      sm.select(this, this.plot_view.renderers[r.id], geometry, final, append);
-      if (callback != null) {
-        callback.execute(ds);
+      view = this.plot_view.renderer_views[r.id];
+      if (this.model.behavior === "select") {
+        did_hit = sm.select(this, view, geometry, final, append);
+      } else {
+        did_hit = sm.inspect(this, view, geometry, {
+          geometry: geometry
+        });
+      }
+      if (did_hit && (callback != null)) {
+        if (_.isFunction(callback)) {
+          callback(ds, cb_data);
+        } else {
+          callback.execute(ds, cb_data);
+        }
       }
     }
-    this._save_geometry(geometry, final, append);
-    this.plot_view.push_state('tap', {
-      selection: this.plot_view.get_selection()
-    });
+    if (this.model.behavior === "select") {
+      this.plot_view.push_state('tap', {
+        selection: this.plot_view.get_selection()
+      });
+    }
     return null;
   };
 
@@ -70,11 +88,10 @@ TapTool = (function(superClass) {
 
   TapTool.prototype.default_order = 10;
 
-  TapTool.prototype.defaults = function() {
-    return _.extend({}, TapTool.__super__.defaults.call(this), {
-      callback: null
-    });
-  };
+  TapTool.define({
+    behavior: [p.String, "select"],
+    callback: [p.Any]
+  });
 
   return TapTool;
 

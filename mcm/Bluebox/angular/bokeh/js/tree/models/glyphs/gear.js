@@ -1,4 +1,4 @@
-var Bezier, Gear, GearUtils, GearView, Glyph, _,
+var Bezier, Gear, GearUtils, GearView, Glyph, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7,6 +7,8 @@ _ = require("underscore");
 Glyph = require("./glyph");
 
 GearUtils = require("gear_utils");
+
+p = require("../../core/properties");
 
 Bezier = require("../../util/bezier");
 
@@ -22,51 +24,51 @@ GearView = (function(superClass) {
   };
 
   GearView.prototype._map_data = function() {
-    return this.smodule = this.sdist(this.renderer.xmapper, this.x, this.module, 'edge');
+    return this.smodule = this.sdist(this.renderer.xmapper, this._x, this._module, 'edge');
   };
 
   GearView.prototype._render = function(ctx, indices, arg) {
-    var M, angle, fn, i, internal, j, k, l, len, pitch_radius, pressure_angle, ref, ref1, rim_radius, rot, seq, seq0, shaft_radius, shaft_size, smodule, sx, sy, teeth, x, y;
-    sx = arg.sx, sy = arg.sy, smodule = arg.smodule, angle = arg.angle, teeth = arg.teeth, pressure_angle = arg.pressure_angle, shaft_size = arg.shaft_size, internal = arg.internal;
+    var M, _angle, _internal, _pressure_angle, _shaft_size, _teeth, fn, i, j, k, l, len, pitch_radius, ref, ref1, rim_radius, rot, seq, seq0, shaft_radius, smodule, sx, sy, x, y;
+    sx = arg.sx, sy = arg.sy, smodule = arg.smodule, _angle = arg._angle, _teeth = arg._teeth, _pressure_angle = arg._pressure_angle, _shaft_size = arg._shaft_size, _internal = arg._internal;
     for (k = 0, len = indices.length; k < len; k++) {
       i = indices[k];
-      if (isNaN(sx[i] + sy[i] + angle[i] + smodule[i] + teeth[i] + pressure_angle[i] + shaft_size[i] + internal[i])) {
+      if (isNaN(sx[i] + sy[i] + _angle[i] + smodule[i] + _teeth[i] + _pressure_angle[i] + _shaft_size[i] + _internal[i])) {
         continue;
       }
-      pitch_radius = smodule[i] * teeth[i] / 2;
-      if (internal[i]) {
+      pitch_radius = smodule[i] * _teeth[i] / 2;
+      if (_internal[i]) {
         fn = GearUtils.create_internal_gear_tooth;
       } else {
         fn = GearUtils.create_gear_tooth;
       }
-      seq0 = fn(smodule[i], teeth[i], pressure_angle[i]);
+      seq0 = fn(smodule[i], _teeth[i], _pressure_angle[i]);
       ref = seq0.slice(0, 3), M = ref[0], x = ref[1], y = ref[2];
       seq = seq0.slice(3);
       ctx.save();
       ctx.translate(sx[i], sy[i]);
-      ctx.rotate(angle[i]);
+      ctx.rotate(_angle[i]);
       ctx.beginPath();
-      rot = 2 * Math.PI / teeth[i];
+      rot = 2 * Math.PI / _teeth[i];
       ctx.moveTo(x, y);
-      for (j = l = 0, ref1 = teeth[i]; 0 <= ref1 ? l < ref1 : l > ref1; j = 0 <= ref1 ? ++l : --l) {
+      for (j = l = 0, ref1 = _teeth[i]; 0 <= ref1 ? l < ref1 : l > ref1; j = 0 <= ref1 ? ++l : --l) {
         this._render_seq(ctx, seq);
         ctx.rotate(rot);
       }
       ctx.closePath();
-      if (internal[i]) {
+      if (_internal[i]) {
         rim_radius = pitch_radius + 2.75 * smodule[i];
         ctx.moveTo(rim_radius, 0);
         ctx.arc(0, 0, rim_radius, 0, 2 * Math.PI, true);
-      } else if (shaft_size[i] > 0) {
-        shaft_radius = pitch_radius * shaft_size[i];
+      } else if (_shaft_size[i] > 0) {
+        shaft_radius = pitch_radius * _shaft_size[i];
         ctx.moveTo(shaft_radius, 0);
         ctx.arc(0, 0, shaft_radius, 0, 2 * Math.PI, true);
       }
-      if (this.visuals.fill.do_fill) {
+      if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i);
         ctx.fill();
       }
-      if (this.visuals.line.do_stroke) {
+      if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i);
         ctx.stroke();
       }
@@ -142,18 +144,18 @@ Gear = (function(superClass) {
 
   Gear.prototype.type = 'Gear';
 
-  Gear.prototype.angles = ['angle'];
+  Gear.coords([['x', 'y']]);
 
-  Gear.prototype.fields = ['module', 'internal:bool', 'pressure_angle', 'shaft_size', 'teeth'];
+  Gear.mixins(['line', 'fill']);
 
-  Gear.prototype.defaults = function() {
-    return _.extend({}, Gear.__super__.defaults.call(this), {
-      angle: 0,
-      pressure_angle: 20,
-      shaft_size: 0.3,
-      internal: false
-    });
-  };
+  Gear.define({
+    angle: [p.AngleSpec, 0],
+    module: [p.NumberSpec, null],
+    pressure_angle: [p.NumberSpec, 20],
+    shaft_size: [p.NumberSpec, 0.3],
+    teeth: [p.NumberSpec, null],
+    internal: [p.NumberSpec, false]
+  });
 
   return Gear;
 

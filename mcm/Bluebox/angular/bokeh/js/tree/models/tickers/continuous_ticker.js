@@ -1,10 +1,12 @@
-var ContinuousTicker, Ticker, _,
+var ContinuousTicker, Ticker, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
 Ticker = require("./ticker");
+
+p = require("../../core/properties");
 
 ContinuousTicker = (function(superClass) {
   extend(ContinuousTicker, superClass);
@@ -14,6 +16,11 @@ ContinuousTicker = (function(superClass) {
   }
 
   ContinuousTicker.prototype.type = 'ContinuousTicker';
+
+  ContinuousTicker.define({
+    num_minor_ticks: [p.Number, 5],
+    desired_num_ticks: [p.Number, 6]
+  });
 
   ContinuousTicker.prototype.get_interval = void 0;
 
@@ -30,13 +37,6 @@ ContinuousTicker = (function(superClass) {
     var data_range;
     data_range = data_high - data_low;
     return data_range / desired_n_ticks;
-  };
-
-  ContinuousTicker.prototype.defaults = function() {
-    return _.extend({}, ContinuousTicker.__super__.defaults.call(this), {
-      num_minor_ticks: 5,
-      desired_num_ticks: 6
-    });
   };
 
   return ContinuousTicker;

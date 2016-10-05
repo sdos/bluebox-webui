@@ -1,10 +1,12 @@
-var Paragraph, PreText, PreTextView, _,
+var $, Markup, PreText, PreTextView, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-_ = require("underscore");
+$ = require("jquery");
 
-Paragraph = require("./paragraph");
+Markup = require("./markup");
+
+p = require("../../core/properties");
 
 PreTextView = (function(superClass) {
   extend(PreTextView, superClass);
@@ -13,15 +15,16 @@ PreTextView = (function(superClass) {
     return PreTextView.__super__.constructor.apply(this, arguments);
   }
 
-  PreTextView.prototype.tagName = "pre";
-
-  PreTextView.prototype.attributes = {
-    style: "overflow:scroll"
+  PreTextView.prototype.render = function() {
+    var $pre;
+    PreTextView.__super__.render.call(this);
+    $pre = $('<pre style="overflow: auto"></pre>').text(this.model.text);
+    return this.$el.find('.bk-markup').append($pre);
   };
 
   return PreTextView;
 
-})(Paragraph.View);
+})(Markup.View);
 
 PreText = (function(superClass) {
   extend(PreText, superClass);
@@ -34,17 +37,9 @@ PreText = (function(superClass) {
 
   PreText.prototype.default_view = PreTextView;
 
-  PreText.prototype.defaults = function() {
-    return _.extend({}, PreText.__super__.defaults.call(this), {
-      text: '',
-      height: 400,
-      width: 500
-    });
-  };
-
   return PreText;
 
-})(Paragraph.Model);
+})(Markup.Model);
 
 module.exports = {
   Model: PreText,

@@ -1,12 +1,14 @@
-var ColumnDataSource, GeoJSONDataSource, _, logger,
+var ColumnDataSource, GeoJSONDataSource, _, logger, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-logger = require("../../common/logging").logger;
-
 ColumnDataSource = require("./column_data_source");
+
+logger = require("../../core/logging").logger;
+
+p = require("../../core/properties");
 
 GeoJSONDataSource = (function(superClass) {
   extend(GeoJSONDataSource, superClass);
@@ -17,21 +19,15 @@ GeoJSONDataSource = (function(superClass) {
 
   GeoJSONDataSource.prototype.type = 'GeoJSONDataSource';
 
+  GeoJSONDataSource.define({
+    geojson: [p.Any]
+  });
+
   GeoJSONDataSource.prototype.initialize = function(options) {
     GeoJSONDataSource.__super__.initialize.call(this, options);
     this.geojson_to_column_data();
-    this.register_property('data', this.geojson_to_column_data, true);
+    this.define_computed_property('data', this.geojson_to_column_data, true);
     return this.add_dependencies('data', this, ['geojson']);
-  };
-
-  GeoJSONDataSource.prototype.defaults = function() {
-    return _.extend({}, GeoJSONDataSource.__super__.defaults.call(this), {
-      geojson: null
-    });
-  };
-
-  GeoJSONDataSource.prototype.nonserializable_attribute_names = function() {
-    return GeoJSONDataSource.__super__.nonserializable_attribute_names.call(this).concat(['data']);
   };
 
   GeoJSONDataSource.prototype._get_new_list_array = function(length) {
@@ -52,8 +48,114 @@ GeoJSONDataSource = (function(superClass) {
     return nan_array;
   };
 
+  GeoJSONDataSource.prototype._flatten_function = function(accumulator, currentItem) {
+    return accumulator.concat([[NaN, NaN, NaN]]).concat(currentItem);
+  };
+
+  GeoJSONDataSource.prototype._add_properties = function(item, data, i, item_count) {
+    var property, results;
+    results = [];
+    for (property in item.properties) {
+      if (!data.hasOwnProperty(property)) {
+        data[property] = this._get_new_nan_array(item_count);
+      }
+      results.push(data[property][i] = item.properties[property]);
+    }
+    return results;
+  };
+
+  GeoJSONDataSource.prototype._add_geometry = function(geometry, data, i) {
+    var coord_list, coords, exterior_ring, exterior_rings, flattened_coord_list, j, k, l, len, len1, len2, len3, len4, m, n, o, polygon, ref, ref1, ref2, ref3, ref4, ref5, results, results1, results2, results3;
+    switch (geometry.type) {
+      case "Point":
+        coords = geometry.coordinates;
+        data.x[i] = coords[0];
+        data.y[i] = coords[1];
+        return data.z[i] = (ref = coords[2]) != null ? ref : NaN;
+      case "LineString":
+        coord_list = geometry.coordinates;
+        results = [];
+        for (j = k = 0, len = coord_list.length; k < len; j = ++k) {
+          coords = coord_list[j];
+          data.xs[i][j] = coords[0];
+          data.ys[i][j] = coords[1];
+          results.push(data.zs[i][j] = (ref1 = coords[2]) != null ? ref1 : NaN);
+        }
+        return results;
+        break;
+      case "Polygon":
+        if (geometry.coordinates.length > 1) {
+          logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.');
+        }
+        exterior_ring = geometry.coordinates[0];
+        results1 = [];
+        for (j = l = 0, len1 = exterior_ring.length; l < len1; j = ++l) {
+          coords = exterior_ring[j];
+          data.xs[i][j] = coords[0];
+          data.ys[i][j] = coords[1];
+          results1.push(data.zs[i][j] = (ref2 = coords[2]) != null ? ref2 : NaN);
+        }
+        return results1;
+        break;
+      case "MultiPoint":
+        return logger.warn('MultiPoint not supported in Bokeh');
+      case "MultiLineString":
+        flattened_coord_list = _.reduce(geometry.coordinates, this._flatten_function);
+        results2 = [];
+        for (j = m = 0, len2 = flattened_coord_list.length; m < len2; j = ++m) {
+          coords = flattened_coord_list[j];
+          data.xs[i][j] = coords[0];
+          data.ys[i][j] = coords[1];
+          results2.push(data.zs[i][j] = (ref3 = coords[2]) != null ? ref3 : NaN);
+        }
+        return results2;
+        break;
+      case "MultiPolygon":
+        exterior_rings = [];
+        ref4 = geometry.coordinates;
+        for (n = 0, len3 = ref4.length; n < len3; n++) {
+          polygon = ref4[n];
+          if (polygon.length > 1) {
+            logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.');
+          }
+          exterior_rings.push(polygon[0]);
+        }
+        flattened_coord_list = _.reduce(exterior_rings, this._flatten_function);
+        results3 = [];
+        for (j = o = 0, len4 = flattened_coord_list.length; o < len4; j = ++o) {
+          coords = flattened_coord_list[j];
+          data.xs[i][j] = coords[0];
+          data.ys[i][j] = coords[1];
+          results3.push(data.zs[i][j] = (ref5 = coords[2]) != null ? ref5 : NaN);
+        }
+        return results3;
+        break;
+      default:
+        throw new Error('Invalid type ' + geometry.type);
+    }
+  };
+
+  GeoJSONDataSource.prototype._get_items_length = function(items) {
+    var count, g, geometry, i, item, j, k, l, len, len1, ref;
+    count = 0;
+    for (i = k = 0, len = items.length; k < len; i = ++k) {
+      item = items[i];
+      geometry = item.type === 'Feature' ? item.geometry : item;
+      if (geometry.type === 'GeometryCollection') {
+        ref = geometry.geometries;
+        for (j = l = 0, len1 = ref.length; l < len1; j = ++l) {
+          g = ref[j];
+          count += 1;
+        }
+      } else {
+        count += 1;
+      }
+    }
+    return count;
+  };
+
   GeoJSONDataSource.prototype.geojson_to_column_data = function() {
-    var coord_list, coords, data, exterior_ring, exterior_rings, flatten_function, flattened_coord_list, geojson, geometry, i, item, items, j, k, l, len, len1, len2, len3, len4, len5, m, n, o, p, polygon, property, ref, ref1, ref2, ref3, ref4, ref5, ref6;
+    var arr_index, data, g, geojson, geometry, i, item, item_count, items, j, k, l, len, len1, ref, ref1;
     geojson = JSON.parse(this.get('geojson'));
     if ((ref = geojson.type) !== 'GeometryCollection' && ref !== 'FeatureCollection') {
       throw new Error('Bokeh only supports type GeometryCollection and FeatureCollection at top level');
@@ -76,90 +178,35 @@ GeoJSONDataSource = (function(superClass) {
       }
       items = geojson.features;
     }
+    item_count = this._get_items_length(items);
     data = {
-      'x': this._get_new_nan_array(items.length),
-      'y': this._get_new_nan_array(items.length),
-      'z': this._get_new_nan_array(items.length),
-      'xs': this._get_new_list_array(items.length),
-      'ys': this._get_new_list_array(items.length),
-      'zs': this._get_new_list_array(items.length)
+      'x': this._get_new_nan_array(item_count),
+      'y': this._get_new_nan_array(item_count),
+      'z': this._get_new_nan_array(item_count),
+      'xs': this._get_new_list_array(item_count),
+      'ys': this._get_new_list_array(item_count),
+      'zs': this._get_new_list_array(item_count)
     };
-    flatten_function = function(accumulator, currentItem) {
-      return accumulator.concat([[NaN, NaN, NaN]]).concat(currentItem);
-    };
+    arr_index = 0;
     for (i = k = 0, len = items.length; k < len; i = ++k) {
       item = items[i];
-      if (item.type === 'Feature') {
-        geometry = item.geometry;
-        for (property in item.properties) {
-          if (!data.hasOwnProperty(property)) {
-            data[property] = this._get_new_nan_array(items.length);
+      geometry = item.type === 'Feature' ? item.geometry : item;
+      if (geometry.type === 'GeometryCollection') {
+        ref1 = geometry.geometries;
+        for (j = l = 0, len1 = ref1.length; l < len1; j = ++l) {
+          g = ref1[j];
+          this._add_geometry(g, data, arr_index);
+          if (item.type === 'Feature') {
+            this._add_properties(item, data, arr_index, item_count);
           }
-          data[property][i] = item.properties[property];
+          arr_index += 1;
         }
       } else {
-        geometry = item;
-      }
-      switch (geometry.type) {
-        case "Point":
-          coords = geometry.coordinates;
-          data.x[i] = coords[0];
-          data.y[i] = coords[1];
-          data.z[i] = (ref1 = coords[2]) != null ? ref1 : NaN;
-          break;
-        case "LineString":
-          coord_list = geometry.coordinates;
-          for (j = l = 0, len1 = coord_list.length; l < len1; j = ++l) {
-            coords = coord_list[j];
-            data.xs[i][j] = coords[0];
-            data.ys[i][j] = coords[1];
-            data.zs[i][j] = (ref2 = coords[2]) != null ? ref2 : NaN;
-          }
-          break;
-        case "Polygon":
-          if (geometry.coordinates.length > 1) {
-            logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.');
-          }
-          exterior_ring = geometry.coordinates[0];
-          for (j = m = 0, len2 = exterior_ring.length; m < len2; j = ++m) {
-            coords = exterior_ring[j];
-            data.xs[i][j] = coords[0];
-            data.ys[i][j] = coords[1];
-            data.zs[i][j] = (ref3 = coords[2]) != null ? ref3 : NaN;
-          }
-          break;
-        case "MultiPoint":
-          logger.warn('MultiPoint not supported in Bokeh');
-          break;
-        case "MultiLineString":
-          flattened_coord_list = _.reduce(geometry.coordinates, flatten_function);
-          for (j = n = 0, len3 = flattened_coord_list.length; n < len3; j = ++n) {
-            coords = flattened_coord_list[j];
-            data.xs[i][j] = coords[0];
-            data.ys[i][j] = coords[1];
-            data.zs[i][j] = (ref4 = coords[2]) != null ? ref4 : NaN;
-          }
-          break;
-        case "MultiPolygon":
-          exterior_rings = [];
-          ref5 = geometry.coordinates;
-          for (o = 0, len4 = ref5.length; o < len4; o++) {
-            polygon = ref5[o];
-            if (polygon.length > 1) {
-              logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.');
-            }
-            exterior_rings.push(polygon[0]);
-          }
-          flattened_coord_list = _.reduce(exterior_rings, flatten_function);
-          for (j = p = 0, len5 = flattened_coord_list.length; p < len5; j = ++p) {
-            coords = flattened_coord_list[j];
-            data.xs[i][j] = coords[0];
-            data.ys[i][j] = coords[1];
-            data.zs[i][j] = (ref6 = coords[2]) != null ? ref6 : NaN;
-          }
-          break;
-        default:
-          throw new Error('Invalid type ' + geometry.type);
+        this._add_geometry(geometry, data, arr_index);
+        if (item.type === 'Feature') {
+          this._add_properties(item, data, arr_index, item_count);
+        }
+        arr_index += 1;
       }
     }
     return data;

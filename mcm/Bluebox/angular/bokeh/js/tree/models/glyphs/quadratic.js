@@ -30,17 +30,19 @@ QuadraticView = (function(superClass) {
     var i, index, j, pts, ref, ref1, ref2, x0, x1, y0, y1;
     index = rbush();
     pts = [];
-    for (i = j = 0, ref = this.x0.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-      if (isNaN(this.x0[i] + this.x1[i] + this.y0[i] + this.y1[i] + this.cx[i] + this.cy[i])) {
+    for (i = j = 0, ref = this._x0.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+      if (isNaN(this._x0[i] + this._x1[i] + this._y0[i] + this._y1[i] + this._cx[i] + this._cy[i])) {
         continue;
       }
-      ref1 = _qbb(this.x0[i], this.cx[i], this.x1[i]), x0 = ref1[0], x1 = ref1[1];
-      ref2 = _qbb(this.y0[i], this.cy[i], this.y1[i]), y0 = ref2[0], y1 = ref2[1];
-      pts.push([
-        x0, y0, x1, y1, {
-          'i': i
-        }
-      ]);
+      ref1 = _qbb(this._x0[i], this._cx[i], this._x1[i]), x0 = ref1[0], x1 = ref1[1];
+      ref2 = _qbb(this._y0[i], this._cy[i], this._y1[i]), y0 = ref2[0], y1 = ref2[1];
+      pts.push({
+        minX: x0,
+        minY: y0,
+        maxX: x1,
+        maxY: y1,
+        i: i
+      });
     }
     index.load(pts);
     return index;
@@ -49,7 +51,7 @@ QuadraticView = (function(superClass) {
   QuadraticView.prototype._render = function(ctx, indices, arg) {
     var i, j, len, results, scx, scy, sx0, sx1, sy0, sy1;
     sx0 = arg.sx0, sy0 = arg.sy0, sx1 = arg.sx1, sy1 = arg.sy1, scx = arg.scx, scy = arg.scy;
-    if (this.visuals.line.do_stroke) {
+    if (this.visuals.line.doit) {
       results = [];
       for (j = 0, len = indices.length; j < len; j++) {
         i = indices[j];
@@ -85,9 +87,9 @@ Quadratic = (function(superClass) {
 
   Quadratic.prototype.type = 'Quadratic';
 
-  Quadratic.prototype.visuals = ['line'];
+  Quadratic.coords([['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy']]);
 
-  Quadratic.prototype.coords = [['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy']];
+  Quadratic.mixins(['line']);
 
   return Quadratic;
 

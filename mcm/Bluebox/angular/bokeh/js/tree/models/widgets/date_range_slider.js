@@ -1,4 +1,4 @@
-var $, $1, ContinuumView, DateRangeSlider, DateRangeSliderView, InputWidget, _,
+var $, $1, DateRangeSlider, DateRangeSliderView, InputWidget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -8,7 +8,7 @@ $ = require("jquery");
 
 $1 = require("jqrangeslider/jQDateRangeSlider");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 InputWidget = require("./input_widget");
 
@@ -31,6 +31,7 @@ DateRangeSliderView = (function(superClass) {
 
   DateRangeSliderView.prototype.render = function() {
     var bounds_max, bounds_min, range_max, range_min, ref, ref1, ref2, value_max, value_min;
+    DateRangeSliderView.__super__.render.call(this);
     this.$el.empty();
     ref = this.mget("value"), value_min = ref[0], value_max = ref[1];
     ref1 = this.mget("range"), range_min = ref1[0], range_max = ref1[1];
@@ -66,7 +67,7 @@ DateRangeSliderView = (function(superClass) {
 
   return DateRangeSliderView;
 
-})(ContinuumView);
+})(InputWidget.View);
 
 DateRangeSlider = (function(superClass) {
   extend(DateRangeSlider, superClass);
@@ -79,23 +80,21 @@ DateRangeSlider = (function(superClass) {
 
   DateRangeSlider.prototype.default_view = DateRangeSliderView;
 
-  DateRangeSlider.prototype.defaults = function() {
-    return _.extend({}, DateRangeSlider.__super__.defaults.call(this), {
-      value: null,
-      range: null,
-      bounds: null,
-      step: {},
-      enabled: true,
-      arrows: true,
-      value_labels: "show",
-      wheel_mode: null
+  DateRangeSlider.define({
+    value: [p.Any],
+    range: [p.Any],
+    bounds: [p.Any],
+    step: [p.Any, {}],
+    enabled: [p.Bool, true],
+    arrows: [p.Bool, true],
+    value_labels: [p.String, "show"],
+    wheel_mode: [p.Any]
 
-      /*
-      formatter
-      scales
-       */
-    });
-  };
+    /*
+    formatter
+    scales
+     */
+  });
 
   return DateRangeSlider;
 

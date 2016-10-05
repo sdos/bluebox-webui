@@ -1,10 +1,12 @@
-var Bokeh, logging;
+var Bokeh, _, logging;
+
+_ = require("underscore");
 
 Bokeh = {};
 
 Bokeh.require = require;
 
-Bokeh.version = '0.11.1';
+Bokeh.version = require("./version");
 
 Bokeh._ = require("underscore");
 
@@ -14,24 +16,19 @@ Bokeh.Backbone = require("backbone");
 
 Bokeh.Backbone.$ = Bokeh.$;
 
-logging = require("./common/logging");
+logging = require("./core/logging");
 
 Bokeh.logger = logging.logger;
 
 Bokeh.set_log_level = logging.set_log_level;
 
-if (!window.Float64Array) {
-  Bokeh.logger.warn("Float64Array is not supported. Using generic Array instead.");
-  window.Float64Array = Array;
-}
+Bokeh.index = require("./base").index;
 
-Bokeh.index = require("./common/base").index;
+Bokeh.embed = require("./embed");
 
-Bokeh.embed = require("./common/embed");
+Bokeh.safely = require("./safely");
 
-Bokeh.Collections = require("./common/base").Collections;
-
-Bokeh.Config = require("./common/base").Config;
+Bokeh.Models = require("./base").Models;
 
 Bokeh.Bokeh = Bokeh;
 

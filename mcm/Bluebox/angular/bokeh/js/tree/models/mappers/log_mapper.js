@@ -1,8 +1,10 @@
-var LogMapper, Model,
+var LogMapper, Model, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 Model = require("../../model");
+
+p = require("../../core/properties");
 
 LogMapper = (function(superClass) {
   extend(LogMapper, superClass);
@@ -13,7 +15,7 @@ LogMapper = (function(superClass) {
 
   LogMapper.prototype.initialize = function(attrs, options) {
     LogMapper.__super__.initialize.call(this, attrs, options);
-    this.register_property('mapper_state', this._mapper_state, true);
+    this.define_computed_property('mapper_state', this._mapper_state, true);
     this.add_dependencies('mapper_state', this, ['source_range', 'target_range']);
     this.add_dependencies('mapper_state', this.get('source_range'), ['start', 'end']);
     return this.add_dependencies('mapper_state', this.get('target_range'), ['start', 'end']);
@@ -130,6 +132,11 @@ LogMapper = (function(superClass) {
     offset = target_start;
     return [scale, offset, inter_scale, inter_offset];
   };
+
+  LogMapper.internal({
+    source_range: [p.Any],
+    target_range: [p.Any]
+  });
 
   return LogMapper;
 

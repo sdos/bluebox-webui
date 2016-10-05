@@ -1,4 +1,4 @@
-var DaysTicker, ONE_DAY, SingleIntervalTicker, _, copy_date, date_range_by_month, last_month_no_later_than, util,
+var DaysTicker, ONE_DAY, SingleIntervalTicker, _, copy_date, date_range_by_month, last_month_no_later_than, p, util,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7,6 +7,8 @@ _ = require("underscore");
 SingleIntervalTicker = require("./single_interval_ticker");
 
 util = require("./util");
+
+p = require("../../core/properties");
 
 copy_date = util.copy_date;
 
@@ -40,6 +42,10 @@ DaysTicker = (function(superClass) {
   }
 
   DaysTicker.prototype.type = 'DaysTicker';
+
+  DaysTicker.define({
+    days: [p.Array, []]
+  });
 
   DaysTicker.prototype.initialize = function(attrs, options) {
     var days, interval;
@@ -88,12 +94,6 @@ DaysTicker = (function(superClass) {
       "major": ticks_in_range,
       "minor": []
     };
-  };
-
-  DaysTicker.prototype.defaults = function() {
-    return _.extend({}, DaysTicker.__super__.defaults.call(this), {
-      days: []
-    });
   };
 
   return DaysTicker;

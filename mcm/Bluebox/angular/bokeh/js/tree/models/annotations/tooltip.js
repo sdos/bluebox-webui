@@ -1,4 +1,4 @@
-var $, Annotation, PlotWidget, Tooltip, TooltipView, _, logger,
+var $, Annotation, Tooltip, TooltipView, _, logger, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -8,9 +8,9 @@ _ = require("underscore");
 
 Annotation = require("./annotation");
 
-PlotWidget = require("../../common/plot_widget");
+logger = require("../../core/logging").logger;
 
-logger = require("../../common/logging").logger;
+p = require("../../core/properties");
 
 TooltipView = (function(superClass) {
   extend(TooltipView, superClass);
@@ -39,16 +39,16 @@ TooltipView = (function(superClass) {
   };
 
   TooltipView.prototype._draw_tips = function() {
-    var arrow_width, content, i, left, len, ow, ref, side, sx, sy, tip, top, val, vx, vy;
+    var arrow_size, attachment, bottom, content, data, height, i, left, len, side, sx, sy, tip, top, val, vx, vy, width;
+    data = this.model.data;
     this.$el.empty();
     this.$el.hide();
     this.$el.toggleClass("bk-tooltip-custom", this.mget("custom"));
-    if (_.isEmpty(this.mget('data'))) {
+    if (_.isEmpty(data)) {
       return;
     }
-    ref = this.mget('data');
-    for (i = 0, len = ref.length; i < len; i++) {
-      val = ref[i];
+    for (i = 0, len = data.length; i < len; i++) {
+      val = data[i];
       vx = val[0], vy = val[1], content = val[2];
       if (this.mget('inner_only') && !this.plot_view.frame.contains(vx, vy)) {
         continue;
@@ -58,28 +58,55 @@ TooltipView = (function(superClass) {
     }
     sx = this.plot_view.mget('canvas').vx_to_sx(vx);
     sy = this.plot_view.mget('canvas').vy_to_sy(vy);
-    side = this.mget('side');
-    if (side === 'auto') {
-      ow = this.plot_view.frame.get('width');
-      if (vx - this.plot_view.frame.get('left') < ow / 2) {
-        side = 'right';
-      } else {
-        side = 'left';
-      }
+    attachment = this.model.attachment;
+    switch (attachment) {
+      case "horizontal":
+        width = this.plot_view.frame.get('width');
+        left = this.plot_view.frame.get('left');
+        if (vx - left < width / 2) {
+          side = 'right';
+        } else {
+          side = 'left';
+        }
+        break;
+      case "vertical":
+        height = this.plot_view.frame.get('height');
+        bottom = this.plot_view.frame.get('bottom');
+        if (vy - bottom < height / 2) {
+          side = 'below';
+        } else {
+          side = 'above';
+        }
+        break;
+      default:
+        side = attachment;
     }
-    this.$el.removeClass('bk-right');
-    this.$el.removeClass('bk-left');
-    arrow_width = 10;
+    this.$el.removeClass('bk-right bk-left bk-above bk-below');
+    arrow_size = 10;
     switch (side) {
       case "right":
         this.$el.addClass("bk-left");
-        left = sx + (this.$el.outerWidth() - this.$el.innerWidth()) + arrow_width;
+        left = sx + (this.$el.outerWidth() - this.$el.innerWidth()) + arrow_size;
+        top = sy - this.$el.outerHeight() / 2;
         break;
       case "left":
         this.$el.addClass("bk-right");
-        left = sx - this.$el.outerWidth() - arrow_width;
+        left = sx - this.$el.outerWidth() - arrow_size;
+        top = sy - this.$el.outerHeight() / 2;
+        break;
+      case "above":
+        this.$el.addClass("bk-above");
+        top = sy + (this.$el.outerHeight() - this.$el.innerHeight()) + arrow_size;
+        left = Math.round(sx - this.$el.outerWidth() / 2);
+        break;
+      case "below":
+        this.$el.addClass("bk-below");
+        top = sy - this.$el.outerHeight() - arrow_size;
+        left = Math.round(sx - this.$el.outerWidth() / 2);
     }
-    top = sy - this.$el.outerHeight() / 2;
+    if (this.model.show_arrow) {
+      this.$el.addClass("bk-tooltip-arrow");
+    }
     if (this.$el.children().length > 0) {
       this.$el.css({
         top: top,
@@ -91,7 +118,7 @@ TooltipView = (function(superClass) {
 
   return TooltipView;
 
-})(PlotWidget);
+})(Annotation.View);
 
 Tooltip = (function(superClass) {
   extend(Tooltip, superClass);
@@ -104,27 +131,31 @@ Tooltip = (function(superClass) {
 
   Tooltip.prototype.type = 'Tooltip';
 
-  Tooltip.prototype.nonserializable_attribute_names = function() {
-    return Tooltip.__super__.nonserializable_attribute_names.call(this).concat(['data', 'custom']);
-  };
+  Tooltip.define({
+    attachment: [p.String, 'horizontal'],
+    inner_only: [p.Bool, true],
+    show_arrow: [p.Bool, true]
+  });
+
+  Tooltip.override({
+    level: 'overlay'
+  });
+
+  Tooltip.internal({
+    data: [p.Any, []],
+    custom: [p.Any]
+  });
 
   Tooltip.prototype.clear = function() {
-    return this.set('data', []);
+    return this.data = [];
   };
 
   Tooltip.prototype.add = function(vx, vy, content) {
     var data;
-    data = this.get('data');
+    data = this.data;
     data.push([vx, vy, content]);
-    return this.set('data', data);
-  };
-
-  Tooltip.prototype.defaults = function() {
-    return _.extend({}, Tooltip.__super__.defaults.call(this), {
-      level: 'overlay',
-      side: "auto",
-      inner_only: true
-    });
+    this.data = data;
+    return this.trigger('change:data');
   };
 
   return Tooltip;

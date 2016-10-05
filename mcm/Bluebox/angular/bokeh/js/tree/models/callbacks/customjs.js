@@ -1,9 +1,11 @@
-var CustomJS, Model, _,
+var CustomJS, Model, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
   slice = [].slice;
 
 _ = require("underscore");
+
+p = require("../../core/properties");
 
 Model = require("../../model");
 
@@ -16,11 +18,17 @@ CustomJS = (function(superClass) {
 
   CustomJS.prototype.type = 'CustomJS';
 
+  CustomJS.define({
+    args: [p.Any, {}],
+    code: [p.String, ''],
+    lang: [p.String, 'javascript']
+  });
+
   CustomJS.prototype.initialize = function(attrs, options) {
     CustomJS.__super__.initialize.call(this, attrs, options);
-    this.register_property('values', this._make_values, true);
+    this.define_computed_property('values', this._make_values, true);
     this.add_dependencies('values', this, ['args']);
-    this.register_property('func', this._make_func, true);
+    this.define_computed_property('func', this._make_func, true);
     return this.add_dependencies('func', this, ['args', 'code']);
   };
 
@@ -52,14 +60,6 @@ CustomJS = (function(superClass) {
       var child = new ctor, result = func.apply(child, args);
       return Object(result) === result ? result : child;
     })(Function, slice.call(_.keys(this.get("args"))).concat(["cb_obj"], ["cb_data"], ["require"], [code]), function(){});
-  };
-
-  CustomJS.prototype.defaults = function() {
-    return _.extend({}, CustomJS.__super__.defaults.call(this), {
-      args: {},
-      code: "",
-      lang: "javascript"
-    });
   };
 
   return CustomJS;

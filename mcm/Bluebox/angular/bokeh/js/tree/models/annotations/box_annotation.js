@@ -1,4 +1,4 @@
-var Annotation, BoxAnnotation, BoxAnnotationView, PlotWidget, _, properties,
+var Annotation, BoxAnnotation, BoxAnnotationView, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -6,9 +6,7 @@ _ = require("underscore");
 
 Annotation = require("./annotation");
 
-PlotWidget = require("../../common/plot_widget");
-
-properties = require("../../common/properties");
+p = require("../../core/properties");
 
 BoxAnnotationView = (function(superClass) {
   extend(BoxAnnotationView, superClass);
@@ -19,23 +17,17 @@ BoxAnnotationView = (function(superClass) {
 
   BoxAnnotationView.prototype.initialize = function(options) {
     BoxAnnotationView.__super__.initialize.call(this, options);
-    this.fill_props = new properties.Fill({
-      obj: this.model,
-      prefix: ''
-    });
-    this.line_props = new properties.Line({
-      obj: this.model,
-      prefix: ''
-    });
     this.$el.appendTo(this.plot_view.$el.find('div.bk-canvas-overlays'));
-    this.$el.addClass('shading');
+    this.$el.addClass('bk-shading');
     return this.$el.hide();
   };
 
   BoxAnnotationView.prototype.bind_bokeh_events = function() {
     if (this.mget('render_mode') === 'css') {
+      this.listenTo(this.model, 'change', this.render);
       return this.listenTo(this.model, 'data_update', this.render);
     } else {
+      this.listenTo(this.model, 'change', this.plot_view.request_render);
       return this.listenTo(this.model, 'data_update', this.plot_view.request_render);
     }
   };
@@ -91,9 +83,9 @@ BoxAnnotationView = (function(superClass) {
     ctx.save();
     ctx.beginPath();
     ctx.rect(sleft, stop, sright - sleft, sbottom - stop);
-    this.fill_props.set_value(ctx);
+    this.visuals.fill.set_value(ctx);
     ctx.fill();
-    this.line_props.set_value(ctx);
+    this.visuals.line.set_value(ctx);
     ctx.stroke();
     return ctx.restore();
   };
@@ -114,7 +106,7 @@ BoxAnnotationView = (function(superClass) {
 
   return BoxAnnotationView;
 
-})(PlotWidget);
+})(Annotation.View);
 
 BoxAnnotation = (function(superClass) {
   extend(BoxAnnotation, superClass);
@@ -127,54 +119,41 @@ BoxAnnotation = (function(superClass) {
 
   BoxAnnotation.prototype.type = 'BoxAnnotation';
 
-  BoxAnnotation.prototype.nonserializable_attribute_names = function() {
-    return BoxAnnotation.__super__.nonserializable_attribute_names.call(this).concat(['silent_update']);
-  };
+  BoxAnnotation.mixins(['line', 'fill']);
+
+  BoxAnnotation.define({
+    render_mode: [p.RenderMode, 'canvas'],
+    x_range_name: [p.String, 'default'],
+    y_range_name: [p.String, 'default'],
+    top: [p.Number, null],
+    top_units: [p.SpatialUnits, 'data'],
+    bottom: [p.Number, null],
+    bottom_units: [p.SpatialUnits, 'data'],
+    left: [p.Number, null],
+    left_units: [p.SpatialUnits, 'data'],
+    right: [p.Number, null],
+    right_units: [p.SpatialUnits, 'data']
+  });
+
+  BoxAnnotation.override({
+    fill_color: '#fff9ba',
+    fill_alpha: 0.4,
+    line_color: '#cccccc',
+    line_alpha: 0.3
+  });
 
   BoxAnnotation.prototype.update = function(arg) {
     var bottom, left, right, top;
     left = arg.left, right = arg.right, top = arg.top, bottom = arg.bottom;
-    if (this.get('silent_update')) {
-      this.attributes['left'] = left;
-      this.attributes['right'] = right;
-      this.attributes['top'] = top;
-      this.attributes['bottom'] = bottom;
-    } else {
-      this.set({
-        left: left,
-        right: right,
-        top: top,
-        bottom: bottom
-      });
-    }
-    return this.trigger('data_update');
-  };
-
-  BoxAnnotation.prototype.defaults = function() {
-    return _.extend({}, BoxAnnotation.__super__.defaults.call(this), {
-      silent_update: false,
-      render_mode: "canvas",
-      x_range_name: "default",
-      y_range_name: "default",
-      level: 'annotation',
-      left: null,
-      right: null,
-      top: null,
-      bottom: null,
-      left_units: 'data',
-      right_units: 'data',
-      top_units: 'data',
-      bottom_units: 'data',
-      fill_color: '#fff9ba',
-      fill_alpha: 0.4,
-      line_color: '#cccccc',
-      line_width: 1,
-      line_alpha: 0.3,
-      line_join: 'miter',
-      line_cap: 'butt',
-      line_dash: [],
-      line_dash_offset: 0
+    this.set({
+      left: left,
+      right: right,
+      top: top,
+      bottom: bottom
+    }, {
+      silent: true
     });
+    return this.trigger('data_update');
   };
 
   return BoxAnnotation;

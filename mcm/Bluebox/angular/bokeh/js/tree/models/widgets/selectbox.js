@@ -1,16 +1,16 @@
-var ContinuumView, InputWidget, Select, SelectView, _, logger, template,
+var InputWidget, Select, SelectView, _, logger, p, template,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-ContinuumView = require("../../common/continuum_view");
+logger = require("../../core/logging").logger;
 
-logger = require("../../common/logging").logger;
-
-template = require("./selecttemplate");
+p = require("../../core/properties");
 
 InputWidget = require("./input_widget");
+
+template = require("./selecttemplate");
 
 SelectView = (function(superClass) {
   extend(SelectView, superClass);
@@ -19,20 +19,10 @@ SelectView = (function(superClass) {
     return SelectView.__super__.constructor.apply(this, arguments);
   }
 
-  SelectView.prototype.tagName = "div";
-
   SelectView.prototype.template = template;
 
   SelectView.prototype.events = {
     "change select": "change_input"
-  };
-
-  SelectView.prototype.change_input = function() {
-    var ref, value;
-    value = this.$('select').val();
-    logger.debug("selectbox: value = " + value);
-    this.mset('value', value);
-    return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
   };
 
   SelectView.prototype.initialize = function(options) {
@@ -43,15 +33,24 @@ SelectView = (function(superClass) {
 
   SelectView.prototype.render = function() {
     var html;
+    SelectView.__super__.render.call(this);
     this.$el.empty();
     html = this.template(this.model.attributes);
     this.$el.html(html);
     return this;
   };
 
+  SelectView.prototype.change_input = function() {
+    var value;
+    value = this.$('select').val();
+    logger.debug("selectbox: value = " + value);
+    this.model.value = value;
+    return SelectView.__super__.change_input.call(this);
+  };
+
   return SelectView;
 
-})(ContinuumView);
+})(InputWidget.View);
 
 Select = (function(superClass) {
   extend(Select, superClass);
@@ -64,13 +63,10 @@ Select = (function(superClass) {
 
   Select.prototype.default_view = SelectView;
 
-  Select.prototype.defaults = function() {
-    return _.extend({}, Select.__super__.defaults.call(this), {
-      title: '',
-      value: '',
-      options: []
-    });
-  };
+  Select.define({
+    value: [p.String, ''],
+    options: [p.Any, []]
+  });
 
   return Select;
 

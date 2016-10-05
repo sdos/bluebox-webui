@@ -1,12 +1,14 @@
-var Model, OpenURL, Util, _,
+var Model, OpenURL, Util, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-Util = require("../../util/util");
+p = require("../../core/properties");
 
 Model = require("../../model");
+
+Util = require("../../util/util");
 
 OpenURL = (function(superClass) {
   extend(OpenURL, superClass);
@@ -17,6 +19,10 @@ OpenURL = (function(superClass) {
 
   OpenURL.prototype.type = 'OpenURL';
 
+  OpenURL.define({
+    url: [p.String, 'http://']
+  });
+
   OpenURL.prototype.execute = function(data_source) {
     var i, j, len, ref, url;
     ref = Util.get_indices(data_source);
@@ -26,12 +32,6 @@ OpenURL = (function(superClass) {
       window.open(url);
     }
     return null;
-  };
-
-  OpenURL.prototype.defaults = function() {
-    return _.extend({}, OpenURL.__super__.defaults.call(this), {
-      url: 'http://'
-    });
   };
 
   return OpenURL;

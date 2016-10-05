@@ -31,7 +31,9 @@ InspectToolListItemView = (function(superClass) {
   };
 
   InspectToolListItemView.prototype.render = function() {
-    this.$el.html(this.template(this.model.attrs_and_props()));
+    this.$el.html(this.template({
+      model: this.model
+    }));
     return this;
   };
 
@@ -65,11 +67,9 @@ InspectTool = (function(superClass) {
 
   InspectTool.prototype.event_type = "move";
 
-  InspectTool.prototype.nonserializable_attribute_names = function() {
-    var attrs;
-    attrs = _.without(InspectTool.__super__.nonserializable_attribute_names.call(this), 'active');
-    return attrs.concat(['event_type', 'inner_only']);
-  };
+  InspectTool.override({
+    active: true
+  });
 
   InspectTool.prototype.bind_bokeh_events = function() {
     InspectTool.__super__.bind_bokeh_events.call(this);
@@ -81,14 +81,6 @@ InspectTool = (function(superClass) {
   InspectTool.prototype._exit_inner = function() {};
 
   InspectTool.prototype._exit_outer = function() {};
-
-  InspectTool.prototype.defaults = function() {
-    return _.extend({}, InspectTool.__super__.defaults.call(this), {
-      inner_only: true,
-      active: true,
-      event_type: 'move'
-    });
-  };
 
   return InspectTool;
 

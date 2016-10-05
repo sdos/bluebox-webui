@@ -1,4 +1,4 @@
-var $, BooleanFormatter, CellFormatter, DateFormatter, HTMLTemplateFormatter, Model, NumberFormatter, Numeral, StringFormatter, _,
+var $, BooleanFormatter, CellFormatter, DateFormatter, HTMLTemplateFormatter, Model, NumberFormatter, Numbro, StringFormatter, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -6,7 +6,9 @@ _ = require("underscore");
 
 $ = require("jquery");
 
-Numeral = require("numeral");
+Numbro = require("numbro");
+
+p = require("../../core/properties");
 
 Model = require("../../model");
 
@@ -17,18 +19,12 @@ CellFormatter = (function(superClass) {
     return CellFormatter.__super__.constructor.apply(this, arguments);
   }
 
-  CellFormatter.prototype.formatterDefaults = {};
-
-  CellFormatter.prototype.format = function(row, cell, value, columnDef, dataContext) {
+  CellFormatter.prototype.doFormat = function(row, cell, value, columnDef, dataContext) {
     if (value === null) {
       return "";
     } else {
       return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
-  };
-
-  CellFormatter.prototype.defaults = function() {
-    return _.extend({}, CellFormatter.__super__.defaults.call(this), this.formatterDefaults);
   };
 
   return CellFormatter;
@@ -44,13 +40,15 @@ StringFormatter = (function(superClass) {
 
   StringFormatter.prototype.type = 'StringFormatter';
 
-  StringFormatter.prototype.formatterDefaults = {
-    text_color: null
-  };
+  StringFormatter.define({
+    font_style: [p.FontStyle, "normal"],
+    text_align: [p.TextAlign, "left"],
+    text_color: [p.Color]
+  });
 
-  StringFormatter.prototype.format = function(row, cell, value, columnDef, dataContext) {
+  StringFormatter.prototype.doFormat = function(row, cell, value, columnDef, dataContext) {
     var font_style, text, text_align, text_color;
-    text = StringFormatter.__super__.format.call(this, row, cell, value, columnDef, dataContext);
+    text = StringFormatter.__super__.doFormat.call(this, row, cell, value, columnDef, dataContext);
     font_style = this.get("font_style");
     text_align = this.get("text_align");
     text_color = this.get("text_color");
@@ -87,16 +85,13 @@ NumberFormatter = (function(superClass) {
 
   NumberFormatter.prototype.type = 'NumberFormatter';
 
-  NumberFormatter.prototype.formatterDefaults = {
-    font_style: "normal",
-    text_align: "left",
-    text_color: null,
-    format: '0,0',
-    language: 'en',
-    rounding: 'round'
-  };
+  NumberFormatter.define({
+    format: [p.String, '0,0'],
+    language: [p.String, 'en'],
+    rounding: [p.String, 'round']
+  });
 
-  NumberFormatter.prototype.format = function(row, cell, value, columnDef, dataContext) {
+  NumberFormatter.prototype.doFormat = function(row, cell, value, columnDef, dataContext) {
     var format, language, rounding;
     format = this.get("format");
     language = this.get("language");
@@ -113,8 +108,8 @@ NumberFormatter = (function(superClass) {
           return Math.ceil;
       }
     }).call(this);
-    value = Numeral.format(value, format, language, rounding);
-    return NumberFormatter.__super__.format.call(this, row, cell, value, columnDef, dataContext);
+    value = Numbro.format(value, format, language, rounding);
+    return NumberFormatter.__super__.doFormat.call(this, row, cell, value, columnDef, dataContext);
   };
 
   return NumberFormatter;
@@ -130,11 +125,11 @@ BooleanFormatter = (function(superClass) {
 
   BooleanFormatter.prototype.type = 'BooleanFormatter';
 
-  BooleanFormatter.prototype.formatterDefaults = {
-    icon: 'check'
-  };
+  BooleanFormatter.define({
+    icon: [p.String, 'check']
+  });
 
-  BooleanFormatter.prototype.format = function(row, cell, value, columnDef, dataContext) {
+  BooleanFormatter.prototype.doFormat = function(row, cell, value, columnDef, dataContext) {
     if (!!value) {
       return $('<i>').addClass(this.get("icon")).html();
     } else {
@@ -155,9 +150,9 @@ DateFormatter = (function(superClass) {
 
   DateFormatter.prototype.type = 'DateFormatter';
 
-  DateFormatter.prototype.formatterDefaults = {
-    format: 'yy M d'
-  };
+  DateFormatter.define({
+    format: [p.String, 'yy M d']
+  });
 
   DateFormatter.prototype.getFormat = function() {
     var format, name;
@@ -197,11 +192,11 @@ DateFormatter = (function(superClass) {
     }
   };
 
-  DateFormatter.prototype.format = function(row, cell, value, columnDef, dataContext) {
+  DateFormatter.prototype.doFormat = function(row, cell, value, columnDef, dataContext) {
     var date;
     value = _.isString(value) ? parseInt(value, 10) : value;
     date = $.datepicker.formatDate(this.getFormat(), new Date(value));
-    return DateFormatter.__super__.format.call(this, row, cell, date, columnDef, dataContext);
+    return DateFormatter.__super__.doFormat.call(this, row, cell, date, columnDef, dataContext);
   };
 
   return DateFormatter;
@@ -217,11 +212,11 @@ HTMLTemplateFormatter = (function(superClass) {
 
   HTMLTemplateFormatter.prototype.type = 'HTMLTemplateFormatter';
 
-  HTMLTemplateFormatter.prototype.formatterDefaults = {
-    template: '<%= value %>'
-  };
+  HTMLTemplateFormatter.define({
+    template: [p.String, '<%= value %>']
+  });
 
-  HTMLTemplateFormatter.prototype.format = function(row, cell, value, columnDef, dataContext) {
+  HTMLTemplateFormatter.prototype.doFormat = function(row, cell, value, columnDef, dataContext) {
     var compiled_template, template;
     template = this.get("template");
     if (value === null) {

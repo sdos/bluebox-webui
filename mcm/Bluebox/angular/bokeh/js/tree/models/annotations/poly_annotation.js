@@ -1,4 +1,4 @@
-var Annotation, PlotWidget, PolyAnnotation, PolyAnnotationView, _, properties,
+var Annotation, PolyAnnotation, PolyAnnotationView, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -6,9 +6,7 @@ _ = require("underscore");
 
 Annotation = require("./annotation");
 
-PlotWidget = require("../../common/plot_widget");
-
-properties = require("../../common/properties");
+p = require("../../core/properties");
 
 PolyAnnotationView = (function(superClass) {
   extend(PolyAnnotationView, superClass);
@@ -17,19 +15,8 @@ PolyAnnotationView = (function(superClass) {
     return PolyAnnotationView.__super__.constructor.apply(this, arguments);
   }
 
-  PolyAnnotationView.prototype.initialize = function(options) {
-    PolyAnnotationView.__super__.initialize.call(this, options);
-    this.line = new properties.Line({
-      obj: this.model,
-      prefix: ""
-    });
-    return this.fill = new properties.Fill({
-      obj: this.model,
-      prefix: ""
-    });
-  };
-
   PolyAnnotationView.prototype.bind_bokeh_events = function() {
+    this.listenTo(this.model, 'change', this.plot_view.request_render);
     return this.listenTo(this.model, 'data_update', this.plot_view.request_render);
   };
 
@@ -62,19 +49,19 @@ PolyAnnotationView = (function(superClass) {
       }
     }
     ctx.closePath();
-    if (this.line.do_stroke) {
-      this.line.set_value(ctx);
+    if (this.visuals.line.doit) {
+      this.visuals.line.set_value(ctx);
       ctx.stroke();
     }
-    if (this.fill.do_fill) {
-      this.fill.set_value(ctx);
+    if (this.visuals.fill.doit) {
+      this.visuals.fill.set_value(ctx);
       return ctx.fill();
     }
   };
 
   return PolyAnnotationView;
 
-})(PlotWidget);
+})(Annotation.View);
 
 PolyAnnotation = (function(superClass) {
   extend(PolyAnnotation, superClass);
@@ -87,47 +74,34 @@ PolyAnnotation = (function(superClass) {
 
   PolyAnnotation.prototype.type = "PolyAnnotation";
 
-  PolyAnnotation.prototype.nonserializable_attribute_names = function() {
-    return PolyAnnotation.__super__.nonserializable_attribute_names.call(this).concat(['silent_update']);
-  };
+  PolyAnnotation.mixins(['line', 'fill']);
+
+  PolyAnnotation.define({
+    xs: [p.Array, []],
+    xs_units: [p.SpatialUnits, 'data'],
+    ys: [p.Array, []],
+    ys_units: [p.SpatialUnits, 'data'],
+    x_range_name: [p.String, 'default'],
+    y_range_name: [p.String, 'default']
+  });
+
+  PolyAnnotation.override({
+    fill_color: "#fff9ba",
+    fill_alpha: 0.4,
+    line_color: "#cccccc",
+    line_alpha: 0.3
+  });
 
   PolyAnnotation.prototype.update = function(arg) {
     var xs, ys;
     xs = arg.xs, ys = arg.ys;
-    if (this.get('silent_update')) {
-      this.attributes['xs'] = xs;
-      this.attributes['ys'] = ys;
-    } else {
-      this.set({
-        xs: xs,
-        ys: ys
-      });
-    }
-    return this.trigger('data_update');
-  };
-
-  PolyAnnotation.prototype.defaults = function() {
-    return _.extend({}, PolyAnnotation.__super__.defaults.call(this), {
-      silent_update: false,
-      plot: null,
-      xs: [],
-      ys: [],
-      xs_units: "data",
-      ys_units: "data",
-      x_range_name: "default",
-      y_range_name: "default",
-      level: 'annotation',
-      fill_color: "#fff9ba",
-      fill_alpha: 0.4,
-      line_width: 1,
-      line_color: "#cccccc",
-      line_alpha: 0.3,
-      line_alpha: 0.3,
-      line_join: 'miter',
-      line_cap: 'butt',
-      line_dash: [],
-      line_dash_offset: 0
+    this.set({
+      xs: xs,
+      ys: ys
+    }, {
+      silent: true
     });
+    return this.trigger('data_update');
   };
 
   return PolyAnnotation;

@@ -1,4 +1,4 @@
-var $, $1, ContinuumView, DatePicker, DatePickerView, InputWidget, _,
+var $, $1, DatePicker, DatePickerView, InputWidget, _, p,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -9,7 +9,7 @@ $ = require("jquery");
 
 $1 = require("jquery-ui/datepicker");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 InputWidget = require("./input_widget");
 
@@ -23,32 +23,27 @@ DatePickerView = (function(superClass) {
 
   DatePickerView.prototype.initialize = function(options) {
     DatePickerView.__super__.initialize.call(this, options);
-    return this.render();
-  };
-
-  DatePickerView.prototype.render = function() {
-    var $datepicker, $label;
-    this.$el.empty();
-    $label = $('<label>').text(this.mget("title"));
-    $datepicker = $("<div>").datepicker({
+    this.label = $('<label>').text(this.mget("title"));
+    this.input = $('<input type="text">');
+    this.datepicker = this.input.datepicker({
       defaultDate: new Date(this.mget('value')),
       minDate: this.mget('min_date') != null ? new Date(this.mget('min_date')) : null,
       maxDate: this.mget('max_date') != null ? new Date(this.mget('max_date')) : null,
       onSelect: this.onSelect
     });
-    this.$el.append([$label, $datepicker]);
-    return this;
+    return this.$el.append([this.label, this.input]);
   };
 
   DatePickerView.prototype.onSelect = function(dateText, ui) {
-    var ref;
-    this.mset('value', new Date(dateText));
+    var d, ref;
+    d = new Date(dateText);
+    this.mset('value', d.toString());
     return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
   };
 
   return DatePickerView;
 
-})(ContinuumView);
+})(InputWidget.View);
 
 DatePicker = (function(superClass) {
   extend(DatePicker, superClass);
@@ -61,13 +56,11 @@ DatePicker = (function(superClass) {
 
   DatePicker.prototype.default_view = DatePickerView;
 
-  DatePicker.prototype.defaults = function() {
-    return _.extend({}, DatePicker.__super__.defaults.call(this), {
-      value: Date.now(),
-      min_date: null,
-      max_date: null
-    });
-  };
+  DatePicker.define({
+    value: [p.Any, Date.now()],
+    min_date: [p.Any],
+    max_date: [p.Any]
+  });
 
   return DatePicker;
 

@@ -1,12 +1,14 @@
-var AdaptiveTicker, ContinuousTicker, _, argmin, clamp, log,
+var AdaptiveTicker, ContinuousTicker, _, argmin, clamp, log, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
+argmin = require("./util").argmin;
+
 ContinuousTicker = require("./continuous_ticker");
 
-argmin = require("./util").argmin;
+p = require("../../core/properties");
 
 clamp = function(x, min_val, max_val) {
   return Math.max(min_val, Math.min(max_val, x));
@@ -27,6 +29,13 @@ AdaptiveTicker = (function(superClass) {
   }
 
   AdaptiveTicker.prototype.type = 'AdaptiveTicker';
+
+  AdaptiveTicker.define({
+    base: [p.Number, 10.0],
+    mantissas: [p.Array, [1, 2, 5]],
+    min_interval: [p.Number, 0.0],
+    max_interval: [p.Number]
+  });
 
   AdaptiveTicker.prototype.initialize = function(attrs, options) {
     var prefix_mantissa, suffix_mantissa;
@@ -51,15 +60,6 @@ AdaptiveTicker = (function(superClass) {
     best_mantissa = candidate_mantissas[argmin(errors)];
     interval = best_mantissa * ideal_magnitude;
     return clamp(interval, this.get_min_interval(), this.get_max_interval());
-  };
-
-  AdaptiveTicker.prototype.defaults = function() {
-    return _.extend({}, AdaptiveTicker.__super__.defaults.call(this), {
-      base: 10.0,
-      mantissas: [1, 2, 5],
-      min_interval: 0.0,
-      max_interval: null
-    });
   };
 
   return AdaptiveTicker;

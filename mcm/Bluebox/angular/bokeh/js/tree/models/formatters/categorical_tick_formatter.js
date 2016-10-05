@@ -13,7 +13,7 @@ CategoricalTickFormatter = (function(superClass) {
 
   CategoricalTickFormatter.prototype.type = 'CategoricalTickFormatter';
 
-  CategoricalTickFormatter.prototype.format = function(ticks) {
+  CategoricalTickFormatter.prototype.doFormat = function(ticks) {
     return ticks;
   };
 

@@ -1,44 +1,45 @@
-var ImagePool, Model, TileSource, _, logger, tile_utils,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+var ImagePool, Model, TileSource, _, logger, p, tile_utils,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-Model = require("../../model");
-
 ImagePool = require("./image_pool");
 
 tile_utils = require("./tile_utils");
 
-logger = require("../../common/logging").logger;
+logger = require("../../core/logging").logger;
+
+p = require("../../core/properties");
+
+Model = require("../../model");
 
 TileSource = (function(superClass) {
   extend(TileSource, superClass);
 
   TileSource.prototype.type = 'TileSource';
 
+  TileSource.define({
+    url: [p.String, ''],
+    tile_size: [p.Number, 256],
+    max_zoom: [p.Number, 30],
+    min_zoom: [p.Number, 0],
+    extra_url_vars: [p.Any, {}],
+    attribution: [p.String, ''],
+    x_origin_offset: [p.Number],
+    y_origin_offset: [p.Number],
+    initial_resolution: [p.Number]
+  });
+
   TileSource.prototype.initialize = function(options) {
     TileSource.__super__.initialize.call(this, options);
     return this.normalize_case();
-  };
-
-  TileSource.prototype.defaults = function() {
-    return _.extend({}, TileSource.__super__.defaults.call(this), {
-      url: '',
-      tile_size: 256,
-      max_zoom: 30,
-      min_zoom: 0,
-      extra_url_vars: {},
-      attribution: ''
-    });
   };
 
   function TileSource(options) {
     if (options == null) {
       options = {};
     }
-    this.defaults = bind(this.defaults, this);
     TileSource.__super__.constructor.apply(this, arguments);
     this.utils = new tile_utils.ProjectionUtils();
     this.pool = new ImagePool();

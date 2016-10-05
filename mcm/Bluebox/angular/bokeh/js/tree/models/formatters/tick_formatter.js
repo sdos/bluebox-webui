@@ -15,6 +15,8 @@ TickFormatter = (function(superClass) {
 
   TickFormatter.prototype.type = 'TickFormatter';
 
+  TickFormatter.prototype.doFormat = function(ticks) {};
+
   return TickFormatter;
 
 })(Model);

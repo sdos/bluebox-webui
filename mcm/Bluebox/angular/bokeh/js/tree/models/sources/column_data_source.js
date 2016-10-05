@@ -1,5 +1,4 @@
-var ColumnDataSource, DataSource, SelectionManager, _, hittest, logger,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+var ColumnDataSource, DataSource, SelectionManager, _, hittest, logger, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7,25 +6,38 @@ _ = require("underscore");
 
 DataSource = require('./data_source');
 
-logger = require("../../common/logging").logger;
+hittest = require("../../common/hittest");
 
 SelectionManager = require("../../common/selection_manager");
 
-hittest = require("../../common/hittest");
+logger = require("../../core/logging").logger;
+
+p = require("../../core/properties");
 
 ColumnDataSource = (function(superClass) {
   extend(ColumnDataSource, superClass);
 
   function ColumnDataSource() {
-    this.defaults = bind(this.defaults, this);
     return ColumnDataSource.__super__.constructor.apply(this, arguments);
   }
 
   ColumnDataSource.prototype.type = 'ColumnDataSource';
 
-  ColumnDataSource.prototype.nonserializable_attribute_names = function() {
-    return ColumnDataSource.__super__.nonserializable_attribute_names.call(this).concat(['selection_manager', 'inspected']);
-  };
+  ColumnDataSource.define({
+    data: [p.Any, {}],
+    column_names: [p.Array, []]
+  });
+
+  ColumnDataSource.internal({
+    selection_manager: [
+      p.Instance, function(self) {
+        return new SelectionManager({
+          source: self
+        });
+      }
+    ],
+    inspected: [p.Any]
+  });
 
   ColumnDataSource.prototype.get_column = function(colname) {
     var ref;
@@ -74,14 +86,20 @@ ColumnDataSource = (function(superClass) {
     return this.trigger('stream');
   };
 
-  ColumnDataSource.prototype.defaults = function() {
-    return _.extend({}, ColumnDataSource.__super__.defaults.call(this), {
-      data: {},
-      selection_manager: new SelectionManager({
-        'source': this
-      }),
-      column_names: []
+  ColumnDataSource.prototype.patch = function(patches) {
+    var data, i, ind, j, k, patch, ref, ref1, value;
+    data = this.get('data');
+    for (k in patches) {
+      patch = patches[k];
+      for (i = j = 0, ref = patch.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+        ref1 = patch[i], ind = ref1[0], value = ref1[1];
+        data[k][ind] = value;
+      }
+    }
+    this.set('data', data, {
+      silent: true
     });
+    return this.trigger('patch');
   };
 
   return ColumnDataSource;

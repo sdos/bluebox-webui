@@ -1,4 +1,4 @@
-var BoxAnnotation, BoxSelectTool, BoxSelectToolView, SelectTool, _,
+var BoxAnnotation, BoxSelectTool, BoxSelectToolView, DEFAULT_BOX_OVERLAY, SelectTool, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7,6 +7,8 @@ _ = require("underscore");
 SelectTool = require("./select_tool");
 
 BoxAnnotation = require("../../annotations/box_annotation");
+
+p = require("../../../core/properties");
 
 BoxSelectToolView = (function(superClass) {
   extend(BoxSelectToolView, superClass);
@@ -78,12 +80,12 @@ BoxSelectToolView = (function(superClass) {
       vy0: vy0,
       vy1: vy1
     };
-    ref = this.mget('renderers');
+    ref = this.mget('computed_renderers');
     for (i = 0, len = ref.length; i < len; i++) {
       r = ref[i];
       ds = r.get('data_source');
       sm = ds.get('selection_manager');
-      sm.select(this, this.plot_view.renderers[r.id], geometry, final, append);
+      sm.select(this, this.plot_view.renderer_views[r.id], geometry, final, append);
     }
     if (this.mget('callback') != null) {
       this._emit_callback(geometry);
@@ -94,7 +96,7 @@ BoxSelectToolView = (function(superClass) {
 
   BoxSelectToolView.prototype._emit_callback = function(geometry) {
     var canvas, frame, r, xmapper, ymapper;
-    r = this.mget('renderers')[0];
+    r = this.mget('computed_renderers')[0];
     canvas = this.plot_model.get('canvas');
     frame = this.plot_model.get('frame');
     geometry['sx0'] = canvas.vx_to_sx(geometry.vx0);
@@ -116,6 +118,23 @@ BoxSelectToolView = (function(superClass) {
 
 })(SelectTool.View);
 
+DEFAULT_BOX_OVERLAY = function() {
+  return new BoxAnnotation.Model({
+    level: "overlay",
+    render_mode: "css",
+    top_units: "screen",
+    left_units: "screen",
+    bottom_units: "screen",
+    right_units: "screen",
+    fill_color: "lightgrey",
+    fill_alpha: 0.5,
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 2,
+    line_dash: [4, 4]
+  });
+};
+
 BoxSelectTool = (function(superClass) {
   extend(BoxSelectTool, superClass);
 
@@ -135,37 +154,19 @@ BoxSelectTool = (function(superClass) {
 
   BoxSelectTool.prototype.default_order = 30;
 
+  BoxSelectTool.define({
+    dimensions: [p.Array, ["width", "height"]],
+    select_every_mousemove: [p.Bool, false],
+    callback: [p.Instance],
+    overlay: [p.Instance, DEFAULT_BOX_OVERLAY]
+  });
+
   BoxSelectTool.prototype.initialize = function(attrs, options) {
     BoxSelectTool.__super__.initialize.call(this, attrs, options);
-    this.get('overlay').set('silent_update', true, {
-      silent: true
-    });
-    this.register_property('tooltip', function() {
-      return this._get_dim_tooltip(this.get("tool_name"), this._check_dims(this.get('dimensions'), "box select tool"));
+    this.override_computed_property('tooltip', function() {
+      return this._get_dim_tooltip(this.tool_name, this._check_dims(this.get('dimensions'), "box select tool"));
     }, false);
     return this.add_dependencies('tooltip', this, ['dimensions']);
-  };
-
-  BoxSelectTool.prototype.defaults = function() {
-    return _.extend({}, BoxSelectTool.__super__.defaults.call(this), {
-      dimensions: ["width", "height"],
-      select_every_mousemove: false,
-      callback: null,
-      overlay: new BoxAnnotation.Model({
-        level: "overlay",
-        render_mode: "css",
-        top_units: "screen",
-        left_units: "screen",
-        bottom_units: "screen",
-        right_units: "screen",
-        fill_color: "lightgrey",
-        fill_alpha: 0.5,
-        line_color: "black",
-        line_alpha: 1.0,
-        line_width: 2,
-        line_dash: [4, 4]
-      })
-    });
   };
 
   return BoxSelectTool;

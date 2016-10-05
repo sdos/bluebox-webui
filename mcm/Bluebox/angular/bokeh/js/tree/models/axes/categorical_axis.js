@@ -4,13 +4,13 @@ var Axis, CategoricalAxis, CategoricalAxisView, CategoricalTickFormatter, Catego
 
 _ = require("underscore");
 
-logger = require("../../common/logging").logger;
-
-CategoricalTicker = require("../tickers/categorical_ticker");
+Axis = require("./axis");
 
 CategoricalTickFormatter = require("../formatters/categorical_tick_formatter");
 
-Axis = require("./axis");
+CategoricalTicker = require("../tickers/categorical_ticker");
+
+logger = require("../../core/logging").logger;
 
 CategoricalAxisView = (function(superClass) {
   extend(CategoricalAxisView, superClass);
@@ -34,12 +34,14 @@ CategoricalAxis = (function(superClass) {
 
   CategoricalAxis.prototype.type = 'CategoricalAxis';
 
-  CategoricalAxis.prototype.defaults = function() {
-    return _.extend({}, CategoricalAxis.__super__.defaults.call(this), {
-      ticker: new CategoricalTicker.Model(),
-      formatter: new CategoricalTickFormatter.Model()
-    });
-  };
+  CategoricalAxis.override({
+    ticker: function() {
+      return new CategoricalTicker.Model();
+    },
+    formatter: function() {
+      return new CategoricalTickFormatter.Model();
+    }
+  });
 
   CategoricalAxis.prototype._computed_bounds = function() {
     var cross_range, range, range_bounds, ref, ref1, user_bounds;

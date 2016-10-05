@@ -1,8 +1,10 @@
-var ActionTool, ResetTool, ResetToolView,
+var ActionTool, ResetTool, ResetToolView, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 ActionTool = require("./action_tool");
+
+p = require("../../../core/properties");
 
 ResetToolView = (function(superClass) {
   extend(ResetToolView, superClass);
@@ -15,7 +17,9 @@ ResetToolView = (function(superClass) {
     this.plot_view.clear_state();
     this.plot_view.reset_range();
     this.plot_view.reset_selection();
-    return this.plot_view.reset_dimensions();
+    if (this.model.reset_size) {
+      return this.plot_view.reset_dimensions();
+    }
   };
 
   return ResetToolView;
@@ -36,6 +40,10 @@ ResetTool = (function(superClass) {
   ResetTool.prototype.tool_name = "Reset";
 
   ResetTool.prototype.icon = "bk-tool-icon-reset";
+
+  ResetTool.define({
+    reset_size: [p.Bool, true]
+  });
 
   return ResetTool;
 

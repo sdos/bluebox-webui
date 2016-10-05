@@ -20,7 +20,7 @@ PatchView = (function(superClass) {
   PatchView.prototype._render = function(ctx, indices, arg) {
     var i, j, k, len, len1, sx, sy;
     sx = arg.sx, sy = arg.sy;
-    if (this.visuals.fill.do_fill) {
+    if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx);
       for (j = 0, len = indices.length; j < len; j++) {
         i = indices[j];
@@ -40,7 +40,7 @@ PatchView = (function(superClass) {
       ctx.closePath();
       ctx.fill();
     }
-    if (this.visuals.line.do_stroke) {
+    if (this.visuals.line.doit) {
       this.visuals.line.set_value(ctx);
       for (k = 0, len1 = indices.length; k < len1; k++) {
         i = indices[k];
@@ -80,6 +80,10 @@ Patch = (function(superClass) {
   Patch.prototype.default_view = PatchView;
 
   Patch.prototype.type = 'Patch';
+
+  Patch.coords([['x', 'y']]);
+
+  Patch.mixins(['line', 'fill']);
 
   return Patch;
 

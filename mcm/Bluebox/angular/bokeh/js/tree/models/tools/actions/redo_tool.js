@@ -43,7 +43,9 @@ RedoTool = (function(superClass) {
 
   RedoTool.prototype.icon = "bk-tool-icon-redo";
 
-  RedoTool.prototype.disabled = true;
+  RedoTool.override({
+    disabled: true
+  });
 
   return RedoTool;
 

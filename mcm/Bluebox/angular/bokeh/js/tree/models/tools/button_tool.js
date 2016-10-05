@@ -1,4 +1,4 @@
-var Backbone, ButtonTool, ButtonToolButtonView, ButtonToolView, Tool, _, button_tool_template,
+var Backbone, ButtonTool, ButtonToolButtonView, ButtonToolView, Tool, _, button_tool_template, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -9,6 +9,8 @@ Backbone = require("backbone");
 Tool = require("./tool");
 
 button_tool_template = require("./button_tool_template");
+
+p = require("../../core/properties");
 
 ButtonToolButtonView = (function(superClass) {
   extend(ButtonToolButtonView, superClass);
@@ -22,20 +24,16 @@ ButtonToolButtonView = (function(superClass) {
   ButtonToolButtonView.prototype.template = button_tool_template;
 
   ButtonToolButtonView.prototype.events = function() {
-    if ('ontouchstart' in document) {
-      return {
-        'touchstart .bk-toolbar-button': '_clicked'
-      };
-    } else {
-      return {
-        'click .bk-toolbar-button': '_clicked'
-      };
-    }
+    return {
+      'click .bk-toolbar-button': '_clicked'
+    };
   };
 
   ButtonToolButtonView.prototype.initialize = function(options) {
     ButtonToolButtonView.__super__.initialize.call(this, options);
-    this.$el.html(this.template(this.model.attrs_and_props()));
+    this.$el.html(this.template({
+      model: this.model
+    }));
     this.listenTo(this.model, 'change:active', (function(_this) {
       return function() {
         return _this.render();
@@ -78,25 +76,18 @@ ButtonTool = (function(superClass) {
     return ButtonTool.__super__.constructor.apply(this, arguments);
   }
 
+  ButtonTool.prototype.icon = null;
+
   ButtonTool.prototype.initialize = function(attrs, options) {
     ButtonTool.__super__.initialize.call(this, attrs, options);
-    return this.register_property('tooltip', function() {
-      return this.get('tool_name');
+    return this.define_computed_property('tooltip', function() {
+      return this.tool_name;
     });
   };
 
-  ButtonTool.prototype.nonserializable_attribute_names = function() {
-    return ButtonTool.__super__.nonserializable_attribute_names.call(this).concat(['icon', 'disabled']);
-  };
-
-  ButtonTool.prototype.defaults = function() {
-    return _.extend({}, ButtonTool.__super__.defaults.call(this), {
-      active: false,
-      disabled: this.disabled != null ? this.disabled : false,
-      tool_name: this.tool_name,
-      icon: this.icon
-    });
-  };
+  ButtonTool.internal({
+    disabled: [p.Boolean, false]
+  });
 
   return ButtonTool;
 

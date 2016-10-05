@@ -1,4 +1,4 @@
-var $, $1, ContinuumView, Dialog, DialogView, Widget, _, dialog_template,
+var $, $1, Dialog, DialogView, Widget, _, dialog_template, p,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -9,7 +9,7 @@ $ = require("jquery");
 
 $1 = require("bootstrap/modal");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 dialog_template = require("./dialog_template");
 
@@ -73,6 +73,7 @@ DialogView = (function(superClass) {
   };
 
   DialogView.prototype.render = function() {
+    DialogView.__super__.render.call(this);
     this.$modal = $(dialog_template(this.model.attributes));
     this.$modal.modal({
       show: this.mget("visible")
@@ -98,7 +99,7 @@ DialogView = (function(superClass) {
 
   return DialogView;
 
-})(ContinuumView);
+})(Widget.View);
 
 Dialog = (function(superClass) {
   extend(Dialog, superClass);
@@ -111,16 +112,14 @@ Dialog = (function(superClass) {
 
   Dialog.prototype.default_view = DialogView;
 
-  Dialog.prototype.defaults = function() {
-    return _.extend({}, Dialog.__super__.defaults.call(this), {
-      visible: false,
-      closable: true,
-      title: "",
-      content: "",
-      buttons: [],
-      buttons_box: null
-    });
-  };
+  Dialog.define({
+    visible: [p.Bool, false],
+    closable: [p.Bool, true],
+    title: [p.String, ""],
+    content: [p.String, ""],
+    buttons: [p.Array, []],
+    buttons_box: [p.Instance]
+  });
 
   return Dialog;
 

@@ -1,4 +1,4 @@
-var $, $1, $2, CellEditor, CellEditorView, CheckboxEditor, CheckboxEditorView, ContinuumView, DateEditor, DateEditorView, IntEditor, IntEditorView, Model, NumberEditor, NumberEditorView, PercentEditor, PercentEditorView, SelectEditor, SelectEditorView, StringEditor, StringEditorView, TextEditor, TextEditorView, TimeEditor, TimeEditorView, _,
+var $, $1, $2, CellEditor, CellEditorView, CheckboxEditor, CheckboxEditorView, DateEditor, DateEditorView, IntEditor, IntEditorView, Model, NumberEditor, NumberEditorView, PercentEditor, PercentEditorView, SelectEditor, SelectEditorView, StringEditor, StringEditorView, TextEditor, TextEditorView, TimeEditor, TimeEditorView, Widget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -10,9 +10,11 @@ $1 = require("jquery-ui/autocomplete");
 
 $2 = require("jquery-ui/spinner");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 Model = require("../../model");
+
+Widget = require("./widget");
 
 CellEditor = (function(superClass) {
   extend(CellEditor, superClass);
@@ -20,12 +22,6 @@ CellEditor = (function(superClass) {
   function CellEditor() {
     return CellEditor.__super__.constructor.apply(this, arguments);
   }
-
-  CellEditor.prototype.editorDefaults = {};
-
-  CellEditor.prototype.defaults = function() {
-    return _.extend({}, CellEditor.__super__.defaults.call(this), this.editorDefaults);
-  };
 
   return CellEditor;
 
@@ -56,6 +52,7 @@ CellEditorView = (function(superClass) {
   };
 
   CellEditorView.prototype.render = function() {
+    CellEditorView.__super__.render.call(this);
     this.$el.appendTo(this.args.container);
     this.$input = $(this.input);
     this.$el.append(this.$input);
@@ -152,7 +149,7 @@ CellEditorView = (function(superClass) {
 
   return CellEditorView;
 
-})(ContinuumView);
+})(Widget.View);
 
 StringEditorView = (function(superClass) {
   extend(StringEditorView, superClass);
@@ -198,9 +195,9 @@ StringEditor = (function(superClass) {
 
   StringEditor.prototype.default_view = StringEditorView;
 
-  StringEditor.prototype.editorDefaults = {
-    completions: []
-  };
+  StringEditor.define({
+    completions: [p.Array, []]
+  });
 
   return StringEditor;
 
@@ -273,9 +270,9 @@ SelectEditor = (function(superClass) {
 
   SelectEditor.prototype.default_view = SelectEditorView;
 
-  SelectEditor.prototype.editorDefaults = {
-    options: []
-  };
+  SelectEditor.define({
+    options: [p.Array, []]
+  });
 
   return SelectEditor;
 
@@ -405,9 +402,9 @@ IntEditor = (function(superClass) {
 
   IntEditor.prototype.default_view = IntEditorView;
 
-  IntEditor.prototype.editorDefaults = {
-    step: 1
-  };
+  IntEditor.define({
+    step: [p.Number, 1]
+  });
 
   return IntEditor;
 
@@ -470,9 +467,9 @@ NumberEditor = (function(superClass) {
 
   NumberEditor.prototype.default_view = NumberEditorView;
 
-  NumberEditor.prototype.editorDefaults = {
-    step: 0.01
-  };
+  NumberEditor.define({
+    step: [p.Number, 0.01]
+  });
 
   return NumberEditor;
 

@@ -1,4 +1,4 @@
-var CompositeTicker, ContinuousTicker, _, argmin,
+var CompositeTicker, ContinuousTicker, _, argmin, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7,6 +7,8 @@ _ = require("underscore");
 ContinuousTicker = require("./continuous_ticker");
 
 argmin = require("./util").argmin;
+
+p = require("../../core/properties");
 
 CompositeTicker = (function(superClass) {
   extend(CompositeTicker, superClass);
@@ -17,32 +19,30 @@ CompositeTicker = (function(superClass) {
 
   CompositeTicker.prototype.type = 'CompositeTicker';
 
+  CompositeTicker.define({
+    tickers: [p.Array, []]
+  });
+
   CompositeTicker.prototype.initialize = function(attrs, options) {
     var tickers;
     CompositeTicker.__super__.initialize.call(this, attrs, options);
     tickers = this.get('tickers');
-    this.register_property('min_intervals', function() {
+    this.define_computed_property('min_intervals', function() {
       return _.invoke(tickers, 'get_min_interval');
     }, true);
     this.add_dependencies('min_intervals', this, ['tickers']);
-    this.register_property('max_intervals', function() {
+    this.define_computed_property('max_intervals', function() {
       return _.invoke(tickers, 'get_max_interval');
     }, true);
     this.add_dependencies('max_intervals', this, ['tickers']);
-    this.register_property('min_interval', function() {
+    this.define_computed_property('min_interval', function() {
       return _.first(this.get('min_intervals'));
     }, true);
     this.add_dependencies('min_interval', this, ['min_intervals']);
-    this.register_property('max_interval', function() {
+    this.define_computed_property('max_interval', function() {
       return _.first(this.get('max_intervals'));
     }, true);
     return this.add_dependencies('max_interval', this, ['max_interval']);
-  };
-
-  CompositeTicker.prototype.defaults = function() {
-    return _.extend({}, CompositeTicker.__super__.defaults.call(this), {
-      tickers: []
-    });
   };
 
   CompositeTicker.prototype.get_best_ticker = function(data_low, data_high, desired_n_ticks) {

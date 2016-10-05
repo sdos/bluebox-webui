@@ -1,4 +1,4 @@
-var $, ContinuumView, Model, RadioGroup, RadioGroupView, _,
+var $, RadioGroup, RadioGroupView, Widget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -6,9 +6,9 @@ _ = require("underscore");
 
 $ = require("jquery");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
-Model = require("../../model");
+Widget = require("./widget");
 
 RadioGroupView = (function(superClass) {
   extend(RadioGroupView, superClass);
@@ -31,6 +31,7 @@ RadioGroupView = (function(superClass) {
 
   RadioGroupView.prototype.render = function() {
     var $div, $input, $label, active, i, j, label, len, name, ref;
+    RadioGroupView.__super__.render.call(this);
     this.$el.empty();
     name = _.uniqueId("RadioGroup");
     active = this.mget("active");
@@ -60,7 +61,7 @@ RadioGroupView = (function(superClass) {
   };
 
   RadioGroupView.prototype.change_input = function() {
-    var active, i, radio;
+    var active, i, radio, ref;
     active = (function() {
       var j, len, ref, results;
       ref = this.$("input");
@@ -73,12 +74,13 @@ RadioGroupView = (function(superClass) {
       }
       return results;
     }).call(this);
-    return this.mset('active', active[0]);
+    this.model.active = active[0];
+    return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
   };
 
   return RadioGroupView;
 
-})(ContinuumView);
+})(Widget.View);
 
 RadioGroup = (function(superClass) {
   extend(RadioGroup, superClass);
@@ -91,18 +93,16 @@ RadioGroup = (function(superClass) {
 
   RadioGroup.prototype.default_view = RadioGroupView;
 
-  RadioGroup.prototype.defaults = function() {
-    return _.extend({}, RadioGroup.__super__.defaults.call(this), {
-      active: null,
-      labels: [],
-      inline: false,
-      disabled: false
-    });
-  };
+  RadioGroup.define({
+    active: [p.Any, null],
+    labels: [p.Array, []],
+    inline: [p.Bool, false],
+    callback: [p.Instance]
+  });
 
   return RadioGroup;
 
-})(Model);
+})(Widget.Model);
 
 module.exports = {
   Model: RadioGroup,

@@ -1,10 +1,12 @@
-var GestureTool, PanTool, PanToolView, _,
+var GestureTool, PanTool, PanToolView, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
 GestureTool = require("./gesture_tool");
+
+p = require("../../../core/properties");
 
 PanToolView = (function(superClass) {
   extend(PanToolView, superClass);
@@ -134,22 +136,16 @@ PanTool = (function(superClass) {
 
   PanTool.prototype.default_order = 10;
 
+  PanTool.define({
+    dimensions: [p.Array, ["width", "height"]]
+  });
+
   PanTool.prototype.initialize = function(attrs, options) {
     PanTool.__super__.initialize.call(this, attrs, options);
-    this.register_property('tooltip', function() {
+    this.override_computed_property('tooltip', function() {
       return this._get_dim_tooltip("Pan", this._check_dims(this.get('dimensions'), "pan tool"));
     }, false);
     return this.add_dependencies('tooltip', this, ['dimensions']);
-  };
-
-  PanTool.prototype.nonserializable_attribute_names = function() {
-    return PanTool.__super__.nonserializable_attribute_names.call(this).concat(['level', 'default_order', 'event_type']);
-  };
-
-  PanTool.prototype.defaults = function() {
-    return _.extend({}, PanTool.__super__.defaults.call(this), {
-      dimensions: ["width", "height"]
-    });
   };
 
   return PanTool;

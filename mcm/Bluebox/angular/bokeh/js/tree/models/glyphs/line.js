@@ -1,4 +1,4 @@
-var Glyph, Line, LineView, _, bokehgl, hittest,
+var Glyph, Line, LineView, _, hittest,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -8,18 +8,12 @@ Glyph = require("./glyph");
 
 hittest = require("../../common/hittest");
 
-bokehgl = require("./bokehgl");
-
 LineView = (function(superClass) {
   extend(LineView, superClass);
 
   function LineView() {
     return LineView.__super__.constructor.apply(this, arguments);
   }
-
-  LineView.prototype._init_gl = function(gl) {
-    return this.glglyph = new bokehgl.LineGLGlyph(gl, this);
-  };
 
   LineView.prototype._index_data = function() {
     return this._xy_index();
@@ -72,7 +66,7 @@ LineView = (function(superClass) {
       y: this.renderer.plot_view.canvas.vy_to_sy(geometry.vy)
     };
     shortest = 9999;
-    threshold = Math.max(2, this.visuals.line.width.value() / 2);
+    threshold = Math.max(2, this.visuals.line.line_width.value() / 2);
     for (i = j = 0, ref = this.sx.length - 1; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
       ref1 = [
         {
@@ -87,6 +81,9 @@ LineView = (function(superClass) {
       if (dist < threshold && dist < shortest) {
         shortest = dist;
         result['0d'].glyph = this.model;
+        result['0d'].get_view = (function() {
+          return this;
+        }).bind(this);
         result['0d'].flag = true;
         result['0d'].indices = [i];
       }
@@ -100,14 +97,17 @@ LineView = (function(superClass) {
     result = hittest.create_hit_test_result();
     if (geometry.direction === 'v') {
       val = this.renderer.ymapper.map_from_target(vy);
-      values = this.y;
+      values = this._y;
     } else {
       val = this.renderer.xmapper.map_from_target(vx);
-      values = this.x;
+      values = this._x;
     }
     for (i = j = 0, ref1 = values.length - 1; 0 <= ref1 ? j < ref1 : j > ref1; i = 0 <= ref1 ? ++j : --j) {
       if ((values[i] <= val && val <= values[i + 1])) {
         result['0d'].glyph = this.model;
+        result['0d'].get_view = (function() {
+          return this;
+        }).bind(this);
         result['0d'].flag = true;
         result['0d'].indices.push(i);
       }
@@ -118,7 +118,7 @@ LineView = (function(superClass) {
   LineView.prototype.get_interpolation_hit = function(i, geometry) {
     var ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, res, vx, vy, x0, x1, x2, x3, y0, y1, y2, y3;
     ref = [geometry.vx, geometry.vy], vx = ref[0], vy = ref[1];
-    ref1 = [this.x[i], this.y[i], this.x[i + 1], this.y[i + 1]], x2 = ref1[0], y2 = ref1[1], x3 = ref1[2], y3 = ref1[3];
+    ref1 = [this._x[i], this._y[i], this._x[i + 1], this._y[i + 1]], x2 = ref1[0], y2 = ref1[1], x3 = ref1[2], y3 = ref1[3];
     if (geometry.type === 'point') {
       ref2 = this.renderer.ymapper.v_map_from_target([vy - 1, vy + 1]), y0 = ref2[0], y1 = ref2[1];
       ref3 = this.renderer.xmapper.v_map_from_target([vx - 1, vx + 1]), x0 = ref3[0], x1 = ref3[1];
@@ -154,7 +154,9 @@ Line = (function(superClass) {
 
   Line.prototype.type = 'Line';
 
-  Line.prototype.visuals = ['line'];
+  Line.coords([['x', 'y']]);
+
+  Line.mixins(['line']);
 
   return Line;
 

@@ -1,13 +1,15 @@
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
-  var __out = [], __capture = function(callback) {
+  var __out = [];
+  var __capture = function(callback) {
     var out = __out, result;
     __out = [];
     callback.call(this);
     result = __out.join('');
     __out = out;
     return __safe(result);
-  }, __sanitize = function(value) {
+  };
+  var __sanitize = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else if (typeof value !== 'undefined' && value != null) {
@@ -15,8 +17,8 @@ module.exports = function(__obj) {
     } else {
       return '';
     }
-  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-  __safe = __obj.safe = function(value) {
+  };
+  var __safe = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else {
@@ -26,32 +28,29 @@ module.exports = function(__obj) {
       return result;
     }
   };
-  if (!__escape) {
-    __escape = __obj.escape = function(value) {
-      return ('' + value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    };
-  }
+  var __escape = function(value) {
+    return ('' + value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
   (function() {
     (function() {
       __out.push('<input type="checkbox" ');
     
-      if (this.active) {
+      if (this.model.active) {
         __out.push('checked');
       }
     
       __out.push('>');
     
-      __out.push(__sanitize(this.tool_name));
+      __out.push(__sanitize(this.model.tool_name));
     
       __out.push('</input>\n');
     
     }).call(this);
     
   }).call(__obj);
-  __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
 };

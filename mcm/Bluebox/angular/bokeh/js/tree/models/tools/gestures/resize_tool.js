@@ -1,10 +1,12 @@
-var GestureTool, ResizeTool, ResizeToolView, _,
+var GestureTool, ResizeTool, ResizeToolView, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
 GestureTool = require("./gesture_tool");
+
+p = require("../../../core/properties");
 
 ResizeToolView = (function(superClass) {
   extend(ResizeToolView, superClass);
@@ -77,12 +79,13 @@ ResizeToolView = (function(superClass) {
   };
 
   ResizeToolView.prototype._update = function(dx, dy) {
-    var canvas;
-    this.plot_view.pause();
-    canvas = this.plot_view.canvas;
-    canvas._set_dims([this.cw + dx, this.ch + dy]);
-    this.plot_view.unpause();
-    return null;
+    var new_height, new_width;
+    new_width = this.cw + dx;
+    new_height = this.cw + dy;
+    if (new_width < 100 || new_height < 100) {
+      return;
+    }
+    this.plot_view.update_dimensions(new_width, new_height);
   };
 
   return ResizeToolView;
@@ -107,17 +110,6 @@ ResizeTool = (function(superClass) {
   ResizeTool.prototype.event_type = "pan";
 
   ResizeTool.prototype.default_order = 40;
-
-  ResizeTool.prototype.nonserializable_attribute_names = function() {
-    return ResizeTool.__super__.nonserializable_attribute_names.call(this).concat(['data']);
-  };
-
-  ResizeTool.prototype.defaults = function() {
-    return _.extend({}, ResizeTool.__super__.defaults.call(this), {
-      level: 'overlay',
-      data: {}
-    });
-  };
 
   return ResizeTool;
 

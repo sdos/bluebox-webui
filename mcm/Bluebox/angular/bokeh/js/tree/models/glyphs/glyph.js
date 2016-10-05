@@ -1,4 +1,4 @@
-var CategoricalMapper, ContinuumView, Glyph, GlyphView, Model, _, arrayMax, bbox, logger, proj4, properties, rbush, toProjection,
+var CategoricalMapper, Glyph, GlyphView, Model, Renderer, _, bbox, bokehgl, p, rbush,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -6,23 +6,17 @@ _ = require("underscore");
 
 rbush = require("rbush");
 
-bbox = require("../../common/bbox");
+CategoricalMapper = require("../mappers/categorical_mapper");
 
-logger = require("../../common/logging").logger;
+Renderer = require("../renderers/renderer");
 
-arrayMax = require("../../common/mathutils").arrayMax;
+p = require("../../core/properties");
+
+bbox = require("../../core/util/bbox");
 
 Model = require("../../model");
 
-ContinuumView = require("../../common/continuum_view");
-
-properties = require("../../common/properties");
-
-CategoricalMapper = require("../mappers/categorical_mapper");
-
-proj4 = require("proj4");
-
-toProjection = proj4.defs('GOOGLE');
+bokehgl = require("./webgl/main");
 
 GlyphView = (function(superClass) {
   extend(GlyphView, superClass);
@@ -32,24 +26,18 @@ GlyphView = (function(superClass) {
   }
 
   GlyphView.prototype.initialize = function(options) {
-    var ctx, func, name, ref, ref1;
+    var Cls, ctx, ref;
     GlyphView.__super__.initialize.call(this, options);
-    this.model.glyph_view = this;
     this.renderer = options.renderer;
     if (((ref = this.renderer) != null ? ref.plot_view : void 0) != null) {
       ctx = this.renderer.plot_view.canvas_view.ctx;
       if (ctx.glcanvas != null) {
-        this._init_gl(ctx.glcanvas.gl);
+        Cls = bokehgl[this.model.type + 'GLGlyph'];
+        if (Cls) {
+          return this.glglyph = new Cls(ctx.glcanvas.gl, this);
+        }
       }
     }
-    ref1 = properties.factories;
-    for (name in ref1) {
-      func = ref1[name];
-      this[name] = {};
-      this[name] = _.extend(this[name], func(this.model));
-    }
-    this.warned = {};
-    return this;
   };
 
   GlyphView.prototype.render = function(ctx, indices, data) {
@@ -60,12 +48,12 @@ GlyphView = (function(superClass) {
           return;
         }
       }
-      return this._render(ctx, indices, data);
+      this._render(ctx, indices, data);
     }
   };
 
   GlyphView.prototype._render_gl = function(ctx, indices, mainglyph) {
-    var dx, dy, ref, ref1, trans, wx, wy;
+    var dx, dy, ref, ref1, ref2, sx, sy, trans, wx, wy;
     wx = wy = 1;
     ref = this.renderer.map_to_screen([0 * wx, 1 * wx, 2 * wx], [0 * wy, 1 * wy, 2 * wy]), dx = ref[0], dy = ref[1];
     wx = 100 / Math.min(Math.max(Math.abs(dx[1] - dx[0]), 1e-12), 1e12);
@@ -74,120 +62,56 @@ GlyphView = (function(superClass) {
     if (Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6 || Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6) {
       return false;
     }
+    ref2 = [(dx[1] - dx[0]) / wx, (dy[1] - dy[0]) / wy], sx = ref2[0], sy = ref2[1];
     trans = {
+      pixel_ratio: ctx.pixel_ratio,
       width: ctx.glcanvas.width,
       height: ctx.glcanvas.height,
-      dx: dx,
-      dy: dy,
-      sx: (dx[1] - dx[0]) / wx,
-      sy: (dy[1] - dy[0]) / wy
+      dx: dx[0] / sx,
+      dy: dy[0] / sy,
+      sx: sx,
+      sy: sy
     };
     this.glglyph.draw(indices, mainglyph, trans);
     return true;
   };
 
-  GlyphView.prototype.map_data = function() {
-    var i, j, k, len, ref, ref1, ref2, ref3, ref4, ref5, ref6, sx, sxname, sy, syname, xname, yname;
-    ref = this.model.coords;
-    for (j = 0, len = ref.length; j < len; j++) {
-      ref1 = ref[j], xname = ref1[0], yname = ref1[1];
-      sxname = "s" + xname;
-      syname = "s" + yname;
-      if (_.isArray((ref2 = this[xname]) != null ? ref2[0] : void 0)) {
-        ref3 = [[], []], this[sxname] = ref3[0], this[syname] = ref3[1];
-        for (i = k = 0, ref4 = this[xname].length; 0 <= ref4 ? k < ref4 : k > ref4; i = 0 <= ref4 ? ++k : --k) {
-          ref5 = this.renderer.map_to_screen(this[xname][i], this[yname][i]), sx = ref5[0], sy = ref5[1];
-          this[sxname].push(sx);
-          this[syname].push(sy);
-        }
-      } else {
-        ref6 = this.renderer.map_to_screen(this[xname], this[yname]), this[sxname] = ref6[0], this[syname] = ref6[1];
-      }
-    }
-    return this._map_data();
-  };
-
-  GlyphView.prototype.project_xy = function(x, y) {
-    var i, j, merc_x, merc_x_s, merc_y, merc_y_s, ref, ref1;
-    merc_x_s = [];
-    merc_y_s = [];
-    for (i = j = 0, ref = x.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-      ref1 = proj4(toProjection, [x[i], y[i]]), merc_x = ref1[0], merc_y = ref1[1];
-      merc_x_s[i] = merc_x;
-      merc_y_s[i] = merc_y;
-    }
-    return [merc_x_s, merc_y_s];
-  };
-
-  GlyphView.prototype.project_xsys = function(xs, ys) {
-    var i, j, merc_x_s, merc_xs_s, merc_y_s, merc_ys_s, ref, ref1;
-    merc_xs_s = [];
-    merc_ys_s = [];
-    for (i = j = 0, ref = xs.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-      ref1 = this.project_xy(xs[i], ys[i]), merc_x_s = ref1[0], merc_y_s = ref1[1];
-      merc_xs_s[i] = merc_x_s;
-      merc_ys_s[i] = merc_y_s;
-    }
-    return [merc_xs_s, merc_ys_s];
-  };
-
-  GlyphView.prototype.set_data = function(source) {
-    var name, prop, ref, ref1, ref2, ref3, ref4, ref5;
-    ref = this.coords;
-    for (name in ref) {
-      prop = ref[name];
-      this[name] = prop.array(source);
-    }
-    if (this.renderer.plot_model.use_map) {
-      if (this.x != null) {
-        ref1 = this.project_xy(this.x, this.y), this.x = ref1[0], this.y = ref1[1];
-      }
-      if (this.xs != null) {
-        ref2 = this.project_xsys(this.xs, this.ys), this.xs = ref2[0], this.ys = ref2[1];
-      }
-    }
-    ref3 = this.angles;
-    for (name in ref3) {
-      prop = ref3[name];
-      this[name] = prop.array(source);
-    }
-    ref4 = this.distances;
-    for (name in ref4) {
-      prop = ref4[name];
-      this[name] = prop.array(source);
-      this["max_" + name] = arrayMax(this[name]);
-    }
-    ref5 = this.fields;
-    for (name in ref5) {
-      prop = ref5[name];
-      this[name] = prop.array(source);
-    }
-    if (this.glglyph != null) {
-      this.glglyph.set_data_changed(this.x.length);
-    }
-    this._set_data();
-    return this.index = this._index_data();
-  };
-
-  GlyphView.prototype.set_visuals = function(source) {
-    var name, prop, ref;
-    ref = this.visuals;
-    for (name in ref) {
-      prop = ref[name];
-      prop.warm_cache(source);
-    }
-    if (this.glglyph != null) {
-      return this.glglyph.set_visuals_changed();
-    }
-  };
-
   GlyphView.prototype.bounds = function() {
-    var bb;
+    var bb, d;
     if (this.index == null) {
       return bbox.empty();
     }
-    bb = this.index.data.bbox;
-    return this._bounds([[bb[0], bb[2]], [bb[1], bb[3]]]);
+    d = this.index.data;
+    bb = {
+      minX: d.minX,
+      minY: d.minY,
+      maxX: d.maxX,
+      maxY: d.maxY
+    };
+    return this._bounds(bb);
+  };
+
+  GlyphView.prototype.max_wh2_bounds = function(bds) {
+    return {
+      minX: bds.minX - this.max_w2,
+      maxX: bds.maxX + this.max_w2,
+      minY: bds.minY - this.max_h2,
+      maxY: bds.maxY + this.max_h2
+    };
+  };
+
+  GlyphView.prototype.get_anchor_point = function(anchor, i, arg) {
+    var sx, sy;
+    sx = arg[0], sy = arg[1];
+    switch (anchor) {
+      case "center":
+        return {
+          x: this.scx(i, sx, sy),
+          y: this.scy(i, sx, sy)
+        };
+      default:
+        return null;
+    }
   };
 
   GlyphView.prototype.scx = function(i) {
@@ -198,39 +122,19 @@ GlyphView = (function(superClass) {
     return this.sy[i];
   };
 
-  GlyphView.prototype._init_gl = function() {
-    return false;
-  };
-
-  GlyphView.prototype._set_data = function() {
-    return null;
-  };
-
-  GlyphView.prototype._map_data = function() {
-    return null;
-  };
-
-  GlyphView.prototype._mask_data = function(inds) {
-    return inds;
-  };
-
-  GlyphView.prototype._bounds = function(bds) {
-    return bds;
-  };
-
   GlyphView.prototype._xy_index = function() {
     var i, index, j, pts, ref, x, xx, y, yy;
     index = rbush();
     pts = [];
     if (this.renderer.xmapper instanceof CategoricalMapper.Model) {
-      xx = this.renderer.xmapper.v_map_to_target(this.x, true);
+      xx = this.renderer.xmapper.v_map_to_target(this._x, true);
     } else {
-      xx = this.x;
+      xx = this._x;
     }
     if (this.renderer.ymapper instanceof CategoricalMapper.Model) {
-      yy = this.renderer.ymapper.v_map_to_target(this.y, true);
+      yy = this.renderer.ymapper.v_map_to_target(this._y, true);
     } else {
-      yy = this.y;
+      yy = this._y;
     }
     for (i = j = 0, ref = xx.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
       x = xx[i];
@@ -241,11 +145,13 @@ GlyphView = (function(superClass) {
       if (isNaN(y) || !isFinite(y)) {
         continue;
       }
-      pts.push([
-        x, y, x, y, {
-          'i': i
-        }
-      ]);
+      pts.push({
+        minX: x,
+        minY: y,
+        maxX: x,
+        maxY: y,
+        i: i
+      });
     }
     index.load(pts);
     return index;
@@ -322,27 +228,8 @@ GlyphView = (function(superClass) {
     }
   };
 
-  GlyphView.prototype.hit_test = function(geometry) {
-    var func, result;
-    result = null;
-    func = "_hit_" + geometry.type;
-    if (this[func] != null) {
-      result = this[func](geometry);
-    } else if (this.warned[geometry.type] == null) {
-      logger.error("'" + geometry.type + "' selection not available for " + this.model.type);
-      this.warned[geometry.type] = true;
-    }
-    return result;
-  };
-
   GlyphView.prototype.get_reference_point = function() {
-    var reference_point;
-    reference_point = this.mget('reference_point');
-    if (_.isNumber(reference_point)) {
-      return this.data[reference_point];
-    } else {
-      return reference_point;
-    }
+    return void 0;
   };
 
   GlyphView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
@@ -356,7 +243,7 @@ GlyphView = (function(superClass) {
     ctx.beginPath();
     ctx.moveTo(x0, (y0 + y1) / 2);
     ctx.lineTo(x1, (y0 + y1) / 2);
-    if (this.visuals.line.do_stroke) {
+    if (this.visuals.line.doit) {
       this.visuals.line.set_vectorize(ctx, reference_point);
       ctx.stroke();
     }
@@ -375,11 +262,11 @@ GlyphView = (function(superClass) {
     sx1 = x1 - dw;
     sy0 = y0 + dh;
     sy1 = y1 - dh;
-    if (this.visuals.fill.do_fill) {
+    if (this.visuals.fill.doit) {
       this.visuals.fill.set_vectorize(ctx, reference_point);
       ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0);
     }
-    if (this.visuals.line.do_stroke) {
+    if (this.visuals.line.doit) {
       ctx.beginPath();
       ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0);
       this.visuals.line.set_vectorize(ctx, reference_point);
@@ -389,7 +276,7 @@ GlyphView = (function(superClass) {
 
   return GlyphView;
 
-})(ContinuumView);
+})(Renderer.View);
 
 Glyph = (function(superClass) {
   extend(Glyph, superClass);
@@ -398,67 +285,14 @@ Glyph = (function(superClass) {
     return Glyph.__super__.constructor.apply(this, arguments);
   }
 
-  Glyph.prototype.visuals = ['line', 'fill'];
+  Glyph.define({
+    visible: [p.Bool, true]
+  });
 
-  Glyph.prototype.coords = [['x', 'y']];
-
-  Glyph.prototype.distances = [];
-
-  Glyph.prototype.angles = [];
-
-  Glyph.prototype.fields = [];
-
-  Glyph.prototype.fill_defaults = {
-    fill_color: 'gray',
-    fill_alpha: 1.0
-  };
-
-  Glyph.prototype.line_defaults = {
-    line_color: 'black',
-    line_width: 1,
-    line_alpha: 1.0,
-    line_join: 'miter',
-    line_cap: 'butt',
-    line_dash: [],
-    line_dash_offset: 0
-  };
-
-  Glyph.prototype.text_defaults = {
-    text_font: "helvetica",
-    text_font_size: "12pt",
-    text_font_style: "normal",
-    text_color: "#444444",
-    text_alpha: 1.0,
-    text_align: "left",
-    text_baseline: "bottom"
-  };
-
-  Glyph.prototype.defaults = function() {
-    var defaults, j, len, prop, ref, result;
-    result = _.extend({}, Glyph.__super__.defaults.call(this), {
-      visible: true
-    });
-    ref = this.visuals;
-    for (j = 0, len = ref.length; j < len; j++) {
-      prop = ref[j];
-      switch (prop) {
-        case 'line':
-          defaults = this.line_defaults;
-          break;
-        case 'fill':
-          defaults = this.fill_defaults;
-          break;
-        case 'text':
-          defaults = this.text_defaults;
-          break;
-        default:
-          logger.warn("unknown visual property type '" + prop + "'");
-          continue;
-      }
-      result = _.extend(result, defaults);
-    }
-    return result;
-  };
+  Glyph.internal({
+    x_range_name: [p.String, 'default'],
+    y_range_name: [p.String, 'default']
+  });
 
   return Glyph;
 

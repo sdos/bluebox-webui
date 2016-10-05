@@ -1,10 +1,8 @@
-var ContinuumView, Markup, Paragraph, ParagraphView, _,
+var $, Markup, Paragraph, ParagraphView,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-_ = require("underscore");
-
-ContinuumView = require("../../common/continuum_view");
+$ = require("jquery");
 
 Markup = require("./markup");
 
@@ -15,28 +13,16 @@ ParagraphView = (function(superClass) {
     return ParagraphView.__super__.constructor.apply(this, arguments);
   }
 
-  ParagraphView.prototype.tagName = "p";
-
-  ParagraphView.prototype.initialize = function(options) {
-    ParagraphView.__super__.initialize.call(this, options);
-    this.render();
-    return this.listenTo(this.model, 'change', this.render);
-  };
-
   ParagraphView.prototype.render = function() {
-    if (this.mget('height')) {
-      this.$el.height(this.mget('height'));
-    }
-    if (this.mget('width')) {
-      this.$el.width(this.mget('width'));
-    }
-    this.$el.text(this.mget('text'));
-    return this;
+    var $para;
+    ParagraphView.__super__.render.call(this);
+    $para = $('<p style="margin: 0;"></p>').text(this.model.text);
+    return this.$el.find('.bk-markup').append($para);
   };
 
   return ParagraphView;
 
-})(ContinuumView);
+})(Markup.View);
 
 Paragraph = (function(superClass) {
   extend(Paragraph, superClass);
@@ -48,12 +34,6 @@ Paragraph = (function(superClass) {
   Paragraph.prototype.type = "Paragraph";
 
   Paragraph.prototype.default_view = ParagraphView;
-
-  Paragraph.prototype.defaults = function() {
-    return _.extend({}, Paragraph.__super__.defaults.call(this), {
-      text: ''
-    });
-  };
 
   return Paragraph;
 

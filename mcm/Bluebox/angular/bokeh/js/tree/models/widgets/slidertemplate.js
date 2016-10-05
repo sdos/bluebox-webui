@@ -1,13 +1,15 @@
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
-  var __out = [], __capture = function(callback) {
+  var __out = [];
+  var __capture = function(callback) {
     var out = __out, result;
     __out = [];
     callback.call(this);
     result = __out.join('');
     __out = out;
     return __safe(result);
-  }, __sanitize = function(value) {
+  };
+  var __sanitize = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else if (typeof value !== 'undefined' && value != null) {
@@ -15,8 +17,8 @@ module.exports = function(__obj) {
     } else {
       return '';
     }
-  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-  __safe = __obj.safe = function(value) {
+  };
+  var __safe = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else {
@@ -26,18 +28,16 @@ module.exports = function(__obj) {
       return result;
     }
   };
-  if (!__escape) {
-    __escape = __obj.escape = function(value) {
-      return ('' + value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    };
-  }
+  var __escape = function(value) {
+    return ('' + value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
   (function() {
     (function() {
-      __out.push('<label for="');
+      __out.push('<div class="bk-slider-parent">\n  <label for="');
     
       __out.push(__sanitize(this.id));
     
@@ -45,23 +45,22 @@ module.exports = function(__obj) {
     
       __out.push(__sanitize(this.title));
     
-      __out.push(': </label>\n<input type="text" id="');
+      __out.push(': </label><input type="text" id="');
     
       __out.push(__sanitize(this.id));
     
-      __out.push('" readonly style="border:0; color:#f6931f; font-weight:bold;">\n<div class="bk-slider-');
+      __out.push('" readonly>\n  <div class="bk-slider-');
     
       __out.push(__sanitize(this.orientation));
     
-      __out.push('">\n  <div class="slider " id="');
+      __out.push('">\n    <div class="slider " id="');
     
       __out.push(__sanitize(this.id));
     
-      __out.push('">\n</div>\n');
+      __out.push('">\n    </div>\n  </div>\n</div>\n');
     
     }).call(this);
     
   }).call(__obj);
-  __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
 };

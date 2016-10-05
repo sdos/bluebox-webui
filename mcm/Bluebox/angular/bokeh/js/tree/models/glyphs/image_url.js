@@ -1,4 +1,4 @@
-var Glyph, ImageURL, ImageURLView, _, logger,
+var Glyph, ImageURL, ImageURLView, _, logger, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -6,7 +6,9 @@ _ = require("underscore");
 
 Glyph = require("./glyph");
 
-logger = require("../../common/logging").logger;
+logger = require("../../core/logging").logger;
+
+p = require("../../core/properties");
 
 ImageURLView = (function(superClass) {
   extend(ImageURLView, superClass);
@@ -24,10 +26,10 @@ ImageURLView = (function(superClass) {
 
   ImageURLView.prototype._set_data = function() {
     var i, img, j, ref, results, retry_attempts, retry_timeout;
-    if ((this.image == null) || this.image.length !== this.url.length) {
+    if ((this.image == null) || this.image.length !== this._url.length) {
       this.image = (function() {
         var j, len, ref, results;
-        ref = this.url;
+        ref = this._url;
         results = [];
         for (j = 0, len = ref.length; j < len; j++) {
           img = ref[j];
@@ -36,11 +38,11 @@ ImageURLView = (function(superClass) {
         return results;
       }).call(this);
     }
-    retry_attempts = this.mget('retry_attempts');
-    retry_timeout = this.mget('retry_timeout');
+    retry_attempts = this.model.retry_attempts;
+    retry_timeout = this.model.retry_timeout;
     this.retries = (function() {
       var j, len, ref, results;
-      ref = this.url;
+      ref = this._url;
       results = [];
       for (j = 0, len = ref.length; j < len; j++) {
         img = ref[j];
@@ -49,18 +51,21 @@ ImageURLView = (function(superClass) {
       return results;
     }).call(this);
     results = [];
-    for (i = j = 0, ref = this.url.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+    for (i = j = 0, ref = this._url.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+      if (this._url[i] == null) {
+        continue;
+      }
       img = new Image();
       img.onerror = (function(_this) {
         return function(i, img) {
           return function() {
             if (_this.retries[i] > 0) {
-              logger.trace("ImageURL failed to load " + _this.url[i] + " image, retrying in " + retry_timeout + " ms");
+              logger.trace("ImageURL failed to load " + _this._url[i] + " image, retrying in " + retry_timeout + " ms");
               setTimeout((function() {
-                return img.src = _this.url[i];
+                return img.src = _this._url[i];
               }), retry_timeout);
             } else {
-              logger.warn("ImageURL unable to load " + _this.url[i] + " image after " + retry_attempts + " retries");
+              logger.warn("ImageURL unable to load " + _this._url[i] + " image after " + retry_attempts + " retries");
             }
             return _this.retries[i] -= 1;
           };
@@ -74,26 +79,66 @@ ImageURLView = (function(superClass) {
           };
         };
       })(this)(img, i);
-      results.push(img.src = this.url[i]);
+      results.push(img.src = this._url[i]);
     }
     return results;
   };
 
   ImageURLView.prototype._map_data = function() {
-    this.sw = this.sdist(this.renderer.xmapper, this.x, this.w, 'edge', this.mget('dilate'));
-    return this.sh = this.sdist(this.renderer.ymapper, this.y, this.h, 'edge', this.mget('dilate'));
+    var hs, ws, x;
+    ws = ((function() {
+      var j, len, ref, results;
+      if (this._w != null) {
+        return this._w;
+      } else {
+        ref = this._x;
+        results = [];
+        for (j = 0, len = ref.length; j < len; j++) {
+          x = ref[j];
+          results.push(NaN);
+        }
+        return results;
+      }
+    }).call(this));
+    hs = ((function() {
+      var j, len, ref, results;
+      if (this._h != null) {
+        return this._h;
+      } else {
+        ref = this._x;
+        results = [];
+        for (j = 0, len = ref.length; j < len; j++) {
+          x = ref[j];
+          results.push(NaN);
+        }
+        return results;
+      }
+    }).call(this));
+    switch (this.model.properties.w.units) {
+      case "data":
+        this.sw = this.sdist(this.renderer.xmapper, this._x, ws, 'edge', this.model.dilate);
+        break;
+      case "screen":
+        this.sw = ws;
+    }
+    switch (this.model.properties.h.units) {
+      case "data":
+        return this.sh = this.sdist(this.renderer.ymapper, this._y, hs, 'edge', this.model.dilate);
+      case "screen":
+        return this.sh = hs;
+    }
   };
 
   ImageURLView.prototype._render = function(ctx, indices, arg) {
-    var angle, frame, i, image, j, len, results, sh, sw, sx, sy, url;
-    url = arg.url, image = arg.image, sx = arg.sx, sy = arg.sy, sw = arg.sw, sh = arg.sh, angle = arg.angle;
+    var _angle, _url, frame, i, image, j, len, results, sh, sw, sx, sy;
+    _url = arg._url, image = arg.image, sx = arg.sx, sy = arg.sy, sw = arg.sw, sh = arg.sh, _angle = arg._angle;
     frame = this.renderer.plot_view.frame;
     ctx.rect(frame.get('left') + 1, frame.get('bottom') + 1, frame.get('width') - 2, frame.get('height') - 2);
     ctx.clip();
     results = [];
     for (j = 0, len = indices.length; j < len; j++) {
       i = indices[j];
-      if (isNaN(sx[i] + sy[i] + angle[i])) {
+      if (isNaN(sx[i] + sy[i] + _angle[i])) {
         continue;
       }
       if (this.retries[i] === -1) {
@@ -102,7 +147,7 @@ ImageURLView = (function(superClass) {
       if (image[i] == null) {
         continue;
       }
-      results.push(this._render_image(ctx, i, image[i], sx, sy, sw, sh, angle));
+      results.push(this._render_image(ctx, i, image[i], sx, sy, sw, sh, _angle));
     }
     return results;
   };
@@ -138,10 +183,10 @@ ImageURLView = (function(superClass) {
     if (isNaN(sh[i])) {
       sh[i] = image.height;
     }
-    anchor = this.mget('anchor');
+    anchor = this.model.anchor;
     ref = this._final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i]), sx = ref[0], sy = ref[1];
     ctx.save();
-    ctx.globalAlpha = this.mget("global_alpha");
+    ctx.globalAlpha = this.model.global_alpha;
     if (angle[i]) {
       ctx.translate(sx, sy);
       ctx.rotate(angle[i]);
@@ -169,24 +214,21 @@ ImageURL = (function(superClass) {
 
   ImageURL.prototype.type = 'ImageURL';
 
-  ImageURL.prototype.visuals = [];
+  ImageURL.coords([['x', 'y']]);
 
-  ImageURL.prototype.distances = ['w', 'h'];
+  ImageURL.mixins([]);
 
-  ImageURL.prototype.angles = ['angle'];
-
-  ImageURL.prototype.fields = ['url:string'];
-
-  ImageURL.prototype.defaults = function() {
-    return _.extend({}, ImageURL.__super__.defaults.call(this), {
-      anchor: "top_left",
-      angle: 0,
-      dilate: false,
-      retry_attempts: 0,
-      retry_timeout: 0,
-      global_alpha: 1.0
-    });
-  };
+  ImageURL.define({
+    url: [p.StringSpec],
+    anchor: [p.Anchor, 'top_left'],
+    global_alpha: [p.Number, 1.0],
+    angle: [p.AngleSpec, 0],
+    w: [p.DistanceSpec],
+    h: [p.DistanceSpec],
+    dilate: [p.Bool, false],
+    retry_attempts: [p.Number, 0],
+    retry_timeout: [p.Number, 0]
+  });
 
   return ImageURL;
 

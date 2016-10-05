@@ -1,4 +1,4 @@
-var $, CheckboxGroup, CheckboxGroupView, ContinuumView, Model, _,
+var $, BokehView, CheckboxGroup, CheckboxGroupView, Widget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -7,9 +7,11 @@ _ = require("underscore");
 
 $ = require("jquery");
 
-ContinuumView = require("../../common/continuum_view");
+Widget = require("./widget");
 
-Model = require("../../model");
+BokehView = require("../../core/bokeh_view");
+
+p = require("../../core/properties");
 
 CheckboxGroupView = (function(superClass) {
   extend(CheckboxGroupView, superClass);
@@ -17,8 +19,6 @@ CheckboxGroupView = (function(superClass) {
   function CheckboxGroupView() {
     return CheckboxGroupView.__super__.constructor.apply(this, arguments);
   }
-
-  CheckboxGroupView.prototype.tagName = "div";
 
   CheckboxGroupView.prototype.events = {
     "change input": "change_input"
@@ -32,6 +32,7 @@ CheckboxGroupView = (function(superClass) {
 
   CheckboxGroupView.prototype.render = function() {
     var $div, $input, $label, active, i, j, label, len, ref;
+    CheckboxGroupView.__super__.render.call(this);
     this.$el.empty();
     active = this.mget("active");
     ref = this.mget("labels");
@@ -72,13 +73,13 @@ CheckboxGroupView = (function(superClass) {
       }
       return results;
     }).call(this);
-    this.mset('active', active);
+    this.model.active = active;
     return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
   };
 
   return CheckboxGroupView;
 
-})(ContinuumView);
+})(Widget.View);
 
 CheckboxGroup = (function(superClass) {
   extend(CheckboxGroup, superClass);
@@ -91,18 +92,16 @@ CheckboxGroup = (function(superClass) {
 
   CheckboxGroup.prototype.default_view = CheckboxGroupView;
 
-  CheckboxGroup.prototype.defaults = function() {
-    return _.extend({}, CheckboxGroup.__super__.defaults.call(this), {
-      active: [],
-      labels: [],
-      inline: false,
-      disabled: false
-    });
-  };
+  CheckboxGroup.define({
+    active: [p.Array, []],
+    labels: [p.Array, []],
+    inline: [p.Bool, false],
+    callback: [p.Instance]
+  });
 
   return CheckboxGroup;
 
-})(Model);
+})(Widget.Model);
 
 module.exports = {
   Model: CheckboxGroup,

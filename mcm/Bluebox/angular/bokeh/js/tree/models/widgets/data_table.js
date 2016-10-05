@@ -1,4 +1,4 @@
-var $, $1, CheckboxSelectColumn, ContinuumView, DOMUtil, DataProvider, DataTable, DataTableView, RowSelectionModel, SlickGrid, TableWidget, _, hittest,
+var $, $1, CheckboxSelectColumn, DOMUtil, DataProvider, DataTable, DataTableView, RowSelectionModel, SlickGrid, TableWidget, Widget, _, hittest, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -14,13 +14,15 @@ RowSelectionModel = require("slick_grid/plugins/slick.rowselectionmodel");
 
 CheckboxSelectColumn = require("slick_grid/plugins/slick.checkboxselectcolumn");
 
-ContinuumView = require("../../common/continuum_view");
+hittest = require("../../common/hittest");
+
+p = require("../../core/properties");
 
 DOMUtil = require("../../util/dom_util");
 
-hittest = require("../../common/hittest");
-
 TableWidget = require("./table_widget");
+
+Widget = require("./widget");
 
 DataProvider = (function() {
   function DataProvider(source1) {
@@ -84,7 +86,7 @@ DataProvider = (function() {
   };
 
   DataProvider.prototype.updateSource = function() {
-    return this.source.forceTrigger("data");
+    return this.source.trigger("change:data", this, this.source.attributes['data']);
   };
 
   DataProvider.prototype.getItemMetadata = function(index) {
@@ -250,6 +252,10 @@ DataTableView = (function(superClass) {
       this.$el.css({
         width: (this.mget("width")) + "px"
       });
+    } else {
+      this.$el.css({
+        width: (this.mget("default_width")) + "px"
+      });
     }
     if ((height != null) && height !== "auto") {
       this.$el.css({
@@ -287,7 +293,7 @@ DataTableView = (function(superClass) {
 
   return DataTableView;
 
-})(ContinuumView);
+})(Widget.View);
 
 DataTable = (function(superClass) {
   extend(DataTable, superClass);
@@ -300,19 +306,23 @@ DataTable = (function(superClass) {
 
   DataTable.prototype.default_view = DataTableView;
 
-  DataTable.prototype.defaults = function() {
-    return _.extend({}, DataTable.__super__.defaults.call(this), {
-      columns: [],
-      width: null,
-      height: 400,
-      fit_columns: true,
-      sortable: true,
-      editable: false,
-      selectable: true,
-      row_headers: true,
-      scroll_to_selection: true
-    });
-  };
+  DataTable.define({
+    columns: [p.Array, []],
+    fit_columns: [p.Bool, true],
+    sortable: [p.Bool, true],
+    editable: [p.Bool, false],
+    selectable: [p.Bool, true],
+    row_headers: [p.Bool, true],
+    scroll_to_selection: [p.Bool, true]
+  });
+
+  DataTable.override({
+    height: 400
+  });
+
+  DataTable.internal({
+    default_width: [p.Number, 600]
+  });
 
   return DataTable;
 

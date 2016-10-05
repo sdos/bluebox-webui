@@ -1,4 +1,4 @@
-var $, $1, CheckboxButtonGroup, CheckboxButtonGroupView, ContinuumView, Model, _,
+var $, $1, BokehView, CheckboxButtonGroup, CheckboxButtonGroupView, Widget, _, p, template,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -9,9 +9,13 @@ $ = require("jquery");
 
 $1 = require("bootstrap/button");
 
-ContinuumView = require("../../common/continuum_view");
+Widget = require("./widget");
 
-Model = require("../../model");
+BokehView = require("../../core/bokeh_view");
+
+p = require("../../core/properties");
+
+template = require("./button_group_template");
 
 CheckboxButtonGroupView = (function(superClass) {
   extend(CheckboxButtonGroupView, superClass);
@@ -20,11 +24,11 @@ CheckboxButtonGroupView = (function(superClass) {
     return CheckboxButtonGroupView.__super__.constructor.apply(this, arguments);
   }
 
-  CheckboxButtonGroupView.prototype.tagName = "div";
-
   CheckboxButtonGroupView.prototype.events = {
     "change input": "change_input"
   };
+
+  CheckboxButtonGroupView.prototype.template = template;
 
   CheckboxButtonGroupView.prototype.initialize = function(options) {
     CheckboxButtonGroupView.__super__.initialize.call(this, options);
@@ -33,12 +37,13 @@ CheckboxButtonGroupView = (function(superClass) {
   };
 
   CheckboxButtonGroupView.prototype.render = function() {
-    var $input, $label, active, i, j, label, len, ref;
+    var $input, $label, active, html, i, j, label, len, ref;
+    CheckboxButtonGroupView.__super__.render.call(this);
     this.$el.empty();
-    this.$el.addClass("bk-bs-btn-group");
-    this.$el.attr("data-bk-bs-toggle", "buttons");
-    active = this.mget("active");
-    ref = this.mget("labels");
+    html = this.template();
+    this.$el.append(html);
+    active = this.model.active;
+    ref = this.model.labels;
     for (i = j = 0, len = ref.length; j < len; i = ++j) {
       label = ref[i];
       $input = $('<input type="checkbox">').attr({
@@ -49,11 +54,11 @@ CheckboxButtonGroupView = (function(superClass) {
       }
       $label = $('<label class="bk-bs-btn"></label>');
       $label.text(label).prepend($input);
-      $label.addClass("bk-bs-btn-" + this.mget("type"));
+      $label.addClass("bk-bs-btn-" + this.mget("button_type"));
       if (indexOf.call(active, i) >= 0) {
         $label.addClass("bk-bs-active");
       }
-      this.$el.append($label);
+      this.$el.find('.bk-bs-btn-group').append($label);
     }
     return this;
   };
@@ -72,13 +77,13 @@ CheckboxButtonGroupView = (function(superClass) {
       }
       return results;
     }).call(this);
-    this.mset('active', active);
+    this.model.active = active;
     return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
   };
 
   return CheckboxButtonGroupView;
 
-})(ContinuumView);
+})(Widget.View);
 
 CheckboxButtonGroup = (function(superClass) {
   extend(CheckboxButtonGroup, superClass);
@@ -91,18 +96,16 @@ CheckboxButtonGroup = (function(superClass) {
 
   CheckboxButtonGroup.prototype.default_view = CheckboxButtonGroupView;
 
-  CheckboxButtonGroup.prototype.defaults = function() {
-    return _.extend({}, CheckboxButtonGroup.__super__.defaults.call(this), {
-      active: [],
-      labels: [],
-      type: "default",
-      disabled: false
-    });
-  };
+  CheckboxButtonGroup.define({
+    active: [p.Array, []],
+    labels: [p.Array, []],
+    button_type: [p.String, "default"],
+    callback: [p.Instance]
+  });
 
   return CheckboxButtonGroup;
 
-})(Model);
+})(Widget.Model);
 
 module.exports = {
   Model: CheckboxButtonGroup,

@@ -1,14 +1,16 @@
-var HasProps, Selector, _, hittest, logger,
+var HasProps, Selector, _, hittest, logger, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-HasProps = require("./has_props");
+HasProps = require("../core/has_props");
 
 hittest = require("./hittest");
 
-logger = require("./logging").logger;
+logger = require("../core/logging").logger;
+
+p = require("../core/properties");
 
 Selector = (function(superClass) {
   extend(Selector, superClass);
@@ -46,11 +48,15 @@ Selector = (function(superClass) {
     return this.set('indices', hittest.create_hit_test_result());
   };
 
-  Selector.prototype.defaults = function() {
-    return _.extend({}, Selector.__super__.defaults.call(this), {
-      indices: hittest.create_hit_test_result()
-    });
-  };
+  Selector.internal({
+    indices: [
+      p.Any, function() {
+        return hittest.create_hit_test_result();
+      }
+    ],
+    final: [p.Boolean],
+    timestamp: [p.Any]
+  });
 
   return Selector;
 

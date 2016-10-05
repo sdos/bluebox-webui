@@ -1,10 +1,12 @@
-var Arc, ArcView, Glyph, _,
+var Arc, ArcView, Glyph, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
 Glyph = require("./glyph");
+
+p = require("../../core/properties");
 
 ArcView = (function(superClass) {
   extend(ArcView, superClass);
@@ -18,25 +20,26 @@ ArcView = (function(superClass) {
   };
 
   ArcView.prototype._map_data = function() {
-    if (this.distances.radius.units === "data") {
-      return this.sradius = this.sdist(this.renderer.xmapper, this.x, this.radius);
+    if (this.model.properties.radius.units === "data") {
+      return this.sradius = this.sdist(this.renderer.xmapper, this._x, this._radius);
     } else {
-      return this.sradius = this.radius;
+      return this.sradius = this._radius;
     }
   };
 
   ArcView.prototype._render = function(ctx, indices, arg) {
-    var direction, end_angle, i, j, len, results, sradius, start_angle, sx, sy;
-    sx = arg.sx, sy = arg.sy, sradius = arg.sradius, start_angle = arg.start_angle, end_angle = arg.end_angle, direction = arg.direction;
-    if (this.visuals.line.do_stroke) {
+    var _end_angle, _start_angle, direction, i, j, len, results, sradius, sx, sy;
+    sx = arg.sx, sy = arg.sy, sradius = arg.sradius, _start_angle = arg._start_angle, _end_angle = arg._end_angle;
+    if (this.visuals.line.doit) {
+      direction = this.model.properties.direction.value();
       results = [];
       for (j = 0, len = indices.length; j < len; j++) {
         i = indices[j];
-        if (isNaN(sx[i] + sy[i] + sradius[i] + start_angle[i] + end_angle[i] + direction[i])) {
+        if (isNaN(sx[i] + sy[i] + sradius[i] + _start_angle[i] + _end_angle[i])) {
           continue;
         }
         ctx.beginPath();
-        ctx.arc(sx[i], sy[i], sradius[i], start_angle[i], end_angle[i], direction[i]);
+        ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction);
         this.visuals.line.set_vectorize(ctx, i);
         results.push(ctx.stroke());
       }
@@ -63,19 +66,16 @@ Arc = (function(superClass) {
 
   Arc.prototype.type = 'Arc';
 
-  Arc.prototype.visuals = ['line'];
+  Arc.coords([['x', 'y']]);
 
-  Arc.prototype.distances = ['radius'];
+  Arc.mixins(['line']);
 
-  Arc.prototype.angles = ['start_angle', 'end_angle'];
-
-  Arc.prototype.fields = ['direction:direction'];
-
-  Arc.prototype.defaults = function() {
-    return _.extend({}, Arc.__super__.defaults.call(this), {
-      direction: 'anticlock'
-    });
-  };
+  Arc.define({
+    direction: [p.Direction, 'anticlock'],
+    radius: [p.DistanceSpec],
+    start_angle: [p.AngleSpec],
+    end_angle: [p.AngleSpec]
+  });
 
   return Arc;
 

@@ -1,14 +1,16 @@
-var Glyph, Wedge, WedgeView, _, hittest, mathutils,
+var Glyph, Wedge, WedgeView, _, angle_between, hittest, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-mathutils = require("../../common/mathutils");
-
 Glyph = require("./glyph");
 
 hittest = require("../../common/hittest");
+
+p = require("../../core/properties");
+
+angle_between = require("../../core/util/math").angle_between;
 
 WedgeView = (function(superClass) {
   extend(WedgeView, superClass);
@@ -22,31 +24,32 @@ WedgeView = (function(superClass) {
   };
 
   WedgeView.prototype._map_data = function() {
-    if (this.distances.radius.units === "data") {
-      return this.sradius = this.sdist(this.renderer.xmapper, this.x, this.radius);
+    if (this.model.properties.radius.units === "data") {
+      return this.sradius = this.sdist(this.renderer.xmapper, this._x, this._radius);
     } else {
-      return this.sradius = this.radius;
+      return this.sradius = this._radius;
     }
   };
 
   WedgeView.prototype._render = function(ctx, indices, arg) {
-    var direction, end_angle, i, j, len, results, sradius, start_angle, sx, sy;
-    sx = arg.sx, sy = arg.sy, sradius = arg.sradius, start_angle = arg.start_angle, end_angle = arg.end_angle, direction = arg.direction;
+    var _end_angle, _start_angle, direction, i, j, len, results, sradius, sx, sy;
+    sx = arg.sx, sy = arg.sy, sradius = arg.sradius, _start_angle = arg._start_angle, _end_angle = arg._end_angle;
+    direction = this.model.properties.direction.value();
     results = [];
     for (j = 0, len = indices.length; j < len; j++) {
       i = indices[j];
-      if (isNaN(sx[i] + sy[i] + sradius[i] + start_angle[i] + end_angle[i] + direction[i])) {
+      if (isNaN(sx[i] + sy[i] + sradius[i] + _start_angle[i] + _end_angle[i])) {
         continue;
       }
       ctx.beginPath();
-      ctx.arc(sx[i], sy[i], sradius[i], start_angle[i], end_angle[i], direction[i]);
+      ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction);
       ctx.lineTo(sx[i], sy[i]);
       ctx.closePath();
-      if (this.visuals.fill.do_fill) {
+      if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i);
         ctx.fill();
       }
-      if (this.visuals.line.do_stroke) {
+      if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i);
         results.push(ctx.stroke());
       } else {
@@ -57,11 +60,11 @@ WedgeView = (function(superClass) {
   };
 
   WedgeView.prototype._hit_point = function(geometry) {
-    var angle, candidates, dist, hits, i, j, k, len, len1, pt, r2, ref, ref1, ref2, ref3, ref4, result, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1;
+    var angle, bbox, candidates, direction, dist, hits, i, j, k, len, len1, pt, r2, ref, ref1, ref2, ref3, ref4, result, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1;
     ref = [geometry.vx, geometry.vy], vx = ref[0], vy = ref[1];
     x = this.renderer.xmapper.map_from_target(vx, true);
     y = this.renderer.ymapper.map_from_target(vy, true);
-    if (this.distances.radius.units === "data") {
+    if (this.model.properties.radius.units === "data") {
       x0 = x - this.max_radius;
       x1 = x + this.max_radius;
       y0 = y - this.max_radius;
@@ -75,13 +78,14 @@ WedgeView = (function(superClass) {
       ref2 = this.renderer.ymapper.v_map_from_target([vy0, vy1], true), y0 = ref2[0], y1 = ref2[1];
     }
     candidates = [];
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     ref3 = (function() {
       var k, len, ref3, results;
-      ref3 = this.index.search([x0, y0, x1, y1]);
+      ref3 = this.index.search(bbox);
       results = [];
       for (k = 0, len = ref3.length; k < len; k++) {
         pt = ref3[k];
-        results.push(pt[4].i);
+        results.push(pt.i);
       }
       return results;
     }).call(this);
@@ -89,21 +93,22 @@ WedgeView = (function(superClass) {
       i = ref3[j];
       r2 = Math.pow(this.sradius[i], 2);
       sx0 = this.renderer.xmapper.map_to_target(x, true);
-      sx1 = this.renderer.xmapper.map_to_target(this.x[i], true);
+      sx1 = this.renderer.xmapper.map_to_target(this._x[i], true);
       sy0 = this.renderer.ymapper.map_to_target(y, true);
-      sy1 = this.renderer.ymapper.map_to_target(this.y[i], true);
+      sy1 = this.renderer.ymapper.map_to_target(this._y[i], true);
       dist = Math.pow(sx0 - sx1, 2) + Math.pow(sy0 - sy1, 2);
       if (dist <= r2) {
         candidates.push([i, dist]);
       }
     }
+    direction = this.model.properties.direction.value();
     hits = [];
     for (k = 0, len1 = candidates.length; k < len1; k++) {
       ref4 = candidates[k], i = ref4[0], dist = ref4[1];
       sx = this.renderer.plot_view.canvas.vx_to_sx(vx);
       sy = this.renderer.plot_view.canvas.vy_to_sy(vy);
       angle = Math.atan2(sy - this.sy[i], sx - this.sx[i]);
-      if (mathutils.angle_between(-angle, -this.start_angle[i], -this.end_angle[i], this.direction[i])) {
+      if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], direction)) {
         hits.push([i, dist]);
       }
     }
@@ -135,17 +140,16 @@ Wedge = (function(superClass) {
 
   Wedge.prototype.type = 'Wedge';
 
-  Wedge.prototype.distances = ['radius'];
+  Wedge.coords([['x', 'y']]);
 
-  Wedge.prototype.angles = ['start_angle', 'end_angle'];
+  Wedge.mixins(['line', 'fill']);
 
-  Wedge.prototype.fields = ['direction:direction'];
-
-  Wedge.prototype.defaults = function() {
-    return _.extend({}, Wedge.__super__.defaults.call(this), {
-      direction: 'anticlock'
-    });
-  };
+  Wedge.define({
+    direction: [p.Direction, 'anticlock'],
+    radius: [p.DistanceSpec],
+    start_angle: [p.AngleSpec],
+    end_angle: [p.AngleSpec]
+  });
 
   return Wedge;
 

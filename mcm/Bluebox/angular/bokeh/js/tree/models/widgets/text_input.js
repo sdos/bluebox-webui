@@ -1,4 +1,4 @@
-var ContinuumView, InputWidget, TextInput, TextInputView, _, build_views, logger, template,
+var InputWidget, TextInput, TextInputView, _, build_views, logger, p, template,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -6,13 +6,13 @@ _ = require("underscore");
 
 build_views = require("../../common/build_views");
 
-ContinuumView = require("../../common/continuum_view");
+logger = require("../../core/logging").logger;
 
-logger = require("../../common/logging").logger;
-
-template = require("./text_input_template");
+p = require("../../core/properties");
 
 InputWidget = require("./input_widget");
+
+template = require("./text_input_template");
 
 TextInputView = (function(superClass) {
   extend(TextInputView, superClass);
@@ -40,21 +40,25 @@ TextInputView = (function(superClass) {
   };
 
   TextInputView.prototype.render = function() {
+    TextInputView.__super__.render.call(this);
     this.$el.html(this.template(this.model.attributes));
+    if (this.model.height) {
+      this.$el.find('input').height(this.mget('height') - 35);
+    }
     return this;
   };
 
   TextInputView.prototype.change_input = function() {
-    var ref, value;
+    var value;
     value = this.$('input').val();
     logger.debug("widget/text_input: value = " + value);
-    this.mset('value', value);
-    return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
+    this.model.value = value;
+    return TextInputView.__super__.change_input.call(this);
   };
 
   return TextInputView;
 
-})(ContinuumView);
+})(InputWidget.View);
 
 TextInput = (function(superClass) {
   extend(TextInput, superClass);
@@ -67,12 +71,9 @@ TextInput = (function(superClass) {
 
   TextInput.prototype.default_view = TextInputView;
 
-  TextInput.prototype.defaults = function() {
-    return _.extend({}, TextInput.__super__.defaults.call(this), {
-      value: "",
-      title: ""
-    });
-  };
+  TextInput.define({
+    value: [p.String, ""]
+  });
 
   return TextInput;
 

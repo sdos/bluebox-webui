@@ -1,19 +1,17 @@
-var DynamicImageRenderer, DynamicImageView, ImagePool, PlotWidget, Renderer, _, logger, properties,
+var DynamicImageRenderer, DynamicImageView, ImagePool, Renderer, _, logger, p,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-Renderer = require("../renderers/renderer");
-
-PlotWidget = require("../../common/plot_widget");
-
-properties = require("../../common/properties");
-
 ImagePool = require("./image_pool");
 
-logger = require("../../common/logging").logger;
+Renderer = require("../renderers/renderer");
+
+logger = require("../../core/logging").logger;
+
+p = require("../../core/properties");
 
 DynamicImageView = (function(superClass) {
   extend(DynamicImageView, superClass);
@@ -33,7 +31,7 @@ DynamicImageView = (function(superClass) {
   };
 
   DynamicImageView.prototype._set_data = function() {
-    this.map_plot = this.plot_view.model;
+    this.map_plot = this.plot_view.model.plot;
     this.map_canvas = this.plot_view.canvas_view.ctx;
     this.map_frame = this.plot_view.frame;
     this.x_range = this.map_plot.get('x_range');
@@ -134,7 +132,7 @@ DynamicImageView = (function(superClass) {
 
   DynamicImageView.prototype._set_rect = function() {
     var h, l, outline_width, t, w;
-    outline_width = this.plot_view.outline_props.width.value();
+    outline_width = this.plot_model.plot.properties.outline_line_width.value();
     l = this.plot_view.canvas.vx_to_sx(this.map_frame.get('left')) + (outline_width / 2);
     t = this.plot_view.canvas.vy_to_sy(this.map_frame.get('top')) + (outline_width / 2);
     w = this.map_frame.get('width') - outline_width;
@@ -145,7 +143,7 @@ DynamicImageView = (function(superClass) {
 
   return DynamicImageView;
 
-})(PlotWidget);
+})(Renderer.View);
 
 DynamicImageRenderer = (function(superClass) {
   extend(DynamicImageRenderer, superClass);
@@ -158,20 +156,19 @@ DynamicImageRenderer = (function(superClass) {
 
   DynamicImageRenderer.prototype.type = 'DynamicImageRenderer';
 
-  DynamicImageRenderer.prototype.visuals = [];
+  DynamicImageRenderer.define({
+    alpha: [p.Number, 1.0],
+    image_source: [p.Instance],
+    render_parents: [p.Bool, true]
+  });
 
-  DynamicImageRenderer.prototype.defaults = function() {
-    return _.extend({}, DynamicImageRenderer.__super__.defaults.call(this), {
-      alpha: 1.0,
-      image_source: null,
-      render_parents: true,
-      level: 'underlay'
-    });
-  };
+  DynamicImageRenderer.override({
+    level: 'underlay'
+  });
 
   return DynamicImageRenderer;
 
-})(Renderer);
+})(Renderer.Model);
 
 module.exports = {
   Model: DynamicImageRenderer,

@@ -1,4 +1,4 @@
-var PrintfTickFormatter, SPrintf, TickFormatter, _,
+var PrintfTickFormatter, SPrintf, TickFormatter, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7,6 +7,8 @@ _ = require("underscore");
 SPrintf = require("sprintf");
 
 TickFormatter = require("./tick_formatter");
+
+p = require("../../core/properties");
 
 PrintfTickFormatter = (function(superClass) {
   extend(PrintfTickFormatter, superClass);
@@ -17,7 +19,11 @@ PrintfTickFormatter = (function(superClass) {
 
   PrintfTickFormatter.prototype.type = 'PrintfTickFormatter';
 
-  PrintfTickFormatter.prototype.format = function(ticks) {
+  PrintfTickFormatter.define({
+    format: [p.String, '%s']
+  });
+
+  PrintfTickFormatter.prototype.doFormat = function(ticks) {
     var format, labels, tick;
     format = this.get("format");
     labels = (function() {
@@ -30,12 +36,6 @@ PrintfTickFormatter = (function(superClass) {
       return results;
     })();
     return labels;
-  };
-
-  PrintfTickFormatter.prototype.defaults = function() {
-    return _.extend({}, PrintfTickFormatter.__super__.defaults.call(this), {
-      format: '%s'
-    });
   };
 
   return PrintfTickFormatter;

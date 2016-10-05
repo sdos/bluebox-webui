@@ -1,5 +1,4 @@
-var BBoxTileSource, MercatorTileSource, _,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+var BBoxTileSource, MercatorTileSource, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7,21 +6,20 @@ _ = require("underscore");
 
 MercatorTileSource = require('./mercator_tile_source');
 
+p = require("../../core/properties");
+
 BBoxTileSource = (function(superClass) {
   extend(BBoxTileSource, superClass);
 
   function BBoxTileSource() {
-    this.defaults = bind(this.defaults, this);
     return BBoxTileSource.__super__.constructor.apply(this, arguments);
   }
 
   BBoxTileSource.prototype.type = 'BBoxTileSource';
 
-  BBoxTileSource.prototype.defaults = function() {
-    return _.extend({}, BBoxTileSource.__super__.defaults.call(this), {
-      use_latlon: false
-    });
-  };
+  BBoxTileSource.define({
+    use_latlon: [p.Bool, false]
+  });
 
   BBoxTileSource.prototype.get_image_url = function(x, y, z) {
     var image_url, ref, ref1, xmax, xmin, ymax, ymin;

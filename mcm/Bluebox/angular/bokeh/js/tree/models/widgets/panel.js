@@ -1,4 +1,4 @@
-var $, ContinuumView, Panel, PanelView, Widget, _,
+var $, Panel, PanelView, Widget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -6,7 +6,7 @@ _ = require("underscore");
 
 $ = require("jquery");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 Widget = require("./widget");
 
@@ -17,19 +17,15 @@ PanelView = (function(superClass) {
     return PanelView.__super__.constructor.apply(this, arguments);
   }
 
-  PanelView.prototype.initialize = function(options) {
-    PanelView.__super__.initialize.call(this, options);
-    return this.render();
-  };
-
   PanelView.prototype.render = function() {
+    PanelView.__super__.render.call(this);
     this.$el.empty();
     return this;
   };
 
   return PanelView;
 
-})(ContinuumView);
+})(Widget.View);
 
 Panel = (function(superClass) {
   extend(Panel, superClass);
@@ -42,13 +38,11 @@ Panel = (function(superClass) {
 
   Panel.prototype.default_view = PanelView;
 
-  Panel.prototype.defaults = function() {
-    return _.extend({}, Panel.__super__.defaults.call(this), {
-      title: "",
-      child: null,
-      closable: false
-    });
-  };
+  Panel.define({
+    title: [p.String, ""],
+    child: [p.Instance],
+    closable: [p.Bool, false]
+  });
 
   return Panel;
 

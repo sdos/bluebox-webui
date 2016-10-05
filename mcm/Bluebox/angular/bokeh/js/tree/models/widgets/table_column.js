@@ -1,14 +1,16 @@
-var CellEditors, CellFormatters, Model, TableColumn, _,
+var CellEditors, CellFormatters, Model, TableColumn, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-Model = require("../../model");
-
-CellEditors = require("./cell_formatters");
+CellEditors = require("./cell_editors");
 
 CellFormatters = require("./cell_formatters");
+
+p = require("../../core/properties");
+
+Model = require("../../model");
 
 TableColumn = (function(superClass) {
   extend(TableColumn, superClass);
@@ -21,25 +23,32 @@ TableColumn = (function(superClass) {
 
   TableColumn.prototype.default_view = null;
 
-  TableColumn.prototype.defaults = function() {
-    return _.extend({}, TableColumn.__super__.defaults.call(this), {
-      field: null,
-      title: null,
-      width: 300,
-      formatter: new CellFormatters.String.Model(),
-      editor: new CellEditors.String.Model(),
-      sortable: true,
-      default_sort: "ascending"
-    });
-  };
+  TableColumn.define({
+    field: [p.String],
+    title: [p.String],
+    width: [p.Number, 300],
+    formatter: [
+      p.Instance, function() {
+        return new CellFormatters.String.Model();
+      }
+    ],
+    editor: [
+      p.Instance, function() {
+        return new CellEditors.String.Model();
+      }
+    ],
+    sortable: [p.Bool, true],
+    default_sort: [p.String, "ascending"]
+  });
 
   TableColumn.prototype.toColumn = function() {
+    var ref;
     return {
       id: _.uniqueId(),
       field: this.get("field"),
       name: this.get("title"),
       width: this.get("width"),
-      formatter: this.get("formatter"),
+      formatter: (ref = this.get("formatter")) != null ? ref.doFormat.bind(this.get("formatter")) : void 0,
       editor: this.get("editor"),
       sortable: this.get("sortable"),
       defaultSortAsc: this.get("default_sort") === "ascending"

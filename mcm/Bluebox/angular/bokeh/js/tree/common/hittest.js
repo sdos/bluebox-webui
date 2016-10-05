@@ -1,4 +1,4 @@
-var check_2_segments_intersect, create_hit_test_result, dist_2_pts, dist_to_segment, dist_to_segment_squared, point_in_poly, sqr;
+var HitTestResult, check_2_segments_intersect, create_hit_test_result, dist_2_pts, dist_to_segment, dist_to_segment_squared, nullreturner, point_in_poly, sqr, validate_bbox_coords;
 
 point_in_poly = function(x, y, px, py) {
   var i, inside, j, ref, x1, x2, y1, y2;
@@ -19,21 +19,69 @@ point_in_poly = function(x, y, px, py) {
   return inside;
 };
 
-create_hit_test_result = function() {
-  var result;
-  result = {
-    '0d': {
+nullreturner = function() {
+  return null;
+};
+
+HitTestResult = (function() {
+  function HitTestResult() {
+    this['0d'] = {
       glyph: null,
+      get_view: nullreturner,
       indices: []
-    },
-    '1d': {
+    };
+    this['1d'] = {
       indices: []
-    },
-    '2d': {
-      indices: []
+    };
+    this['2d'] = {};
+  }
+
+  Object.defineProperty(HitTestResult.prototype, '_0d', {
+    get: function() {
+      return this['0d'];
     }
+  });
+
+  Object.defineProperty(HitTestResult.prototype, '_1d', {
+    get: function() {
+      return this['1d'];
+    }
+  });
+
+  Object.defineProperty(HitTestResult.prototype, '_2d', {
+    get: function() {
+      return this['2d'];
+    }
+  });
+
+  HitTestResult.prototype.is_empty = function() {
+    return this._0d.indices.length === 0 && this._1d.indices.length === 0;
   };
-  return result;
+
+  return HitTestResult;
+
+})();
+
+create_hit_test_result = function() {
+  return new HitTestResult();
+};
+
+validate_bbox_coords = function(arg, arg1) {
+  var ref, ref1, x0, x1, y0, y1;
+  x0 = arg[0], x1 = arg[1];
+  y0 = arg1[0], y1 = arg1[1];
+  if (x0 > x1) {
+    ref = [x1, x0], x0 = ref[0], x1 = ref[1];
+  }
+  if (y0 > y1) {
+    ref1 = [y1, y0], y0 = ref1[0], y1 = ref1[1];
+  }
+  return {
+    minX: x0,
+    minY: y0,
+    maxX: x1,
+    maxY: y1
+  };
 };
 
 sqr = function(x) {
@@ -99,8 +147,10 @@ check_2_segments_intersect = function(l0_x0, l0_y0, l0_x1, l0_y1, l1_x0, l1_y0, 
 
 module.exports = {
   point_in_poly: point_in_poly,
+  HitTestResult: HitTestResult,
   create_hit_test_result: create_hit_test_result,
   dist_2_pts: dist_2_pts,
   dist_to_segment: dist_to_segment,
-  check_2_segments_intersect: check_2_segments_intersect
+  check_2_segments_intersect: check_2_segments_intersect,
+  validate_bbox_coords: validate_bbox_coords
 };

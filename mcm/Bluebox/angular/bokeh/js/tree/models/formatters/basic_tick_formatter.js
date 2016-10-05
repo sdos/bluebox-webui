@@ -1,10 +1,12 @@
-var BasicTickFormatter, TickFormatter, _,
+var BasicTickFormatter, TickFormatter, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
 TickFormatter = require("./tick_formatter");
+
+p = require("../../core/properties");
 
 BasicTickFormatter = (function(superClass) {
   extend(BasicTickFormatter, superClass);
@@ -15,20 +17,27 @@ BasicTickFormatter = (function(superClass) {
 
   BasicTickFormatter.prototype.type = 'BasicTickFormatter';
 
+  BasicTickFormatter.define({
+    precision: [p.Any, 'auto'],
+    use_scientific: [p.Bool, true],
+    power_limit_high: [p.Number, 5],
+    power_limit_low: [p.Number, -3]
+  });
+
   BasicTickFormatter.prototype.initialize = function(attrs, options) {
     BasicTickFormatter.__super__.initialize.call(this, attrs, options);
-    this.register_property('scientific_limit_low', function() {
+    this.define_computed_property('scientific_limit_low', function() {
       return Math.pow(10.0, this.get('power_limit_low'));
     }, true);
     this.add_dependencies('scientific_limit_low', this, ['power_limit_low']);
-    this.register_property('scientific_limit_high', function() {
+    this.define_computed_property('scientific_limit_high', function() {
       return Math.pow(10.0, this.get('power_limit_high'));
     }, true);
     this.add_dependencies('scientific_limit_high', this, ['power_limit_high']);
     return this.last_precision = 3;
   };
 
-  BasicTickFormatter.prototype.format = function(ticks) {
+  BasicTickFormatter.prototype.doFormat = function(ticks) {
     var i, is_ok, j, k, l, labels, len, m, n, need_sci, o, precision, ref, ref1, ref2, ref3, ref4, tick, tick_abs, x, zero_eps;
     if (ticks.length === 0) {
       return [];
@@ -99,15 +108,6 @@ BasicTickFormatter = (function(superClass) {
       }
     }
     return labels;
-  };
-
-  BasicTickFormatter.prototype.defaults = function() {
-    return _.extend({}, BasicTickFormatter.__super__.defaults.call(this), {
-      precision: 'auto',
-      use_scientific: true,
-      power_limit_high: 5,
-      power_limit_low: -3
-    });
   };
 
   return BasicTickFormatter;

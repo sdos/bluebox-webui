@@ -8,9 +8,9 @@ Axis = require("./axis");
 
 ContinuousAxis = require("./continuous_axis");
 
-LogTicker = require("../tickers/log_ticker");
-
 LogTickFormatter = require("../formatters/log_tick_formatter");
+
+LogTicker = require("../tickers/log_ticker");
 
 LogAxisView = (function(superClass) {
   extend(LogAxisView, superClass);
@@ -34,12 +34,14 @@ LogAxis = (function(superClass) {
 
   LogAxis.prototype.type = 'LogAxis';
 
-  LogAxis.prototype.defaults = function() {
-    return _.extend({}, LogAxis.__super__.defaults.call(this), {
-      ticker: new LogTicker.Model(),
-      formatter: new LogTickFormatter.Model()
-    });
-  };
+  LogAxis.override({
+    ticker: function() {
+      return new LogTicker.Model();
+    },
+    formatter: function() {
+      return new LogTickFormatter.Model();
+    }
+  });
 
   return LogAxis;
 

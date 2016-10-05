@@ -41,16 +41,9 @@ GestureTool = (function(superClass) {
     return GestureTool.__super__.constructor.apply(this, arguments);
   }
 
-  GestureTool.prototype.nonserializable_attribute_names = function() {
-    return GestureTool.__super__.nonserializable_attribute_names.call(this).concat(['event_type', 'default_order']);
-  };
+  GestureTool.prototype.event_type = null;
 
-  GestureTool.prototype.defaults = function() {
-    return _.extend({}, GestureTool.__super__.defaults.call(this), {
-      event_type: this.event_type,
-      default_order: this.default_order
-    });
-  };
+  GestureTool.prototype.default_order = null;
 
   return GestureTool;
 

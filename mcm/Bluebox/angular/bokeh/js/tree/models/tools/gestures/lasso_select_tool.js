@@ -1,4 +1,4 @@
-var LassoSelectTool, LassoSelectToolView, PolyAnnotation, SelectTool, _,
+var DEFAULT_POLY_OVERLAY, LassoSelectTool, LassoSelectToolView, PolyAnnotation, SelectTool, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7,6 +7,8 @@ _ = require("underscore");
 SelectTool = require("./select_tool");
 
 PolyAnnotation = require("../../annotations/poly_annotation");
+
+p = require("../../../core/properties");
 
 LassoSelectToolView = (function(superClass) {
   extend(LassoSelectToolView, superClass);
@@ -46,10 +48,24 @@ LassoSelectToolView = (function(superClass) {
   };
 
   LassoSelectToolView.prototype._pan = function(e) {
-    var append, canvas, overlay, ref, vx, vy;
+    var append, canvas, h_range, overlay, ref, v_range, vx, vy;
     canvas = this.plot_view.canvas;
     vx = canvas.sx_to_vx(e.bokeh.sx);
     vy = canvas.sy_to_vy(e.bokeh.sy);
+    h_range = this.plot_model.get('frame').get('h_range');
+    v_range = this.plot_model.get('frame').get('v_range');
+    if (vx > h_range.get('end')) {
+      vx = h_range.get('end');
+    }
+    if (vx < h_range.get('start')) {
+      vx = h_range.get('start');
+    }
+    if (vy > v_range.get('end')) {
+      vy = v_range.get('end');
+    }
+    if (vy < v_range.get('start')) {
+      vy = v_range.get('start');
+    }
     this.data.vx.push(vx);
     this.data.vy.push(vy);
     overlay = this.mget('overlay');
@@ -87,20 +103,53 @@ LassoSelectToolView = (function(superClass) {
       vx: vx,
       vy: vy
     };
-    ref = this.mget('renderers');
+    ref = this.mget('computed_renderers');
     for (i = 0, len = ref.length; i < len; i++) {
       r = ref[i];
       ds = r.get('data_source');
       sm = ds.get('selection_manager');
-      sm.select(this, this.plot_view.renderers[r.id], geometry, final, append);
+      sm.select(this, this.plot_view.renderer_views[r.id], geometry, final, append);
+    }
+    if (this.mget('callback') != null) {
+      this._emit_callback(geometry);
     }
     this._save_geometry(geometry, final, append);
     return null;
   };
 
+  LassoSelectToolView.prototype._emit_callback = function(geometry) {
+    var canvas, frame, r, xmapper, ymapper;
+    r = this.mget('computed_renderers')[0];
+    canvas = this.plot_model.get('canvas');
+    frame = this.plot_model.get('frame');
+    geometry['sx'] = canvas.v_vx_to_sx(geometry.vx);
+    geometry['sy'] = canvas.v_vy_to_sy(geometry.vy);
+    xmapper = frame.get('x_mappers')[r.get('x_range_name')];
+    ymapper = frame.get('y_mappers')[r.get('y_range_name')];
+    geometry['x'] = xmapper.v_map_from_target(geometry.vx);
+    geometry['y'] = ymapper.v_map_from_target(geometry.vy);
+    this.mget('callback').execute(this.model, {
+      geometry: geometry
+    });
+  };
+
   return LassoSelectToolView;
 
 })(SelectTool.View);
+
+DEFAULT_POLY_OVERLAY = function() {
+  return new PolyAnnotation.Model({
+    level: "overlay",
+    xs_units: "screen",
+    ys_units: "screen",
+    fill_color: "lightgrey",
+    fill_alpha: 0.5,
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 2,
+    line_dash: [4, 4]
+  });
+};
 
 LassoSelectTool = (function(superClass) {
   extend(LassoSelectTool, superClass);
@@ -121,28 +170,11 @@ LassoSelectTool = (function(superClass) {
 
   LassoSelectTool.prototype.default_order = 12;
 
-  LassoSelectTool.prototype.initialize = function(attrs, options) {
-    LassoSelectTool.__super__.initialize.call(this, attrs, options);
-    return this.get('overlay').set('silent_update', true, {
-      silent: true
-    });
-  };
-
-  LassoSelectTool.prototype.defaults = function() {
-    return _.extend({}, LassoSelectTool.__super__.defaults.call(this), {
-      select_every_mousemove: true,
-      overlay: new PolyAnnotation.Model({
-        xs_units: "screen",
-        ys_units: "screen",
-        fill_color: "lightgrey",
-        fill_alpha: 0.5,
-        line_color: "black",
-        line_alpha: 1.0,
-        line_width: 2,
-        line_dash: [4, 4]
-      })
-    });
-  };
+  LassoSelectTool.define({
+    select_every_mousemove: [p.Bool, true],
+    callback: [p.Instance],
+    overlay: [p.Instance, DEFAULT_POLY_OVERLAY]
+  });
 
   return LassoSelectTool;
 

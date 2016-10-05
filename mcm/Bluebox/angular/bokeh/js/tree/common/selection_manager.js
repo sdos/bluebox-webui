@@ -1,16 +1,18 @@
-var HasProps, SelectionManager, Selector, _, hittest, logger,
+var HasProps, SelectionManager, Selector, _, hittest, logger, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-HasProps = require("./has_props");
+HasProps = require("../core/has_props");
 
-logger = require("./logging").logger;
+logger = require("../core/logging").logger;
 
 Selector = require("./selector");
 
 hittest = require("./hittest");
+
+p = require("../core/properties");
 
 SelectionManager = (function(superClass) {
   extend(SelectionManager, superClass);
@@ -21,16 +23,15 @@ SelectionManager = (function(superClass) {
 
   SelectionManager.prototype.type = 'SelectionManager';
 
+  SelectionManager.internal({
+    source: [p.Any]
+  });
+
   SelectionManager.prototype.initialize = function(attrs, options) {
     SelectionManager.__super__.initialize.call(this, attrs, options);
     this.selectors = {};
     this.inspectors = {};
-    this.empty = hittest.create_hit_test_result();
     return this.last_inspection_was_empty = {};
-  };
-
-  SelectionManager.prototype.serializable_in_document = function() {
-    return false;
   };
 
   SelectionManager.prototype.select = function(tool, renderer_view, geometry, final, append) {
@@ -50,7 +51,10 @@ SelectionManager = (function(superClass) {
         "selected": selector.get('indices')
       });
       source.trigger('select');
-      return source.trigger('select-' + renderer_view.mget('id'));
+      source.trigger('select-' + renderer_view.mget('id'));
+      return !indices.is_empty();
+    } else {
+      return false;
     }
   };
 
@@ -63,7 +67,7 @@ SelectionManager = (function(superClass) {
     indices = renderer_view.hit_test(geometry);
     if (indices != null) {
       r_id = renderer_view.model.id;
-      if (_.isEqual(indices, this.empty)) {
+      if (indices.is_empty()) {
         if (this.last_inspection_was_empty[r_id] == null) {
           this.last_inspection_was_empty[r_id] = false;
         }
@@ -83,7 +87,10 @@ SelectionManager = (function(superClass) {
         "silent": true
       });
       source.trigger('inspect', indices, tool, renderer_view, source, data);
-      return source.trigger("inspect" + (renderer_view.mget('id')), indices, tool, renderer_view, source, data);
+      source.trigger("inspect" + (renderer_view.mget('id')), indices, tool, renderer_view, source, data);
+      return !indices.is_empty();
+    } else {
+      return false;
     }
   };
 

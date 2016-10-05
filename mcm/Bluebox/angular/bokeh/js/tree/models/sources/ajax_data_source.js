@@ -1,4 +1,4 @@
-var $, AjaxDataSource, RemoteDataSource, _, logger,
+var $, AjaxDataSource, RemoteDataSource, _, logger, p,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -7,15 +7,16 @@ $ = require("jquery");
 
 _ = require("underscore");
 
-logger = require("../../common/logging").logger;
-
 RemoteDataSource = require("./remote_data_source");
+
+logger = require("../../core/logging").logger;
+
+p = require("../../core/properties");
 
 AjaxDataSource = (function(superClass) {
   extend(AjaxDataSource, superClass);
 
   function AjaxDataSource() {
-    this.defaults = bind(this.defaults, this);
     this.get_data = bind(this.get_data, this);
     this.setup = bind(this.setup, this);
     this.destroy = bind(this.destroy, this);
@@ -23,6 +24,15 @@ AjaxDataSource = (function(superClass) {
   }
 
   AjaxDataSource.prototype.type = 'AjaxDataSource';
+
+  AjaxDataSource.define({
+    mode: [p.String, 'replace'],
+    content_type: [p.String, 'application/json'],
+    http_headers: [p.Any, {}],
+    max_size: [p.Number],
+    method: [p.String, 'POST'],
+    if_modified: [p.Bool, false]
+  });
 
   AjaxDataSource.prototype.destroy = function() {
     if (this.interval != null) {
@@ -78,18 +88,6 @@ AjaxDataSource = (function(superClass) {
       return logger.error(arguments);
     });
     return null;
-  };
-
-  AjaxDataSource.prototype.defaults = function() {
-    return _.extend({}, AjaxDataSource.__super__.defaults.call(this), {
-      mode: 'replace',
-      data_url: null,
-      content_type: 'application/json',
-      http_headers: {},
-      max_size: null,
-      method: 'POST',
-      if_modified: false
-    });
   };
 
   return AjaxDataSource;

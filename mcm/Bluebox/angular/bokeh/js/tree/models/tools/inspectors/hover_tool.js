@@ -1,4 +1,4 @@
-var $, HoverTool, HoverToolView, InspectTool, Tooltip, Util, _, _color_to_hex, hittest, logger,
+var $, GlyphRenderer, HoverTool, HoverToolView, InspectTool, Tooltip, Util, _, _color_to_hex, hittest, logger, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -6,15 +6,19 @@ _ = require("underscore");
 
 $ = require("jquery");
 
-logger = require("../../../common/logging").logger;
+InspectTool = require("./inspect_tool");
 
 Tooltip = require("../../annotations/tooltip");
 
-Util = require("../../../util/util");
-
-InspectTool = require("./inspect_tool");
+GlyphRenderer = require("../../renderers/glyph_renderer");
 
 hittest = require("../../../common/hittest");
+
+logger = require("../../../core/logging").logger;
+
+p = require("../../../core/properties");
+
+Util = require("../../../util/util");
 
 _color_to_hex = function(color) {
   var blue, digits, green, red, rgb;
@@ -37,36 +41,18 @@ HoverToolView = (function(superClass) {
   }
 
   HoverToolView.prototype.bind_bokeh_events = function() {
-    var j, len, r, ref;
+    var k, len, r, ref;
     ref = this.mget('computed_renderers');
-    for (j = 0, len = ref.length; j < len; j++) {
-      r = ref[j];
-      this.listenTo(r.get('data_source'), 'inspect', this._update);
+    for (k = 0, len = ref.length; k < len; k++) {
+      r = ref[k];
+      this.listenTo(r.data_source, 'inspect', this._update);
     }
-    return this.plot_view.canvas_view.canvas_wrapper.css('cursor', 'crosshair');
+    return this.plot_view.canvas_view.$el.css('cursor', 'crosshair');
   };
 
-  HoverToolView.prototype._move = function(e) {
-    var canvas, ref, rid, tt, vx, vy;
-    if (!this.mget('active')) {
-      return;
-    }
-    canvas = this.plot_view.canvas;
-    vx = canvas.sx_to_vx(e.bokeh.sx);
-    vy = canvas.sy_to_vy(e.bokeh.sy);
-    if (!this.plot_view.frame.contains(vx, vy)) {
-      ref = this.mget('ttmodels');
-      for (rid in ref) {
-        tt = ref[rid];
-        tt.clear();
-      }
-      return;
-    }
-    return this._inspect(vx, vy);
-  };
-
-  HoverToolView.prototype._move_exit = function() {
+  HoverToolView.prototype._clear = function() {
     var ref, results, rid, tt;
+    this._inspect(Infinity, Infinity);
     ref = this.mget('ttmodels');
     results = [];
     for (rid in ref) {
@@ -76,18 +62,37 @@ HoverToolView = (function(superClass) {
     return results;
   };
 
+  HoverToolView.prototype._move = function(e) {
+    var canvas, vx, vy;
+    if (!this.mget('active')) {
+      return;
+    }
+    canvas = this.plot_view.canvas;
+    vx = canvas.sx_to_vx(e.bokeh.sx);
+    vy = canvas.sy_to_vy(e.bokeh.sy);
+    if (!this.plot_view.frame.contains(vx, vy)) {
+      return this._clear();
+    } else {
+      return this._inspect(vx, vy);
+    }
+  };
+
+  HoverToolView.prototype._move_exit = function() {
+    return this._clear();
+  };
+
   HoverToolView.prototype._inspect = function(vx, vy, e) {
-    var geometry, hovered_indexes, hovered_renderers, j, len, r, ref, sm;
+    var geometry, hovered_indexes, hovered_renderers, k, len, r, ref, sm;
     geometry = {
       type: 'point',
       vx: vx,
       vy: vy
     };
-    if (this.mget('mode') === 'mouse') {
+    if (this.model.mode === 'mouse') {
       geometry['type'] = 'point';
     } else {
       geometry['type'] = 'span';
-      if (this.mget('mode') === 'vline') {
+      if (this.model.mode === 'vline') {
         geometry.direction = 'h';
       } else {
         geometry.direction = 'v';
@@ -96,10 +101,10 @@ HoverToolView = (function(superClass) {
     hovered_indexes = [];
     hovered_renderers = [];
     ref = this.mget('computed_renderers');
-    for (j = 0, len = ref.length; j < len; j++) {
-      r = ref[j];
-      sm = r.get('data_source').get('selection_manager');
-      sm.inspect(this, this.plot_view.renderers[r.id], geometry, {
+    for (k = 0, len = ref.length; k < len; k++) {
+      r = ref[k];
+      sm = r.data_source.get('selection_manager');
+      sm.inspect(this, this.plot_view.renderer_views[r.id], geometry, {
         "geometry": geometry
       });
     }
@@ -109,15 +114,14 @@ HoverToolView = (function(superClass) {
   };
 
   HoverToolView.prototype._update = function(indices, tool, renderer, ds, arg) {
-    var canvas, d1x, d1y, d2x, d2y, data_x, data_y, dist1, dist2, frame, geometry, i, i1d, i2d, j, k, len, len1, ref, ref1, ref10, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, rx, ry, sdatax, sdatay, sx, sy, tooltip, vars, vx, vy, x, xmapper, y, ymapper;
+    var canvas, d1x, d1y, d2x, d2y, data_x, data_y, dist1, dist2, frame, geometry, i, j, k, l, len, len1, len2, m, pair, pt, ref, ref1, ref10, ref11, ref12, ref13, ref14, ref15, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, rx, ry, sdatax, sdatay, sx, sy, tooltip, vars, vx, vy, x, xmapper, y, ymapper;
     geometry = arg.geometry;
     tooltip = (ref = this.mget('ttmodels')[renderer.model.id]) != null ? ref : null;
     if (tooltip == null) {
       return;
     }
     tooltip.clear();
-    ref1 = [indices['1d'].indices, indices['2d'].indices], i1d = ref1[0], i2d = ref1[1];
-    if (indices['0d'].glyph === null && i1d.length === 0 && i2d.length === 0) {
+    if (indices['0d'].glyph === null && indices['1d'].indices.length === 0) {
       return;
     }
     vx = geometry.vx;
@@ -130,22 +134,22 @@ HoverToolView = (function(superClass) {
     ymapper = frame.get('y_mappers')[renderer.mget('y_range_name')];
     x = xmapper.map_from_target(vx);
     y = ymapper.map_from_target(vy);
-    ref2 = indices['0d'].indices;
-    for (j = 0, len = ref2.length; j < len; j++) {
-      i = ref2[j];
-      data_x = renderer.glyph.x[i + 1];
-      data_y = renderer.glyph.y[i + 1];
-      if (this.mget('line_policy') === "interp") {
-        ref3 = renderer.glyph.get_interpolation_hit(i, geometry), data_x = ref3[0], data_y = ref3[1];
+    ref1 = indices['0d'].indices;
+    for (k = 0, len = ref1.length; k < len; k++) {
+      i = ref1[k];
+      data_x = renderer.glyph._x[i + 1];
+      data_y = renderer.glyph._y[i + 1];
+      if (this.model.line_policy === "interp") {
+        ref2 = renderer.glyph.get_interpolation_hit(i, geometry), data_x = ref2[0], data_y = ref2[1];
         rx = xmapper.map_to_target(data_x);
         ry = ymapper.map_to_target(data_y);
-      } else if (this.mget('line_policy') === "prev") {
+      } else if (this.model.line_policy === "prev") {
         rx = canvas.sx_to_vx(renderer.glyph.sx[i]);
         ry = canvas.sy_to_vy(renderer.glyph.sy[i]);
-      } else if (this.mget('line_policy') === "next") {
+      } else if (this.model.line_policy === "next") {
         rx = canvas.sx_to_vx(renderer.glyph.sx[i + 1]);
         ry = canvas.sy_to_vy(renderer.glyph.sy[i + 1]);
-      } else if (this.mget('line_policy') === "nearest") {
+      } else if (this.model.line_policy === "nearest") {
         d1x = renderer.glyph.sx[i];
         d1y = renderer.glyph.sy[i];
         dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy);
@@ -153,17 +157,17 @@ HoverToolView = (function(superClass) {
         d2y = renderer.glyph.sy[i + 1];
         dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy);
         if (dist1 < dist2) {
-          ref4 = [d1x, d1y], sdatax = ref4[0], sdatay = ref4[1];
+          ref3 = [d1x, d1y], sdatax = ref3[0], sdatay = ref3[1];
         } else {
-          ref5 = [d2x, d2y], sdatax = ref5[0], sdatay = ref5[1];
+          ref4 = [d2x, d2y], sdatax = ref4[0], sdatay = ref4[1];
           i = i + 1;
         }
-        data_x = renderer.glyph.x[i];
-        data_y = renderer.glyph.y[i];
+        data_x = renderer.glyph._x[i];
+        data_y = renderer.glyph._y[i];
         rx = canvas.sx_to_vx(sdatax);
         ry = canvas.sy_to_vy(sdatay);
       } else {
-        ref6 = [vx, vy], rx = ref6[0], ry = ref6[1];
+        ref5 = [vx, vy], rx = ref5[0], ry = ref5[1];
       }
       vars = {
         index: i,
@@ -180,60 +184,127 @@ HoverToolView = (function(superClass) {
       };
       tooltip.add(rx, ry, this._render_tooltips(ds, i, vars));
     }
-    ref7 = indices['1d'].indices;
-    for (k = 0, len1 = ref7.length; k < len1; k++) {
-      i = ref7[k];
-      data_x = (ref8 = renderer.glyph.x) != null ? ref8[i] : void 0;
-      data_y = (ref9 = renderer.glyph.y) != null ? ref9[i] : void 0;
-      if (this.mget('point_policy') === 'snap_to_data') {
-        rx = canvas.sx_to_vx(renderer.glyph.scx(i, sx, sy));
-        ry = canvas.sy_to_vy(renderer.glyph.scy(i, sx, sy));
+    ref6 = indices['1d'].indices;
+    for (l = 0, len1 = ref6.length; l < len1; l++) {
+      i = ref6[l];
+      if (!_.isEmpty(indices['2d'])) {
+        ref7 = _.pairs(indices['2d']);
+        for (m = 0, len2 = ref7.length; m < len2; m++) {
+          pair = ref7[m];
+          ref8 = [pair[0], pair[1][0]], i = ref8[0], j = ref8[1];
+          data_x = renderer.glyph._xs[i][j];
+          data_y = renderer.glyph._ys[i][j];
+          if (this.model.line_policy === "interp") {
+            ref9 = renderer.glyph.get_interpolation_hit(i, j, geometry), data_x = ref9[0], data_y = ref9[1];
+            rx = xmapper.map_to_target(data_x);
+            ry = ymapper.map_to_target(data_y);
+          } else if (this.model.line_policy === "prev") {
+            rx = canvas.sx_to_vx(renderer.glyph.sxs[i][j]);
+            ry = canvas.sy_to_vy(renderer.glyph.sys[i][j]);
+          } else if (this.model.line_policy === "next") {
+            rx = canvas.sx_to_vx(renderer.glyph.sxs[i][j + 1]);
+            ry = canvas.sy_to_vy(renderer.glyph.sys[i][j + 1]);
+          } else if (this.model.line_policy === "nearest") {
+            d1x = renderer.glyph.sx[i][j];
+            d1y = renderer.glyph.sy[i][j];
+            dist1 = hittest.dist_2_pts(d1x, d1y, sx, sy);
+            d2x = renderer.glyph.sx[i][j + 1];
+            d2y = renderer.glyph.sy[i][j + 1];
+            dist2 = hittest.dist_2_pts(d2x, d2y, sx, sy);
+            if (dist1 < dist2) {
+              ref10 = [d1x, d1y], sdatax = ref10[0], sdatay = ref10[1];
+            } else {
+              ref11 = [d2x, d2y], sdatax = ref11[0], sdatay = ref11[1];
+              j = j + 1;
+            }
+            data_x = renderer.glyph._x[i][j];
+            data_y = renderer.glyph._y[i][j];
+            rx = canvas.sx_to_vx(sdatax);
+            ry = canvas.sy_to_vy(sdatay);
+          }
+          vars = {
+            index: i,
+            segment_index: j,
+            x: x,
+            y: y,
+            vx: vx,
+            vy: vy,
+            sx: sx,
+            sy: sy,
+            data_x: data_x,
+            data_y: data_y
+          };
+          tooltip.add(rx, ry, this._render_tooltips(ds, i, vars));
+        }
       } else {
-        ref10 = [vx, vy], rx = ref10[0], ry = ref10[1];
+        data_x = (ref12 = renderer.glyph._x) != null ? ref12[i] : void 0;
+        data_y = (ref13 = renderer.glyph._y) != null ? ref13[i] : void 0;
+        if (this.model.point_policy === 'snap_to_data') {
+          pt = renderer.glyph.get_anchor_point(this.model.anchor, i, [sx, sy]);
+          if (pt != null) {
+            x = pt.x, y = pt.y;
+          } else {
+            ref14 = renderer.glyph.get_anchor_point("center", i, [sx, sy]), x = ref14.x, y = ref14.y;
+          }
+          rx = canvas.sx_to_vx(x);
+          ry = canvas.sy_to_vy(y);
+        } else {
+          ref15 = [vx, vy], rx = ref15[0], ry = ref15[1];
+        }
+        vars = {
+          index: i,
+          x: x,
+          y: y,
+          vx: vx,
+          vy: vy,
+          sx: sx,
+          sy: sy,
+          data_x: data_x,
+          data_y: data_y
+        };
+        tooltip.add(rx, ry, this._render_tooltips(ds, i, vars));
       }
-      vars = {
-        index: i,
-        x: x,
-        y: y,
-        vx: vx,
-        vy: vy,
-        sx: sx,
-        sy: sy,
-        data_x: data_x,
-        data_y: data_y
-      };
-      tooltip.add(rx, ry, this._render_tooltips(ds, i, vars));
     }
     return null;
   };
 
   HoverToolView.prototype._emit_callback = function(geometry) {
-    var canvas, frame, indices, r, xmapper, ymapper;
+    var callback, canvas, data, frame, indices, obj, r, ref, xmapper, ymapper;
     r = this.mget('computed_renderers')[0];
-    indices = this.plot_view.renderers[r.id].hit_test(geometry);
-    canvas = this.plot_model.get('canvas');
-    frame = this.plot_model.get('frame');
+    indices = this.plot_view.renderer_views[r.id].hit_test(geometry);
+    canvas = this.plot_model.canvas;
+    frame = this.plot_model.frame;
     geometry['sx'] = canvas.vx_to_sx(geometry.vx);
     geometry['sy'] = canvas.vy_to_sy(geometry.vy);
     xmapper = frame.get('x_mappers')[r.get('x_range_name')];
     ymapper = frame.get('y_mappers')[r.get('y_range_name')];
     geometry['x'] = xmapper.map_from_target(geometry.vx);
     geometry['y'] = ymapper.map_from_target(geometry.vy);
-    this.mget('callback').execute(this.model, {
-      index: indices,
-      geometry: geometry
-    });
+    callback = this.model.callback;
+    ref = [
+      callback, {
+        index: indices,
+        geometry: geometry
+      }
+    ], obj = ref[0], data = ref[1];
+    if (_.isFunction(callback)) {
+      callback(obj, data);
+    } else {
+      callback.execute(obj, data);
+    }
   };
 
   HoverToolView.prototype._render_tooltips = function(ds, i, vars) {
-    var colname, color, column, hex, j, label, len, match, opts, ref, ref1, row, span, swatch, table, td, tooltips, value;
+    var colname, color, column, hex, k, label, len, match, opts, ref, ref1, row, span, swatch, table, td, tooltips, value;
     tooltips = this.mget("tooltips");
     if (_.isString(tooltips)) {
       return $('<div>').html(Util.replace_placeholders(tooltips, ds, i, vars));
+    } else if (_.isFunction(tooltips)) {
+      return tooltips(ds, vars);
     } else {
       table = $('<table></table>');
-      for (j = 0, len = tooltips.length; j < len; j++) {
-        ref = tooltips[j], label = ref[0], value = ref[1];
+      for (k = 0, len = tooltips.length; k < len; k++) {
+        ref = tooltips[k], label = ref[0], value = ref[1];
         row = $("<tr></tr>");
         row.append($("<td class='bk-tooltip-row-label'>").text(label + ": "));
         td = $("<td class='bk-tooltip-row-value'></td>");
@@ -296,79 +367,79 @@ HoverTool = (function(superClass) {
 
   HoverTool.prototype.icon = "bk-tool-icon-hover";
 
-  HoverTool.prototype.nonserializable_attribute_names = function() {
-    return HoverTool.__super__.nonserializable_attribute_names.call(this).concat(['ttmodels', 'computed_renderers']);
-  };
+  HoverTool.define({
+    tooltips: [p.Any, [["index", "$index"], ["data (x, y)", "($x, $y)"], ["canvas (x, y)", "($sx, $sy)"]]],
+    renderers: [p.Array, []],
+    names: [p.Array, []],
+    mode: [p.String, 'mouse'],
+    point_policy: [p.String, 'snap_to_data'],
+    line_policy: [p.String, 'prev'],
+    show_arrow: [p.Boolean, true],
+    anchor: [p.String, 'center'],
+    attachment: [p.String, 'horizontal'],
+    callback: [p.Any]
+  });
 
   HoverTool.prototype.initialize = function(attrs, options) {
-    return HoverTool.__super__.initialize.call(this, attrs, options);
-  };
-
-  HoverTool.prototype.initialize = function(attrs, options) {
-    var all_renderers, j, k, len, len1, names, r, ref, renderers, tooltip, tooltips, ttmodels;
     HoverTool.__super__.initialize.call(this, attrs, options);
-    names = this.get('names');
-    renderers = this.get('renderers');
-    if (renderers.length === 0) {
-      all_renderers = this.get('plot').get('renderers');
-      renderers = (function() {
-        var j, len, results;
-        results = [];
-        for (j = 0, len = all_renderers.length; j < len; j++) {
-          r = all_renderers[j];
-          if (r.type === "GlyphRenderer") {
-            results.push(r);
+    this.define_computed_property('computed_renderers', function() {
+      var all_renderers, names, r, renderers;
+      renderers = this.get('renderers');
+      names = this.get('names');
+      if (renderers.length === 0) {
+        all_renderers = this.get('plot').get('renderers');
+        renderers = (function() {
+          var k, len, results;
+          results = [];
+          for (k = 0, len = all_renderers.length; k < len; k++) {
+            r = all_renderers[k];
+            if (r instanceof GlyphRenderer.Model) {
+              results.push(r);
+            }
           }
-        }
-        return results;
-      })();
-    }
-    if (names.length > 0) {
-      renderers = (function() {
-        var j, len, results;
-        results = [];
-        for (j = 0, len = renderers.length; j < len; j++) {
-          r = renderers[j];
-          if (names.indexOf(r.get('name')) >= 0) {
-            results.push(r);
-          }
-        }
-        return results;
-      })();
-    }
-    this.set('computed_renderers', renderers);
-    logger.debug("setting " + renderers.length + " computed renderers for " + this.type + " " + this.id);
-    for (j = 0, len = renderers.length; j < len; j++) {
-      r = renderers[j];
-      logger.debug("  - " + r.type + " " + r.id);
-    }
-    ttmodels = {};
-    renderers = this.get('plot').get('renderers');
-    tooltips = this.get("tooltips");
-    if (tooltips != null) {
-      ref = this.get('computed_renderers');
-      for (k = 0, len1 = ref.length; k < len1; k++) {
-        r = ref[k];
-        tooltip = new Tooltip.Model();
-        tooltip.set("custom", _.isString(tooltips));
-        ttmodels[r.id] = tooltip;
-        renderers.push(tooltip);
+          return results;
+        })();
       }
-    }
-    this.set('ttmodels', ttmodels);
-    this.get('plot').set('renderers', renderers);
-  };
-
-  HoverTool.prototype.defaults = function() {
-    return _.extend({}, HoverTool.__super__.defaults.call(this), {
-      tooltips: [["index", "$index"], ["data (x, y)", "($x, $y)"], ["canvas (x, y)", "($sx, $sy)"]],
-      renderers: [],
-      names: [],
-      mode: 'mouse',
-      point_policy: "snap_to_data",
-      line_policy: "prev",
-      callback: null
-    });
+      if (names.length > 0) {
+        renderers = (function() {
+          var k, len, results;
+          results = [];
+          for (k = 0, len = renderers.length; k < len; k++) {
+            r = renderers[k];
+            if (names.indexOf(r.get('name')) >= 0) {
+              results.push(r);
+            }
+          }
+          return results;
+        })();
+      }
+      return renderers;
+    }, true);
+    this.add_dependencies('computed_renderers', this, ['renderers', 'names', 'plot']);
+    this.add_dependencies('computed_renderers', this.get('plot'), ['renderers']);
+    this.define_computed_property('ttmodels', function() {
+      var k, len, r, ref, tooltip, tooltips, ttmodels;
+      ttmodels = {};
+      tooltips = this.get("tooltips");
+      if (tooltips != null) {
+        ref = this.get('computed_renderers');
+        for (k = 0, len = ref.length; k < len; k++) {
+          r = ref[k];
+          tooltip = new Tooltip.Model({
+            custom: _.isString(tooltips) || _.isFunction(tooltips),
+            attachment: this.attachment,
+            show_arrow: this.show_arrow
+          });
+          ttmodels[r.id] = tooltip;
+        }
+      }
+      return ttmodels;
+    }, true);
+    this.add_dependencies('ttmodels', this, ['computed_renderers', 'tooltips']);
+    this.override_computed_property('synthetic_renderers', (function() {
+      return _.values(this.get("ttmodels"));
+    }), true);
+    return this.add_dependencies('synthetic_renderers', this, ['ttmodels']);
   };
 
   return HoverTool;

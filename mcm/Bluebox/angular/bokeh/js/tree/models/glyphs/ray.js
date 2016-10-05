@@ -1,10 +1,12 @@
-var Glyph, Ray, RayView, _,
+var Glyph, Ray, RayView, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
 Glyph = require("./glyph");
+
+p = require("../../core/properties");
 
 RayView = (function(superClass) {
   extend(RayView, superClass);
@@ -18,13 +20,13 @@ RayView = (function(superClass) {
   };
 
   RayView.prototype._map_data = function() {
-    return this.slength = this.sdist(this.renderer.xmapper, this.x, this.length);
+    return this.slength = this.sdist(this.renderer.xmapper, this._x, this._length);
   };
 
   RayView.prototype._render = function(ctx, indices, arg) {
-    var angle, height, i, inf_len, j, k, len, ref, results, slength, sx, sy, width;
-    sx = arg.sx, sy = arg.sy, slength = arg.slength, angle = arg.angle;
-    if (this.visuals.line.do_stroke) {
+    var _angle, height, i, inf_len, j, k, len, ref, results, slength, sx, sy, width;
+    sx = arg.sx, sy = arg.sy, slength = arg.slength, _angle = arg._angle;
+    if (this.visuals.line.doit) {
       width = this.renderer.plot_view.frame.get('width');
       height = this.renderer.plot_view.frame.get('height');
       inf_len = 2 * (width + height);
@@ -36,17 +38,17 @@ RayView = (function(superClass) {
       results = [];
       for (k = 0, len = indices.length; k < len; k++) {
         i = indices[k];
-        if (isNaN(sx[i] + sy[i] + angle[i] + slength[i])) {
+        if (isNaN(sx[i] + sy[i] + _angle[i] + slength[i])) {
           continue;
         }
         ctx.translate(sx[i], sy[i]);
-        ctx.rotate(angle[i]);
+        ctx.rotate(_angle[i]);
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(slength[i], 0);
         this.visuals.line.set_vectorize(ctx, i);
         ctx.stroke();
-        ctx.rotate(-angle[i]);
+        ctx.rotate(-_angle[i]);
         results.push(ctx.translate(-sx[i], -sy[i]));
       }
       return results;
@@ -72,11 +74,14 @@ Ray = (function(superClass) {
 
   Ray.prototype.type = 'Ray';
 
-  Ray.prototype.visuals = ['line'];
+  Ray.coords([['x', 'y']]);
 
-  Ray.prototype.distances = ['length'];
+  Ray.mixins(['line']);
 
-  Ray.prototype.angles = ['angle'];
+  Ray.define({
+    length: [p.DistanceSpec],
+    angle: [p.AngleSpec]
+  });
 
   return Ray;
 

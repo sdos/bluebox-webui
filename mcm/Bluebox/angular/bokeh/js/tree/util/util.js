@@ -1,10 +1,10 @@
-var Numeral, SPrintf, _, _format_number, get_indices, replace_placeholders;
+var Numbro, SPrintf, _, _format_number, get_indices, replace_placeholders;
 
 _ = require("underscore");
 
 SPrintf = require("sprintf");
 
-Numeral = require("numeral");
+Numbro = require("numbro");
 
 _format_number = function(number) {
   var format;
@@ -39,7 +39,7 @@ replace_placeholders = function(string, data_source, i, special_vars) {
       var ref, replacement, value;
       name = long_name != null ? long_name : name;
       value = name[0] === "$" ? special_vars[name.substring(1)] : (ref = data_source.get_column(name)) != null ? ref[i] : void 0;
-      replacement = value == null ? "???" : format != null ? Numeral.format(value, format) : _format_number(value);
+      replacement = value == null ? "???" : format != null ? Numbro.format(value, format) : _format_number(value);
       return "" + prefix + (_.escape(replacement));
     };
   })(this));

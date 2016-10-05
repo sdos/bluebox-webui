@@ -1,12 +1,14 @@
-var Numeral, NumeralTickFormatter, TickFormatter, _,
+var Numbro, NumeralTickFormatter, TickFormatter, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-Numeral = require("numeral");
+Numbro = require("numbro");
 
 TickFormatter = require("./tick_formatter");
+
+p = require("../../core/properties");
 
 NumeralTickFormatter = (function(superClass) {
   extend(NumeralTickFormatter, superClass);
@@ -17,7 +19,13 @@ NumeralTickFormatter = (function(superClass) {
 
   NumeralTickFormatter.prototype.type = 'NumeralTickFormatter';
 
-  NumeralTickFormatter.prototype.format = function(ticks) {
+  NumeralTickFormatter.define({
+    format: [p.String, '0,0'],
+    language: [p.String, 'en'],
+    rounding: [p.String, 'round']
+  });
+
+  NumeralTickFormatter.prototype.doFormat = function(ticks) {
     var format, labels, language, rounding, tick;
     format = this.get("format");
     language = this.get("language");
@@ -39,19 +47,11 @@ NumeralTickFormatter = (function(superClass) {
       results = [];
       for (i = 0, len = ticks.length; i < len; i++) {
         tick = ticks[i];
-        results.push(Numeral.format(tick, format, language, rounding));
+        results.push(Numbro.format(tick, format, language, rounding));
       }
       return results;
     })();
     return labels;
-  };
-
-  NumeralTickFormatter.prototype.defaults = function() {
-    return _.extend({}, NumeralTickFormatter.__super__.defaults.call(this), {
-      format: '0,0',
-      language: 'en',
-      rounding: 'round'
-    });
   };
 
   return NumeralTickFormatter;

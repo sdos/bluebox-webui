@@ -6,9 +6,9 @@ _ = require("underscore");
 
 LinearAxis = require("./axis");
 
-DatetimeTicker = require("../tickers/datetime_ticker");
-
 DatetimeTickFormatter = require("../formatters/datetime_tick_formatter");
+
+DatetimeTicker = require("../tickers/datetime_ticker");
 
 DatetimeAxisView = (function(superClass) {
   extend(DatetimeAxisView, superClass);
@@ -32,13 +32,14 @@ DatetimeAxis = (function(superClass) {
 
   DatetimeAxis.prototype.type = 'DatetimeAxis';
 
-  DatetimeAxis.prototype.defaults = function() {
-    return _.extend({}, DatetimeAxis.__super__.defaults.call(this), {
-      axis_label: "",
-      ticker: new DatetimeTicker.Model(),
-      formatter: new DatetimeTickFormatter.Model()
-    });
-  };
+  DatetimeAxis.override({
+    ticker: function() {
+      return new DatetimeTicker.Model();
+    },
+    formatter: function() {
+      return new DatetimeTickFormatter.Model();
+    }
+  });
 
   return DatetimeAxis;
 

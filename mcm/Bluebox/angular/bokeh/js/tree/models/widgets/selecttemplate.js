@@ -1,13 +1,15 @@
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
-  var __out = [], __capture = function(callback) {
+  var __out = [];
+  var __capture = function(callback) {
     var out = __out, result;
     __out = [];
     callback.call(this);
     result = __out.join('');
     __out = out;
     return __safe(result);
-  }, __sanitize = function(value) {
+  };
+  var __sanitize = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else if (typeof value !== 'undefined' && value != null) {
@@ -15,8 +17,8 @@ module.exports = function(__obj) {
     } else {
       return '';
     }
-  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-  __safe = __obj.safe = function(value) {
+  };
+  var __safe = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else {
@@ -26,15 +28,13 @@ module.exports = function(__obj) {
       return result;
     }
   };
-  if (!__escape) {
-    __escape = __obj.escape = function(value) {
-      return ('' + value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    };
-  }
+  var __escape = function(value) {
+    return ('' + value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
   (function() {
     (function() {
       var i, len, option, ref;
@@ -71,11 +71,11 @@ module.exports = function(__obj) {
           __out.push('</option>\n    ');
         } else {
           __out.push('\n      <option ');
-          __out.push(__sanitize(option.value === this.value ? __out.push('selected="selected"') : void 0));
+          __out.push(__sanitize(option[0] === this.value ? __out.push('selected="selected"') : void 0));
           __out.push(' value="');
-          __out.push(__sanitize(option.value));
+          __out.push(__sanitize(option[0]));
           __out.push('">');
-          __out.push(__sanitize(option.name));
+          __out.push(__sanitize(option[1]));
           __out.push('</option>\n    ');
         }
         __out.push('\n  ');
@@ -86,6 +86,5 @@ module.exports = function(__obj) {
     }).call(this);
     
   }).call(__obj);
-  __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
 };

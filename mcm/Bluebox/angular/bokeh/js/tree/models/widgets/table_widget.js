@@ -1,10 +1,12 @@
-var TableWidget, Widget, _,
+var TableWidget, Widget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
 Widget = require("./widget");
+
+p = require("../../core/properties");
 
 TableWidget = (function(superClass) {
   extend(TableWidget, superClass);
@@ -15,11 +17,9 @@ TableWidget = (function(superClass) {
 
   TableWidget.prototype.type = "TableWidget";
 
-  TableWidget.prototype.defaults = function() {
-    return _.extend({}, TableWidget.__super__.defaults.call(this), {
-      source: null
-    });
-  };
+  TableWidget.define({
+    source: [p.Instance]
+  });
 
   return TableWidget;
 

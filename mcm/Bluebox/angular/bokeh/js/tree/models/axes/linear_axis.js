@@ -8,9 +8,9 @@ Axis = require("./axis");
 
 ContinuousAxis = require("./continuous_axis");
 
-BasicTicker = require("../tickers/basic_ticker");
-
 BasicTickFormatter = require("../formatters/basic_tick_formatter");
+
+BasicTicker = require("../tickers/basic_ticker");
 
 LinearAxisView = (function(superClass) {
   extend(LinearAxisView, superClass);
@@ -34,12 +34,14 @@ LinearAxis = (function(superClass) {
 
   LinearAxis.prototype.type = 'LinearAxis';
 
-  LinearAxis.prototype.defaults = function() {
-    return _.extend({}, LinearAxis.__super__.defaults.call(this), {
-      ticker: new BasicTicker.Model(),
-      formatter: new BasicTickFormatter.Model()
-    });
-  };
+  LinearAxis.override({
+    ticker: function() {
+      return new BasicTicker.Model();
+    },
+    formatter: function() {
+      return new BasicTickFormatter.Model();
+    }
+  });
 
   return LinearAxis;
 

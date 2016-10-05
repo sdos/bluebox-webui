@@ -1,4 +1,4 @@
-var Glyph, Text, TextView, _, properties,
+var Glyph, Text, TextView, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -6,7 +6,7 @@ _ = require("underscore");
 
 Glyph = require("./glyph");
 
-properties = require("../../common/properties");
+p = require("../../core/properties");
 
 TextView = (function(superClass) {
   extend(TextView, superClass);
@@ -15,33 +15,29 @@ TextView = (function(superClass) {
     return TextView.__super__.constructor.apply(this, arguments);
   }
 
-  TextView.prototype.initialize = function(options) {
-    TextView.__super__.initialize.call(this, options);
-    return this.text_props = new properties.Text({
-      obj: this.model,
-      prefix: ''
-    });
-  };
-
   TextView.prototype._index_data = function() {
     return this._xy_index();
   };
 
   TextView.prototype._render = function(ctx, indices, arg) {
-    var angle, i, j, len, results, sx, sy, text, x_offset, y_offset;
-    sx = arg.sx, sy = arg.sy, x_offset = arg.x_offset, y_offset = arg.y_offset, angle = arg.angle, text = arg.text;
+    var _angle, _text, _x_offset, _y_offset, i, j, len, results, sx, sy;
+    sx = arg.sx, sy = arg.sy, _x_offset = arg._x_offset, _y_offset = arg._y_offset, _angle = arg._angle, _text = arg._text;
     results = [];
     for (j = 0, len = indices.length; j < len; j++) {
       i = indices[j];
-      if (isNaN(sx[i] + sy[i] + x_offset[i] + y_offset[i] + angle[i]) || (text[i] == null)) {
+      if (isNaN(sx[i] + sy[i] + _x_offset[i] + _y_offset[i] + _angle[i]) || (_text[i] == null)) {
         continue;
       }
-      ctx.save();
-      ctx.translate(sx[i] + x_offset[i], sy[i] + y_offset[i]);
-      ctx.rotate(angle[i]);
-      this.visuals.text.set_vectorize(ctx, i);
-      ctx.fillText(text[i], 0, 0);
-      results.push(ctx.restore());
+      if (this.visuals.text.doit) {
+        ctx.save();
+        ctx.translate(sx[i] + _x_offset[i], sy[i] + _y_offset[i]);
+        ctx.rotate(_angle[i]);
+        this.visuals.text.set_vectorize(ctx, i);
+        ctx.fillText(_text[i], 0, 0);
+        results.push(ctx.restore());
+      } else {
+        results.push(void 0);
+      }
     }
     return results;
   };
@@ -72,22 +68,20 @@ Text = (function(superClass) {
 
   Text.prototype.type = 'Text';
 
-  Text.prototype.visuals = ['text'];
+  Text.coords([['x', 'y']]);
 
-  Text.prototype.angles = ['angle'];
+  Text.mixins(['text']);
 
-  Text.prototype.fields = ['text:string', 'x_offset', 'y_offset'];
-
-  Text.prototype.defaults = function() {
-    return _.extend({}, Text.__super__.defaults.call(this), {
-      angle: 0,
-      x_offset: 0,
-      y_offset: 0,
-      text: {
+  Text.define({
+    text: [
+      p.StringSpec, {
         field: "text"
       }
-    });
-  };
+    ],
+    angle: [p.AngleSpec, 0],
+    x_offset: [p.NumberSpec, 0],
+    y_offset: [p.NumberSpec, 0]
+  });
 
   return Text;
 

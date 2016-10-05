@@ -1,5 +1,4 @@
-var MercatorTileSource, TileSource, _,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+var MercatorTileSource, TileSource, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7,15 +6,26 @@ _ = require("underscore");
 
 TileSource = require("./tile_source");
 
+p = require("../../core/properties");
+
 MercatorTileSource = (function(superClass) {
   extend(MercatorTileSource, superClass);
 
   function MercatorTileSource() {
-    this.defaults = bind(this.defaults, this);
     return MercatorTileSource.__super__.constructor.apply(this, arguments);
   }
 
   MercatorTileSource.prototype.type = 'MercatorTileSource';
+
+  MercatorTileSource.define({
+    wrap_around: [p.Bool, true]
+  });
+
+  MercatorTileSource.override({
+    x_origin_offset: 20037508.34,
+    y_origin_offset: 20037508.34,
+    initial_resolution: 156543.03392804097
+  });
 
   MercatorTileSource.prototype.initialize = function(options) {
     var z;
@@ -387,15 +397,6 @@ MercatorTileSource = (function(superClass) {
 
   MercatorTileSource.prototype.calculate_world_x_by_tile_xyz = function(x, y, z) {
     return Math.floor(x / Math.pow(2, z));
-  };
-
-  MercatorTileSource.prototype.defaults = function() {
-    return _.extend({}, MercatorTileSource.__super__.defaults.call(this), {
-      x_origin_offset: 20037508.34,
-      y_origin_offset: 20037508.34,
-      initial_resolution: 156543.03392804097,
-      wrap_around: true
-    });
   };
 
   return MercatorTileSource;

@@ -35,10 +35,10 @@ DatetimeTicker = (function(superClass) {
 
   DatetimeTicker.prototype.type = 'DatetimeTicker';
 
-  DatetimeTicker.prototype.defaults = function() {
-    return _.extend({}, DatetimeTicker.__super__.defaults.call(this), {
-      num_minor_ticks: 0,
-      tickers: [
+  DatetimeTicker.override({
+    num_minor_ticks: 0,
+    tickers: function() {
+      return [
         new AdaptiveTicker.Model({
           mantissas: [1, 2, 5],
           base: 10,
@@ -74,9 +74,9 @@ DatetimeTicker = (function(superClass) {
         }), new MonthsTicker.Model({
           months: _.range(0, 12, 6)
         }), new YearsTicker.Model({})
-      ]
-    });
-  };
+      ];
+    }
+  });
 
   return DatetimeTicker;
 

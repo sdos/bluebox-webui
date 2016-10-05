@@ -1,4 +1,4 @@
-var $, ImagePool, PlotWidget, Renderer, TileRenderer, TileRendererView, _, logger, properties, wmts,
+var $, ImagePool, Renderer, TileRenderer, TileRendererView, _, logger, p, wmts,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
@@ -8,17 +8,15 @@ _ = require("underscore");
 
 $ = require("jquery");
 
-Renderer = require("../renderers/renderer");
-
-PlotWidget = require("../../common/plot_widget");
-
-properties = require("../../common/properties");
+ImagePool = require("./image_pool");
 
 wmts = require("./wmts_tile_source");
 
-ImagePool = require("./image_pool");
+Renderer = require("../renderers/renderer");
 
-logger = require("../../common/logging").logger;
+logger = require("../../core/logging").logger;
+
+p = require("../../core/properties");
 
 TileRendererView = (function(superClass) {
   extend(TileRendererView, superClass);
@@ -48,9 +46,9 @@ TileRendererView = (function(superClass) {
 
   TileRendererView.prototype._set_data = function() {
     this.pool = new ImagePool();
-    this.map_plot = this.plot_view.model;
+    this.map_plot = this.plot_model.plot;
     this.map_canvas = this.plot_view.canvas_view.ctx;
-    this.map_frame = this.plot_view.frame;
+    this.map_frame = this.plot_model.frame;
     this.x_range = this.map_plot.get('x_range');
     this.x_mapper = this.map_frame.get('x_mappers')['default'];
     this.y_range = this.map_plot.get('y_range');
@@ -205,7 +203,7 @@ TileRendererView = (function(superClass) {
 
   TileRendererView.prototype._set_rect = function() {
     var h, l, outline_width, t, w;
-    outline_width = this.plot_view.outline_props.width.value();
+    outline_width = this.plot_model.plot.properties.outline_line_width.value();
     l = this.plot_view.canvas.vx_to_sx(this.map_frame.get('left')) + (outline_width / 2);
     t = this.plot_view.canvas.vy_to_sy(this.map_frame.get('top')) + (outline_width / 2);
     w = this.map_frame.get('width') - outline_width;
@@ -358,7 +356,7 @@ TileRendererView = (function(superClass) {
 
   return TileRendererView;
 
-})(PlotWidget);
+})(Renderer.View);
 
 TileRenderer = (function(superClass) {
   extend(TileRenderer, superClass);
@@ -371,22 +369,25 @@ TileRenderer = (function(superClass) {
 
   TileRenderer.prototype.type = 'TileRenderer';
 
-  TileRenderer.prototype.visuals = [];
+  TileRenderer.define({
+    alpha: [p.Number, 1.0],
+    x_range_name: [p.String, "default"],
+    y_range_name: [p.String, "default"],
+    tile_source: [
+      p.Instance, function() {
+        return new wmts.Model();
+      }
+    ],
+    render_parents: [p.Bool, true]
+  });
 
-  TileRenderer.prototype.defaults = function() {
-    return _.extend({}, TileRenderer.__super__.defaults.call(this), {
-      alpha: 1.0,
-      x_range_name: "default",
-      y_range_name: "default",
-      tile_source: new wmts.Model(),
-      render_parents: true,
-      level: 'underlay'
-    });
-  };
+  TileRenderer.override({
+    level: 'underlay'
+  });
 
   return TileRenderer;
 
-})(Renderer);
+})(Renderer.Model);
 
 module.exports = {
   Model: TileRenderer,

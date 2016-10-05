@@ -1,4 +1,4 @@
-var Model, ToolEvents, _, logger,
+var Model, ToolEvents, _, logger, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -6,7 +6,9 @@ _ = require("underscore");
 
 Model = require("../model");
 
-logger = require("./logging").logger;
+logger = require("../core/logging").logger;
+
+p = require("../core/properties");
 
 ToolEvents = (function(superClass) {
   extend(ToolEvents, superClass);
@@ -17,11 +19,9 @@ ToolEvents = (function(superClass) {
 
   ToolEvents.prototype.type = 'ToolEvents';
 
-  ToolEvents.prototype.defaults = function() {
-    return _.extend({}, ToolEvents.__super__.defaults.call(this), {
-      geometries: []
-    });
-  };
+  ToolEvents.define({
+    geometries: [p.Array, []]
+  });
 
   return ToolEvents;
 

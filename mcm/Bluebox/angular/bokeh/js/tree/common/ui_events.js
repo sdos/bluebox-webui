@@ -10,7 +10,7 @@ Hammer = require("hammerjs");
 
 mousewheel = require("jquery-mousewheel")($);
 
-logger = require("./logging").logger;
+logger = require("../core/logging").logger;
 
 UIEvents = (function(superClass) {
   extend(UIEvents, superClass);
@@ -134,8 +134,8 @@ UIEvents = (function(superClass) {
 
   UIEvents.prototype.register_tool = function(tool_view) {
     var et, id, type;
-    et = tool_view.mget('event_type');
-    id = tool_view.mget('id');
+    et = tool_view.model.event_type;
+    id = tool_view.model.id;
     type = tool_view.model.type;
     if (et == null) {
       logger.debug("Button tool: " + type);
@@ -175,15 +175,26 @@ UIEvents = (function(superClass) {
     }
     if (tool_view._doubletap != null) {
       logger.debug("Registering tool: " + type + " for event 'doubletap'");
-      return tool_view.listenTo(this, "doubletap", tool_view._doubletap);
+      tool_view.listenTo(this, "doubletap", tool_view._doubletap);
+    }
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+      if (et === 'pinch') {
+        logger.debug("Registering scroll on touch screen");
+        return tool_view.listenTo(this, "scroll:" + id, tool_view["_scroll"]);
+      }
     }
   };
 
   UIEvents.prototype._trigger = function(event_type, e) {
-    var active_tool, base_event_type, gestures, tm;
-    tm = this.get('tool_manager');
+    var active_tool, base_event_type, gestures, toolbar;
+    toolbar = this.get('toolbar');
     base_event_type = event_type.split(":")[0];
-    gestures = tm.get('gestures');
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+      if (event_type === 'scroll') {
+        base_event_type = 'pinch';
+      }
+    }
+    gestures = toolbar.get('gestures');
     active_tool = gestures[base_event_type].active;
     if (active_tool != null) {
       return this._trigger_event(event_type, active_tool, e);
@@ -206,8 +217,8 @@ UIEvents = (function(superClass) {
       x = e.srcEvent.pageX;
       y = e.srcEvent.pageY;
     } else {
-      x = e.center.x;
-      y = e.center.y;
+      x = e.pointers[0].pageX;
+      y = e.pointers[0].pageY;
     }
     offset = $(e.target).offset();
     left = (ref = offset.left) != null ? ref : 0;

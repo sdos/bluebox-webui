@@ -1,14 +1,16 @@
-var BasicTickFormatter, LogTickFormatter, TickFormatter, _, logger,
+var BasicTickFormatter, LogTickFormatter, TickFormatter, _, logger, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-logger = require("../../common/logging").logger;
+BasicTickFormatter = require("./basic_tick_formatter");
 
 TickFormatter = require("./tick_formatter");
 
-BasicTickFormatter = require("./basic_tick_formatter");
+logger = require("../../core/logging").logger;
+
+p = require("../../core/properties");
 
 LogTickFormatter = (function(superClass) {
   extend(LogTickFormatter, superClass);
@@ -19,11 +21,9 @@ LogTickFormatter = (function(superClass) {
 
   LogTickFormatter.prototype.type = 'LogTickFormatter';
 
-  LogTickFormatter.prototype.defaults = function() {
-    return _.extend({}, LogTickFormatter.__super__.defaults.call(this), {
-      ticker: null
-    });
-  };
+  LogTickFormatter.define({
+    ticker: [p.Instance, null]
+  });
 
   LogTickFormatter.prototype.initialize = function(attrs, options) {
     LogTickFormatter.__super__.initialize.call(this, attrs, options);
@@ -33,7 +33,7 @@ LogTickFormatter = (function(superClass) {
     }
   };
 
-  LogTickFormatter.prototype.format = function(ticks) {
+  LogTickFormatter.prototype.doFormat = function(ticks) {
     var base, i, j, labels, ref, small_interval;
     if (ticks.length === 0) {
       return [];
@@ -53,7 +53,7 @@ LogTickFormatter = (function(superClass) {
       }
     }
     if (small_interval) {
-      labels = this.basic_formatter.format(ticks);
+      labels = this.basic_formatter.doFormat(ticks);
     }
     return labels;
   };

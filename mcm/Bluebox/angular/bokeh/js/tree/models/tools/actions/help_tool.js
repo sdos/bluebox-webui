@@ -1,10 +1,12 @@
-var ActionTool, HelpTool, HelpToolView, _,
+var ActionTool, HelpTool, HelpToolView, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
 ActionTool = require("./action_tool");
+
+p = require("../../../core/properties");
 
 HelpToolView = (function(superClass) {
   extend(HelpToolView, superClass);
@@ -36,17 +38,15 @@ HelpTool = (function(superClass) {
 
   HelpTool.prototype.icon = "bk-tool-icon-help";
 
+  HelpTool.define({
+    help_tooltip: [p.String, 'Click the question mark to learn more about Bokeh plot tools.'],
+    redirect: [p.String, 'http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html']
+  });
+
   HelpTool.prototype.initialize = function(attrs, options) {
     HelpTool.__super__.initialize.call(this, attrs, options);
-    return this.register_property('tooltip', function() {
+    return this.override_computed_property('tooltip', function() {
       return this.get('help_tooltip');
-    });
-  };
-
-  HelpTool.prototype.defaults = function() {
-    return _.extend({}, HelpTool.__super__.defaults.call(this), {
-      help_tooltip: 'Click the question mark to learn more about Bokeh plot tools.',
-      redirect: 'http://bokeh.pydata.org/en/latest/docs/user_guide/tools.html'
     });
   };
 

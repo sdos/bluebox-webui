@@ -1,10 +1,12 @@
-var Glyph, Oval, OvalView, _,
+var Glyph, Oval, OvalView, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
 Glyph = require("./glyph");
+
+p = require("../../core/properties");
 
 OvalView = (function(superClass) {
   extend(OvalView, superClass);
@@ -15,11 +17,11 @@ OvalView = (function(superClass) {
 
   OvalView.prototype._set_data = function() {
     this.max_w2 = 0;
-    if (this.distances.width.units === "data") {
+    if (this.model.properties.width.units === "data") {
       this.max_w2 = this.max_width / 2;
     }
     this.max_h2 = 0;
-    if (this.distances.height.units === "data") {
+    if (this.model.properties.height.units === "data") {
       return this.max_h2 = this.max_height / 2;
     }
   };
@@ -29,15 +31,15 @@ OvalView = (function(superClass) {
   };
 
   OvalView.prototype._map_data = function() {
-    if (this.distances.width.units === "data") {
-      this.sw = this.sdist(this.renderer.xmapper, this.x, this.width, 'center');
+    if (this.model.properties.width.units === "data") {
+      this.sw = this.sdist(this.renderer.xmapper, this._x, this._width, 'center');
     } else {
-      this.sw = this.width;
+      this.sw = this._width;
     }
-    if (this.distances.height.units === "data") {
-      return this.sh = this.sdist(this.renderer.ymapper, this.y, this.height, 'center');
+    if (this.model.properties.height.units === "data") {
+      return this.sh = this.sdist(this.renderer.ymapper, this._y, this._height, 'center');
     } else {
-      return this.sh = this.height;
+      return this.sh = this._height;
     }
   };
 
@@ -47,25 +49,25 @@ OvalView = (function(superClass) {
     results = [];
     for (j = 0, len = indices.length; j < len; j++) {
       i = indices[j];
-      if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + this.angle[i])) {
+      if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + this._angle[i])) {
         continue;
       }
       ctx.translate(sx[i], sy[i]);
-      ctx.rotate(this.angle[i]);
+      ctx.rotate(this._angle[i]);
       ctx.beginPath();
       ctx.moveTo(0, -sh[i] / 2);
       ctx.bezierCurveTo(sw[i] / 2, -sh[i] / 2, sw[i] / 2, sh[i] / 2, 0, sh[i] / 2);
       ctx.bezierCurveTo(-sw[i] / 2, sh[i] / 2, -sw[i] / 2, -sh[i] / 2, 0, -sh[i] / 2);
       ctx.closePath();
-      if (this.visuals.fill.do_fill) {
+      if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i);
         ctx.fill();
       }
-      if (this.visuals.line.do_stroke) {
+      if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i);
         ctx.stroke();
       }
-      ctx.rotate(-this.angle[i]);
+      ctx.rotate(-this._angle[i]);
       results.push(ctx.translate(-sx[i], -sy[i]));
     }
     return results;
@@ -100,7 +102,7 @@ OvalView = (function(superClass) {
   };
 
   OvalView.prototype._bounds = function(bds) {
-    return [[bds[0][0] - this.max_w2, bds[0][1] + this.max_w2], [bds[1][0] - this.max_h2, bds[1][1] + this.max_h2]];
+    return this.max_wh2_bounds(bds);
   };
 
   return OvalView;
@@ -118,15 +120,15 @@ Oval = (function(superClass) {
 
   Oval.prototype.type = 'Oval';
 
-  Oval.prototype.distances = ['width', 'height'];
+  Oval.coords([['x', 'y']]);
 
-  Oval.prototype.angles = ['angle'];
+  Oval.mixins(['line', 'fill']);
 
-  Oval.prototype.defaults = function() {
-    return _.extend({}, Oval.__super__.defaults.call(this), {
-      angle: 0.0
-    });
-  };
+  Oval.define({
+    angle: [p.AngleSpec, 0.0],
+    width: [p.DistanceSpec],
+    height: [p.DistanceSpec]
+  });
 
   return Oval;
 

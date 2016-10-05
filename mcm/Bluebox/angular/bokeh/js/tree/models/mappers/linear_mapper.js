@@ -1,8 +1,10 @@
-var LinearMapper, Model,
+var LinearMapper, Model, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 Model = require("../../model");
+
+p = require("../../core/properties");
 
 LinearMapper = (function(superClass) {
   extend(LinearMapper, superClass);
@@ -13,7 +15,7 @@ LinearMapper = (function(superClass) {
 
   LinearMapper.prototype.initialize = function(attrs, options) {
     LinearMapper.__super__.initialize.call(this, attrs, options);
-    this.register_property('mapper_state', this._mapper_state, true);
+    this.define_computed_property('mapper_state', this._mapper_state, true);
     this.add_dependencies('mapper_state', this, ['source_range', 'target_range']);
     this.add_dependencies('mapper_state', this.get('source_range'), ['start', 'end']);
     return this.add_dependencies('mapper_state', this.get('target_range'), ['start', 'end']);
@@ -63,6 +65,11 @@ LinearMapper = (function(superClass) {
     offset = -(scale * source_start) + target_start;
     return [scale, offset];
   };
+
+  LinearMapper.internal({
+    source_range: [p.Any],
+    target_range: [p.Any]
+  });
 
   return LinearMapper;
 

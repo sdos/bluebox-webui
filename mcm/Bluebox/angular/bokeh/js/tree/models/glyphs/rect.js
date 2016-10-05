@@ -1,4 +1,4 @@
-var Glyph, Rect, RectView, _, hittest,
+var Glyph, Rect, RectView, _, hittest, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7,6 +7,8 @@ _ = require("underscore");
 Glyph = require("./glyph");
 
 hittest = require("../../common/hittest");
+
+p = require("../../core/properties");
 
 RectView = (function(superClass) {
   extend(RectView, superClass);
@@ -17,11 +19,11 @@ RectView = (function(superClass) {
 
   RectView.prototype._set_data = function() {
     this.max_w2 = 0;
-    if (this.distances.width.units === "data") {
+    if (this.model.properties.width.units === "data") {
       this.max_w2 = this.max_width / 2;
     }
     this.max_h2 = 0;
-    if (this.distances.height.units === "data") {
+    if (this.model.properties.height.units === "data") {
       return this.max_h2 = this.max_height / 2;
     }
   };
@@ -31,54 +33,54 @@ RectView = (function(superClass) {
   };
 
   RectView.prototype._map_data = function() {
-    if (this.distances.width.units === "data") {
-      this.sw = this.sdist(this.renderer.xmapper, this.x, this.width, 'center', this.mget('dilate'));
+    if (this.model.properties.width.units === "data") {
+      this.sw = this.sdist(this.renderer.xmapper, this._x, this._width, 'center', this.mget('dilate'));
     } else {
-      this.sw = this.width;
+      this.sw = this._width;
     }
-    if (this.distances.height.units === "data") {
-      return this.sh = this.sdist(this.renderer.ymapper, this.y, this.height, 'center', this.mget('dilate'));
+    if (this.model.properties.height.units === "data") {
+      return this.sh = this.sdist(this.renderer.ymapper, this._y, this._height, 'center', this.mget('dilate'));
     } else {
-      return this.sh = this.height;
+      return this.sh = this._height;
     }
   };
 
   RectView.prototype._render = function(ctx, indices, arg) {
-    var angle, i, j, k, len, len1, sh, sw, sx, sy;
-    sx = arg.sx, sy = arg.sy, sw = arg.sw, sh = arg.sh, angle = arg.angle;
-    if (this.visuals.fill.do_fill) {
+    var _angle, i, j, k, len, len1, sh, sw, sx, sy;
+    sx = arg.sx, sy = arg.sy, sw = arg.sw, sh = arg.sh, _angle = arg._angle;
+    if (this.visuals.fill.doit) {
       for (j = 0, len = indices.length; j < len; j++) {
         i = indices[j];
-        if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])) {
+        if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + _angle[i])) {
           continue;
         }
         this.visuals.fill.set_vectorize(ctx, i);
-        if (angle[i]) {
+        if (_angle[i]) {
           ctx.translate(sx[i], sy[i]);
-          ctx.rotate(angle[i]);
+          ctx.rotate(_angle[i]);
           ctx.fillRect(-sw[i] / 2, -sh[i] / 2, sw[i], sh[i]);
-          ctx.rotate(-angle[i]);
+          ctx.rotate(-_angle[i]);
           ctx.translate(-sx[i], -sy[i]);
         } else {
           ctx.fillRect(sx[i] - sw[i] / 2, sy[i] - sh[i] / 2, sw[i], sh[i]);
         }
       }
     }
-    if (this.visuals.line.do_stroke) {
+    if (this.visuals.line.doit) {
       ctx.beginPath();
       for (k = 0, len1 = indices.length; k < len1; k++) {
         i = indices[k];
-        if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])) {
+        if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + _angle[i])) {
           continue;
         }
         if (sw[i] === 0 || sh[i] === 0) {
           continue;
         }
-        if (angle[i]) {
+        if (_angle[i]) {
           ctx.translate(sx[i], sy[i]);
-          ctx.rotate(angle[i]);
+          ctx.rotate(_angle[i]);
           ctx.rect(-sw[i] / 2, -sh[i] / 2, sw[i], sh[i]);
-          ctx.rotate(-angle[i]);
+          ctx.rotate(-_angle[i]);
           ctx.translate(-sx[i], -sy[i]);
         } else {
           ctx.rect(sx[i] - sw[i] / 2, sy[i] - sh[i] / 2, sw[i], sh[i]);
@@ -92,17 +94,18 @@ RectView = (function(superClass) {
   };
 
   RectView.prototype._hit_rect = function(geometry) {
-    var ref, ref1, result, x, x0, x1, y0, y1;
+    var bbox, ref, ref1, result, x, x0, x1, y0, y1;
     ref = this.renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true), x0 = ref[0], x1 = ref[1];
     ref1 = this.renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true), y0 = ref1[0], y1 = ref1[1];
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     result = hittest.create_hit_test_result();
     result['1d'].indices = (function() {
       var j, len, ref2, results;
-      ref2 = this.index.search([x0, y0, x1, y1]);
+      ref2 = this.index.search(bbox);
       results = [];
       for (j = 0, len = ref2.length; j < len; j++) {
         x = ref2[j];
-        results.push(x[4].i);
+        results.push(x.i);
       }
       return results;
     }).call(this);
@@ -110,11 +113,11 @@ RectView = (function(superClass) {
   };
 
   RectView.prototype._hit_point = function(geometry) {
-    var c, d, height_in, hits, i, j, len, pt, px, py, ref, ref1, ref2, ref3, result, s, sx, sy, vx, vx0, vx1, vy, vy0, vy1, width_in, x, x0, x1, y, y0, y1;
+    var bbox, c, d, height_in, hits, i, j, len, pt, px, py, ref, ref1, ref2, ref3, result, s, sx, sy, vx, vx0, vx1, vy, vy0, vy1, width_in, x, x0, x1, y, y0, y1;
     ref = [geometry.vx, geometry.vy], vx = ref[0], vy = ref[1];
     x = this.renderer.xmapper.map_from_target(vx, true);
     y = this.renderer.ymapper.map_from_target(vy, true);
-    if (this.distances.width.units === "screen") {
+    if (this.model.properties.width.units === "screen") {
       vx0 = vx - 2 * this.max_width;
       vx1 = vx + 2 * this.max_width;
       ref1 = this.renderer.xmapper.v_map_from_target([vx0, vx1], true), x0 = ref1[0], x1 = ref1[1];
@@ -122,7 +125,7 @@ RectView = (function(superClass) {
       x0 = x - 2 * this.max_width;
       x1 = x + 2 * this.max_width;
     }
-    if (this.distances.height.units === "screen") {
+    if (this.model.properties.height.units === "screen") {
       vy0 = vy - 2 * this.max_height;
       vy1 = vy + 2 * this.max_height;
       ref2 = this.renderer.ymapper.v_map_from_target([vy0, vy1], true), y0 = ref2[0], y1 = ref2[1];
@@ -131,13 +134,14 @@ RectView = (function(superClass) {
       y1 = y + 2 * this.max_height;
     }
     hits = [];
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     ref3 = (function() {
       var k, len, ref3, results;
-      ref3 = this.index.search([x0, y0, x1, y1]);
+      ref3 = this.index.search(bbox);
       results = [];
       for (k = 0, len = ref3.length; k < len; k++) {
         pt = ref3[k];
-        results.push(pt[4].i);
+        results.push(pt.i);
       }
       return results;
     }).call(this);
@@ -145,10 +149,10 @@ RectView = (function(superClass) {
       i = ref3[j];
       sx = this.renderer.plot_view.canvas.vx_to_sx(vx);
       sy = this.renderer.plot_view.canvas.vy_to_sy(vy);
-      if (this.angle[i]) {
+      if (this._angle[i]) {
         d = Math.sqrt(Math.pow(sx - this.sx[i], 2) + Math.pow(sy - this.sy[i], 2));
-        s = Math.sin(-this.angle[i]);
-        c = Math.cos(-this.angle[i]);
+        s = Math.sin(-this._angle[i]);
+        c = Math.cos(-this._angle[i]);
         px = c * (sx - this.sx[i]) - s * (sy - this.sy[i]) + this.sx[i];
         py = s * (sx - this.sx[i]) + c * (sy - this.sy[i]) + this.sy[i];
         sx = px;
@@ -170,7 +174,7 @@ RectView = (function(superClass) {
   };
 
   RectView.prototype._bounds = function(bds) {
-    return [[bds[0][0] - this.max_w2, bds[0][1] + this.max_w2], [bds[1][0] - this.max_h2, bds[1][1] + this.max_h2]];
+    return this.max_wh2_bounds(bds);
   };
 
   return RectView;
@@ -188,16 +192,16 @@ Rect = (function(superClass) {
 
   Rect.prototype.type = 'Rect';
 
-  Rect.prototype.distances = ['width', 'height'];
+  Rect.coords([['x', 'y']]);
 
-  Rect.prototype.angles = ['angle'];
+  Rect.mixins(['line', 'fill']);
 
-  Rect.prototype.defaults = function() {
-    return _.extend({}, Rect.__super__.defaults.call(this), {
-      angle: 0.0,
-      dilate: false
-    });
-  };
+  Rect.define({
+    angle: [p.AngleSpec, 0],
+    width: [p.DistanceSpec],
+    height: [p.DistanceSpec],
+    dilate: [p.Bool, false]
+  });
 
   return Rect;
 

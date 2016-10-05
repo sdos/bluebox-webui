@@ -1,16 +1,16 @@
-var GlyphRenderer, GlyphRendererView, PlotWidget, RemoteDataSource, Renderer, _, logger,
+var GlyphRenderer, GlyphRendererView, RemoteDataSource, Renderer, _, logger, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-logger = require("../../common/logging").logger;
-
 Renderer = require("./renderer");
 
-PlotWidget = require("../../common/plot_widget");
-
 RemoteDataSource = require("../sources/remote_data_source");
+
+logger = require("../../core/logging").logger;
+
+p = require("../../core/properties");
 
 GlyphRendererView = (function(superClass) {
   extend(GlyphRendererView, superClass);
@@ -20,33 +20,39 @@ GlyphRendererView = (function(superClass) {
   }
 
   GlyphRendererView.prototype.initialize = function(options) {
-    var decimated_glyph, hover_glyph, nonselection_glyph, selection_glyph;
+    var base_glyph, decimated_glyph, glyph_attrs, has_fill, has_line, hover_glyph, mk_glyph, nonselection_glyph, selection_glyph;
     GlyphRendererView.__super__.initialize.call(this, options);
-    this.glyph = this.build_glyph_view(this.mget("glyph"));
+    base_glyph = this.mget("glyph");
+    has_fill = _.contains(base_glyph.mixins, "fill");
+    has_line = _.contains(base_glyph.mixins, "line");
+    glyph_attrs = _.omit(_.clone(base_glyph.attributes), 'id');
+    mk_glyph = function(defaults) {
+      var attrs;
+      attrs = _.clone(glyph_attrs);
+      if (has_fill) {
+        _.extend(attrs, defaults.fill);
+      }
+      if (has_line) {
+        _.extend(attrs, defaults.line);
+      }
+      return new base_glyph.constructor(attrs);
+    };
+    this.glyph = this.build_glyph_view(base_glyph);
     selection_glyph = this.mget("selection_glyph");
     if (selection_glyph == null) {
-      selection_glyph = this.mget("glyph").clone();
-      selection_glyph.set(this.model.selection_defaults, {
-        silent: true
-      });
+      selection_glyph = mk_glyph(this.model.selection_defaults);
     }
     this.selection_glyph = this.build_glyph_view(selection_glyph);
     nonselection_glyph = this.mget("nonselection_glyph");
     if (nonselection_glyph == null) {
-      nonselection_glyph = this.mget("glyph").clone();
-      nonselection_glyph.set(this.model.nonselection_defaults, {
-        silent: true
-      });
+      nonselection_glyph = mk_glyph(this.model.nonselection_defaults);
     }
     this.nonselection_glyph = this.build_glyph_view(nonselection_glyph);
     hover_glyph = this.mget("hover_glyph");
     if (hover_glyph != null) {
       this.hover_glyph = this.build_glyph_view(hover_glyph);
     }
-    decimated_glyph = this.mget("glyph").clone();
-    decimated_glyph.set(this.model.decimated_defaults, {
-      silent: true
-    });
+    decimated_glyph = mk_glyph(this.model.decimated_defaults);
     this.decimated_glyph = this.build_glyph_view(decimated_glyph);
     this.xmapper = this.plot_view.frame.get('x_mappers')[this.mget("x_range_name")];
     this.ymapper = this.plot_view.frame.get('y_mappers')[this.mget("y_range_name")];
@@ -59,13 +65,16 @@ GlyphRendererView = (function(superClass) {
   GlyphRendererView.prototype.build_glyph_view = function(model) {
     return new model.default_view({
       model: model,
-      renderer: this
+      renderer: this,
+      plot_view: this.plot_view,
+      plot_model: this.plot_model
     });
   };
 
   GlyphRendererView.prototype.bind_bokeh_events = function() {
     this.listenTo(this.model, 'change', this.request_render);
     this.listenTo(this.mget('data_source'), 'change', this.set_data);
+    this.listenTo(this.mget('data_source'), 'patch', this.set_data);
     this.listenTo(this.mget('data_source'), 'stream', this.set_data);
     this.listenTo(this.mget('data_source'), 'select', this.request_render);
     if (this.hover_glyph != null) {
@@ -88,6 +97,12 @@ GlyphRendererView = (function(superClass) {
     }
     t0 = Date.now();
     source = this.mget('data_source');
+    this.glyph.model.set({
+      x_range_name: this.mget('x_range_name'),
+      y_range_name: this.mget('y_range_name')
+    }, {
+      silent: true
+    });
     this.glyph.set_data(source, arg);
     this.glyph.set_visuals(source);
     this.decimated_glyph.set_visuals(source);
@@ -107,7 +122,7 @@ GlyphRendererView = (function(superClass) {
       for (var j = 0; 0 <= length ? j < length : j > length; 0 <= length ? j++ : j--){ results.push(j); }
       return results;
     }).apply(this);
-    lod_factor = this.plot_model.get('lod_factor');
+    lod_factor = this.plot_model.plot.lod_factor;
     this.decimated = [];
     for (i = k = 0, ref = Math.floor(this.all_indices.length / lod_factor); 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
       this.decimated.push(this.all_indices[i * lod_factor]);
@@ -122,6 +137,9 @@ GlyphRendererView = (function(superClass) {
 
   GlyphRendererView.prototype.render = function() {
     var ctx, dtmap, dtmask, dtrender, dtselect, dttot, glsupport, glyph, i, indices, inspected, j, k, len, len1, lod_threshold, nonselected, nonselection_glyph, selected, selected_mask, selection_glyph, t0, tmap, tmask, trender, tselect;
+    if (this.model.visible === false) {
+      return;
+    }
     t0 = Date.now();
     glsupport = this.glyph.glglyph;
     tmap = Date.now();
@@ -144,8 +162,6 @@ GlyphRendererView = (function(superClass) {
         selected = indices;
       } else if (selected['1d'].indices.length > 0) {
         selected = selected['1d'].indices;
-      } else if (selected['2d'].indices.length > 0) {
-        selected = selected['2d'].indices;
       } else {
         selected = [];
       }
@@ -158,13 +174,11 @@ GlyphRendererView = (function(superClass) {
         inspected = indices;
       } else if (inspected['1d'].indices.length > 0) {
         inspected = inspected['1d'].indices;
-      } else if (inspected['2d'].indices.length > 0) {
-        inspected = inspected['2d'].indices;
       } else {
         inspected = [];
       }
     }
-    lod_threshold = this.plot_model.get('lod_threshold');
+    lod_threshold = this.plot_model.plot.lod_threshold;
     if (this.plot_view.interactive && !glsupport && (lod_threshold != null) && this.all_indices.length > lod_threshold) {
       indices = this.decimated;
       glyph = this.decimated_glyph;
@@ -239,7 +253,7 @@ GlyphRendererView = (function(superClass) {
 
   return GlyphRendererView;
 
-})(PlotWidget);
+})(Renderer.View);
 
 GlyphRenderer = (function(superClass) {
   extend(GlyphRenderer, superClass);
@@ -252,36 +266,47 @@ GlyphRenderer = (function(superClass) {
 
   GlyphRenderer.prototype.type = 'GlyphRenderer';
 
-  GlyphRenderer.prototype.selection_defaults = {};
+  GlyphRenderer.define({
+    x_range_name: [p.String, 'default'],
+    y_range_name: [p.String, 'default'],
+    data_source: [p.Instance],
+    glyph: [p.Instance],
+    hover_glyph: [p.Instance],
+    nonselection_glyph: [p.Instance],
+    selection_glyph: [p.Instance]
+  });
+
+  GlyphRenderer.override({
+    level: 'glyph'
+  });
+
+  GlyphRenderer.prototype.selection_defaults = {
+    fill: {},
+    line: {}
+  };
 
   GlyphRenderer.prototype.decimated_defaults = {
-    fill_alpha: 0.3,
-    line_alpha: 0.3,
-    fill_color: "grey",
-    line_color: "grey"
+    fill: {
+      fill_alpha: 0.3,
+      fill_color: "grey"
+    },
+    line: {
+      line_alpha: 0.3,
+      line_color: "grey"
+    }
   };
 
   GlyphRenderer.prototype.nonselection_defaults = {
-    fill_alpha: 0.2,
-    line_alpha: 0.2
-  };
-
-  GlyphRenderer.prototype.defaults = function() {
-    return _.extend({}, GlyphRenderer.__super__.defaults.call(this), {
-      x_range_name: "default",
-      y_range_name: "default",
-      data_source: null,
-      level: 'glyph',
-      glyph: null,
-      hover_glyph: null,
-      nonselection_glyph: null,
-      selection_glyph: null
-    });
+    fill: {
+      fill_alpha: 0.2,
+      line_alpha: 0.2
+    },
+    line: {}
   };
 
   return GlyphRenderer;
 
-})(Renderer);
+})(Renderer.Model);
 
 module.exports = {
   Model: GlyphRenderer,

@@ -19,13 +19,15 @@ SegmentView = (function(superClass) {
     var i, index, j, pts, ref;
     index = rbush();
     pts = [];
-    for (i = j = 0, ref = this.x0.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-      if (!isNaN(this.x0[i] + this.x1[i] + this.y0[i] + this.y1[i])) {
-        pts.push([
-          this.x0[i], this.y0[i], this.x1[i], this.y1[i], {
-            'i': i
-          }
-        ]);
+    for (i = j = 0, ref = this._x0.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+      if (!isNaN(this._x0[i] + this._x1[i] + this._y0[i] + this._y1[i])) {
+        pts.push({
+          minX: Math.min(this._x0[i], this._x1[i]),
+          minY: Math.min(this._y0[i], this._y1[i]),
+          maxX: Math.max(this._x0[i], this._x1[i]),
+          maxY: Math.max(this._y0[i], this._y1[i]),
+          i: i
+        });
       }
     }
     index.load(pts);
@@ -35,7 +37,7 @@ SegmentView = (function(superClass) {
   SegmentView.prototype._render = function(ctx, indices, arg) {
     var i, j, len, results, sx0, sx1, sy0, sy1;
     sx0 = arg.sx0, sy0 = arg.sy0, sx1 = arg.sx1, sy1 = arg.sy1;
-    if (this.visuals.line.do_stroke) {
+    if (this.visuals.line.doit) {
       results = [];
       for (j = 0, len = indices.length; j < len; j++) {
         i = indices[j];
@@ -71,9 +73,9 @@ Segment = (function(superClass) {
 
   Segment.prototype.type = 'Segment';
 
-  Segment.prototype.visuals = ['line'];
+  Segment.coords([['x0', 'y0'], ['x1', 'y1']]);
 
-  Segment.prototype.coords = [['x0', 'y0'], ['x1', 'y1']];
+  Segment.mixins(['line']);
 
   return Segment;
 

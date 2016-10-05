@@ -1,12 +1,14 @@
-var AbstractIcon, ContinuumView, Icon, IconView, _,
+var AbstractIcon, Icon, IconView, Widget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 AbstractIcon = require("./abstract_icon");
+
+Widget = require("./widget");
 
 IconView = (function(superClass) {
   extend(IconView, superClass);
@@ -44,9 +46,13 @@ IconView = (function(superClass) {
     return this;
   };
 
+  IconView.prototype.update_constraints = function() {
+    return null;
+  };
+
   return IconView;
 
-})(ContinuumView);
+})(Widget.View);
 
 Icon = (function(superClass) {
   extend(Icon, superClass);
@@ -59,14 +65,12 @@ Icon = (function(superClass) {
 
   Icon.prototype.default_view = IconView;
 
-  Icon.prototype.defaults = function() {
-    return _.extend({}, Icon.__super__.defaults.call(this), {
-      icon_name: "check",
-      size: null,
-      flip: null,
-      spin: false
-    });
-  };
+  Icon.define({
+    icon_name: [p.String, "check"],
+    size: [p.Number],
+    flip: [p.Any],
+    spin: [p.Bool, false]
+  });
 
   return Icon;
 

@@ -1,4 +1,4 @@
-var MonthsTicker, ONE_MONTH, SingleIntervalTicker, _, copy_date, date_range_by_year, last_year_no_later_than, util,
+var MonthsTicker, ONE_MONTH, SingleIntervalTicker, _, copy_date, date_range_by_year, last_year_no_later_than, p, util,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7,6 +7,8 @@ _ = require("underscore");
 SingleIntervalTicker = require("./single_interval_ticker");
 
 util = require("./util");
+
+p = require("../../core/properties");
 
 copy_date = util.copy_date;
 
@@ -39,6 +41,10 @@ MonthsTicker = (function(superClass) {
   }
 
   MonthsTicker.prototype.type = 'MonthsTicker';
+
+  MonthsTicker.define({
+    months: [p.Array, []]
+  });
 
   MonthsTicker.prototype.initialize = function(attrs, options) {
     var interval, months;
@@ -77,12 +83,6 @@ MonthsTicker = (function(superClass) {
       "major": ticks_in_range,
       "minor": []
     };
-  };
-
-  MonthsTicker.prototype.defaults = function() {
-    return _.extend({}, MonthsTicker.__super__.defaults.call(this), {
-      months: []
-    });
   };
 
   return MonthsTicker;

@@ -1,4 +1,4 @@
-var $, $1, ContinuumView, Tabs, TabsView, Widget, _, build_views, tabs_template,
+var $, $1, Tabs, TabsView, Widget, _, p, tabs_template,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -8,9 +8,7 @@ $ = require("jquery");
 
 $1 = require("bootstrap/tab");
 
-build_views = require("../../common/build_views");
-
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 tabs_template = require("./tabs_template");
 
@@ -23,16 +21,10 @@ TabsView = (function(superClass) {
     return TabsView.__super__.constructor.apply(this, arguments);
   }
 
-  TabsView.prototype.initialize = function(options) {
-    TabsView.__super__.initialize.call(this, options);
-    this.views = {};
-    this.render();
-    return this.listenTo(this.model, 'change', this.render);
-  };
-
   TabsView.prototype.render = function() {
-    var $panels, active, child, children, html, j, key, len, panel, ref, ref1, ref2, tab, tabs, that, val;
-    ref = this.views;
+    var $panels, active, child, children, html, j, key, len, panel, ref, ref1, ref2, tabs, that, val;
+    TabsView.__super__.render.call(this);
+    ref = this.child_views;
     for (key in ref) {
       if (!hasProp.call(ref, key)) continue;
       val = ref[key];
@@ -40,17 +32,8 @@ TabsView = (function(superClass) {
     }
     this.$el.empty();
     tabs = this.mget('tabs');
-    active = this.mget("active");
-    children = (function() {
-      var j, len, results;
-      results = [];
-      for (j = 0, len = tabs.length; j < len; j++) {
-        tab = tabs[j];
-        results.push(tab.get("child"));
-      }
-      return results;
-    })();
-    build_views(this.views, children);
+    active = this.mget('active');
+    children = this.mget('children');
     html = $(tabs_template({
       tabs: tabs,
       active: function(i) {
@@ -78,7 +61,7 @@ TabsView = (function(superClass) {
     ref1 = _.zip(children, $panels);
     for (j = 0, len = ref1.length; j < len; j++) {
       ref2 = ref1[j], child = ref2[0], panel = ref2[1];
-      $(panel).html(this.views[child.id].$el);
+      $(panel).html(this.child_views[child.id].$el);
     }
     this.$el.append(html);
     this.$el.tabs;
@@ -87,7 +70,7 @@ TabsView = (function(superClass) {
 
   return TabsView;
 
-})(ContinuumView);
+})(Widget.View);
 
 Tabs = (function(superClass) {
   extend(Tabs, superClass);
@@ -100,12 +83,55 @@ Tabs = (function(superClass) {
 
   Tabs.prototype.default_view = TabsView;
 
-  Tabs.prototype.defaults = function() {
-    return _.extend({}, Tabs.__super__.defaults.call(this), {
-      tabs: [],
-      active: 0,
-      callback: null
-    });
+  Tabs.prototype.initialize = function(options) {
+    var tab;
+    Tabs.__super__.initialize.call(this, options);
+    return this.children = (function() {
+      var j, len, ref, results;
+      ref = this.tabs;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        tab = ref[j];
+        results.push(tab.get("child"));
+      }
+      return results;
+    }).call(this);
+  };
+
+  Tabs.define({
+    tabs: [p.Array, []],
+    active: [p.Number, 0],
+    callback: [p.Instance]
+  });
+
+  Tabs.internal({
+    children: [p.Array, []]
+  });
+
+  Tabs.prototype.get_layoutable_children = function() {
+    return this.get('children');
+  };
+
+  Tabs.prototype.get_edit_variables = function() {
+    var child, edit_variables, j, len, ref;
+    edit_variables = Tabs.__super__.get_edit_variables.call(this);
+    ref = this.get_layoutable_children();
+    for (j = 0, len = ref.length; j < len; j++) {
+      child = ref[j];
+      edit_variables = edit_variables.concat(child.get_edit_variables());
+    }
+    return edit_variables;
+  };
+
+  Tabs.prototype.get_constraints = function() {
+    var child, constraints, j, len, ref;
+    constraints = Tabs.__super__.get_constraints.call(this);
+    ref = this.get_layoutable_children();
+    for (j = 0, len = ref.length; j < len; j++) {
+      child = ref[j];
+      constraints = constraints.concat(child.get_constraints());
+    }
+    return constraints;
   };
 
   return Tabs;

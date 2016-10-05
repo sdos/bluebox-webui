@@ -1,10 +1,12 @@
-var GestureTool, WheelZoomTool, WheelZoomToolView, _, document,
+var GestureTool, WheelZoomTool, WheelZoomToolView, _, document, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
 GestureTool = require("./gesture_tool");
+
+p = require("../../../core/properties");
 
 if (typeof document === "undefined" || document === null) {
   document = {};
@@ -104,7 +106,7 @@ WheelZoomToolView = (function(superClass) {
     this.plot_view.push_state('wheel_zoom', {
       range: zoom_info
     });
-    this.plot_view.update_range(zoom_info);
+    this.plot_view.update_range(zoom_info, false, true);
     this.plot_view.interactive_timestamp = Date.now();
     return null;
   };
@@ -128,28 +130,25 @@ WheelZoomTool = (function(superClass) {
 
   WheelZoomTool.prototype.icon = "bk-tool-icon-wheel-zoom";
 
-  WheelZoomTool.prototype.event_type = 'ontouchstart' in window.document ? 'pinch' : 'scroll';
+  WheelZoomTool.prototype.event_type = 'ontouchstart' in window || navigator.maxTouchPoints > 0 ? 'pinch' : 'scroll';
 
   WheelZoomTool.prototype.default_order = 10;
 
   WheelZoomTool.prototype.initialize = function(attrs, options) {
     WheelZoomTool.__super__.initialize.call(this, attrs, options);
-    this.register_property('tooltip', function() {
-      return this._get_dim_tooltip(this.get("tool_name"), this._check_dims(this.get('dimensions'), "wheel zoom tool"));
+    this.override_computed_property('tooltip', function() {
+      return this._get_dim_tooltip(this.tool_name, this._check_dims(this.get('dimensions'), "wheel zoom tool"));
     }, false);
     return this.add_dependencies('tooltip', this, ['dimensions']);
   };
 
-  WheelZoomTool.prototype.nonserializable_attribute_names = function() {
-    return WheelZoomTool.__super__.nonserializable_attribute_names.call(this).concat(['speed']);
-  };
+  WheelZoomTool.define({
+    dimensions: [p.Array, ["width", "height"]]
+  });
 
-  WheelZoomTool.prototype.defaults = function() {
-    return _.extend({}, WheelZoomTool.__super__.defaults.call(this), {
-      dimensions: ["width", "height"],
-      speed: 1 / 600
-    });
-  };
+  WheelZoomTool.internal({
+    speed: [p.Number, 1 / 600]
+  });
 
   return WheelZoomTool;
 

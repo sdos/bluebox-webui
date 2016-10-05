@@ -1,4 +1,4 @@
-var BoxAnnotation, BoxZoomTool, BoxZoomToolView, GestureTool, _,
+var BoxAnnotation, BoxZoomTool, BoxZoomToolView, DEFAULT_BOX_OVERLAY, GestureTool, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -8,12 +8,71 @@ GestureTool = require("./gesture_tool");
 
 BoxAnnotation = require("../../annotations/box_annotation");
 
+p = require("../../../core/properties");
+
 BoxZoomToolView = (function(superClass) {
   extend(BoxZoomToolView, superClass);
 
   function BoxZoomToolView() {
     return BoxZoomToolView.__super__.constructor.apply(this, arguments);
   }
+
+  BoxZoomToolView.prototype._match_aspect = function(basepoint, curpoint, frame) {
+    var a, bottom, h, hend, hstart, left, ref, ref1, right, top, va, vend, vh, vstart, vw, w, xmod, ymod;
+    hend = frame.get('h_range').get('end');
+    hstart = frame.get('h_range').get('start');
+    vend = frame.get('v_range').get('end');
+    vstart = frame.get('v_range').get('start');
+    w = hend - hstart;
+    h = vend - vstart;
+    a = w / h;
+    vw = Math.abs(basepoint[0] - curpoint[0]);
+    vh = Math.abs(basepoint[1] - curpoint[1]);
+    if (vh === 0) {
+      va = 0;
+    } else {
+      va = vw / vh;
+    }
+    if (va >= a) {
+      ref = [1, va / a], xmod = ref[0], ymod = ref[1];
+    } else {
+      ref1 = [a / va, 1], xmod = ref1[0], ymod = ref1[1];
+    }
+    if (basepoint[0] <= curpoint[0]) {
+      left = basepoint[0];
+      right = basepoint[0] + vw * xmod;
+      if (right > hend) {
+        right = hend;
+      }
+    } else {
+      right = basepoint[0];
+      left = basepoint[0] - vw * xmod;
+      if (left < hstart) {
+        left = hstart;
+      }
+    }
+    vw = Math.abs(right - left);
+    if (basepoint[1] <= curpoint[1]) {
+      bottom = basepoint[1];
+      top = basepoint[1] + vw / a;
+      if (top > vend) {
+        top = vend;
+      }
+    } else {
+      top = basepoint[1];
+      bottom = basepoint[1] - vw / a;
+      if (bottom < vstart) {
+        bottom = vstart;
+      }
+    }
+    vh = Math.abs(top - bottom);
+    if (basepoint[0] <= curpoint[0]) {
+      right = basepoint[0] + a * vh;
+    } else {
+      left = basepoint[0] - a * vh;
+    }
+    return [[left, right], [bottom, top]];
+  };
 
   BoxZoomToolView.prototype._pan_start = function(e) {
     var canvas;
@@ -23,29 +82,37 @@ BoxZoomToolView = (function(superClass) {
   };
 
   BoxZoomToolView.prototype._pan = function(e) {
-    var canvas, curpoint, dims, frame, ref, vxlim, vylim;
+    var canvas, curpoint, dims, frame, ref, ref1, vx, vy;
     canvas = this.plot_view.canvas;
     curpoint = [canvas.sx_to_vx(e.bokeh.sx), canvas.sy_to_vy(e.bokeh.sy)];
     frame = this.plot_model.get('frame');
     dims = this.mget('dimensions');
-    ref = this.model._get_dim_limits(this._baseboint, curpoint, frame, dims), vxlim = ref[0], vylim = ref[1];
+    if (this.mget('match_aspect') && dims.length === 2) {
+      ref = this._match_aspect(this._baseboint, curpoint, frame), vx = ref[0], vy = ref[1];
+    } else {
+      ref1 = this.model._get_dim_limits(this._baseboint, curpoint, frame, dims), vx = ref1[0], vy = ref1[1];
+    }
     this.mget('overlay').update({
-      left: vxlim[0],
-      right: vxlim[1],
-      top: vylim[1],
-      bottom: vylim[0]
+      left: vx[0],
+      right: vx[1],
+      top: vy[1],
+      bottom: vy[0]
     });
     return null;
   };
 
   BoxZoomToolView.prototype._pan_end = function(e) {
-    var canvas, curpoint, dims, frame, ref, vxlim, vylim;
+    var canvas, curpoint, dims, frame, ref, ref1, vx, vy;
     canvas = this.plot_view.canvas;
     curpoint = [canvas.sx_to_vx(e.bokeh.sx), canvas.sy_to_vy(e.bokeh.sy)];
     frame = this.plot_model.get('frame');
     dims = this.mget('dimensions');
-    ref = this.model._get_dim_limits(this._baseboint, curpoint, frame, dims), vxlim = ref[0], vylim = ref[1];
-    this._update(vxlim, vylim);
+    if (this.mget('match_aspect') && dims.length === 2) {
+      ref = this._match_aspect(this._baseboint, curpoint, frame), vx = ref[0], vy = ref[1];
+    } else {
+      ref1 = this.model._get_dim_limits(this._baseboint, curpoint, frame, dims), vx = ref1[0], vy = ref1[1];
+    }
+    this._update(vx, vy);
     this.mget('overlay').update({
       left: null,
       right: null,
@@ -56,16 +123,16 @@ BoxZoomToolView = (function(superClass) {
     return null;
   };
 
-  BoxZoomToolView.prototype._update = function(vxlim, vylim) {
+  BoxZoomToolView.prototype._update = function(vx, vy) {
     var end, mapper, name, ref, ref1, ref2, ref3, start, xrs, yrs, zoom_info;
-    if (Math.abs(vxlim[1] - vxlim[0]) <= 5 || Math.abs(vylim[1] - vylim[0]) <= 5) {
+    if (Math.abs(vx[1] - vx[0]) <= 5 || Math.abs(vy[1] - vy[0]) <= 5) {
       return;
     }
     xrs = {};
     ref = this.plot_view.frame.get('x_mappers');
     for (name in ref) {
       mapper = ref[name];
-      ref1 = mapper.v_map_from_target(vxlim, true), start = ref1[0], end = ref1[1];
+      ref1 = mapper.v_map_from_target(vx, true), start = ref1[0], end = ref1[1];
       xrs[name] = {
         start: start,
         end: end
@@ -75,7 +142,7 @@ BoxZoomToolView = (function(superClass) {
     ref2 = this.plot_view.frame.get('y_mappers');
     for (name in ref2) {
       mapper = ref2[name];
-      ref3 = mapper.v_map_from_target(vylim, true), start = ref3[0], end = ref3[1];
+      ref3 = mapper.v_map_from_target(vy, true), start = ref3[0], end = ref3[1];
       yrs[name] = {
         start: start,
         end: end
@@ -94,6 +161,23 @@ BoxZoomToolView = (function(superClass) {
   return BoxZoomToolView;
 
 })(GestureTool.View);
+
+DEFAULT_BOX_OVERLAY = function() {
+  return new BoxAnnotation.Model({
+    level: "overlay",
+    render_mode: "css",
+    top_units: "screen",
+    left_units: "screen",
+    bottom_units: "screen",
+    right_units: "screen",
+    fill_color: "lightgrey",
+    fill_alpha: 0.5,
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 2,
+    line_dash: [4, 4]
+  });
+};
 
 BoxZoomTool = (function(superClass) {
   extend(BoxZoomTool, superClass);
@@ -116,34 +200,17 @@ BoxZoomTool = (function(superClass) {
 
   BoxZoomTool.prototype.initialize = function(attrs, options) {
     BoxZoomTool.__super__.initialize.call(this, attrs, options);
-    this.get('overlay').set('silent_update', true, {
-      silent: true
-    });
-    this.register_property('tooltip', function() {
-      return this._get_dim_tooltip(this.get("tool_name"), this._check_dims(this.get('dimensions'), "box zoom tool"));
+    this.override_computed_property('tooltip', function() {
+      return this._get_dim_tooltip(this.tool_name, this._check_dims(this.get('dimensions'), "box zoom tool"));
     }, false);
     return this.add_dependencies('tooltip', this, ['dimensions']);
   };
 
-  BoxZoomTool.prototype.defaults = function() {
-    return _.extend({}, BoxZoomTool.__super__.defaults.call(this), {
-      dimensions: ["width", "height"],
-      overlay: new BoxAnnotation.Model({
-        level: "overlay",
-        render_mode: "css",
-        top_units: "screen",
-        left_units: "screen",
-        bottom_units: "screen",
-        right_units: "screen",
-        fill_color: "lightgrey",
-        fill_alpha: 0.5,
-        line_color: "black",
-        line_alpha: 1.0,
-        line_width: 2,
-        line_dash: [4, 4]
-      })
-    });
-  };
+  BoxZoomTool.define({
+    dimensions: [p.Array, ["width", "height"]],
+    overlay: [p.Instance, DEFAULT_BOX_OVERLAY],
+    match_aspect: [p.Bool, false]
+  });
 
   return BoxZoomTool;
 

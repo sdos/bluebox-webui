@@ -1,4 +1,4 @@
-var PolyAnnotation, PolySelectTool, PolySelectToolView, SelectTool, _,
+var DEFAULT_POLY_OVERLAY, PolyAnnotation, PolySelectTool, PolySelectToolView, SelectTool, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7,6 +7,8 @@ _ = require("underscore");
 SelectTool = require("./select_tool");
 
 PolyAnnotation = require("../../annotations/poly_annotation");
+
+p = require("../../../core/properties");
 
 PolySelectToolView = (function(superClass) {
   extend(PolySelectToolView, superClass);
@@ -79,12 +81,12 @@ PolySelectToolView = (function(superClass) {
       vx: vx,
       vy: vy
     };
-    ref = this.mget('renderers');
+    ref = this.mget('computed_renderers');
     for (i = 0, len = ref.length; i < len; i++) {
       r = ref[i];
       ds = r.get('data_source');
       sm = ds.get('selection_manager');
-      sm.select(this, this.plot_view.renderers[r.id], geometry, final, append);
+      sm.select(this, this.plot_view.renderer_views[r.id], geometry, final, append);
     }
     this._save_geometry(geometry, final, append);
     this.plot_view.push_state('poly_select', {
@@ -96,6 +98,20 @@ PolySelectToolView = (function(superClass) {
   return PolySelectToolView;
 
 })(SelectTool.View);
+
+DEFAULT_POLY_OVERLAY = function() {
+  return new PolyAnnotation.Model({
+    level: "overlay",
+    xs_units: "screen",
+    ys_units: "screen",
+    fill_color: "lightgrey",
+    fill_alpha: 0.5,
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 2,
+    line_dash: [4, 4]
+  });
+};
 
 PolySelectTool = (function(superClass) {
   extend(PolySelectTool, superClass);
@@ -116,27 +132,9 @@ PolySelectTool = (function(superClass) {
 
   PolySelectTool.prototype.default_order = 11;
 
-  PolySelectTool.prototype.defaults = function() {
-    return _.extend({}, PolySelectTool.__super__.defaults.call(this), {
-      overlay: new PolyAnnotation.Model({
-        xs_units: "screen",
-        ys_units: "screen",
-        fill_color: "lightgrey",
-        fill_alpha: 0.5,
-        line_color: "black",
-        line_alpha: 1.0,
-        line_width: 2,
-        line_dash: [4, 4]
-      })
-    });
-  };
-
-  PolySelectTool.prototype.initialize = function(attrs, options) {
-    PolySelectTool.__super__.initialize.call(this, attrs, options);
-    return this.get('overlay').set('silent_update', true, {
-      silent: true
-    });
-  };
+  PolySelectTool.define({
+    overlay: [p.Instance, DEFAULT_POLY_OVERLAY]
+  });
 
   return PolySelectTool;
 

@@ -1,4 +1,4 @@
-var Annulus, AnnulusView, Glyph, _, hittest,
+var Annulus, AnnulusView, Glyph, _, hittest, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7,6 +7,8 @@ _ = require("underscore");
 Glyph = require("./glyph");
 
 hittest = require("../../common/hittest");
+
+p = require("../../core/properties");
 
 AnnulusView = (function(superClass) {
   extend(AnnulusView, superClass);
@@ -20,15 +22,15 @@ AnnulusView = (function(superClass) {
   };
 
   AnnulusView.prototype._map_data = function() {
-    if (this.distances.inner_radius.units === "data") {
-      this.sinner_radius = this.sdist(this.renderer.xmapper, this.x, this.inner_radius);
+    if (this.model.properties.inner_radius.units === "data") {
+      this.sinner_radius = this.sdist(this.renderer.xmapper, this._x, this._inner_radius);
     } else {
-      this.sinner_radius = this.inner_radius;
+      this.sinner_radius = this._inner_radius;
     }
-    if (this.distances.outer_radius.units === "data") {
-      return this.souter_radius = this.sdist(this.renderer.xmapper, this.x, this.outer_radius);
+    if (this.model.properties.outer_radius.units === "data") {
+      return this.souter_radius = this.sdist(this.renderer.xmapper, this._x, this._outer_radius);
     } else {
-      return this.souter_radius = this.outer_radius;
+      return this.souter_radius = this._outer_radius;
     }
   };
 
@@ -42,7 +44,7 @@ AnnulusView = (function(superClass) {
         continue;
       }
       isie = navigator.userAgent.indexOf('MSIE') >= 0 || navigator.userAgent.indexOf('Trident') > 0 || navigator.userAgent.indexOf('Edge') > 0;
-      if (this.visuals.fill.do_fill) {
+      if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i);
         ctx.beginPath();
         if (isie) {
@@ -58,7 +60,7 @@ AnnulusView = (function(superClass) {
         }
         ctx.fill();
       }
-      if (this.visuals.line.do_stroke) {
+      if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i);
         ctx.beginPath();
         ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2 * Math.PI);
@@ -73,7 +75,7 @@ AnnulusView = (function(superClass) {
   };
 
   AnnulusView.prototype._hit_point = function(geometry) {
-    var dist, hits, i, ir2, j, len, or2, pt, ref, ref1, result, sx0, sx1, sy0, sy1, vx, vy, x, x0, x1, y, y0, y1;
+    var bbox, dist, hits, i, ir2, j, len, or2, pt, ref, ref1, result, sx0, sx1, sy0, sy1, vx, vy, x, x0, x1, y, y0, y1;
     ref = [geometry.vx, geometry.vy], vx = ref[0], vy = ref[1];
     x = this.renderer.xmapper.map_from_target(vx, true);
     x0 = x - this.max_radius;
@@ -82,13 +84,14 @@ AnnulusView = (function(superClass) {
     y0 = y - this.max_radius;
     y1 = y + this.max_radius;
     hits = [];
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     ref1 = (function() {
       var k, len, ref1, results;
-      ref1 = this.index.search([x0, y0, x1, y1]);
+      ref1 = this.index.search(bbox);
       results = [];
       for (k = 0, len = ref1.length; k < len; k++) {
         pt = ref1[k];
-        results.push(pt[4].i);
+        results.push(pt.i);
       }
       return results;
     }).call(this);
@@ -97,9 +100,9 @@ AnnulusView = (function(superClass) {
       or2 = Math.pow(this.souter_radius[i], 2);
       ir2 = Math.pow(this.sinner_radius[i], 2);
       sx0 = this.renderer.xmapper.map_to_target(x);
-      sx1 = this.renderer.xmapper.map_to_target(this.x[i]);
+      sx1 = this.renderer.xmapper.map_to_target(this._x[i]);
       sy0 = this.renderer.ymapper.map_to_target(y);
-      sy1 = this.renderer.ymapper.map_to_target(this.y[i]);
+      sy1 = this.renderer.ymapper.map_to_target(this._y[i]);
       dist = Math.pow(sx0 - sx1, 2) + Math.pow(sy0 - sy1, 2);
       if (dist <= or2 && dist >= ir2) {
         hits.push([i, dist]);
@@ -151,7 +154,14 @@ Annulus = (function(superClass) {
 
   Annulus.prototype.type = 'Annulus';
 
-  Annulus.prototype.distances = ['inner_radius', 'outer_radius'];
+  Annulus.coords([['x', 'y']]);
+
+  Annulus.mixins(['line', 'fill']);
+
+  Annulus.define({
+    inner_radius: [p.DistanceSpec],
+    outer_radius: [p.DistanceSpec]
+  });
 
   return Annulus;
 

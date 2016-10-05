@@ -36,6 +36,10 @@ LogTicker = (function(superClass) {
 
   LogTicker.prototype.type = 'LogTicker';
 
+  LogTicker.override({
+    mantissas: [1, 5]
+  });
+
   LogTicker.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
     var base, end_factor, endlog, factor, factors, i, interval, j, k, l, len, len1, len2, len3, len4, len5, log_high, log_interval, log_low, m, minor_interval, minor_offsets, minor_ticks, n, num_minor_ticks, o, ref, start_factor, startlog, tick, ticks, x;
     num_minor_ticks = this.get('num_minor_ticks');
@@ -130,12 +134,6 @@ LogTicker = (function(superClass) {
       "major": ticks,
       "minor": minor_ticks
     };
-  };
-
-  LogTicker.prototype.defaults = function() {
-    return _.extend({}, LogTicker.__super__.defaults.call(this), {
-      mantissas: [1, 5]
-    });
   };
 
   return LogTicker;

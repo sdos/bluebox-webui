@@ -1,14 +1,14 @@
-var Circle, CircleView, Glyph, _, bokehgl, hittest,
+var Circle, CircleView, Glyph, _, hittest, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-bokehgl = require("./bokehgl");
-
 Glyph = require("./glyph");
 
 hittest = require("../../common/hittest");
+
+p = require("../../core/properties");
 
 CircleView = (function(superClass) {
   extend(CircleView, superClass);
@@ -17,28 +17,24 @@ CircleView = (function(superClass) {
     return CircleView.__super__.constructor.apply(this, arguments);
   }
 
-  CircleView.prototype._init_gl = function(gl) {
-    return this.glglyph = new bokehgl.CircleGLGlyph(gl, this);
-  };
-
   CircleView.prototype._index_data = function() {
     return this._xy_index();
   };
 
   CircleView.prototype._map_data = function() {
     var rd, s;
-    if (this.radius != null) {
-      if (this.distances.radius.units === "data") {
-        rd = this.fields.radius_dimension.fixed_value;
-        return this.sradius = this.sdist(this.renderer[rd + "mapper"], this[rd], this.radius);
+    if (this._radius != null) {
+      if (this.model.properties.radius.spec.units === "data") {
+        rd = this.model.properties.radius_dimension.spec.value;
+        return this.sradius = this.sdist(this.renderer[rd + "mapper"], this["_" + rd], this._radius);
       } else {
-        this.sradius = this.radius;
+        this.sradius = this._radius;
         return this.max_size = 2 * this.max_radius;
       }
     } else {
       return this.sradius = (function() {
         var j, len, ref, results;
-        ref = this.size;
+        ref = this._size;
         results = [];
         for (j = 0, len = ref.length; j < len; j++) {
           s = ref[j];
@@ -50,10 +46,10 @@ CircleView = (function(superClass) {
   };
 
   CircleView.prototype._mask_data = function(all_indices) {
-    var hr, ref, ref1, ref2, ref3, ref4, ref5, sx0, sx1, sy0, sy1, vr, x, x0, x1, y0, y1;
+    var bbox, hr, ref, ref1, ref2, ref3, sx0, sx1, sy0, sy1, vr, x, x0, x1, y0, y1;
     hr = this.renderer.plot_view.frame.get('h_range');
     vr = this.renderer.plot_view.frame.get('v_range');
-    if ((this.radius != null) && this.distances.radius.units === "data") {
+    if ((this._radius != null) && this.model.properties.radius.units === "data") {
       sx0 = hr.get('start');
       sx1 = hr.get('end');
       ref = this.renderer.xmapper.v_map_from_target([sx0, sx1], true), x0 = ref[0], x1 = ref[1];
@@ -72,19 +68,14 @@ CircleView = (function(superClass) {
       sy1 = vr.get('end') + this.max_size;
       ref3 = this.renderer.ymapper.v_map_from_target([sy0, sy1], true), y0 = ref3[0], y1 = ref3[1];
     }
-    if (x0 > x1) {
-      ref4 = [x1, x0], x0 = ref4[0], x1 = ref4[1];
-    }
-    if (y0 > y1) {
-      ref5 = [y1, y0], y0 = ref5[0], y1 = ref5[1];
-    }
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     return (function() {
-      var j, len, ref6, results;
-      ref6 = this.index.search([x0, y0, x1, y1]);
+      var j, len, ref4, results;
+      ref4 = this.index.search(bbox);
       results = [];
-      for (j = 0, len = ref6.length; j < len; j++) {
-        x = ref6[j];
-        results.push(x[4].i);
+      for (j = 0, len = ref4.length; j < len; j++) {
+        x = ref4[j];
+        results.push(x.i);
       }
       return results;
     }).call(this);
@@ -101,11 +92,11 @@ CircleView = (function(superClass) {
       }
       ctx.beginPath();
       ctx.arc(sx[i], sy[i], sradius[i], 0, 2 * Math.PI, false);
-      if (this.visuals.fill.do_fill) {
+      if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i);
         ctx.fill();
       }
-      if (this.visuals.line.do_stroke) {
+      if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i);
         results.push(ctx.stroke());
       } else {
@@ -116,11 +107,11 @@ CircleView = (function(superClass) {
   };
 
   CircleView.prototype._hit_point = function(geometry) {
-    var candidates, dist, hits, i, j, k, len, len1, pt, r2, ref, ref1, ref2, ref3, ref4, result, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1;
+    var bbox, candidates, dist, hits, i, j, k, len, len1, pt, r2, ref, ref1, ref2, ref3, ref4, result, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1;
     ref = [geometry.vx, geometry.vy], vx = ref[0], vy = ref[1];
     x = this.renderer.xmapper.map_from_target(vx, true);
     y = this.renderer.ymapper.map_from_target(vy, true);
-    if ((this.radius != null) && this.distances.radius.units === "data") {
+    if ((this._radius != null) && this.model.properties.radius.units === "data") {
       x0 = x - this.max_radius;
       x1 = x + this.max_radius;
       y0 = y - this.max_radius;
@@ -135,25 +126,26 @@ CircleView = (function(superClass) {
       ref3 = this.renderer.ymapper.v_map_from_target([vy0, vy1], true), y0 = ref3[0], y1 = ref3[1];
       ref4 = [Math.min(y0, y1), Math.max(y0, y1)], y0 = ref4[0], y1 = ref4[1];
     }
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     candidates = (function() {
       var j, len, ref5, results;
-      ref5 = this.index.search([x0, y0, x1, y1]);
+      ref5 = this.index.search(bbox);
       results = [];
       for (j = 0, len = ref5.length; j < len; j++) {
         pt = ref5[j];
-        results.push(pt[4].i);
+        results.push(pt.i);
       }
       return results;
     }).call(this);
     hits = [];
-    if ((this.radius != null) && this.distances.radius.units === "data") {
+    if ((this._radius != null) && this.model.properties.radius.units === "data") {
       for (j = 0, len = candidates.length; j < len; j++) {
         i = candidates[j];
         r2 = Math.pow(this.sradius[i], 2);
         sx0 = this.renderer.xmapper.map_to_target(x, true);
-        sx1 = this.renderer.xmapper.map_to_target(this.x[i], true);
+        sx1 = this.renderer.xmapper.map_to_target(this._x[i], true);
         sy0 = this.renderer.ymapper.map_to_target(y, true);
-        sy1 = this.renderer.ymapper.map_to_target(this.y[i], true);
+        sy1 = this.renderer.ymapper.map_to_target(this._y[i], true);
         dist = Math.pow(sx0 - sx1, 2) + Math.pow(sy0 - sy1, 2);
         if (dist <= r2) {
           hits.push([i, dist]);
@@ -182,14 +174,14 @@ CircleView = (function(superClass) {
   };
 
   CircleView.prototype._hit_span = function(geometry) {
-    var hits, ms, ref, ref1, ref2, ref3, ref4, ref5, result, vx, vx0, vx1, vy, vy0, vy1, x0, x1, xb, xx, y0, y1, yb;
+    var bbox, hits, maxX, maxY, minX, minY, ms, ref, ref1, ref2, ref3, ref4, ref5, result, vx, vx0, vx1, vy, vy0, vy1, x0, x1, xx, y0, y1;
     ref = [geometry.vx, geometry.vy], vx = ref[0], vy = ref[1];
-    ref1 = this.bounds(), xb = ref1[0], yb = ref1[1];
+    ref1 = this.bounds(), minX = ref1.minX, minY = ref1.minY, maxX = ref1.maxX, maxY = ref1.maxY;
     result = hittest.create_hit_test_result();
     if (geometry.direction === 'h') {
-      y0 = yb[0];
-      y1 = yb[1];
-      if ((this.radius != null) && this.distances.radius.units === "data") {
+      y0 = minY;
+      y1 = maxY;
+      if ((this._radius != null) && this.model.properties.radius.units === "data") {
         vx0 = vx - this.max_radius;
         vx1 = vx + this.max_radius;
         ref2 = this.renderer.xmapper.v_map_from_target([vx0, vx1]), x0 = ref2[0], x1 = ref2[1];
@@ -200,9 +192,9 @@ CircleView = (function(superClass) {
         ref3 = this.renderer.xmapper.v_map_from_target([vx0, vx1], true), x0 = ref3[0], x1 = ref3[1];
       }
     } else {
-      x0 = xb[0];
-      x1 = xb[1];
-      if ((this.radius != null) && this.distances.radius.units === "data") {
+      x0 = minX;
+      x1 = maxX;
+      if ((this._radius != null) && this.model.properties.radius.units === "data") {
         vy0 = vy - this.max_radius;
         vy1 = vy + this.max_radius;
         ref4 = this.renderer.ymapper.v_map_from_target([vy0, vy1]), y0 = ref4[0], y1 = ref4[1];
@@ -213,13 +205,14 @@ CircleView = (function(superClass) {
         ref5 = this.renderer.ymapper.v_map_from_target([vy0, vy1], true), y0 = ref5[0], y1 = ref5[1];
       }
     }
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     hits = (function() {
       var j, len, ref6, results;
-      ref6 = this.index.search([x0, y0, x1, y1]);
+      ref6 = this.index.search(bbox);
       results = [];
       for (j = 0, len = ref6.length; j < len; j++) {
         xx = ref6[j];
-        results.push(xx[4].i);
+        results.push(xx.i);
       }
       return results;
     }).call(this);
@@ -228,17 +221,18 @@ CircleView = (function(superClass) {
   };
 
   CircleView.prototype._hit_rect = function(geometry) {
-    var ref, ref1, result, x, x0, x1, y0, y1;
+    var bbox, ref, ref1, result, x, x0, x1, y0, y1;
     ref = this.renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true), x0 = ref[0], x1 = ref[1];
     ref1 = this.renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true), y0 = ref1[0], y1 = ref1[1];
+    bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     result = hittest.create_hit_test_result();
     result['1d'].indices = (function() {
       var j, len, ref2, results;
-      ref2 = this.index.search([x0, y0, x1, y1]);
+      ref2 = this.index.search(bbox);
       results = [];
       for (j = 0, len = ref2.length; j < len; j++) {
         x = ref2[j];
-        results.push(x[4].i);
+        results.push(x.i);
       }
       return results;
     }).call(this);
@@ -247,7 +241,7 @@ CircleView = (function(superClass) {
 
   CircleView.prototype._hit_poly = function(geometry) {
     var candidates, hits, i, idx, j, k, ref, ref1, ref2, result, results, sx, sy, vx, vy;
-    ref = [_.clone(geometry.vx), _.clone(geometry.vy)], vx = ref[0], vy = ref[1];
+    ref = [geometry.vx, geometry.vy], vx = ref[0], vy = ref[1];
     sx = this.renderer.plot_view.canvas.v_vx_to_sx(vx);
     sy = this.renderer.plot_view.canvas.v_vy_to_sy(vy);
     candidates = (function() {
@@ -300,23 +294,25 @@ Circle = (function(superClass) {
 
   Circle.prototype.type = 'Circle';
 
-  Circle.prototype.distances = ['?radius', '?size'];
+  Circle.coords([['x', 'y']]);
 
-  Circle.prototype.fields = ['radius_dimension:string'];
+  Circle.mixins(['line', 'fill']);
 
-  Circle.prototype.defaults = function() {
-    return _.extend({}, Circle.__super__.defaults.call(this), {
-      size: {
+  Circle.define({
+    angle: [p.AngleSpec, 0],
+    size: [
+      p.DistanceSpec, {
         units: "screen",
         value: 4
-      },
-      angle: {
-        units: "rad",
-        value: 0
-      },
-      radius: null,
-      radius_dimension: 'x'
-    });
+      }
+    ],
+    radius: [p.DistanceSpec, null],
+    radius_dimension: [p.String, 'x']
+  });
+
+  Circle.prototype.initialize = function(attrs, options) {
+    Circle.__super__.initialize.call(this, attrs, options);
+    return this.properties.radius.optional = true;
   };
 
   return Circle;

@@ -1,24 +1,89 @@
 (function() { var define = undefined; return (function outer(modules, cache, entry) {
   if (typeof Bokeh !== "undefined") {
+    var _ = Bokeh._;
+
     for (var name in modules) {
       Bokeh.require.modules[name] = modules[name];
     }
 
     for (var i = 0; i < entry.length; i++) {
-        Bokeh.Collections.register_locations(Bokeh.require(entry[i]));
+        var exports = Bokeh.require(entry[i]);
+
+        if (_.isObject(exports.models)) {
+          Bokeh.Models.register_locations(exports.models);
+        }
+
+        _.extend(Bokeh, _.omit(exports, "models"));
     }
   } else {
     throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
   }
 })
 ({"models/widgets/abstract_button":[function(require,module,exports){
-var AbstractButton, Widget, _,
+var AbstractButton, AbstractButtonView, Widget, build_views, p, template,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-_ = require("underscore");
+p = require("../../core/properties");
+
+build_views = require("../../common/build_views");
 
 Widget = require("./widget");
+
+template = require("./button_template");
+
+AbstractButtonView = (function(superClass) {
+  extend(AbstractButtonView, superClass);
+
+  function AbstractButtonView() {
+    return AbstractButtonView.__super__.constructor.apply(this, arguments);
+  }
+
+  AbstractButtonView.prototype.events = {
+    "click": "change_input"
+  };
+
+  AbstractButtonView.prototype.template = template;
+
+  AbstractButtonView.prototype.initialize = function(options) {
+    AbstractButtonView.__super__.initialize.call(this, options);
+    this.icon_views = {};
+    this.listenTo(this.model, 'change', this.render);
+    return this.render();
+  };
+
+  AbstractButtonView.prototype.render = function() {
+    var $button, html, icon, key, ref, val;
+    AbstractButtonView.__super__.render.call(this);
+    icon = this.model.icon;
+    if (icon != null) {
+      build_views(this.icon_views, [icon]);
+      ref = this.icon_views;
+      for (key in ref) {
+        if (!hasProp.call(ref, key)) continue;
+        val = ref[key];
+        val.$el.detach();
+      }
+    }
+    this.$el.empty();
+    html = this.template(this.model.attributes);
+    this.$el.append(html);
+    $button = this.$el.find('button');
+    if (icon != null) {
+      $button.prepend(this.icon_views[icon.id].$el);
+    }
+    $button.prop("disabled", this.model.disabled);
+    return this;
+  };
+
+  AbstractButtonView.prototype.change_input = function() {
+    var ref;
+    return (ref = this.model.callback) != null ? ref.execute(this.model) : void 0;
+  };
+
+  return AbstractButtonView;
+
+})(Widget.View);
 
 AbstractButton = (function(superClass) {
   extend(AbstractButton, superClass);
@@ -29,24 +94,25 @@ AbstractButton = (function(superClass) {
 
   AbstractButton.prototype.type = "AbstractButton";
 
-  AbstractButton.prototype.defaults = function() {
-    return _.extend({}, AbstractButton.__super__.defaults.call(this), {
-      callback: null,
-      label: "Button",
-      icon: null,
-      type: "default"
-    });
-  };
+  AbstractButton.prototype.default_view = AbstractButtonView;
+
+  AbstractButton.define({
+    callback: [p.Instance],
+    label: [p.String, "Button"],
+    icon: [p.Instance],
+    button_type: [p.String, "default"]
+  });
 
   return AbstractButton;
 
 })(Widget.Model);
 
 module.exports = {
-  Model: AbstractButton
+  Model: AbstractButton,
+  View: AbstractButtonView
 };
 
-},{"./widget":"models/widgets/widget","underscore":"underscore"}],"models/widgets/abstract_icon":[function(require,module,exports){
+},{"../../common/build_views":"common/build_views","../../core/properties":"core/properties","./button_template":"models/widgets/button_template","./widget":"models/widgets/widget"}],"models/widgets/abstract_icon":[function(require,module,exports){
 var AbstractIcon, Widget, _,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -73,7 +139,7 @@ module.exports = {
 };
 
 },{"./widget":"models/widgets/widget","underscore":"underscore"}],"models/widgets/autocomplete_input":[function(require,module,exports){
-var $1, AutocompleteInput, AutocompleteInputView, TextInput, _,
+var $1, AutocompleteInput, AutocompleteInputView, TextInput, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -82,6 +148,8 @@ _ = require("underscore");
 $1 = require("jquery-ui/autocomplete");
 
 TextInput = require("./text_input");
+
+p = require("../../core/properties");
 
 AutocompleteInputView = (function(superClass) {
   extend(AutocompleteInputView, superClass);
@@ -116,11 +184,9 @@ AutocompleteInput = (function(superClass) {
 
   AutocompleteInput.prototype.default_view = AutocompleteInputView;
 
-  AutocompleteInput.prototype.defaults = function() {
-    return _.extend({}, AutocompleteInput.__super__.defaults.call(this), {
-      completions: []
-    });
-  };
+  AutocompleteInput.define({
+    completions: [p.Array, []]
+  });
 
   return AutocompleteInput;
 
@@ -131,16 +197,14 @@ module.exports = {
   Model: AutocompleteInput
 };
 
-},{"./text_input":"models/widgets/text_input","jquery-ui/autocomplete":"jquery-ui/autocomplete","underscore":"underscore"}],"models/widgets/button":[function(require,module,exports){
-var AbstractButton, Button, ButtonView, ContinuumView, _, build_views,
+},{"../../core/properties":"core/properties","./text_input":"models/widgets/text_input","jquery-ui/autocomplete":"jquery-ui/autocomplete","underscore":"underscore"}],"models/widgets/button":[function(require,module,exports){
+var AbstractButton, Button, ButtonView, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-build_views = require("../../common/build_views");
-
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 AbstractButton = require("./abstract_button");
 
@@ -151,55 +215,14 @@ ButtonView = (function(superClass) {
     return ButtonView.__super__.constructor.apply(this, arguments);
   }
 
-  ButtonView.prototype.tagName = "button";
-
-  ButtonView.prototype.events = {
-    "click": "change_input"
-  };
-
-  ButtonView.prototype.initialize = function(options) {
-    ButtonView.__super__.initialize.call(this, options);
-    this.views = {};
-    this.render();
-    return this.listenTo(this.model, 'change', this.render);
-  };
-
-  ButtonView.prototype.render = function() {
-    var icon, key, label, ref, val;
-    icon = this.mget('icon');
-    if (icon != null) {
-      build_views(this.views, [icon]);
-      ref = this.views;
-      for (key in ref) {
-        if (!hasProp.call(ref, key)) continue;
-        val = ref[key];
-        val.$el.detach();
-      }
-    }
-    this.$el.empty();
-    this.$el.addClass("bk-bs-btn");
-    this.$el.addClass("bk-bs-btn-" + this.mget("type"));
-    if (this.mget("disabled")) {
-      this.$el.attr("disabled", "disabled");
-    }
-    label = this.mget("label");
-    if (icon != null) {
-      this.$el.append(this.views[icon.id].$el);
-      label = " " + label;
-    }
-    this.$el.append(document.createTextNode(label));
-    return this;
-  };
-
   ButtonView.prototype.change_input = function() {
-    var ref;
-    this.mset('clicks', this.mget('clicks') + 1);
-    return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
+    this.model.clicks = this.model.clicks + 1;
+    return ButtonView.__super__.change_input.call(this);
   };
 
   return ButtonView;
 
-})(ContinuumView);
+})(AbstractButton.View);
 
 Button = (function(superClass) {
   extend(Button, superClass);
@@ -212,12 +235,9 @@ Button = (function(superClass) {
 
   Button.prototype.default_view = ButtonView;
 
-  Button.prototype.defaults = function() {
-    return _.extend({}, Button.__super__.defaults.call(this), {
-      clicks: 0,
-      label: "Button"
-    });
-  };
+  Button.define({
+    clicks: [p.Number, 0]
+  });
 
   return Button;
 
@@ -228,8 +248,110 @@ module.exports = {
   View: ButtonView
 };
 
-},{"../../common/build_views":"common/build_views","../../common/continuum_view":"common/continuum_view","./abstract_button":"models/widgets/abstract_button","underscore":"underscore"}],"models/widgets/cell_editors":[function(require,module,exports){
-var $, $1, $2, CellEditor, CellEditorView, CheckboxEditor, CheckboxEditorView, ContinuumView, DateEditor, DateEditorView, IntEditor, IntEditorView, Model, NumberEditor, NumberEditorView, PercentEditor, PercentEditorView, SelectEditor, SelectEditorView, StringEditor, StringEditorView, TextEditor, TextEditorView, TimeEditor, TimeEditorView, _,
+},{"../../core/properties":"core/properties","./abstract_button":"models/widgets/abstract_button","underscore":"underscore"}],"models/widgets/button_group_template":[function(require,module,exports){
+module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [];
+  var __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  };
+  var __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  };
+  var __safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  var __escape = function(value) {
+    return ('' + value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
+  (function() {
+    (function() {
+      __out.push('<div class="bk-bs-btn-group" data-bk-bs-toggle="buttons">\n</div>\n');
+    
+    }).call(this);
+    
+  }).call(__obj);
+  return __out.join('');
+};
+},{}],"models/widgets/button_template":[function(require,module,exports){
+module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [];
+  var __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  };
+  var __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  };
+  var __safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  var __escape = function(value) {
+    return ('' + value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
+  (function() {
+    (function() {
+      __out.push('<button type="button" class="bk-bs-btn bk-bs-btn-');
+    
+      __out.push(__sanitize(this.button_type));
+    
+      __out.push('">\n  ');
+    
+      __out.push(__sanitize(this.label));
+    
+      __out.push('\n</button>\n');
+    
+    }).call(this);
+    
+  }).call(__obj);
+  return __out.join('');
+};
+},{}],"models/widgets/cell_editors":[function(require,module,exports){
+var $, $1, $2, CellEditor, CellEditorView, CheckboxEditor, CheckboxEditorView, DateEditor, DateEditorView, IntEditor, IntEditorView, Model, NumberEditor, NumberEditorView, PercentEditor, PercentEditorView, SelectEditor, SelectEditorView, StringEditor, StringEditorView, TextEditor, TextEditorView, TimeEditor, TimeEditorView, Widget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -241,9 +363,11 @@ $1 = require("jquery-ui/autocomplete");
 
 $2 = require("jquery-ui/spinner");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 Model = require("../../model");
+
+Widget = require("./widget");
 
 CellEditor = (function(superClass) {
   extend(CellEditor, superClass);
@@ -251,12 +375,6 @@ CellEditor = (function(superClass) {
   function CellEditor() {
     return CellEditor.__super__.constructor.apply(this, arguments);
   }
-
-  CellEditor.prototype.editorDefaults = {};
-
-  CellEditor.prototype.defaults = function() {
-    return _.extend({}, CellEditor.__super__.defaults.call(this), this.editorDefaults);
-  };
 
   return CellEditor;
 
@@ -287,6 +405,7 @@ CellEditorView = (function(superClass) {
   };
 
   CellEditorView.prototype.render = function() {
+    CellEditorView.__super__.render.call(this);
     this.$el.appendTo(this.args.container);
     this.$input = $(this.input);
     this.$el.append(this.$input);
@@ -383,7 +502,7 @@ CellEditorView = (function(superClass) {
 
   return CellEditorView;
 
-})(ContinuumView);
+})(Widget.View);
 
 StringEditorView = (function(superClass) {
   extend(StringEditorView, superClass);
@@ -429,9 +548,9 @@ StringEditor = (function(superClass) {
 
   StringEditor.prototype.default_view = StringEditorView;
 
-  StringEditor.prototype.editorDefaults = {
-    completions: []
-  };
+  StringEditor.define({
+    completions: [p.Array, []]
+  });
 
   return StringEditor;
 
@@ -504,9 +623,9 @@ SelectEditor = (function(superClass) {
 
   SelectEditor.prototype.default_view = SelectEditorView;
 
-  SelectEditor.prototype.editorDefaults = {
-    options: []
-  };
+  SelectEditor.define({
+    options: [p.Array, []]
+  });
 
   return SelectEditor;
 
@@ -636,9 +755,9 @@ IntEditor = (function(superClass) {
 
   IntEditor.prototype.default_view = IntEditorView;
 
-  IntEditor.prototype.editorDefaults = {
-    step: 1
-  };
+  IntEditor.define({
+    step: [p.Number, 1]
+  });
 
   return IntEditor;
 
@@ -701,9 +820,9 @@ NumberEditor = (function(superClass) {
 
   NumberEditor.prototype.default_view = NumberEditorView;
 
-  NumberEditor.prototype.editorDefaults = {
-    step: 0.01
-  };
+  NumberEditor.define({
+    step: [p.Number, 0.01]
+  });
 
   return NumberEditor;
 
@@ -866,8 +985,8 @@ module.exports = {
   }
 };
 
-},{"../../common/continuum_view":"common/continuum_view","../../model":"model","jquery":"jquery","jquery-ui/autocomplete":"jquery-ui/autocomplete","jquery-ui/spinner":"jquery-ui/spinner","underscore":"underscore"}],"models/widgets/cell_formatters":[function(require,module,exports){
-var $, BooleanFormatter, CellFormatter, DateFormatter, HTMLTemplateFormatter, Model, NumberFormatter, Numeral, StringFormatter, _,
+},{"../../core/properties":"core/properties","../../model":"model","./widget":"models/widgets/widget","jquery":"jquery","jquery-ui/autocomplete":"jquery-ui/autocomplete","jquery-ui/spinner":"jquery-ui/spinner","underscore":"underscore"}],"models/widgets/cell_formatters":[function(require,module,exports){
+var $, BooleanFormatter, CellFormatter, DateFormatter, HTMLTemplateFormatter, Model, NumberFormatter, Numbro, StringFormatter, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -875,7 +994,9 @@ _ = require("underscore");
 
 $ = require("jquery");
 
-Numeral = require("numeral");
+Numbro = require("numbro");
+
+p = require("../../core/properties");
 
 Model = require("../../model");
 
@@ -886,18 +1007,12 @@ CellFormatter = (function(superClass) {
     return CellFormatter.__super__.constructor.apply(this, arguments);
   }
 
-  CellFormatter.prototype.formatterDefaults = {};
-
-  CellFormatter.prototype.format = function(row, cell, value, columnDef, dataContext) {
+  CellFormatter.prototype.doFormat = function(row, cell, value, columnDef, dataContext) {
     if (value === null) {
       return "";
     } else {
       return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
-  };
-
-  CellFormatter.prototype.defaults = function() {
-    return _.extend({}, CellFormatter.__super__.defaults.call(this), this.formatterDefaults);
   };
 
   return CellFormatter;
@@ -913,13 +1028,15 @@ StringFormatter = (function(superClass) {
 
   StringFormatter.prototype.type = 'StringFormatter';
 
-  StringFormatter.prototype.formatterDefaults = {
-    text_color: null
-  };
+  StringFormatter.define({
+    font_style: [p.FontStyle, "normal"],
+    text_align: [p.TextAlign, "left"],
+    text_color: [p.Color]
+  });
 
-  StringFormatter.prototype.format = function(row, cell, value, columnDef, dataContext) {
+  StringFormatter.prototype.doFormat = function(row, cell, value, columnDef, dataContext) {
     var font_style, text, text_align, text_color;
-    text = StringFormatter.__super__.format.call(this, row, cell, value, columnDef, dataContext);
+    text = StringFormatter.__super__.doFormat.call(this, row, cell, value, columnDef, dataContext);
     font_style = this.get("font_style");
     text_align = this.get("text_align");
     text_color = this.get("text_color");
@@ -956,16 +1073,13 @@ NumberFormatter = (function(superClass) {
 
   NumberFormatter.prototype.type = 'NumberFormatter';
 
-  NumberFormatter.prototype.formatterDefaults = {
-    font_style: "normal",
-    text_align: "left",
-    text_color: null,
-    format: '0,0',
-    language: 'en',
-    rounding: 'round'
-  };
+  NumberFormatter.define({
+    format: [p.String, '0,0'],
+    language: [p.String, 'en'],
+    rounding: [p.String, 'round']
+  });
 
-  NumberFormatter.prototype.format = function(row, cell, value, columnDef, dataContext) {
+  NumberFormatter.prototype.doFormat = function(row, cell, value, columnDef, dataContext) {
     var format, language, rounding;
     format = this.get("format");
     language = this.get("language");
@@ -982,8 +1096,8 @@ NumberFormatter = (function(superClass) {
           return Math.ceil;
       }
     }).call(this);
-    value = Numeral.format(value, format, language, rounding);
-    return NumberFormatter.__super__.format.call(this, row, cell, value, columnDef, dataContext);
+    value = Numbro.format(value, format, language, rounding);
+    return NumberFormatter.__super__.doFormat.call(this, row, cell, value, columnDef, dataContext);
   };
 
   return NumberFormatter;
@@ -999,11 +1113,11 @@ BooleanFormatter = (function(superClass) {
 
   BooleanFormatter.prototype.type = 'BooleanFormatter';
 
-  BooleanFormatter.prototype.formatterDefaults = {
-    icon: 'check'
-  };
+  BooleanFormatter.define({
+    icon: [p.String, 'check']
+  });
 
-  BooleanFormatter.prototype.format = function(row, cell, value, columnDef, dataContext) {
+  BooleanFormatter.prototype.doFormat = function(row, cell, value, columnDef, dataContext) {
     if (!!value) {
       return $('<i>').addClass(this.get("icon")).html();
     } else {
@@ -1024,9 +1138,9 @@ DateFormatter = (function(superClass) {
 
   DateFormatter.prototype.type = 'DateFormatter';
 
-  DateFormatter.prototype.formatterDefaults = {
-    format: 'yy M d'
-  };
+  DateFormatter.define({
+    format: [p.String, 'yy M d']
+  });
 
   DateFormatter.prototype.getFormat = function() {
     var format, name;
@@ -1066,11 +1180,11 @@ DateFormatter = (function(superClass) {
     }
   };
 
-  DateFormatter.prototype.format = function(row, cell, value, columnDef, dataContext) {
+  DateFormatter.prototype.doFormat = function(row, cell, value, columnDef, dataContext) {
     var date;
     value = _.isString(value) ? parseInt(value, 10) : value;
     date = $.datepicker.formatDate(this.getFormat(), new Date(value));
-    return DateFormatter.__super__.format.call(this, row, cell, date, columnDef, dataContext);
+    return DateFormatter.__super__.doFormat.call(this, row, cell, date, columnDef, dataContext);
   };
 
   return DateFormatter;
@@ -1086,11 +1200,11 @@ HTMLTemplateFormatter = (function(superClass) {
 
   HTMLTemplateFormatter.prototype.type = 'HTMLTemplateFormatter';
 
-  HTMLTemplateFormatter.prototype.formatterDefaults = {
-    template: '<%= value %>'
-  };
+  HTMLTemplateFormatter.define({
+    template: [p.String, '<%= value %>']
+  });
 
-  HTMLTemplateFormatter.prototype.format = function(row, cell, value, columnDef, dataContext) {
+  HTMLTemplateFormatter.prototype.doFormat = function(row, cell, value, columnDef, dataContext) {
     var compiled_template, template;
     template = this.get("template");
     if (value === null) {
@@ -1126,8 +1240,8 @@ module.exports = {
   }
 };
 
-},{"../../model":"model","jquery":"jquery","numeral":"numeral","underscore":"underscore"}],"models/widgets/checkbox_button_group":[function(require,module,exports){
-var $, $1, CheckboxButtonGroup, CheckboxButtonGroupView, ContinuumView, Model, _,
+},{"../../core/properties":"core/properties","../../model":"model","jquery":"jquery","numbro":"numbro/numbro","underscore":"underscore"}],"models/widgets/checkbox_button_group":[function(require,module,exports){
+var $, $1, BokehView, CheckboxButtonGroup, CheckboxButtonGroupView, Widget, _, p, template,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -1138,9 +1252,13 @@ $ = require("jquery");
 
 $1 = require("bootstrap/button");
 
-ContinuumView = require("../../common/continuum_view");
+Widget = require("./widget");
 
-Model = require("../../model");
+BokehView = require("../../core/bokeh_view");
+
+p = require("../../core/properties");
+
+template = require("./button_group_template");
 
 CheckboxButtonGroupView = (function(superClass) {
   extend(CheckboxButtonGroupView, superClass);
@@ -1149,11 +1267,11 @@ CheckboxButtonGroupView = (function(superClass) {
     return CheckboxButtonGroupView.__super__.constructor.apply(this, arguments);
   }
 
-  CheckboxButtonGroupView.prototype.tagName = "div";
-
   CheckboxButtonGroupView.prototype.events = {
     "change input": "change_input"
   };
+
+  CheckboxButtonGroupView.prototype.template = template;
 
   CheckboxButtonGroupView.prototype.initialize = function(options) {
     CheckboxButtonGroupView.__super__.initialize.call(this, options);
@@ -1162,12 +1280,13 @@ CheckboxButtonGroupView = (function(superClass) {
   };
 
   CheckboxButtonGroupView.prototype.render = function() {
-    var $input, $label, active, i, j, label, len, ref;
+    var $input, $label, active, html, i, j, label, len, ref;
+    CheckboxButtonGroupView.__super__.render.call(this);
     this.$el.empty();
-    this.$el.addClass("bk-bs-btn-group");
-    this.$el.attr("data-bk-bs-toggle", "buttons");
-    active = this.mget("active");
-    ref = this.mget("labels");
+    html = this.template();
+    this.$el.append(html);
+    active = this.model.active;
+    ref = this.model.labels;
     for (i = j = 0, len = ref.length; j < len; i = ++j) {
       label = ref[i];
       $input = $('<input type="checkbox">').attr({
@@ -1178,11 +1297,11 @@ CheckboxButtonGroupView = (function(superClass) {
       }
       $label = $('<label class="bk-bs-btn"></label>');
       $label.text(label).prepend($input);
-      $label.addClass("bk-bs-btn-" + this.mget("type"));
+      $label.addClass("bk-bs-btn-" + this.mget("button_type"));
       if (indexOf.call(active, i) >= 0) {
         $label.addClass("bk-bs-active");
       }
-      this.$el.append($label);
+      this.$el.find('.bk-bs-btn-group').append($label);
     }
     return this;
   };
@@ -1201,13 +1320,13 @@ CheckboxButtonGroupView = (function(superClass) {
       }
       return results;
     }).call(this);
-    this.mset('active', active);
+    this.model.active = active;
     return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
   };
 
   return CheckboxButtonGroupView;
 
-})(ContinuumView);
+})(Widget.View);
 
 CheckboxButtonGroup = (function(superClass) {
   extend(CheckboxButtonGroup, superClass);
@@ -1220,26 +1339,24 @@ CheckboxButtonGroup = (function(superClass) {
 
   CheckboxButtonGroup.prototype.default_view = CheckboxButtonGroupView;
 
-  CheckboxButtonGroup.prototype.defaults = function() {
-    return _.extend({}, CheckboxButtonGroup.__super__.defaults.call(this), {
-      active: [],
-      labels: [],
-      type: "default",
-      disabled: false
-    });
-  };
+  CheckboxButtonGroup.define({
+    active: [p.Array, []],
+    labels: [p.Array, []],
+    button_type: [p.String, "default"],
+    callback: [p.Instance]
+  });
 
   return CheckboxButtonGroup;
 
-})(Model);
+})(Widget.Model);
 
 module.exports = {
   Model: CheckboxButtonGroup,
   View: CheckboxButtonGroupView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","../../model":"model","bootstrap/button":"bootstrap/button","jquery":"jquery","underscore":"underscore"}],"models/widgets/checkbox_group":[function(require,module,exports){
-var $, CheckboxGroup, CheckboxGroupView, ContinuumView, Model, _,
+},{"../../core/bokeh_view":"core/bokeh_view","../../core/properties":"core/properties","./button_group_template":"models/widgets/button_group_template","./widget":"models/widgets/widget","bootstrap/button":"bootstrap/button","jquery":"jquery","underscore":"underscore"}],"models/widgets/checkbox_group":[function(require,module,exports){
+var $, BokehView, CheckboxGroup, CheckboxGroupView, Widget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -1248,9 +1365,11 @@ _ = require("underscore");
 
 $ = require("jquery");
 
-ContinuumView = require("../../common/continuum_view");
+Widget = require("./widget");
 
-Model = require("../../model");
+BokehView = require("../../core/bokeh_view");
+
+p = require("../../core/properties");
 
 CheckboxGroupView = (function(superClass) {
   extend(CheckboxGroupView, superClass);
@@ -1258,8 +1377,6 @@ CheckboxGroupView = (function(superClass) {
   function CheckboxGroupView() {
     return CheckboxGroupView.__super__.constructor.apply(this, arguments);
   }
-
-  CheckboxGroupView.prototype.tagName = "div";
 
   CheckboxGroupView.prototype.events = {
     "change input": "change_input"
@@ -1273,6 +1390,7 @@ CheckboxGroupView = (function(superClass) {
 
   CheckboxGroupView.prototype.render = function() {
     var $div, $input, $label, active, i, j, label, len, ref;
+    CheckboxGroupView.__super__.render.call(this);
     this.$el.empty();
     active = this.mget("active");
     ref = this.mget("labels");
@@ -1313,13 +1431,13 @@ CheckboxGroupView = (function(superClass) {
       }
       return results;
     }).call(this);
-    this.mset('active', active);
+    this.model.active = active;
     return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
   };
 
   return CheckboxGroupView;
 
-})(ContinuumView);
+})(Widget.View);
 
 CheckboxGroup = (function(superClass) {
   extend(CheckboxGroup, superClass);
@@ -1332,26 +1450,24 @@ CheckboxGroup = (function(superClass) {
 
   CheckboxGroup.prototype.default_view = CheckboxGroupView;
 
-  CheckboxGroup.prototype.defaults = function() {
-    return _.extend({}, CheckboxGroup.__super__.defaults.call(this), {
-      active: [],
-      labels: [],
-      inline: false,
-      disabled: false
-    });
-  };
+  CheckboxGroup.define({
+    active: [p.Array, []],
+    labels: [p.Array, []],
+    inline: [p.Bool, false],
+    callback: [p.Instance]
+  });
 
   return CheckboxGroup;
 
-})(Model);
+})(Widget.Model);
 
 module.exports = {
   Model: CheckboxGroup,
   View: CheckboxGroupView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","../../model":"model","jquery":"jquery","underscore":"underscore"}],"models/widgets/data_table":[function(require,module,exports){
-var $, $1, CheckboxSelectColumn, ContinuumView, DOMUtil, DataProvider, DataTable, DataTableView, RowSelectionModel, SlickGrid, TableWidget, _, hittest,
+},{"../../core/bokeh_view":"core/bokeh_view","../../core/properties":"core/properties","./widget":"models/widgets/widget","jquery":"jquery","underscore":"underscore"}],"models/widgets/data_table":[function(require,module,exports){
+var $, $1, CheckboxSelectColumn, DOMUtil, DataProvider, DataTable, DataTableView, RowSelectionModel, SlickGrid, TableWidget, Widget, _, hittest, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -1367,13 +1483,15 @@ RowSelectionModel = require("slick_grid/plugins/slick.rowselectionmodel");
 
 CheckboxSelectColumn = require("slick_grid/plugins/slick.checkboxselectcolumn");
 
-ContinuumView = require("../../common/continuum_view");
+hittest = require("../../common/hittest");
+
+p = require("../../core/properties");
 
 DOMUtil = require("../../util/dom_util");
 
-hittest = require("../../common/hittest");
-
 TableWidget = require("./table_widget");
+
+Widget = require("./widget");
 
 DataProvider = (function() {
   function DataProvider(source1) {
@@ -1437,7 +1555,7 @@ DataProvider = (function() {
   };
 
   DataProvider.prototype.updateSource = function() {
-    return this.source.forceTrigger("data");
+    return this.source.trigger("change:data", this, this.source.attributes['data']);
   };
 
   DataProvider.prototype.getItemMetadata = function(index) {
@@ -1603,6 +1721,10 @@ DataTableView = (function(superClass) {
       this.$el.css({
         width: (this.mget("width")) + "px"
       });
+    } else {
+      this.$el.css({
+        width: (this.mget("default_width")) + "px"
+      });
     }
     if ((height != null) && height !== "auto") {
       this.$el.css({
@@ -1640,7 +1762,7 @@ DataTableView = (function(superClass) {
 
   return DataTableView;
 
-})(ContinuumView);
+})(Widget.View);
 
 DataTable = (function(superClass) {
   extend(DataTable, superClass);
@@ -1653,19 +1775,23 @@ DataTable = (function(superClass) {
 
   DataTable.prototype.default_view = DataTableView;
 
-  DataTable.prototype.defaults = function() {
-    return _.extend({}, DataTable.__super__.defaults.call(this), {
-      columns: [],
-      width: null,
-      height: 400,
-      fit_columns: true,
-      sortable: true,
-      editable: false,
-      selectable: true,
-      row_headers: true,
-      scroll_to_selection: true
-    });
-  };
+  DataTable.define({
+    columns: [p.Array, []],
+    fit_columns: [p.Bool, true],
+    sortable: [p.Bool, true],
+    editable: [p.Bool, false],
+    selectable: [p.Bool, true],
+    row_headers: [p.Bool, true],
+    scroll_to_selection: [p.Bool, true]
+  });
+
+  DataTable.override({
+    height: 400
+  });
+
+  DataTable.internal({
+    default_width: [p.Number, 600]
+  });
 
   return DataTable;
 
@@ -1676,8 +1802,8 @@ module.exports = {
   View: DataTableView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","../../common/hittest":"common/hittest","../../util/dom_util":"util/dom_util","./table_widget":"models/widgets/table_widget","jquery":"jquery","jquery-ui/sortable":"jquery-ui/sortable","slick_grid/plugins/slick.checkboxselectcolumn":"slick_grid/plugins/slick.checkboxselectcolumn","slick_grid/plugins/slick.rowselectionmodel":"slick_grid/plugins/slick.rowselectionmodel","slick_grid/slick.grid":"slick_grid/slick.grid","underscore":"underscore"}],"models/widgets/date_picker":[function(require,module,exports){
-var $, $1, ContinuumView, DatePicker, DatePickerView, InputWidget, _,
+},{"../../common/hittest":"common/hittest","../../core/properties":"core/properties","../../util/dom_util":"util/dom_util","./table_widget":"models/widgets/table_widget","./widget":"models/widgets/widget","jquery":"jquery","jquery-ui/sortable":"jquery-ui/sortable","slick_grid/plugins/slick.checkboxselectcolumn":"slick_grid/plugins/slick.checkboxselectcolumn","slick_grid/plugins/slick.rowselectionmodel":"slick_grid/plugins/slick.rowselectionmodel","slick_grid/slick.grid":"slick_grid/slick.grid","underscore":"underscore"}],"models/widgets/date_picker":[function(require,module,exports){
+var $, $1, DatePicker, DatePickerView, InputWidget, _, p,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1688,7 +1814,7 @@ $ = require("jquery");
 
 $1 = require("jquery-ui/datepicker");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 InputWidget = require("./input_widget");
 
@@ -1702,32 +1828,27 @@ DatePickerView = (function(superClass) {
 
   DatePickerView.prototype.initialize = function(options) {
     DatePickerView.__super__.initialize.call(this, options);
-    return this.render();
-  };
-
-  DatePickerView.prototype.render = function() {
-    var $datepicker, $label;
-    this.$el.empty();
-    $label = $('<label>').text(this.mget("title"));
-    $datepicker = $("<div>").datepicker({
+    this.label = $('<label>').text(this.mget("title"));
+    this.input = $('<input type="text">');
+    this.datepicker = this.input.datepicker({
       defaultDate: new Date(this.mget('value')),
       minDate: this.mget('min_date') != null ? new Date(this.mget('min_date')) : null,
       maxDate: this.mget('max_date') != null ? new Date(this.mget('max_date')) : null,
       onSelect: this.onSelect
     });
-    this.$el.append([$label, $datepicker]);
-    return this;
+    return this.$el.append([this.label, this.input]);
   };
 
   DatePickerView.prototype.onSelect = function(dateText, ui) {
-    var ref;
-    this.mset('value', new Date(dateText));
+    var d, ref;
+    d = new Date(dateText);
+    this.mset('value', d.toString());
     return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
   };
 
   return DatePickerView;
 
-})(ContinuumView);
+})(InputWidget.View);
 
 DatePicker = (function(superClass) {
   extend(DatePicker, superClass);
@@ -1740,13 +1861,11 @@ DatePicker = (function(superClass) {
 
   DatePicker.prototype.default_view = DatePickerView;
 
-  DatePicker.prototype.defaults = function() {
-    return _.extend({}, DatePicker.__super__.defaults.call(this), {
-      value: Date.now(),
-      min_date: null,
-      max_date: null
-    });
-  };
+  DatePicker.define({
+    value: [p.Any, Date.now()],
+    min_date: [p.Any],
+    max_date: [p.Any]
+  });
 
   return DatePicker;
 
@@ -1757,8 +1876,8 @@ module.exports = {
   View: DatePickerView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","./input_widget":"models/widgets/input_widget","jquery":"jquery","jquery-ui/datepicker":"jquery-ui/datepicker","underscore":"underscore"}],"models/widgets/date_range_slider":[function(require,module,exports){
-var $, $1, ContinuumView, DateRangeSlider, DateRangeSliderView, InputWidget, _,
+},{"../../core/properties":"core/properties","./input_widget":"models/widgets/input_widget","jquery":"jquery","jquery-ui/datepicker":"jquery-ui/datepicker","underscore":"underscore"}],"models/widgets/date_range_slider":[function(require,module,exports){
+var $, $1, DateRangeSlider, DateRangeSliderView, InputWidget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -1768,7 +1887,7 @@ $ = require("jquery");
 
 $1 = require("jqrangeslider/jQDateRangeSlider");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 InputWidget = require("./input_widget");
 
@@ -1791,6 +1910,7 @@ DateRangeSliderView = (function(superClass) {
 
   DateRangeSliderView.prototype.render = function() {
     var bounds_max, bounds_min, range_max, range_min, ref, ref1, ref2, value_max, value_min;
+    DateRangeSliderView.__super__.render.call(this);
     this.$el.empty();
     ref = this.mget("value"), value_min = ref[0], value_max = ref[1];
     ref1 = this.mget("range"), range_min = ref1[0], range_max = ref1[1];
@@ -1826,7 +1946,7 @@ DateRangeSliderView = (function(superClass) {
 
   return DateRangeSliderView;
 
-})(ContinuumView);
+})(InputWidget.View);
 
 DateRangeSlider = (function(superClass) {
   extend(DateRangeSlider, superClass);
@@ -1839,23 +1959,21 @@ DateRangeSlider = (function(superClass) {
 
   DateRangeSlider.prototype.default_view = DateRangeSliderView;
 
-  DateRangeSlider.prototype.defaults = function() {
-    return _.extend({}, DateRangeSlider.__super__.defaults.call(this), {
-      value: null,
-      range: null,
-      bounds: null,
-      step: {},
-      enabled: true,
-      arrows: true,
-      value_labels: "show",
-      wheel_mode: null
+  DateRangeSlider.define({
+    value: [p.Any],
+    range: [p.Any],
+    bounds: [p.Any],
+    step: [p.Any, {}],
+    enabled: [p.Bool, true],
+    arrows: [p.Bool, true],
+    value_labels: [p.String, "show"],
+    wheel_mode: [p.Any]
 
-      /*
-      formatter
-      scales
-       */
-    });
-  };
+    /*
+    formatter
+    scales
+     */
+  });
 
   return DateRangeSlider;
 
@@ -1866,8 +1984,8 @@ module.exports = {
   View: DateRangeSliderView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","./input_widget":"models/widgets/input_widget","jqrangeslider/jQDateRangeSlider":"jqrangeslider/jQDateRangeSlider","jquery":"jquery","underscore":"underscore"}],"models/widgets/dialog":[function(require,module,exports){
-var $, $1, ContinuumView, Dialog, DialogView, Widget, _, dialog_template,
+},{"../../core/properties":"core/properties","./input_widget":"models/widgets/input_widget","jqrangeslider/jQDateRangeSlider":"jqrangeslider/jQDateRangeSlider","jquery":"jquery","underscore":"underscore"}],"models/widgets/dialog":[function(require,module,exports){
+var $, $1, Dialog, DialogView, Widget, _, dialog_template, p,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1878,7 +1996,7 @@ $ = require("jquery");
 
 $1 = require("bootstrap/modal");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 dialog_template = require("./dialog_template");
 
@@ -1942,6 +2060,7 @@ DialogView = (function(superClass) {
   };
 
   DialogView.prototype.render = function() {
+    DialogView.__super__.render.call(this);
     this.$modal = $(dialog_template(this.model.attributes));
     this.$modal.modal({
       show: this.mget("visible")
@@ -1967,7 +2086,7 @@ DialogView = (function(superClass) {
 
   return DialogView;
 
-})(ContinuumView);
+})(Widget.View);
 
 Dialog = (function(superClass) {
   extend(Dialog, superClass);
@@ -1980,16 +2099,14 @@ Dialog = (function(superClass) {
 
   Dialog.prototype.default_view = DialogView;
 
-  Dialog.prototype.defaults = function() {
-    return _.extend({}, Dialog.__super__.defaults.call(this), {
-      visible: false,
-      closable: true,
-      title: "",
-      content: "",
-      buttons: [],
-      buttons_box: null
-    });
-  };
+  Dialog.define({
+    visible: [p.Bool, false],
+    closable: [p.Bool, true],
+    title: [p.String, ""],
+    content: [p.String, ""],
+    buttons: [p.Array, []],
+    buttons_box: [p.Instance]
+  });
 
   return Dialog;
 
@@ -2000,17 +2117,19 @@ module.exports = {
   View: DialogView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","./dialog_template":"models/widgets/dialog_template","./widget":"models/widgets/widget","bootstrap/modal":"bootstrap/modal","jquery":"jquery","underscore":"underscore"}],"models/widgets/dialog_template":[function(require,module,exports){
+},{"../../core/properties":"core/properties","./dialog_template":"models/widgets/dialog_template","./widget":"models/widgets/widget","bootstrap/modal":"bootstrap/modal","jquery":"jquery","underscore":"underscore"}],"models/widgets/dialog_template":[function(require,module,exports){
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
-  var __out = [], __capture = function(callback) {
+  var __out = [];
+  var __capture = function(callback) {
     var out = __out, result;
     __out = [];
     callback.call(this);
     result = __out.join('');
     __out = out;
     return __safe(result);
-  }, __sanitize = function(value) {
+  };
+  var __sanitize = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else if (typeof value !== 'undefined' && value != null) {
@@ -2018,8 +2137,8 @@ module.exports = function(__obj) {
     } else {
       return '';
     }
-  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-  __safe = __obj.safe = function(value) {
+  };
+  var __safe = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else {
@@ -2029,15 +2148,13 @@ module.exports = function(__obj) {
       return result;
     }
   };
-  if (!__escape) {
-    __escape = __obj.escape = function(value) {
-      return ('' + value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    };
-  }
+  var __escape = function(value) {
+    return ('' + value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
   (function() {
     (function() {
       __out.push('<div class="bk-bs-modal" tabindex="-1">\n  <div class="bk-bs-modal-dialog">\n    <div class="bk-bs-modal-content">\n      <div class="bk-bs-modal-header">\n        ');
@@ -2055,11 +2172,68 @@ module.exports = function(__obj) {
     }).call(this);
     
   }).call(__obj);
-  __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
 };
-},{}],"models/widgets/dropdown":[function(require,module,exports){
-var $, AbstractButton, ContinuumView, Dropdown, DropdownView, _,
+},{}],"models/widgets/div":[function(require,module,exports){
+var $, Div, DivView, Markup, p,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+$ = require("jquery");
+
+Markup = require("./markup");
+
+p = require("../../core/properties");
+
+DivView = (function(superClass) {
+  extend(DivView, superClass);
+
+  function DivView() {
+    return DivView.__super__.constructor.apply(this, arguments);
+  }
+
+  DivView.prototype.render = function() {
+    var $content;
+    DivView.__super__.render.call(this);
+    if (this.model.render_as_text === true) {
+      $content = $('<div></div>').text(this.model.text);
+    } else {
+      $content = $('<div></div>').html(this.model.text);
+    }
+    this.$el.find('.bk-markup').append($content);
+    return this;
+  };
+
+  return DivView;
+
+})(Markup.View);
+
+Div = (function(superClass) {
+  extend(Div, superClass);
+
+  function Div() {
+    return Div.__super__.constructor.apply(this, arguments);
+  }
+
+  Div.prototype.type = "Div";
+
+  Div.prototype.default_view = DivView;
+
+  Div.define({
+    render_as_text: [p.Bool, false]
+  });
+
+  return Div;
+
+})(Markup.Model);
+
+module.exports = {
+  Model: Div,
+  View: DivView
+};
+
+},{"../../core/properties":"core/properties","./markup":"models/widgets/markup","jquery":"jquery"}],"models/widgets/dropdown":[function(require,module,exports){
+var $, AbstractButton, Dropdown, DropdownView, _, p, template,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -2067,9 +2241,11 @@ _ = require("underscore");
 
 $ = require("jquery");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 AbstractButton = require("./abstract_button");
+
+template = require("./dropdown_template");
 
 DropdownView = (function(superClass) {
   extend(DropdownView, superClass);
@@ -2078,66 +2254,33 @@ DropdownView = (function(superClass) {
     return DropdownView.__super__.constructor.apply(this, arguments);
   }
 
-  DropdownView.prototype.tagName = "div";
-
-  DropdownView.prototype.initialize = function(options) {
-    DropdownView.__super__.initialize.call(this, options);
-    this.render();
-    return this.listenTo(this.model, 'change', this.render);
-  };
+  DropdownView.prototype.template = template;
 
   DropdownView.prototype.render = function() {
-    var $a, $button, $caret, $divider, $item, $menu, $toggle, i, item, label, len, ref, split, that, value;
-    this.$el.empty();
-    split = this.mget("default_value") != null;
-    $button = $('<button></button>');
-    $button.addClass("bk-bs-btn");
-    $button.addClass("bk-bs-btn-" + this.mget("type"));
-    $button.text(this.mget("label"));
-    $caret = $('<span class="bk-bs-caret"></span>');
-    if (!split) {
-      $button.addClass("bk-bs-dropdown-toggle");
-      $button.attr("data-bk-bs-toggle", "dropdown");
-      $button.append(document.createTextNode(" "));
-      $button.append($caret);
-      $toggle = $('');
-    } else {
-      $button.click((function(_this) {
-        return function() {
-          return _this.change_input(_this.mget("default_value"));
-        };
-      })(this));
-      $toggle = $('<button></button>');
-      $toggle.addClass("bk-bs-btn");
-      $toggle.addClass("bk-bs-btn-" + this.mget("type"));
-      $toggle.addClass("bk-bs-dropdown-toggle");
-      $toggle.attr("data-bk-bs-toggle", "dropdown");
-      $toggle.append($caret);
-    }
-    $menu = $('<ul class="bk-bs-dropdown-menu"></ul>');
-    $divider = $('<li class="bk-bs-divider"></li>');
-    ref = this.mget("menu");
+    var $a, $item, i, item, items, label, len, ref, that, value;
+    DropdownView.__super__.render.call(this);
+    items = [];
+    ref = this.model.menu;
     for (i = 0, len = ref.length; i < len; i++) {
       item = ref[i];
-      $item = item != null ? ((label = item[0], value = item[1], item), $a = $('<a></a>').text(label).data('value', value), that = this, $a.click(function(e) {
-        return that.change_input($(this).data('value'));
-      }), $('<li></li>').append($a)) : $divider;
-      $menu.append($item);
+      $item = item != null ? ((label = item[0], value = item[1], item), $a = $("<a data-value='" + value + "'>" + label + "</a>"), that = this, $a.click(function(e) {
+        return that.set_value($(this).data('value'));
+      }), $('<li></li>').append($a)) : $('<li class="bk-bs-divider"></li>');
+      items.push($item);
     }
-    this.$el.addClass("bk-bs-btn-group");
-    this.$el.append([$button, $toggle, $menu]);
+    this.$el.find('.bk-bs-dropdown-menu').append(items);
+    this.$el.find('button').val(this.model.default_value);
     return this;
   };
 
-  DropdownView.prototype.change_input = function(value) {
-    var ref;
-    this.mset('value', value);
-    return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
+  DropdownView.prototype.set_value = function(value) {
+    this.model.value = value;
+    return this.$el.find('button').val(value);
   };
 
   return DropdownView;
 
-})(ContinuumView);
+})(AbstractButton.View);
 
 Dropdown = (function(superClass) {
   extend(Dropdown, superClass);
@@ -2150,14 +2293,15 @@ Dropdown = (function(superClass) {
 
   Dropdown.prototype.default_view = DropdownView;
 
-  Dropdown.prototype.defaults = function() {
-    return _.extend({}, Dropdown.__super__.defaults.call(this), {
-      value: null,
-      default_value: null,
-      label: "Dropdown",
-      menu: []
-    });
-  };
+  Dropdown.define({
+    value: [p.String],
+    default_value: [p.String],
+    menu: [p.Array, []]
+  });
+
+  Dropdown.override({
+    label: "Dropdown"
+  });
 
   return Dropdown;
 
@@ -2168,16 +2312,73 @@ module.exports = {
   View: DropdownView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","./abstract_button":"models/widgets/abstract_button","jquery":"jquery","underscore":"underscore"}],"models/widgets/icon":[function(require,module,exports){
-var AbstractIcon, ContinuumView, Icon, IconView, _,
+},{"../../core/properties":"core/properties","./abstract_button":"models/widgets/abstract_button","./dropdown_template":"models/widgets/dropdown_template","jquery":"jquery","underscore":"underscore"}],"models/widgets/dropdown_template":[function(require,module,exports){
+module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [];
+  var __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  };
+  var __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  };
+  var __safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  var __escape = function(value) {
+    return ('' + value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
+  (function() {
+    (function() {
+      __out.push('<button type="button" class="bk-bs-btn bk-bs-btn-');
+    
+      __out.push(__sanitize(this.button_type));
+    
+      __out.push(' bk-bs-dropdown-toggle bk-bs-dropdown-btn" data-bk-bs-toggle="dropdown">\n  ');
+    
+      __out.push(__sanitize(this.label));
+    
+      __out.push(' <span class="bk-bs-caret"></span>\n</button>\n<ul class="bk-bs-dropdown-menu">\n</ul>\n');
+    
+    }).call(this);
+    
+  }).call(__obj);
+  return __out.join('');
+};
+},{}],"models/widgets/icon":[function(require,module,exports){
+var AbstractIcon, Icon, IconView, Widget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 AbstractIcon = require("./abstract_icon");
+
+Widget = require("./widget");
 
 IconView = (function(superClass) {
   extend(IconView, superClass);
@@ -2215,9 +2416,13 @@ IconView = (function(superClass) {
     return this;
   };
 
+  IconView.prototype.update_constraints = function() {
+    return null;
+  };
+
   return IconView;
 
-})(ContinuumView);
+})(Widget.View);
 
 Icon = (function(superClass) {
   extend(Icon, superClass);
@@ -2230,14 +2435,12 @@ Icon = (function(superClass) {
 
   Icon.prototype.default_view = IconView;
 
-  Icon.prototype.defaults = function() {
-    return _.extend({}, Icon.__super__.defaults.call(this), {
-      icon_name: "check",
-      size: null,
-      flip: null,
-      spin: false
-    });
-  };
+  Icon.define({
+    icon_name: [p.String, "check"],
+    size: [p.Number],
+    flip: [p.Any],
+    spin: [p.Bool, false]
+  });
 
   return Icon;
 
@@ -2248,14 +2451,37 @@ module.exports = {
   View: IconView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","./abstract_icon":"models/widgets/abstract_icon","underscore":"underscore"}],"models/widgets/input_widget":[function(require,module,exports){
-var InputWidget, Widget, _,
+},{"../../core/properties":"core/properties","./abstract_icon":"models/widgets/abstract_icon","./widget":"models/widgets/widget","underscore":"underscore"}],"models/widgets/input_widget":[function(require,module,exports){
+var InputWidget, InputWidgetView, Widget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
 Widget = require("./widget");
+
+p = require("../../core/properties");
+
+InputWidgetView = (function(superClass) {
+  extend(InputWidgetView, superClass);
+
+  function InputWidgetView() {
+    return InputWidgetView.__super__.constructor.apply(this, arguments);
+  }
+
+  InputWidgetView.prototype.render = function() {
+    InputWidgetView.__super__.render.call(this);
+    return this.$el.find('input').prop("disabled", this.model.disabled);
+  };
+
+  InputWidgetView.prototype.change_input = function() {
+    var ref;
+    return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
+  };
+
+  return InputWidgetView;
+
+})(Widget.View);
 
 InputWidget = (function(superClass) {
   extend(InputWidget, superClass);
@@ -2266,61 +2492,100 @@ InputWidget = (function(superClass) {
 
   InputWidget.prototype.type = "InputWidget";
 
-  InputWidget.prototype.defaults = function() {
-    return _.extend({}, InputWidget.__super__.defaults.call(this), {
-      callback: null,
-      title: ""
-    });
-  };
+  InputWidget.prototype.default_view = InputWidgetView;
+
+  InputWidget.define({
+    callback: [p.Instance],
+    title: [p.String, '']
+  });
 
   return InputWidget;
 
 })(Widget.Model);
 
 module.exports = {
-  Model: InputWidget
+  Model: InputWidget,
+  View: InputWidgetView
 };
 
-},{"./widget":"models/widgets/widget","underscore":"underscore"}],"models/widgets/main":[function(require,module,exports){
+},{"../../core/properties":"core/properties","./widget":"models/widgets/widget","underscore":"underscore"}],"models/widgets/main":[function(require,module,exports){
 module.exports = {
-  editors: [require('./cell_editors'), 'Editor'],
-  formatters: [require('./cell_formatters'), 'Formatter'],
-  AbstractButton: require('./abstract_button'),
-  AbstractIcon: require('./abstract_icon'),
-  TableWidget: require('./table_widget'),
-  Markup: require('./markup'),
-  Widget: require('./widget'),
-  InputWidget: require('./input_widget'),
-  TableColumn: require('./table_column'),
-  DataTable: require('./data_table'),
-  Paragraph: require('./paragraph'),
-  TextInput: require('./text_input'),
-  AutocompleteInput: require('./autocomplete_input'),
-  PreText: require('./pretext'),
-  Select: require('./selectbox'),
-  Slider: require('./slider'),
-  MultiSelect: require('./multiselect'),
-  DateRangeSlider: require('./date_range_slider'),
-  DatePicker: require('./date_picker'),
-  Panel: require('./panel'),
-  Tabs: require('./tabs'),
-  Dialog: require('./dialog'),
-  Icon: require('./icon'),
-  Button: require('./button'),
-  Toggle: require('./toggle'),
-  Dropdown: require('./dropdown'),
-  CheckboxGroup: require('./checkbox_group'),
-  RadioGroup: require('./radio_group'),
-  CheckboxButtonGroup: require('./checkbox_button_group'),
-  RadioButtonGroup: require('./radio_button_group')
+  models: {
+    editors: [require('./cell_editors'), 'Editor'],
+    formatters: [require('./cell_formatters'), 'Formatter'],
+    AbstractButton: require('./abstract_button'),
+    AbstractIcon: require('./abstract_icon'),
+    TableWidget: require('./table_widget'),
+    Markup: require('./markup'),
+    Widget: require('./widget'),
+    InputWidget: require('./input_widget'),
+    TableColumn: require('./table_column'),
+    DataTable: require('./data_table'),
+    Paragraph: require('./paragraph'),
+    Div: require('./div'),
+    TextInput: require('./text_input'),
+    AutocompleteInput: require('./autocomplete_input'),
+    PreText: require('./pretext'),
+    Select: require('./selectbox'),
+    Slider: require('./slider'),
+    MultiSelect: require('./multiselect'),
+    DateRangeSlider: require('./date_range_slider'),
+    DatePicker: require('./date_picker'),
+    Panel: require('./panel'),
+    Tabs: require('./tabs'),
+    Dialog: require('./dialog'),
+    Icon: require('./icon'),
+    Button: require('./button'),
+    Toggle: require('./toggle'),
+    Dropdown: require('./dropdown'),
+    CheckboxGroup: require('./checkbox_group'),
+    RadioGroup: require('./radio_group'),
+    CheckboxButtonGroup: require('./checkbox_button_group'),
+    RadioButtonGroup: require('./radio_button_group')
+  }
 };
 
-},{"./abstract_button":"models/widgets/abstract_button","./abstract_icon":"models/widgets/abstract_icon","./autocomplete_input":"models/widgets/autocomplete_input","./button":"models/widgets/button","./cell_editors":"models/widgets/cell_editors","./cell_formatters":"models/widgets/cell_formatters","./checkbox_button_group":"models/widgets/checkbox_button_group","./checkbox_group":"models/widgets/checkbox_group","./data_table":"models/widgets/data_table","./date_picker":"models/widgets/date_picker","./date_range_slider":"models/widgets/date_range_slider","./dialog":"models/widgets/dialog","./dropdown":"models/widgets/dropdown","./icon":"models/widgets/icon","./input_widget":"models/widgets/input_widget","./markup":"models/widgets/markup","./multiselect":"models/widgets/multiselect","./panel":"models/widgets/panel","./paragraph":"models/widgets/paragraph","./pretext":"models/widgets/pretext","./radio_button_group":"models/widgets/radio_button_group","./radio_group":"models/widgets/radio_group","./selectbox":"models/widgets/selectbox","./slider":"models/widgets/slider","./table_column":"models/widgets/table_column","./table_widget":"models/widgets/table_widget","./tabs":"models/widgets/tabs","./text_input":"models/widgets/text_input","./toggle":"models/widgets/toggle","./widget":"models/widgets/widget"}],"models/widgets/markup":[function(require,module,exports){
-var Markup, Widget,
+},{"./abstract_button":"models/widgets/abstract_button","./abstract_icon":"models/widgets/abstract_icon","./autocomplete_input":"models/widgets/autocomplete_input","./button":"models/widgets/button","./cell_editors":"models/widgets/cell_editors","./cell_formatters":"models/widgets/cell_formatters","./checkbox_button_group":"models/widgets/checkbox_button_group","./checkbox_group":"models/widgets/checkbox_group","./data_table":"models/widgets/data_table","./date_picker":"models/widgets/date_picker","./date_range_slider":"models/widgets/date_range_slider","./dialog":"models/widgets/dialog","./div":"models/widgets/div","./dropdown":"models/widgets/dropdown","./icon":"models/widgets/icon","./input_widget":"models/widgets/input_widget","./markup":"models/widgets/markup","./multiselect":"models/widgets/multiselect","./panel":"models/widgets/panel","./paragraph":"models/widgets/paragraph","./pretext":"models/widgets/pretext","./radio_button_group":"models/widgets/radio_button_group","./radio_group":"models/widgets/radio_group","./selectbox":"models/widgets/selectbox","./slider":"models/widgets/slider","./table_column":"models/widgets/table_column","./table_widget":"models/widgets/table_widget","./tabs":"models/widgets/tabs","./text_input":"models/widgets/text_input","./toggle":"models/widgets/toggle","./widget":"models/widgets/widget"}],"models/widgets/markup":[function(require,module,exports){
+var Markup, MarkupView, Widget, p, template,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
+p = require("../../core/properties");
+
 Widget = require("./widget");
+
+template = require("./markup_template");
+
+MarkupView = (function(superClass) {
+  extend(MarkupView, superClass);
+
+  function MarkupView() {
+    return MarkupView.__super__.constructor.apply(this, arguments);
+  }
+
+  MarkupView.prototype.template = template;
+
+  MarkupView.prototype.initialize = function(options) {
+    MarkupView.__super__.initialize.call(this, options);
+    this.render();
+    return this.listenTo(this.model, 'change', this.render);
+  };
+
+  MarkupView.prototype.render = function() {
+    MarkupView.__super__.render.call(this);
+    this.$el.empty();
+    this.$el.html(this.template());
+    if (this.mget('height')) {
+      this.$el.height(this.mget('height'));
+    }
+    if (this.mget('width')) {
+      return this.$el.width(this.mget('width'));
+    }
+  };
+
+  return MarkupView;
+
+})(Widget.View);
 
 Markup = (function(superClass) {
   extend(Markup, superClass);
@@ -2331,16 +2596,72 @@ Markup = (function(superClass) {
 
   Markup.prototype.type = "Markup";
 
+  Markup.prototype.initialize = function(options) {
+    return Markup.__super__.initialize.call(this, options);
+  };
+
+  Markup.define({
+    text: [p.String, '']
+  });
+
   return Markup;
 
 })(Widget.Model);
 
 module.exports = {
-  Model: Markup
+  Model: Markup,
+  View: MarkupView
 };
 
-},{"./widget":"models/widgets/widget"}],"models/widgets/multiselect":[function(require,module,exports){
-var $, ContinuumView, InputWidget, MultiSelect, MultiSelectView, _, multiselecttemplate,
+},{"../../core/properties":"core/properties","./markup_template":"models/widgets/markup_template","./widget":"models/widgets/widget"}],"models/widgets/markup_template":[function(require,module,exports){
+module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [];
+  var __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  };
+  var __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  };
+  var __safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  var __escape = function(value) {
+    return ('' + value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
+  (function() {
+    (function() {
+      __out.push('<div class="bk-markup">\n</div>\n');
+    
+    }).call(this);
+    
+  }).call(__obj);
+  return __out.join('');
+};
+},{}],"models/widgets/multiselect":[function(require,module,exports){
+var $, InputWidget, MultiSelect, MultiSelectView, _, multiselecttemplate, p,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -2349,11 +2670,11 @@ _ = require("jquery");
 
 $ = require("underscore");
 
-ContinuumView = require("../../common/continuum_view");
-
-multiselecttemplate = require("./multiselecttemplate");
+p = require("../../core/properties");
 
 InputWidget = require("./input_widget");
+
+multiselecttemplate = require("./multiselecttemplate");
 
 MultiSelectView = (function(superClass) {
   extend(MultiSelectView, superClass);
@@ -2382,6 +2703,7 @@ MultiSelectView = (function(superClass) {
 
   MultiSelectView.prototype.render = function() {
     var html;
+    MultiSelectView.__super__.render.call(this);
     this.$el.empty();
     html = this.template(this.model.attributes);
     this.$el.html(html);
@@ -2406,16 +2728,19 @@ MultiSelectView = (function(superClass) {
   };
 
   MultiSelectView.prototype.change_input = function() {
-    var ref;
-    this.mset('value', this.$('select').val(), {
-      'silent': true
-    });
-    return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
+    var value;
+    value = this.$el.find('select').val();
+    if (value) {
+      this.model.value = value;
+    } else {
+      this.model.value = [];
+    }
+    return MultiSelectView.__super__.change_input.call(this);
   };
 
   return MultiSelectView;
 
-})(ContinuumView);
+})(InputWidget.View);
 
 MultiSelect = (function(superClass) {
   extend(MultiSelect, superClass);
@@ -2428,13 +2753,10 @@ MultiSelect = (function(superClass) {
 
   MultiSelect.prototype.default_view = MultiSelectView;
 
-  MultiSelect.prototype.defaults = function() {
-    return _.extend({}, MultiSelect.__super__.defaults.call(this), {
-      title: '',
-      value: [],
-      options: []
-    });
-  };
+  MultiSelect.define({
+    value: [p.Array, []],
+    options: [p.Array, []]
+  });
 
   return MultiSelect;
 
@@ -2445,17 +2767,19 @@ module.exports = {
   View: MultiSelectView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","./input_widget":"models/widgets/input_widget","./multiselecttemplate":"models/widgets/multiselecttemplate","jquery":"jquery","underscore":"underscore"}],"models/widgets/multiselecttemplate":[function(require,module,exports){
+},{"../../core/properties":"core/properties","./input_widget":"models/widgets/input_widget","./multiselecttemplate":"models/widgets/multiselecttemplate","jquery":"jquery","underscore":"underscore"}],"models/widgets/multiselecttemplate":[function(require,module,exports){
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
-  var __out = [], __capture = function(callback) {
+  var __out = [];
+  var __capture = function(callback) {
     var out = __out, result;
     __out = [];
     callback.call(this);
     result = __out.join('');
     __out = out;
     return __safe(result);
-  }, __sanitize = function(value) {
+  };
+  var __sanitize = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else if (typeof value !== 'undefined' && value != null) {
@@ -2463,8 +2787,8 @@ module.exports = function(__obj) {
     } else {
       return '';
     }
-  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-  __safe = __obj.safe = function(value) {
+  };
+  var __safe = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else {
@@ -2474,15 +2798,13 @@ module.exports = function(__obj) {
       return result;
     }
   };
-  if (!__escape) {
-    __escape = __obj.escape = function(value) {
-      return ('' + value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    };
-  }
+  var __escape = function(value) {
+    return ('' + value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
   (function() {
     (function() {
       var i, len, option, ref;
@@ -2508,33 +2830,40 @@ module.exports = function(__obj) {
       ref = this.options;
       for (i = 0, len = ref.length; i < len; i++) {
         option = ref[i];
-        __out.push('\n  ');
-        if (this.value.indexOf(option) > -1) {
-          __out.push('\n  <option selected="selected" value="');
+        __out.push('\n    ');
+        if (typeof option === "string") {
+          __out.push('\n  <option ');
+          if (this.value.indexOf(option) > -1) {
+            __out.push('selected="selected" ');
+          }
+          __out.push('value="');
           __out.push(__sanitize(option));
           __out.push('">');
           __out.push(__sanitize(option));
-          __out.push('</option>\n  ');
+          __out.push('</option>\n    ');
         } else {
-          __out.push('\n  <option value="');
-          __out.push(__sanitize(option));
+          __out.push('\n  <option  ');
+          if (this.value.indexOf(option[0]) > -1) {
+            __out.push('selected="selected" ');
+          }
+          __out.push('value="');
+          __out.push(__sanitize(option[0]));
           __out.push('">');
-          __out.push(__sanitize(option));
-          __out.push('</option>\n  ');
+          __out.push(__sanitize(option[1]));
+          __out.push('</option>\n    ');
         }
         __out.push('\n  ');
       }
     
-      __out.push('\n</select>\n');
+      __out.push('\n</select>');
     
     }).call(this);
     
   }).call(__obj);
-  __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
 };
 },{}],"models/widgets/panel":[function(require,module,exports){
-var $, ContinuumView, Panel, PanelView, Widget, _,
+var $, Panel, PanelView, Widget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -2542,7 +2871,7 @@ _ = require("underscore");
 
 $ = require("jquery");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 Widget = require("./widget");
 
@@ -2553,19 +2882,15 @@ PanelView = (function(superClass) {
     return PanelView.__super__.constructor.apply(this, arguments);
   }
 
-  PanelView.prototype.initialize = function(options) {
-    PanelView.__super__.initialize.call(this, options);
-    return this.render();
-  };
-
   PanelView.prototype.render = function() {
+    PanelView.__super__.render.call(this);
     this.$el.empty();
     return this;
   };
 
   return PanelView;
 
-})(ContinuumView);
+})(Widget.View);
 
 Panel = (function(superClass) {
   extend(Panel, superClass);
@@ -2578,13 +2903,11 @@ Panel = (function(superClass) {
 
   Panel.prototype.default_view = PanelView;
 
-  Panel.prototype.defaults = function() {
-    return _.extend({}, Panel.__super__.defaults.call(this), {
-      title: "",
-      child: null,
-      closable: false
-    });
-  };
+  Panel.define({
+    title: [p.String, ""],
+    child: [p.Instance],
+    closable: [p.Bool, false]
+  });
 
   return Panel;
 
@@ -2595,14 +2918,12 @@ module.exports = {
   View: PanelView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","./widget":"models/widgets/widget","jquery":"jquery","underscore":"underscore"}],"models/widgets/paragraph":[function(require,module,exports){
-var ContinuumView, Markup, Paragraph, ParagraphView, _,
+},{"../../core/properties":"core/properties","./widget":"models/widgets/widget","jquery":"jquery","underscore":"underscore"}],"models/widgets/paragraph":[function(require,module,exports){
+var $, Markup, Paragraph, ParagraphView,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-_ = require("underscore");
-
-ContinuumView = require("../../common/continuum_view");
+$ = require("jquery");
 
 Markup = require("./markup");
 
@@ -2613,28 +2934,16 @@ ParagraphView = (function(superClass) {
     return ParagraphView.__super__.constructor.apply(this, arguments);
   }
 
-  ParagraphView.prototype.tagName = "p";
-
-  ParagraphView.prototype.initialize = function(options) {
-    ParagraphView.__super__.initialize.call(this, options);
-    this.render();
-    return this.listenTo(this.model, 'change', this.render);
-  };
-
   ParagraphView.prototype.render = function() {
-    if (this.mget('height')) {
-      this.$el.height(this.mget('height'));
-    }
-    if (this.mget('width')) {
-      this.$el.width(this.mget('width'));
-    }
-    this.$el.text(this.mget('text'));
-    return this;
+    var $para;
+    ParagraphView.__super__.render.call(this);
+    $para = $('<p style="margin: 0;"></p>').text(this.model.text);
+    return this.$el.find('.bk-markup').append($para);
   };
 
   return ParagraphView;
 
-})(ContinuumView);
+})(Markup.View);
 
 Paragraph = (function(superClass) {
   extend(Paragraph, superClass);
@@ -2647,12 +2956,6 @@ Paragraph = (function(superClass) {
 
   Paragraph.prototype.default_view = ParagraphView;
 
-  Paragraph.prototype.defaults = function() {
-    return _.extend({}, Paragraph.__super__.defaults.call(this), {
-      text: ''
-    });
-  };
-
   return Paragraph;
 
 })(Markup.Model);
@@ -2662,14 +2965,16 @@ module.exports = {
   View: ParagraphView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","./markup":"models/widgets/markup","underscore":"underscore"}],"models/widgets/pretext":[function(require,module,exports){
-var Paragraph, PreText, PreTextView, _,
+},{"./markup":"models/widgets/markup","jquery":"jquery"}],"models/widgets/pretext":[function(require,module,exports){
+var $, Markup, PreText, PreTextView, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-_ = require("underscore");
+$ = require("jquery");
 
-Paragraph = require("./paragraph");
+Markup = require("./markup");
+
+p = require("../../core/properties");
 
 PreTextView = (function(superClass) {
   extend(PreTextView, superClass);
@@ -2678,15 +2983,16 @@ PreTextView = (function(superClass) {
     return PreTextView.__super__.constructor.apply(this, arguments);
   }
 
-  PreTextView.prototype.tagName = "pre";
-
-  PreTextView.prototype.attributes = {
-    style: "overflow:scroll"
+  PreTextView.prototype.render = function() {
+    var $pre;
+    PreTextView.__super__.render.call(this);
+    $pre = $('<pre style="overflow: auto"></pre>').text(this.model.text);
+    return this.$el.find('.bk-markup').append($pre);
   };
 
   return PreTextView;
 
-})(Paragraph.View);
+})(Markup.View);
 
 PreText = (function(superClass) {
   extend(PreText, superClass);
@@ -2699,25 +3005,17 @@ PreText = (function(superClass) {
 
   PreText.prototype.default_view = PreTextView;
 
-  PreText.prototype.defaults = function() {
-    return _.extend({}, PreText.__super__.defaults.call(this), {
-      text: '',
-      height: 400,
-      width: 500
-    });
-  };
-
   return PreText;
 
-})(Paragraph.Model);
+})(Markup.Model);
 
 module.exports = {
   Model: PreText,
   View: PreTextView
 };
 
-},{"./paragraph":"models/widgets/paragraph","underscore":"underscore"}],"models/widgets/radio_button_group":[function(require,module,exports){
-var $, $1, ContinuumView, Model, RadioButtonGroup, RadioButtonGroupView, _,
+},{"../../core/properties":"core/properties","./markup":"models/widgets/markup","jquery":"jquery"}],"models/widgets/radio_button_group":[function(require,module,exports){
+var $, $1, RadioButtonGroup, RadioButtonGroupView, Widget, _, p, template,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -2727,9 +3025,11 @@ $ = require("jquery");
 
 $1 = require("bootstrap/button");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
-Model = require("../../model");
+Widget = require("./widget");
+
+template = require("./button_group_template");
 
 RadioButtonGroupView = (function(superClass) {
   extend(RadioButtonGroupView, superClass);
@@ -2738,11 +3038,11 @@ RadioButtonGroupView = (function(superClass) {
     return RadioButtonGroupView.__super__.constructor.apply(this, arguments);
   }
 
-  RadioButtonGroupView.prototype.tagName = "div";
-
   RadioButtonGroupView.prototype.events = {
     "change input": "change_input"
   };
+
+  RadioButtonGroupView.prototype.template = template;
 
   RadioButtonGroupView.prototype.initialize = function(options) {
     RadioButtonGroupView.__super__.initialize.call(this, options);
@@ -2751,10 +3051,11 @@ RadioButtonGroupView = (function(superClass) {
   };
 
   RadioButtonGroupView.prototype.render = function() {
-    var $input, $label, active, i, j, label, len, name, ref;
+    var $input, $label, active, html, i, j, label, len, name, ref;
+    RadioButtonGroupView.__super__.render.call(this);
     this.$el.empty();
-    this.$el.addClass("bk-bs-btn-group");
-    this.$el.attr("data-bk-bs-toggle", "buttons");
+    html = this.template();
+    this.$el.append(html);
     name = _.uniqueId("RadioButtonGroup");
     active = this.mget("active");
     ref = this.mget("labels");
@@ -2769,11 +3070,11 @@ RadioButtonGroupView = (function(superClass) {
       }
       $label = $('<label class="bk-bs-btn"></label>');
       $label.text(label).prepend($input);
-      $label.addClass("bk-bs-btn-" + this.mget("type"));
+      $label.addClass("bk-bs-btn-" + this.mget("button_type"));
       if (i === active) {
         $label.addClass("bk-bs-active");
       }
-      this.$el.append($label);
+      this.$el.find('.bk-bs-btn-group').append($label);
     }
     return this;
   };
@@ -2792,13 +3093,13 @@ RadioButtonGroupView = (function(superClass) {
       }
       return results;
     }).call(this);
-    this.mset('active', active[0]);
+    this.model.active = active[0];
     return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
   };
 
   return RadioButtonGroupView;
 
-})(ContinuumView);
+})(Widget.View);
 
 RadioButtonGroup = (function(superClass) {
   extend(RadioButtonGroup, superClass);
@@ -2811,26 +3112,24 @@ RadioButtonGroup = (function(superClass) {
 
   RadioButtonGroup.prototype.default_view = RadioButtonGroupView;
 
-  RadioButtonGroup.prototype.defaults = function() {
-    return _.extend({}, RadioButtonGroup.__super__.defaults.call(this), {
-      active: null,
-      labels: [],
-      type: "default",
-      disabled: false
-    });
-  };
+  RadioButtonGroup.define({
+    active: [p.Any, null],
+    labels: [p.Array, []],
+    button_type: [p.String, "default"],
+    callback: [p.Instance]
+  });
 
   return RadioButtonGroup;
 
-})(Model);
+})(Widget.Model);
 
 module.exports = {
   Model: RadioButtonGroup,
   View: RadioButtonGroupView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","../../model":"model","bootstrap/button":"bootstrap/button","jquery":"jquery","underscore":"underscore"}],"models/widgets/radio_group":[function(require,module,exports){
-var $, ContinuumView, Model, RadioGroup, RadioGroupView, _,
+},{"../../core/properties":"core/properties","./button_group_template":"models/widgets/button_group_template","./widget":"models/widgets/widget","bootstrap/button":"bootstrap/button","jquery":"jquery","underscore":"underscore"}],"models/widgets/radio_group":[function(require,module,exports){
+var $, RadioGroup, RadioGroupView, Widget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -2838,9 +3137,9 @@ _ = require("underscore");
 
 $ = require("jquery");
 
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
-Model = require("../../model");
+Widget = require("./widget");
 
 RadioGroupView = (function(superClass) {
   extend(RadioGroupView, superClass);
@@ -2863,6 +3162,7 @@ RadioGroupView = (function(superClass) {
 
   RadioGroupView.prototype.render = function() {
     var $div, $input, $label, active, i, j, label, len, name, ref;
+    RadioGroupView.__super__.render.call(this);
     this.$el.empty();
     name = _.uniqueId("RadioGroup");
     active = this.mget("active");
@@ -2892,7 +3192,7 @@ RadioGroupView = (function(superClass) {
   };
 
   RadioGroupView.prototype.change_input = function() {
-    var active, i, radio;
+    var active, i, radio, ref;
     active = (function() {
       var j, len, ref, results;
       ref = this.$("input");
@@ -2905,12 +3205,13 @@ RadioGroupView = (function(superClass) {
       }
       return results;
     }).call(this);
-    return this.mset('active', active[0]);
+    this.model.active = active[0];
+    return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
   };
 
   return RadioGroupView;
 
-})(ContinuumView);
+})(Widget.View);
 
 RadioGroup = (function(superClass) {
   extend(RadioGroup, superClass);
@@ -2923,38 +3224,36 @@ RadioGroup = (function(superClass) {
 
   RadioGroup.prototype.default_view = RadioGroupView;
 
-  RadioGroup.prototype.defaults = function() {
-    return _.extend({}, RadioGroup.__super__.defaults.call(this), {
-      active: null,
-      labels: [],
-      inline: false,
-      disabled: false
-    });
-  };
+  RadioGroup.define({
+    active: [p.Any, null],
+    labels: [p.Array, []],
+    inline: [p.Bool, false],
+    callback: [p.Instance]
+  });
 
   return RadioGroup;
 
-})(Model);
+})(Widget.Model);
 
 module.exports = {
   Model: RadioGroup,
   View: RadioGroupView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","../../model":"model","jquery":"jquery","underscore":"underscore"}],"models/widgets/selectbox":[function(require,module,exports){
-var ContinuumView, InputWidget, Select, SelectView, _, logger, template,
+},{"../../core/properties":"core/properties","./widget":"models/widgets/widget","jquery":"jquery","underscore":"underscore"}],"models/widgets/selectbox":[function(require,module,exports){
+var InputWidget, Select, SelectView, _, logger, p, template,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-ContinuumView = require("../../common/continuum_view");
+logger = require("../../core/logging").logger;
 
-logger = require("../../common/logging").logger;
-
-template = require("./selecttemplate");
+p = require("../../core/properties");
 
 InputWidget = require("./input_widget");
+
+template = require("./selecttemplate");
 
 SelectView = (function(superClass) {
   extend(SelectView, superClass);
@@ -2963,20 +3262,10 @@ SelectView = (function(superClass) {
     return SelectView.__super__.constructor.apply(this, arguments);
   }
 
-  SelectView.prototype.tagName = "div";
-
   SelectView.prototype.template = template;
 
   SelectView.prototype.events = {
     "change select": "change_input"
-  };
-
-  SelectView.prototype.change_input = function() {
-    var ref, value;
-    value = this.$('select').val();
-    logger.debug("selectbox: value = " + value);
-    this.mset('value', value);
-    return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
   };
 
   SelectView.prototype.initialize = function(options) {
@@ -2987,15 +3276,24 @@ SelectView = (function(superClass) {
 
   SelectView.prototype.render = function() {
     var html;
+    SelectView.__super__.render.call(this);
     this.$el.empty();
     html = this.template(this.model.attributes);
     this.$el.html(html);
     return this;
   };
 
+  SelectView.prototype.change_input = function() {
+    var value;
+    value = this.$('select').val();
+    logger.debug("selectbox: value = " + value);
+    this.model.value = value;
+    return SelectView.__super__.change_input.call(this);
+  };
+
   return SelectView;
 
-})(ContinuumView);
+})(InputWidget.View);
 
 Select = (function(superClass) {
   extend(Select, superClass);
@@ -3008,13 +3306,10 @@ Select = (function(superClass) {
 
   Select.prototype.default_view = SelectView;
 
-  Select.prototype.defaults = function() {
-    return _.extend({}, Select.__super__.defaults.call(this), {
-      title: '',
-      value: '',
-      options: []
-    });
-  };
+  Select.define({
+    value: [p.String, ''],
+    options: [p.Any, []]
+  });
 
   return Select;
 
@@ -3025,17 +3320,19 @@ module.exports = {
   View: SelectView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","../../common/logging":"common/logging","./input_widget":"models/widgets/input_widget","./selecttemplate":"models/widgets/selecttemplate","underscore":"underscore"}],"models/widgets/selecttemplate":[function(require,module,exports){
+},{"../../core/logging":"core/logging","../../core/properties":"core/properties","./input_widget":"models/widgets/input_widget","./selecttemplate":"models/widgets/selecttemplate","underscore":"underscore"}],"models/widgets/selecttemplate":[function(require,module,exports){
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
-  var __out = [], __capture = function(callback) {
+  var __out = [];
+  var __capture = function(callback) {
     var out = __out, result;
     __out = [];
     callback.call(this);
     result = __out.join('');
     __out = out;
     return __safe(result);
-  }, __sanitize = function(value) {
+  };
+  var __sanitize = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else if (typeof value !== 'undefined' && value != null) {
@@ -3043,8 +3340,8 @@ module.exports = function(__obj) {
     } else {
       return '';
     }
-  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-  __safe = __obj.safe = function(value) {
+  };
+  var __safe = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else {
@@ -3054,15 +3351,13 @@ module.exports = function(__obj) {
       return result;
     }
   };
-  if (!__escape) {
-    __escape = __obj.escape = function(value) {
-      return ('' + value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    };
-  }
+  var __escape = function(value) {
+    return ('' + value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
   (function() {
     (function() {
       var i, len, option, ref;
@@ -3099,11 +3394,11 @@ module.exports = function(__obj) {
           __out.push('</option>\n    ');
         } else {
           __out.push('\n      <option ');
-          __out.push(__sanitize(option.value === this.value ? __out.push('selected="selected"') : void 0));
+          __out.push(__sanitize(option[0] === this.value ? __out.push('selected="selected"') : void 0));
           __out.push(' value="');
-          __out.push(__sanitize(option.value));
+          __out.push(__sanitize(option[0]));
           __out.push('">');
-          __out.push(__sanitize(option.name));
+          __out.push(__sanitize(option[1]));
           __out.push('</option>\n    ');
         }
         __out.push('\n  ');
@@ -3114,11 +3409,10 @@ module.exports = function(__obj) {
     }).call(this);
     
   }).call(__obj);
-  __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
 };
 },{}],"models/widgets/slider":[function(require,module,exports){
-var $2, ContinuumView, InputWidget, Slider, SliderView, _, logger, slidertemplate,
+var $2, InputWidget, Slider, SliderView, Widget, _, logger, p, slidertemplate,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -3127,19 +3421,22 @@ _ = require("underscore");
 
 $2 = require("jquery-ui/slider");
 
-ContinuumView = require("../../common/continuum_view");
+logger = require("../../core/logging").logger;
 
-logger = require("../../common/logging").logger;
-
-slidertemplate = require("./slidertemplate");
+p = require("../../core/properties");
 
 InputWidget = require("./input_widget");
+
+Widget = require("./widget");
+
+slidertemplate = require("./slidertemplate");
 
 SliderView = (function(superClass) {
   extend(SliderView, superClass);
 
   function SliderView() {
     this.slide = bind(this.slide, this);
+    this.slidestop = bind(this.slidestop, this);
     return SliderView.__super__.constructor.apply(this, arguments);
   }
 
@@ -3154,40 +3451,66 @@ SliderView = (function(superClass) {
     this.$el.empty();
     html = this.template(this.model.attributes);
     this.$el.html(html);
+    this.callbackWrapper = null;
+    if (this.mget('callback_policy') === 'continuous') {
+      this.callbackWrapper = function() {
+        var ref;
+        return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
+      };
+    }
+    if (this.mget('callback_policy') === 'throttle' && this.mget('callback')) {
+      this.callbackWrapper = _.throttle(function() {
+        var ref;
+        return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
+      }, this.mget('callback_throttle'));
+    }
     return this.render();
   };
 
   SliderView.prototype.render = function() {
-    var max, min, step;
+    var max, min, opts, step;
+    SliderView.__super__.render.call(this);
     max = this.mget('end');
     min = this.mget('start');
     step = this.mget('step') || ((max - min) / 50);
     logger.debug("slider render: min, max, step = (" + min + ", " + max + ", " + step + ")");
-    this.$('.slider').slider({
+    opts = {
       orientation: this.mget('orientation'),
       animate: "fast",
-      slide: _.throttle(this.slide, 200),
       value: this.mget('value'),
       min: min,
       max: max,
-      step: step
-    });
+      step: step,
+      stop: this.slidestop,
+      slide: this.slide
+    };
+    this.$el.find('.slider').slider(opts);
     this.$("#" + (this.mget('id'))).val(this.$('.slider').slider('value'));
+    this.$el.find('.bk-slider-parent').height(this.mget('height'));
     return this;
   };
 
+  SliderView.prototype.slidestop = function(event, ui) {
+    var ref;
+    if (this.mget('callback_policy') === 'mouseup' || this.mget('callback_policy') === 'throttle') {
+      return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
+    }
+  };
+
   SliderView.prototype.slide = function(event, ui) {
-    var ref, value;
+    var value;
     value = ui.value;
     logger.debug("slide value = " + value);
     this.$("#" + (this.mget('id'))).val(ui.value);
     this.mset('value', value);
-    return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
+    if (this.callbackWrapper) {
+      return this.callbackWrapper();
+    }
   };
 
   return SliderView;
 
-})(ContinuumView);
+})(InputWidget.View);
 
 Slider = (function(superClass) {
   extend(Slider, superClass);
@@ -3200,16 +3523,15 @@ Slider = (function(superClass) {
 
   Slider.prototype.default_view = SliderView;
 
-  Slider.prototype.defaults = function() {
-    return _.extend({}, Slider.__super__.defaults.call(this), {
-      title: '',
-      value: 0.5,
-      start: 0,
-      end: 1,
-      step: 0.1,
-      orientation: "horizontal"
-    });
-  };
+  Slider.define({
+    value: [p.Number, 0.5],
+    start: [p.Number, 0],
+    end: [p.Number, 1],
+    step: [p.Number, 0.1],
+    orientation: [p.Orientation, "horizontal"],
+    callback_throttle: [p.Number, 200],
+    callback_policy: [p.String, "throttle"]
+  });
 
   return Slider;
 
@@ -3220,17 +3542,19 @@ module.exports = {
   View: SliderView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","../../common/logging":"common/logging","./input_widget":"models/widgets/input_widget","./slidertemplate":"models/widgets/slidertemplate","jquery-ui/slider":"jquery-ui/slider","underscore":"underscore"}],"models/widgets/slidertemplate":[function(require,module,exports){
+},{"../../core/logging":"core/logging","../../core/properties":"core/properties","./input_widget":"models/widgets/input_widget","./slidertemplate":"models/widgets/slidertemplate","./widget":"models/widgets/widget","jquery-ui/slider":"jquery-ui/slider","underscore":"underscore"}],"models/widgets/slidertemplate":[function(require,module,exports){
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
-  var __out = [], __capture = function(callback) {
+  var __out = [];
+  var __capture = function(callback) {
     var out = __out, result;
     __out = [];
     callback.call(this);
     result = __out.join('');
     __out = out;
     return __safe(result);
-  }, __sanitize = function(value) {
+  };
+  var __sanitize = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else if (typeof value !== 'undefined' && value != null) {
@@ -3238,8 +3562,8 @@ module.exports = function(__obj) {
     } else {
       return '';
     }
-  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-  __safe = __obj.safe = function(value) {
+  };
+  var __safe = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else {
@@ -3249,18 +3573,16 @@ module.exports = function(__obj) {
       return result;
     }
   };
-  if (!__escape) {
-    __escape = __obj.escape = function(value) {
-      return ('' + value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    };
-  }
+  var __escape = function(value) {
+    return ('' + value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
   (function() {
     (function() {
-      __out.push('<label for="');
+      __out.push('<div class="bk-slider-parent">\n  <label for="');
     
       __out.push(__sanitize(this.id));
     
@@ -3268,38 +3590,39 @@ module.exports = function(__obj) {
     
       __out.push(__sanitize(this.title));
     
-      __out.push(': </label>\n<input type="text" id="');
+      __out.push(': </label><input type="text" id="');
     
       __out.push(__sanitize(this.id));
     
-      __out.push('" readonly style="border:0; color:#f6931f; font-weight:bold;">\n<div class="bk-slider-');
+      __out.push('" readonly>\n  <div class="bk-slider-');
     
       __out.push(__sanitize(this.orientation));
     
-      __out.push('">\n  <div class="slider " id="');
+      __out.push('">\n    <div class="slider " id="');
     
       __out.push(__sanitize(this.id));
     
-      __out.push('">\n</div>\n');
+      __out.push('">\n    </div>\n  </div>\n</div>\n');
     
     }).call(this);
     
   }).call(__obj);
-  __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
 };
 },{}],"models/widgets/table_column":[function(require,module,exports){
-var CellEditors, CellFormatters, Model, TableColumn, _,
+var CellEditors, CellFormatters, Model, TableColumn, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-Model = require("../../model");
-
-CellEditors = require("./cell_formatters");
+CellEditors = require("./cell_editors");
 
 CellFormatters = require("./cell_formatters");
+
+p = require("../../core/properties");
+
+Model = require("../../model");
 
 TableColumn = (function(superClass) {
   extend(TableColumn, superClass);
@@ -3312,25 +3635,32 @@ TableColumn = (function(superClass) {
 
   TableColumn.prototype.default_view = null;
 
-  TableColumn.prototype.defaults = function() {
-    return _.extend({}, TableColumn.__super__.defaults.call(this), {
-      field: null,
-      title: null,
-      width: 300,
-      formatter: new CellFormatters.String.Model(),
-      editor: new CellEditors.String.Model(),
-      sortable: true,
-      default_sort: "ascending"
-    });
-  };
+  TableColumn.define({
+    field: [p.String],
+    title: [p.String],
+    width: [p.Number, 300],
+    formatter: [
+      p.Instance, function() {
+        return new CellFormatters.String.Model();
+      }
+    ],
+    editor: [
+      p.Instance, function() {
+        return new CellEditors.String.Model();
+      }
+    ],
+    sortable: [p.Bool, true],
+    default_sort: [p.String, "ascending"]
+  });
 
   TableColumn.prototype.toColumn = function() {
+    var ref;
     return {
       id: _.uniqueId(),
       field: this.get("field"),
       name: this.get("title"),
       width: this.get("width"),
-      formatter: this.get("formatter"),
+      formatter: (ref = this.get("formatter")) != null ? ref.doFormat.bind(this.get("formatter")) : void 0,
       editor: this.get("editor"),
       sortable: this.get("sortable"),
       defaultSortAsc: this.get("default_sort") === "ascending"
@@ -3345,14 +3675,16 @@ module.exports = {
   Model: TableColumn
 };
 
-},{"../../model":"model","./cell_formatters":"models/widgets/cell_formatters","underscore":"underscore"}],"models/widgets/table_widget":[function(require,module,exports){
-var TableWidget, Widget, _,
+},{"../../core/properties":"core/properties","../../model":"model","./cell_editors":"models/widgets/cell_editors","./cell_formatters":"models/widgets/cell_formatters","underscore":"underscore"}],"models/widgets/table_widget":[function(require,module,exports){
+var TableWidget, Widget, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
 Widget = require("./widget");
+
+p = require("../../core/properties");
 
 TableWidget = (function(superClass) {
   extend(TableWidget, superClass);
@@ -3363,11 +3695,9 @@ TableWidget = (function(superClass) {
 
   TableWidget.prototype.type = "TableWidget";
 
-  TableWidget.prototype.defaults = function() {
-    return _.extend({}, TableWidget.__super__.defaults.call(this), {
-      source: null
-    });
-  };
+  TableWidget.define({
+    source: [p.Instance]
+  });
 
   return TableWidget;
 
@@ -3377,8 +3707,8 @@ module.exports = {
   Model: TableWidget
 };
 
-},{"./widget":"models/widgets/widget","underscore":"underscore"}],"models/widgets/tabs":[function(require,module,exports){
-var $, $1, ContinuumView, Tabs, TabsView, Widget, _, build_views, tabs_template,
+},{"../../core/properties":"core/properties","./widget":"models/widgets/widget","underscore":"underscore"}],"models/widgets/tabs":[function(require,module,exports){
+var $, $1, Tabs, TabsView, Widget, _, p, tabs_template,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -3388,9 +3718,7 @@ $ = require("jquery");
 
 $1 = require("bootstrap/tab");
 
-build_views = require("../../common/build_views");
-
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 tabs_template = require("./tabs_template");
 
@@ -3403,16 +3731,10 @@ TabsView = (function(superClass) {
     return TabsView.__super__.constructor.apply(this, arguments);
   }
 
-  TabsView.prototype.initialize = function(options) {
-    TabsView.__super__.initialize.call(this, options);
-    this.views = {};
-    this.render();
-    return this.listenTo(this.model, 'change', this.render);
-  };
-
   TabsView.prototype.render = function() {
-    var $panels, active, child, children, html, j, key, len, panel, ref, ref1, ref2, tab, tabs, that, val;
-    ref = this.views;
+    var $panels, active, child, children, html, j, key, len, panel, ref, ref1, ref2, tabs, that, val;
+    TabsView.__super__.render.call(this);
+    ref = this.child_views;
     for (key in ref) {
       if (!hasProp.call(ref, key)) continue;
       val = ref[key];
@@ -3420,17 +3742,8 @@ TabsView = (function(superClass) {
     }
     this.$el.empty();
     tabs = this.mget('tabs');
-    active = this.mget("active");
-    children = (function() {
-      var j, len, results;
-      results = [];
-      for (j = 0, len = tabs.length; j < len; j++) {
-        tab = tabs[j];
-        results.push(tab.get("child"));
-      }
-      return results;
-    })();
-    build_views(this.views, children);
+    active = this.mget('active');
+    children = this.mget('children');
     html = $(tabs_template({
       tabs: tabs,
       active: function(i) {
@@ -3458,7 +3771,7 @@ TabsView = (function(superClass) {
     ref1 = _.zip(children, $panels);
     for (j = 0, len = ref1.length; j < len; j++) {
       ref2 = ref1[j], child = ref2[0], panel = ref2[1];
-      $(panel).html(this.views[child.id].$el);
+      $(panel).html(this.child_views[child.id].$el);
     }
     this.$el.append(html);
     this.$el.tabs;
@@ -3467,7 +3780,7 @@ TabsView = (function(superClass) {
 
   return TabsView;
 
-})(ContinuumView);
+})(Widget.View);
 
 Tabs = (function(superClass) {
   extend(Tabs, superClass);
@@ -3480,12 +3793,55 @@ Tabs = (function(superClass) {
 
   Tabs.prototype.default_view = TabsView;
 
-  Tabs.prototype.defaults = function() {
-    return _.extend({}, Tabs.__super__.defaults.call(this), {
-      tabs: [],
-      active: 0,
-      callback: null
-    });
+  Tabs.prototype.initialize = function(options) {
+    var tab;
+    Tabs.__super__.initialize.call(this, options);
+    return this.children = (function() {
+      var j, len, ref, results;
+      ref = this.tabs;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        tab = ref[j];
+        results.push(tab.get("child"));
+      }
+      return results;
+    }).call(this);
+  };
+
+  Tabs.define({
+    tabs: [p.Array, []],
+    active: [p.Number, 0],
+    callback: [p.Instance]
+  });
+
+  Tabs.internal({
+    children: [p.Array, []]
+  });
+
+  Tabs.prototype.get_layoutable_children = function() {
+    return this.get('children');
+  };
+
+  Tabs.prototype.get_edit_variables = function() {
+    var child, edit_variables, j, len, ref;
+    edit_variables = Tabs.__super__.get_edit_variables.call(this);
+    ref = this.get_layoutable_children();
+    for (j = 0, len = ref.length; j < len; j++) {
+      child = ref[j];
+      edit_variables = edit_variables.concat(child.get_edit_variables());
+    }
+    return edit_variables;
+  };
+
+  Tabs.prototype.get_constraints = function() {
+    var child, constraints, j, len, ref;
+    constraints = Tabs.__super__.get_constraints.call(this);
+    ref = this.get_layoutable_children();
+    for (j = 0, len = ref.length; j < len; j++) {
+      child = ref[j];
+      constraints = constraints.concat(child.get_constraints());
+    }
+    return constraints;
   };
 
   return Tabs;
@@ -3497,17 +3853,19 @@ module.exports = {
   View: TabsView
 };
 
-},{"../../common/build_views":"common/build_views","../../common/continuum_view":"common/continuum_view","./tabs_template":"models/widgets/tabs_template","./widget":"models/widgets/widget","bootstrap/tab":"bootstrap/tab","jquery":"jquery","underscore":"underscore"}],"models/widgets/tabs_template":[function(require,module,exports){
+},{"../../core/properties":"core/properties","./tabs_template":"models/widgets/tabs_template","./widget":"models/widgets/widget","bootstrap/tab":"bootstrap/tab","jquery":"jquery","underscore":"underscore"}],"models/widgets/tabs_template":[function(require,module,exports){
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
-  var __out = [], __capture = function(callback) {
+  var __out = [];
+  var __capture = function(callback) {
     var out = __out, result;
     __out = [];
     callback.call(this);
     result = __out.join('');
     __out = out;
     return __safe(result);
-  }, __sanitize = function(value) {
+  };
+  var __sanitize = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else if (typeof value !== 'undefined' && value != null) {
@@ -3515,8 +3873,8 @@ module.exports = function(__obj) {
     } else {
       return '';
     }
-  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-  __safe = __obj.safe = function(value) {
+  };
+  var __safe = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else {
@@ -3526,15 +3884,13 @@ module.exports = function(__obj) {
       return result;
     }
   };
-  if (!__escape) {
-    __escape = __obj.escape = function(value) {
-      return ('' + value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    };
-  }
+  var __escape = function(value) {
+    return ('' + value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
   (function() {
     (function() {
       var i, j, k, len, len1, ref, ref1, tab;
@@ -3570,11 +3926,10 @@ module.exports = function(__obj) {
     }).call(this);
     
   }).call(__obj);
-  __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
 };
 },{}],"models/widgets/text_input":[function(require,module,exports){
-var ContinuumView, InputWidget, TextInput, TextInputView, _, build_views, logger, template,
+var InputWidget, TextInput, TextInputView, _, build_views, logger, p, template,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -3582,13 +3937,13 @@ _ = require("underscore");
 
 build_views = require("../../common/build_views");
 
-ContinuumView = require("../../common/continuum_view");
+logger = require("../../core/logging").logger;
 
-logger = require("../../common/logging").logger;
-
-template = require("./text_input_template");
+p = require("../../core/properties");
 
 InputWidget = require("./input_widget");
+
+template = require("./text_input_template");
 
 TextInputView = (function(superClass) {
   extend(TextInputView, superClass);
@@ -3616,21 +3971,25 @@ TextInputView = (function(superClass) {
   };
 
   TextInputView.prototype.render = function() {
+    TextInputView.__super__.render.call(this);
     this.$el.html(this.template(this.model.attributes));
+    if (this.model.height) {
+      this.$el.find('input').height(this.mget('height') - 35);
+    }
     return this;
   };
 
   TextInputView.prototype.change_input = function() {
-    var ref, value;
+    var value;
     value = this.$('input').val();
     logger.debug("widget/text_input: value = " + value);
-    this.mset('value', value);
-    return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
+    this.model.value = value;
+    return TextInputView.__super__.change_input.call(this);
   };
 
   return TextInputView;
 
-})(ContinuumView);
+})(InputWidget.View);
 
 TextInput = (function(superClass) {
   extend(TextInput, superClass);
@@ -3643,12 +4002,9 @@ TextInput = (function(superClass) {
 
   TextInput.prototype.default_view = TextInputView;
 
-  TextInput.prototype.defaults = function() {
-    return _.extend({}, TextInput.__super__.defaults.call(this), {
-      value: "",
-      title: ""
-    });
-  };
+  TextInput.define({
+    value: [p.String, ""]
+  });
 
   return TextInput;
 
@@ -3659,17 +4015,19 @@ module.exports = {
   View: TextInputView
 };
 
-},{"../../common/build_views":"common/build_views","../../common/continuum_view":"common/continuum_view","../../common/logging":"common/logging","./input_widget":"models/widgets/input_widget","./text_input_template":"models/widgets/text_input_template","underscore":"underscore"}],"models/widgets/text_input_template":[function(require,module,exports){
+},{"../../common/build_views":"common/build_views","../../core/logging":"core/logging","../../core/properties":"core/properties","./input_widget":"models/widgets/input_widget","./text_input_template":"models/widgets/text_input_template","underscore":"underscore"}],"models/widgets/text_input_template":[function(require,module,exports){
 module.exports = function(__obj) {
   if (!__obj) __obj = {};
-  var __out = [], __capture = function(callback) {
+  var __out = [];
+  var __capture = function(callback) {
     var out = __out, result;
     __out = [];
     callback.call(this);
     result = __out.join('');
     __out = out;
     return __safe(result);
-  }, __sanitize = function(value) {
+  };
+  var __sanitize = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else if (typeof value !== 'undefined' && value != null) {
@@ -3677,8 +4035,8 @@ module.exports = function(__obj) {
     } else {
       return '';
     }
-  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-  __safe = __obj.safe = function(value) {
+  };
+  var __safe = function(value) {
     if (value && value.ecoSafe) {
       return value;
     } else {
@@ -3688,15 +4046,13 @@ module.exports = function(__obj) {
       return result;
     }
   };
-  if (!__escape) {
-    __escape = __obj.escape = function(value) {
-      return ('' + value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    };
-  }
+  var __escape = function(value) {
+    return ('' + value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
   (function() {
     (function() {
       __out.push('<label for="');
@@ -3724,17 +4080,14 @@ module.exports = function(__obj) {
     }).call(this);
     
   }).call(__obj);
-  __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
 };
 },{}],"models/widgets/toggle":[function(require,module,exports){
-var AbstractButton, ContinuumView, Toggle, ToggleView, _,
+var AbstractButton, Toggle, ToggleView, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-_ = require("underscore");
-
-ContinuumView = require("../../common/continuum_view");
+p = require("../../core/properties");
 
 AbstractButton = require("./abstract_button");
 
@@ -3745,58 +4098,24 @@ ToggleView = (function(superClass) {
     return ToggleView.__super__.constructor.apply(this, arguments);
   }
 
-  ToggleView.prototype.tagName = "button";
-
-  ToggleView.prototype.events = {
-    "click": "change_input"
-  };
-
-  ToggleView.prototype.initialize = function(options) {
-    ToggleView.__super__.initialize.call(this, options);
-    this.render();
-    return this.listenTo(this.model, 'change', this.render);
-  };
-
   ToggleView.prototype.render = function() {
-    var icon, key, label, ref, val;
-    icon = this.mget('icon');
-    if (icon != null) {
-      build_views(this.views, [icon]);
-      ref = this.views;
-      for (key in ref) {
-        if (!hasProp.call(ref, key)) continue;
-        val = ref[key];
-        val.$el.detach();
-      }
-    }
-    this.$el.empty();
-    this.$el.addClass("bk-bs-btn");
-    this.$el.addClass("bk-bs-btn-" + this.mget("type"));
-    if (this.mget("disabled")) {
-      this.$el.attr("disabled", "disabled");
-    }
-    label = this.mget("label");
-    if (icon != null) {
-      this.$el.append(this.views[icon.id].$el);
-      label = " " + label;
-    }
-    this.$el.append(document.createTextNode(label));
+    ToggleView.__super__.render.call(this);
     if (this.mget("active")) {
-      this.$el.addClass("bk-bs-active");
+      this.$el.find('button').addClass("bk-bs-active");
+    } else {
+      this.$el.find('button').removeClass("bk-bs-active");
     }
-    this.$el.attr("data-bk-bs-toggle", "button");
     return this;
   };
 
   ToggleView.prototype.change_input = function() {
-    var ref;
-    this.mset('active', !this.mget('active'));
-    return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
+    ToggleView.__super__.change_input.call(this);
+    return this.mset('active', !this.mget('active'));
   };
 
   return ToggleView;
 
-})(ContinuumView);
+})(AbstractButton.View);
 
 Toggle = (function(superClass) {
   extend(Toggle, superClass);
@@ -3809,12 +4128,13 @@ Toggle = (function(superClass) {
 
   Toggle.prototype.default_view = ToggleView;
 
-  Toggle.prototype.defaults = function() {
-    return _.extend({}, Toggle.__super__.defaults.call(this), {
-      active: false,
-      label: "Toggle"
-    });
-  };
+  Toggle.define({
+    active: [p.Bool, false]
+  });
+
+  Toggle.override({
+    label: "Toggle"
+  });
 
   return Toggle;
 
@@ -3825,12 +4145,34 @@ module.exports = {
   View: ToggleView
 };
 
-},{"../../common/continuum_view":"common/continuum_view","./abstract_button":"models/widgets/abstract_button","underscore":"underscore"}],"models/widgets/widget":[function(require,module,exports){
-var Component, Widget,
+},{"../../core/properties":"core/properties","./abstract_button":"models/widgets/abstract_button"}],"models/widgets/widget":[function(require,module,exports){
+var LayoutDOM, Widget, WidgetView,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-Component = require("../component");
+LayoutDOM = require("../layouts/layout_dom");
+
+WidgetView = (function(superClass) {
+  extend(WidgetView, superClass);
+
+  function WidgetView() {
+    return WidgetView.__super__.constructor.apply(this, arguments);
+  }
+
+  WidgetView.prototype.className = "bk-widget";
+
+  WidgetView.prototype.render = function() {
+    if (this.model.height) {
+      this.$el.height(this.model.height);
+    }
+    if (this.model.width) {
+      return this.$el.width(this.model.width);
+    }
+  };
+
+  return WidgetView;
+
+})(LayoutDOM.View);
 
 Widget = (function(superClass) {
   extend(Widget, superClass);
@@ -3841,15 +4183,18 @@ Widget = (function(superClass) {
 
   Widget.prototype.type = "Widget";
 
+  Widget.prototype.default_view = WidgetView;
+
   return Widget;
 
-})(Component.Model);
+})(LayoutDOM.Model);
 
 module.exports = {
-  Model: Widget
+  Model: Widget,
+  View: WidgetView
 };
 
-},{"../component":"models/component"}],"util/dom_util":[function(require,module,exports){
+},{"../layouts/layout_dom":"models/layouts/layout_dom"}],"util/dom_util":[function(require,module,exports){
 var $, _, waitForElement;
 
 _ = require("underscore");
@@ -11682,6 +12027,248 @@ $(document).on('click.bk-bs.button.data-api', '[data-bk-bs-toggle^=button]', fun
   e.preventDefault()
 })
 
+},{"jquery":"jquery"}],"bootstrap/modal":[function(require,module,exports){
+var $ = require("jquery");
+/* ========================================================================
+ * Bootstrap: modal.js v3.1.1
+ * http://getbootstrap.com/javascript/#modals
+ * ========================================================================
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+'use strict';
+
+// MODAL CLASS DEFINITION
+// ======================
+
+var Modal = function (element, options) {
+  this.options   = options
+  this.$element  = $(element)
+  this.$backdrop =
+  this.isShown   = null
+
+  if (this.options.remote) {
+    this.$element
+      .find('.bk-bs-modal-content')
+      .load(this.options.remote, $.proxy(function () {
+        this.$element.trigger('loaded.bk-bs.modal')
+      }, this))
+  }
+}
+
+Modal.DEFAULTS = {
+  backdrop: true,
+  keyboard: true,
+  show: true
+}
+
+Modal.prototype.toggle = function (_relatedTarget) {
+  return this[!this.isShown ? 'show' : 'hide'](_relatedTarget)
+}
+
+Modal.prototype.show = function (_relatedTarget) {
+  var that = this
+  var e    = $.Event('show.bk-bs.modal', { relatedTarget: _relatedTarget })
+
+  this.$element.trigger(e)
+
+  if (this.isShown || e.isDefaultPrevented()) return
+
+  this.isShown = true
+
+  this.escape()
+
+  this.$element.on('click.dismiss.bk-bs.modal', '[data-bk-bs-dismiss="modal"]', $.proxy(this.hide, this))
+
+  this.backdrop(function () {
+    var transition = $.support.transition && that.$element.hasClass('bk-bs-fade')
+
+    if (!that.$element.parent().length) {
+      that.$element.appendTo(document.body) // don't move modals dom position
+    }
+
+    that.$element
+      .show()
+      .scrollTop(0)
+
+    if (transition) {
+      that.$element[0].offsetWidth // force reflow
+    }
+
+    that.$element
+      .addClass('bk-bs-in')
+      .attr('aria-hidden', false)
+
+    that.enforceFocus()
+
+    var e = $.Event('shown.bk-bs.modal', { relatedTarget: _relatedTarget })
+
+    transition ?
+      that.$element.find('.bk-bs-modal-dialog') // wait for modal to slide in
+        .one($.support.transition.end, function () {
+          that.$element.focus().trigger(e)
+        })
+        .emulateTransitionEnd(300) :
+      that.$element.focus().trigger(e)
+  })
+}
+
+Modal.prototype.hide = function (e) {
+  if (e) e.preventDefault()
+
+  e = $.Event('hide.bk-bs.modal')
+
+  this.$element.trigger(e)
+
+  if (!this.isShown || e.isDefaultPrevented()) return
+
+  this.isShown = false
+
+  this.escape()
+
+  $(document).off('focusin.bk-bs.modal')
+
+  this.$element
+    .removeClass('bk-bs-in')
+    .attr('aria-hidden', true)
+    .off('click.dismiss.bk-bs.modal')
+
+  $.support.transition && this.$element.hasClass('bk-bs-fade') ?
+    this.$element
+      .one($.support.transition.end, $.proxy(this.hideModal, this))
+      .emulateTransitionEnd(300) :
+    this.hideModal()
+}
+
+Modal.prototype.enforceFocus = function () {
+  $(document)
+    .off('focusin.bk-bs.modal') // guard against infinite focus loop
+    .on('focusin.bk-bs.modal', $.proxy(function (e) {
+      if (this.$element[0] !== e.target && !this.$element.has(e.target).length) {
+        this.$element.focus()
+      }
+    }, this))
+}
+
+Modal.prototype.escape = function () {
+  if (this.isShown && this.options.keyboard) {
+    this.$element.on('keyup.dismiss.bk-bs.modal', $.proxy(function (e) {
+      e.which == 27 && this.hide()
+    }, this))
+  } else if (!this.isShown) {
+    this.$element.off('keyup.dismiss.bk-bs.modal')
+  }
+}
+
+Modal.prototype.hideModal = function () {
+  var that = this
+  this.$element.hide()
+  this.backdrop(function () {
+    that.removeBackdrop()
+    that.$element.trigger('hidden.bk-bs.modal')
+  })
+}
+
+Modal.prototype.removeBackdrop = function () {
+  this.$backdrop && this.$backdrop.remove()
+  this.$backdrop = null
+}
+
+Modal.prototype.backdrop = function (callback) {
+  var animate = this.$element.hasClass('bk-bs-fade') ? 'bk-bs-fade' : ''
+
+  if (this.isShown && this.options.backdrop) {
+    var doAnimate = $.support.transition && animate
+
+    this.$backdrop = $('<div class="bk-bs-modal-backdrop ' + animate + '" />')
+      .appendTo(document.body)
+
+    this.$element.on('click.dismiss.bk-bs.modal', $.proxy(function (e) {
+      if (e.target !== e.currentTarget) return
+      this.options.backdrop == 'static'
+        ? this.$element[0].focus.call(this.$element[0])
+        : this.hide.call(this)
+    }, this))
+
+    if (doAnimate) this.$backdrop[0].offsetWidth // force reflow
+
+    this.$backdrop.addClass('bk-bs-in')
+
+    if (!callback) return
+
+    doAnimate ?
+      this.$backdrop
+        .one($.support.transition.end, callback)
+        .emulateTransitionEnd(150) :
+      callback()
+
+  } else if (!this.isShown && this.$backdrop) {
+    this.$backdrop.removeClass('bk-bs-in')
+
+    $.support.transition && this.$element.hasClass('bk-bs-fade') ?
+      this.$backdrop
+        .one($.support.transition.end, callback)
+        .emulateTransitionEnd(150) :
+      callback()
+
+  } else if (callback) {
+    callback()
+  }
+}
+
+
+// MODAL PLUGIN DEFINITION
+// =======================
+
+var old = $.fn.modal
+
+$.fn.modal = function (option, _relatedTarget) {
+  return this.each(function () {
+    var $this   = $(this)
+    var data    = $this.data('bk-bs.modal')
+    var options = $.extend({}, Modal.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+    if (!data) $this.data('bk-bs.modal', (data = new Modal(this, options)))
+    if (typeof option == 'string') data[option](_relatedTarget)
+    else if (options.show) data.show(_relatedTarget)
+  })
+}
+
+$.fn.modal.Constructor = Modal
+
+
+// MODAL NO CONFLICT
+// =================
+
+$.fn.modal.noConflict = function () {
+  $.fn.modal = old
+  return this
+}
+
+
+// MODAL DATA-API
+// ==============
+
+$(document).on('click.bk-bs.modal.data-api', '[data-bk-bs-toggle="modal"]', function (e) {
+  var $this   = $(this)
+  var href    = $this.attr('href')
+  var $target = $($this.attr('data-bk-bs-target') || (href && href.replace(/.*(?=#[^\s]+$)/, ''))) //strip for ie7
+  var option  = $target.data('bk-bs.modal') ? 'toggle' : $.extend({ remote: !/#/.test(href) && href }, $target.data(), $this.data())
+
+  if ($this.is('a')) e.preventDefault()
+
+  $target
+    .modal(option, this)
+    .one('hide', function () {
+      $this.is(':visible') && $this.focus()
+    })
+})
+
+$(document)
+  .on('show.bk-bs.modal', '.bk-bs-modal', function () { $(document.body).addClass('bk-bs-modal-open') })
+  .on('hidden.bk-bs.modal', '.bk-bs-modal', function () { $(document.body).removeClass('bk-bs-modal-open') })
+
 },{"jquery":"jquery"}],"bootstrap/tab":[function(require,module,exports){
 var $ = require("jquery");
 /* ========================================================================
@@ -15640,7 +16227,7 @@ function SlickGrid(container, data, columns, options) {
 
     if (formatter.format !== undefined) {
       var model = formatter;
-      function format(row, cell, value, columnDef, dataContext) {
+      var format = function foo(row, cell, value, columnDef, dataContext) {
         return model.format(row, cell, value, columnDef, dataContext);
       }
       formatter = format
@@ -16412,7 +16999,7 @@ function SlickGrid(container, data, columns, options) {
     if (rowsCache[row]) {
       var $cell = $(getCellNode(row, cell));
 
-      function toggleCellClass(times) {
+      var toggleCellClass = function foo(times) {
         if (!times) {
           return;
         }

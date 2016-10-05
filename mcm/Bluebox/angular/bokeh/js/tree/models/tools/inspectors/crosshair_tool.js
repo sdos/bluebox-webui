@@ -1,12 +1,14 @@
-var CrosshairTool, CrosshairToolView, InspectTool, Span, _,
+var CrosshairTool, CrosshairToolView, InspectTool, Span, _, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
+InspectTool = require("./inspect_tool");
+
 Span = require("../../annotations/span");
 
-InspectTool = require("./inspect_tool");
+p = require("../../../core/properties");
 
 CrosshairToolView = (function(superClass) {
   extend(CrosshairToolView, superClass);
@@ -71,14 +73,26 @@ CrosshairTool = (function(superClass) {
 
   CrosshairTool.prototype.tool_name = "Crosshair";
 
+  CrosshairTool.define({
+    dimensions: [p.Array, ["width", "height"]],
+    line_color: [p.Color, 'black'],
+    line_width: [p.Number, 1],
+    line_alpha: [p.Number, 1.0]
+  });
+
+  CrosshairTool.internal({
+    location_units: [p.SpatialUnits, "screen"],
+    render_mode: [p.RenderMode, "css"],
+    spans: [p.Any]
+  });
+
   CrosshairTool.prototype.initialize = function(attrs, options) {
-    var renderers;
     CrosshairTool.__super__.initialize.call(this, attrs, options);
-    this.register_property('tooltip', function() {
+    this.override_computed_property('tooltip', function() {
       return this._get_dim_tooltip("Crosshair", this._check_dims(this.get('dimensions'), "crosshair tool"));
     }, false);
     this.add_dependencies('tooltip', this, ['dimensions']);
-    this.set('spans', {
+    this.spans = {
       width: new Span.Model({
         for_hover: true,
         dimension: "width",
@@ -97,26 +111,12 @@ CrosshairTool = (function(superClass) {
         line_width: this.get('line_width'),
         line_alpha: this.get('line_alpha')
       })
-    });
-    renderers = this.get('plot').get('renderers');
-    renderers.push(this.get('spans').width);
-    renderers.push(this.get('spans').height);
-    return this.get('plot').set('renderers', renderers);
-  };
-
-  CrosshairTool.prototype.nonserializable_attribute_names = function() {
-    return CrosshairTool.__super__.nonserializable_attribute_names.call(this).concat(['location_units', 'render_mode', 'spans']);
-  };
-
-  CrosshairTool.prototype.defaults = function() {
-    return _.extend({}, CrosshairTool.__super__.defaults.call(this), {
-      dimensions: ["width", "height"],
-      location_units: "screen",
-      render_mode: "css",
-      line_color: 'black',
-      line_width: 1,
-      line_alpha: 1.0
-    });
+    };
+    return this.override_computed_property('synthetic_renderers', ((function(_this) {
+      return function() {
+        return _.values(_this.get("spans"));
+      };
+    })(this)), true);
   };
 
   return CrosshairTool;

@@ -1,4 +1,4 @@
-var $, ContinuumView, InputWidget, MultiSelect, MultiSelectView, _, multiselecttemplate,
+var $, InputWidget, MultiSelect, MultiSelectView, _, multiselecttemplate, p,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -7,11 +7,11 @@ _ = require("jquery");
 
 $ = require("underscore");
 
-ContinuumView = require("../../common/continuum_view");
-
-multiselecttemplate = require("./multiselecttemplate");
+p = require("../../core/properties");
 
 InputWidget = require("./input_widget");
+
+multiselecttemplate = require("./multiselecttemplate");
 
 MultiSelectView = (function(superClass) {
   extend(MultiSelectView, superClass);
@@ -40,6 +40,7 @@ MultiSelectView = (function(superClass) {
 
   MultiSelectView.prototype.render = function() {
     var html;
+    MultiSelectView.__super__.render.call(this);
     this.$el.empty();
     html = this.template(this.model.attributes);
     this.$el.html(html);
@@ -64,16 +65,19 @@ MultiSelectView = (function(superClass) {
   };
 
   MultiSelectView.prototype.change_input = function() {
-    var ref;
-    this.mset('value', this.$('select').val(), {
-      'silent': true
-    });
-    return (ref = this.mget('callback')) != null ? ref.execute(this.model) : void 0;
+    var value;
+    value = this.$el.find('select').val();
+    if (value) {
+      this.model.value = value;
+    } else {
+      this.model.value = [];
+    }
+    return MultiSelectView.__super__.change_input.call(this);
   };
 
   return MultiSelectView;
 
-})(ContinuumView);
+})(InputWidget.View);
 
 MultiSelect = (function(superClass) {
   extend(MultiSelect, superClass);
@@ -86,13 +90,10 @@ MultiSelect = (function(superClass) {
 
   MultiSelect.prototype.default_view = MultiSelectView;
 
-  MultiSelect.prototype.defaults = function() {
-    return _.extend({}, MultiSelect.__super__.defaults.call(this), {
-      title: '',
-      value: [],
-      options: []
-    });
-  };
+  MultiSelect.define({
+    value: [p.Array, []],
+    options: [p.Array, []]
+  });
 
   return MultiSelect;
 

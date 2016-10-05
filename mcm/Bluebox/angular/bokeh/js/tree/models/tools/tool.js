@@ -1,14 +1,16 @@
-var Model, PlotWidget, Tool, ToolView, _, logger,
+var Model, Renderer, Tool, ToolView, _, logger, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
+Renderer = require("../renderers/renderer");
+
+logger = require("../../core/logging").logger;
+
+p = require("../../core/properties");
+
 Model = require("../../model");
-
-logger = require("../../common/logging").logger;
-
-PlotWidget = require("../../common/plot_widget");
 
 ToolView = (function(superClass) {
   extend(ToolView, superClass);
@@ -35,7 +37,7 @@ ToolView = (function(superClass) {
 
   return ToolView;
 
-})(PlotWidget);
+})(Renderer.View);
 
 Tool = (function(superClass) {
   extend(Tool, superClass);
@@ -44,9 +46,21 @@ Tool = (function(superClass) {
     return Tool.__super__.constructor.apply(this, arguments);
   }
 
-  Tool.prototype.nonserializable_attribute_names = function() {
-    return Tool.__super__.nonserializable_attribute_names.call(this).concat(['active', 'level', 'tool_name']);
+  Tool.prototype.initialize = function(attrs, options) {
+    Tool.__super__.initialize.call(this, attrs, options);
+    return this.define_computed_property('synthetic_renderers', (function() {
+      return [];
+    }), true);
   };
+
+  Tool.define({
+    plot: [p.Instance]
+  });
+
+  Tool.internal({
+    level: [p.RenderLevel, 'overlay'],
+    active: [p.Boolean, false]
+  });
 
   Tool.prototype._check_dims = function(dims, tool_name) {
     var hdim, ref, wdim;
@@ -104,14 +118,6 @@ Tool = (function(superClass) {
       vylim = [vr.get('min'), vr.get('max')];
     }
     return [vxlim, vylim];
-  };
-
-  Tool.prototype.defaults = function() {
-    return _.extend({}, Tool.__super__.defaults.call(this), {
-      plot: null,
-      tool_name: this.tool_name,
-      level: 'overlay'
-    });
   };
 
   return Tool;

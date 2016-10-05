@@ -74,16 +74,18 @@ BezierView = (function(superClass) {
     var i, index, k, pts, ref, ref1, x0, x1, y0, y1;
     index = rbush();
     pts = [];
-    for (i = k = 0, ref = this.x0.length; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
-      if (isNaN(this.x0[i] + this.x1[i] + this.y0[i] + this.y1[i] + this.cx0[i] + this.cy0[i] + this.cx1[i] + this.cy1[i])) {
+    for (i = k = 0, ref = this._x0.length; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
+      if (isNaN(this._x0[i] + this._x1[i] + this._y0[i] + this._y1[i] + this._cx0[i] + this._cy0[i] + this._cx1[i] + this._cy1[i])) {
         continue;
       }
-      ref1 = _cbb(this.x0[i], this.y0[i], this.x1[i], this.y1[i], this.cx0[i], this.cy0[i], this.cx1[i], this.cy1[i]), x0 = ref1[0], y0 = ref1[1], x1 = ref1[2], y1 = ref1[3];
-      pts.push([
-        x0, y0, x1, y1, {
-          'i': i
-        }
-      ]);
+      ref1 = _cbb(this._x0[i], this._y0[i], this._x1[i], this._y1[i], this._cx0[i], this._cy0[i], this._cx1[i], this._cy1[i]), x0 = ref1[0], y0 = ref1[1], x1 = ref1[2], y1 = ref1[3];
+      pts.push({
+        minX: x0,
+        minY: y0,
+        maxX: x1,
+        maxY: y1,
+        i: i
+      });
     }
     index.load(pts);
     return index;
@@ -92,7 +94,7 @@ BezierView = (function(superClass) {
   BezierView.prototype._render = function(ctx, indices, arg) {
     var i, k, len, results, scx, scx0, scx1, scy0, scy1, sx0, sx1, sy0, sy1;
     sx0 = arg.sx0, sy0 = arg.sy0, sx1 = arg.sx1, sy1 = arg.sy1, scx = arg.scx, scx0 = arg.scx0, scy0 = arg.scy0, scx1 = arg.scx1, scy1 = arg.scy1;
-    if (this.visuals.line.do_stroke) {
+    if (this.visuals.line.doit) {
       results = [];
       for (k = 0, len = indices.length; k < len; k++) {
         i = indices[k];
@@ -128,9 +130,9 @@ Bezier = (function(superClass) {
 
   Bezier.prototype.type = 'Bezier';
 
-  Bezier.prototype.visuals = ['line'];
+  Bezier.coords([['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1']]);
 
-  Bezier.prototype.coords = [['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1']];
+  Bezier.mixins(['line']);
 
   return Bezier;
 

@@ -1,4 +1,4 @@
-var DatetimeTickFormatter, SPrintf, TickFormatter, _, _array, _four_digit_year, _strftime, _two_digit_year, _us, logger, tz,
+var DEFAULT_DATETIME_FORMATS, DatetimeTickFormatter, SPrintf, TickFormatter, _, _array, _strftime, _us, logger, p, tz,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -10,30 +10,12 @@ tz = require("timezone");
 
 TickFormatter = require("./tick_formatter");
 
-logger = require("../../common/logging").logger;
+logger = require("../../core/logging").logger;
+
+p = require("../../core/properties");
 
 _us = function(t) {
   return Math.round(((t / 1000) % 1) * 1000000);
-};
-
-_two_digit_year = function(t) {
-  var dt, year;
-  dt = new Date(t);
-  year = dt.getFullYear();
-  if (dt.getMonth() >= 7) {
-    year += 1;
-  }
-  return SPrintf.sprintf("'%02d", year % 100);
-};
-
-_four_digit_year = function(t) {
-  var dt, year;
-  dt = new Date(t);
-  year = dt.getFullYear();
-  if (dt.getMonth() >= 7) {
-    year += 1;
-  }
-  return SPrintf.sprintf("%d", year);
 };
 
 _array = function(t) {
@@ -56,6 +38,19 @@ _strftime = function(t, format) {
   }
 };
 
+DEFAULT_DATETIME_FORMATS = {
+  'microseconds': ['%fus'],
+  'milliseconds': ['%3Nms', '%S.%3Ns'],
+  'seconds': ['%Ss'],
+  'minsec': [':%M:%S'],
+  'minutes': [':%M', '%Mm'],
+  'hourmin': ['%H:%M'],
+  'hours': ['%Hh', '%H:%M'],
+  'days': ['%m/%d', '%a%d'],
+  'months': ['%m/%Y', '%b%y'],
+  'years': ['%Y']
+};
+
 DatetimeTickFormatter = (function(superClass) {
   extend(DatetimeTickFormatter, superClass);
 
@@ -65,32 +60,27 @@ DatetimeTickFormatter = (function(superClass) {
 
   DatetimeTickFormatter.prototype.type = 'DatetimeTickFormatter';
 
-  DatetimeTickFormatter.prototype.format_order = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'];
+  DatetimeTickFormatter.define({
+    formats: [p.Any, DEFAULT_DATETIME_FORMATS]
+  });
 
-  DatetimeTickFormatter.prototype._formats = {
-    'microseconds': ['%fus'],
-    'milliseconds': ['%3Nms', '%S.%3Ns'],
-    'seconds': ['%Ss'],
-    'minsec': [':%M:%S'],
-    'minutes': [':%M', '%Mm'],
-    'hourmin': ['%H:%M'],
-    'hours': ['%Hh', '%H:%M'],
-    'days': ['%m/%d', '%a%d'],
-    'months': ['%m/%Y', '%b%y'],
-    'years': ['%Y', _two_digit_year, _four_digit_year]
-  };
+  DatetimeTickFormatter.prototype.format_order = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'];
 
   DatetimeTickFormatter.prototype.strip_leading_zeros = true;
 
   DatetimeTickFormatter.prototype.initialize = function(attrs, options) {
-    var fmt, fmt_name, fmt_string, fmt_strings, now, results, sizes, sorted;
     DatetimeTickFormatter.__super__.initialize.call(this, attrs, options);
-    fmt = _.extend({}, this._formats, this.get("formats"));
+    return this._update_width_formats();
+  };
+
+  DatetimeTickFormatter.prototype._update_width_formats = function() {
+    var fmt_name, fmt_string, fmt_strings, now, ref, results, sizes, sorted;
     now = tz(new Date());
-    this.formats = {};
+    this._width_formats = {};
+    ref = this.formats;
     results = [];
-    for (fmt_name in fmt) {
-      fmt_strings = fmt[fmt_name];
+    for (fmt_name in ref) {
+      fmt_strings = ref[fmt_name];
       sizes = (function() {
         var j, len, results1;
         results1 = [];
@@ -105,7 +95,7 @@ DatetimeTickFormatter = (function(superClass) {
         size = arg[0], fmt = arg[1];
         return size;
       });
-      results.push(this.formats[fmt_name] = _.zip.apply(_, sorted));
+      results.push(this._width_formats[fmt_name] = _.zip.apply(_, sorted));
     }
     return results;
   };
@@ -141,7 +131,7 @@ DatetimeTickFormatter = (function(superClass) {
     return str;
   };
 
-  DatetimeTickFormatter.prototype.format = function(ticks, num_labels, char_width, fill_ratio, ticker) {
+  DatetimeTickFormatter.prototype.doFormat = function(ticks, num_labels, char_width, fill_ratio, ticker) {
     var error, error1, fmt, format, formats, good_formats, hybrid_handled, i, j, k, l, labels, len, len1, next_format, next_ndx, r, ref, ref1, ref2, resol, resol_ndx, s, span, ss, t, time_tuple_ndx_for_resol, tm, widths;
     if (num_labels == null) {
       num_labels = null;
@@ -165,13 +155,13 @@ DatetimeTickFormatter = (function(superClass) {
       r = span / (ticks.length - 1);
     }
     resol = this._get_resolution_str(r, span);
-    ref = this.formats[resol], widths = ref[0], formats = ref[1];
+    ref = this._width_formats[resol], widths = ref[0], formats = ref[1];
     format = formats[0];
     if (char_width) {
       good_formats = [];
       for (i = j = 0, ref1 = widths.length; 0 <= ref1 ? j < ref1 : j > ref1; i = 0 <= ref1 ? ++j : --j) {
         if (widths[i] * ticks.length < fill_ratio * char_width) {
-          good_formats.push(this.formats[i]);
+          good_formats.push(this._width_formats[i]);
         }
       }
       if (good_formats.length > 0) {
@@ -212,14 +202,14 @@ DatetimeTickFormatter = (function(superClass) {
         }
         if ((resol === "minsec" || resol === "hourmin") && !hybrid_handled) {
           if ((resol === "minsec" && tm[4] === 0 && tm[5] !== 0) || (resol === "hourmin" && tm[3] === 0 && tm[4] !== 0)) {
-            next_format = this.formats[this.format_order[resol_ndx - 1]][1][0];
+            next_format = this._width_formats[this.format_order[resol_ndx - 1]][1][0];
             s = _strftime(t, next_format);
             break;
           } else {
             hybrid_handled = true;
           }
         }
-        next_format = this.formats[this.format_order[next_ndx]][1][0];
+        next_format = this._width_formats[this.format_order[next_ndx]][1][0];
         s = _strftime(t, next_format);
       }
       if (this.strip_leading_zeros) {
@@ -233,12 +223,6 @@ DatetimeTickFormatter = (function(superClass) {
       }
     }
     return labels;
-  };
-
-  DatetimeTickFormatter.prototype.defaults = function() {
-    return _.extend({}, DatetimeTickFormatter.__super__.defaults.call(this), {
-      formats: {}
-    });
   };
 
   return DatetimeTickFormatter;

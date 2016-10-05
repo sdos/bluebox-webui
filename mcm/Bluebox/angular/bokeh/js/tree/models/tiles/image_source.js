@@ -1,22 +1,29 @@
-var ImageSource, Model, _, logger,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+var ImageSource, Model, _, logger, p,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 _ = require("underscore");
 
-Model = require("../../model");
+logger = require("../../core/logging").logger;
 
-logger = require("../../common/logging").logger;
+p = require("../../core/properties");
+
+Model = require("../../model");
 
 ImageSource = (function(superClass) {
   extend(ImageSource, superClass);
+
+  ImageSource.prototype.type = 'ImageSource';
+
+  ImageSource.define({
+    url: [p.String, ''],
+    extra_url_vars: [p.Any, {}]
+  });
 
   function ImageSource(options) {
     if (options == null) {
       options = {};
     }
-    this.defaults = bind(this.defaults, this);
     ImageSource.__super__.constructor.apply(this, arguments);
     this.images = {};
     this.normalize_case();
@@ -34,15 +41,6 @@ ImageSource = (function(superClass) {
     url = url.replace('{width}', '{WIDTH}');
     return this.set('url', url);
   };
-
-  ImageSource.prototype.defaults = function() {
-    return _.extend({}, ImageSource.__super__.defaults.call(this), {
-      url: '',
-      extra_url_vars: {}
-    });
-  };
-
-  ImageSource.prototype.type = 'ImageSource';
 
   ImageSource.prototype.string_lookup_replace = function(str, lookup) {
     var key, result_str, value;
