@@ -95,11 +95,15 @@ just install the existing reqs
 install new packages
 
     pip install <package>
+    cd mcm/Bluebox/angular
+    npm install <package>
 
 
 save new packages to requirements:
 
     pip freeze --local > requirements.txt
+    cd mcm/Bluebox/angular
+    npm install -S <package>
 
 ## Running
 ### running after first setup
