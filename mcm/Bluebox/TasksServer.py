@@ -34,7 +34,7 @@ log = logging.getLogger()
 valid_task_types = {"identify_content": "Identify content types",
 						"extract_metadata": "Extract metadata",
 						"replicate_metadata": "Replicate metadata",
-						"disposal": "Dispose old objects"}
+						"dispose": "Dispose old objects"}
 
 kafka_timeout = 10
 kafka_producer = KafkaProducer(
