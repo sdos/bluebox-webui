@@ -47,7 +47,7 @@ netHostProd = os.getenv("VCAP_APP_HOST", "0.0.0.0")
 
 """
 ################################################################################
-define the server connection below:
+define the Swift server connection below:
 ################################################################################
 
 when using the Object Storage service on Bluemix:
@@ -71,6 +71,17 @@ swift_auth_version = 1
 
 
 """
-used by BB-Insights. Please provide the URL that points to the Node-RED root.
+################################################################################
+Kafka bootstrap broker for messaging / Task setup
+################################################################################
 """
-nodered_url = "http://host:port"
+kafka_broker_endpoint = "localhost:9092"
+
+
+
+"""
+################################################################################
+used by BB-Insights. Please provide the URL that points to the Node-RED root.
+################################################################################
+"""
+nodered_url = "http://host:1880"

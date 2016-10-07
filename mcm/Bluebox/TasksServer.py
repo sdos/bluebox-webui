@@ -38,7 +38,7 @@ valid_task_types = {"identify_content": "Identify content types",
 
 kafka_timeout = 10
 kafka_producer = KafkaProducer(
-	bootstrap_servers='192.168.209.208:9092',
+	bootstrap_servers=appConfig.kafka_broker_endpoint,
 	value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
 @app.route("/api_tasks/types", methods=["GET"])
@@ -96,7 +96,7 @@ def receive_messages():
 			raise HttpError("Credentials are not valid", 500)
 
 		c = KafkaConsumer(msg_tenant,
-		                  bootstrap_servers='192.168.209.208:9092',
+		                  bootstrap_servers=appConfig.kafka_broker_endpoint,
 		                  client_id='mcmbb-{}'.format(msg_tenant),
 		                  group_id='mcmbb-{}-{}'.format(msg_tenant, msg_token[25:]),
 		                  consumer_timeout_ms=100)
