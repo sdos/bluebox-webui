@@ -77,15 +77,20 @@ def send_message():
 		raise HttpError(m, 500)
 
 
+@app.route('/api_tasks/receive_all_messages', methods=['POST'])
+def receive_all_messages():
+	return receive_messages(from_beginning=True)
 
-@app.route("/api_tasks/receive_messages", methods=["POST"])
-def receive_messages():
+
+@app.route('/api_tasks/receive_messages', methods=['POST'])
+def receive_messages(from_beginning=False):
 	"""
 	we subscribe to our tenant-topic to see all the sent messages. Our client-ID is tenant-bound
 	so that we receive all msgs for that tenant, and so that kafka can maintain a global offset for this tenant
 	 our group-id is token bound so that it is unique across all consumers within this tenant; this will
 	 make kafka broadcast msgs to all consumers within this tenant
-	 --> every logged in session will see all new messages for the tenant and every message will be seen by one of the sessions
+	 --> every logged in session will see all new messages for the tenant and every message
+	 will be seen by at least one of the sessions
 	:return:
 	"""
 	log.debug("receiving messages for: {}".format(request.json))
@@ -99,8 +104,17 @@ def receive_messages():
 		                  bootstrap_servers=appConfig.kafka_broker_endpoint,
 		                  client_id='mcmbb-{}'.format(msg_tenant),
 		                  group_id='mcmbb-{}-{}'.format(msg_tenant, msg_token[25:]),
-		                  consumer_timeout_ms=100)
+		                  consumer_timeout_ms=5000,
+		                  enable_auto_commit=False)
+		if from_beginning:
+			c.poll()
+			c.seek_to_beginning()
+
+		# next line we actually get the msgs
 		msgs = list(c)
+		if not from_beginning:
+			c.commit()
+
 		c.close()
 		vals = [json.loads(m.value.decode("utf-8")) for m in msgs]
 		return Response(json.dumps(vals), mimetype="application/json")

@@ -26,10 +26,10 @@ tasksModule.factory(
                  * retrieve messages
                  *
                  */
-                retrieveMessages: function(credentials) {
+                retrieveMessages: function(credentials, from_beginning) {
                     return $http({
                         "method":   "POST",
-                        "url":      BACKEND_BASE_URL_TASKS_API + "receive_messages",
+                        "url":      BACKEND_BASE_URL_TASKS_API + (from_beginning ? "receive_all_messages" : "receive_messages"),
                         "data":     credentials
                     })
                 },

@@ -22,7 +22,7 @@
                 as well as your account details.</p>
             <p>
                 <!-- Dropdown to choose Task type -->
-                <md-input-container class="md-block md-icon-float" flex-gt-sm="50">
+                <md-input-container class="md-block md-icon-float" flex-gt-sm="65">
                     <label>
                         Task type
                     </label>
@@ -36,12 +36,12 @@
                     </md-select>
                 </md-input-container>
                 <!-- Dropdown to choose container -->
-                <md-input-container class="md-block md-icon-float" flex-gt-sm="50">
+                <md-input-container class="md-block md-icon-float" flex-gt-sm="65">
                     <label>
                         Swift container
                     </label>
                     <md-icon md-font-set="material-icons">
-                        folder
+                        folder_open
                     </md-icon>
                     <md-select ng-model="newTaskDefinition.container">
                         <md-option ng-repeat="c in availableContainers" value="{{ c.name }}">
@@ -50,7 +50,7 @@
                     </md-select>
                 </md-input-container>
 
-                <md-input-container class="md-icon-float md-block" flex-gt-sm="50">
+                <md-input-container class="md-icon-float">
                     <label>
                         Customer
                     </label>
@@ -60,7 +60,7 @@
                     <input id="tenant" ng-model="newTaskDefinition.tenant" type="text"/>
                 </md-input-container>
                 <!-- Input of the username -->
-                <md-input-container class="md-icon-float md-block" flex-gt-sm="80">
+                <md-input-container class="md-icon-float">
                     <label>
                         Authentication token
                     </label>
@@ -135,6 +135,8 @@
             </div>
         </md-toolbar>
         <md-content class="bb-container">
+            <md-button class="md-warn" ng-click="clear_all_messages()">clear entries</md-button>
+            <md-button class="md-warn" ng-click="receive_from_beginning()">jump to beginning of queue</md-button>
             <md-list class="md-dense" flex>
                 <md-list-item class="md-3-line" ng-repeat="msg in myMessages | orderBy:'+':true">
                     <md-icon md-font-set="material-icons" class="md-avatar-icon">

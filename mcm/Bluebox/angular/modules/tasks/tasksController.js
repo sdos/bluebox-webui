@@ -104,11 +104,24 @@ tasksModule.controller('TasksController',
              *
              * */
 
-            var receive = function() {
-                tasksService.retrieveMessages($scope.credentials)
+            $scope.receive_from_beginning = function() {
+                tasksService.retrieveMessages($scope.credentials, true)
                 .then(function (response) {
                     $scope.myMessages = $scope.myMessages.concat(response.data);
-                    console.log(response.data);
+                })
+                .catch(function (response) {
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type": "warning",
+                        "text": response.data
+                    });
+                })
+            };
+
+            var receive = function() {
+                tasksService.retrieveMessages($scope.credentials, false)
+                .then(function (response) {
+                    $scope.myMessages = $scope.myMessages.concat(response.data);
+                    //console.log(response.data);
                     $interval(function () {
                         receive();
                     }, 2000, 1);
@@ -123,9 +136,14 @@ tasksModule.controller('TasksController',
             receive();
 
 
-
-
-
+            /**
+             *
+             * clear the existing messages
+             *
+             * */
+            $scope.clear_all_messages = function() {
+              $scope.myMessages = [];
+            };
 
 
         }]);
