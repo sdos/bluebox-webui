@@ -46,6 +46,9 @@ The "frontend" is served by the python app as well but any static HTTP server co
 ### Tree view shows the actual nodes of the Key Cascade; work in progress...
 ![Bluebox](doc/7.png)
 
+### Run tasks to extract/identify metadata and delete old objects
+![Bluebox](doc/13.png)
+
 ### Metadata is stored unencrypted and can be shown in list columns 
 ![Bluebox](doc/8.png)
 
@@ -60,6 +63,7 @@ The "frontend" is served by the python app as well but any static HTTP server co
 
 ### Visualization result
 ![Bluebox](doc/12.png)
+
 
 
 ## Dev setup
