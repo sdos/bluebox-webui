@@ -5,8 +5,8 @@
  * controller for the view of tasks
  */
 tasksModule.controller('TasksController',
-    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', 'fileSystemService',
-        function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, fileSystemService) {
+    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', 'fileSystemService', '$cookies',
+        function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, fileSystemService, $cookies) {
 
             console.log("tasks!")
 
@@ -18,8 +18,8 @@ tasksModule.controller('TasksController',
             $scope.newTaskDefinition = {
                 "type": "",
                 "container": "",
-                "user": "",
-                "token": ""
+                "tenant": $cookies.get('MCM-TENANT'),
+                "token": $cookies.get('XSRF-TOKEN')
             };
 
             /**
@@ -29,37 +29,29 @@ tasksModule.controller('TasksController',
              * */
             $scope.updateValidTasks = updateValidTasks;
             function updateValidTasks() {
-                $http
-                    .get('api_tasks/types')
+                $http.get('api_tasks/types')
                     .then(
                         function successCallback(response) {
                             //console.log(response.data);
                             $scope.validTasks = response.data;
 
                             if (!response.data) {
-                                $rootScope
-                                    .$broadcast(
-                                        'FlashMessage',
-                                        {
+                                $rootScope.$broadcast('FlashMessage',{
                                             "type": "danger",
                                             "text": "unable to retrieve task list..."
                                         });
                             }
                         },
                         function errorCallback(response) {
-                            console
-                                .log(JSON
-                                    .stringify(response));
-                            $rootScope
-                                .$broadcast(
-                                    'FlashMessage',
-                                    {
+                            console.log(JSON.stringify(response));
+                            $rootScope.$broadcast('FlashMessage',{
                                         "type": "danger",
                                         "text": "Error: "
                                         + response.data
                                     });
                         });
             };
+
 
             /**
              *
@@ -70,7 +62,7 @@ tasksModule.controller('TasksController',
             fileSystemService.getContainers("", "", 10000)
                 .then(function (response) {
                     $scope.availableContainers = response.containers;
-                    console.log($scope.availableContainers);
+                    //console.log($scope.availableContainers);
                 })
                 .catch(function (response) {
                     if (401 == response.status) {

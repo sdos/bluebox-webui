@@ -54,3 +54,6 @@ def getAccount():
 
 
 
+@app.route("/api_account/tenant", methods=["GET"])
+def getTenant():
+	return Response(appConfig.swift_tenant, mimetype="text/plain")

@@ -5,37 +5,70 @@
  * controller for login
  */
 loginModule.controller('LoginController',
-    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http',
-        function($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http) {
+    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', '$cookies',
+        function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, $cookies) {
 
-    	if ($stateParams.noAuth) {
-			$rootScope.$broadcast('FlashMessage', {
-                "type":     "success",
-                "text":     "Authentication required"
-            });    		
-    	}
-    	
-    	$scope.credentials = {tenant: "test"};
-    	$scope.login = function() {
-    		$http.post('swift/login', $scope.credentials)
-    		.success(function() {
-    			$rootScope.$broadcast('FlashMessage', {
-                    "type":     "success",
-                    "text":     "Authentication successful"
+            if ($stateParams.noAuth) {
+                $rootScope.$broadcast('FlashMessage', {
+                    "type": "success",
+                    "text": "Authentication required"
                 });
-    				$state.go('fileSystemState');
+            }
 
-    		})
-    		.error(function(data) {
-    			console.log(data);
-    			$rootScope.$broadcast('FlashMessage', {
-                    "type":     "danger",
-                    "text":     "Authentication failed: " + data
-                });
-    		});
-    		
-    		
-    	}
-    	
-            
+            $scope.credentials = {tenant: ""};
+
+            /**
+             *
+             * we get the tenant ID from the back end at the moment, then set this in a cookie
+             * this is the "default" tenant ID. others can be set here as well. bluebox supports any tenant ID
+             * other parts of MCM currently assume "test" is the tenant ID.
+             *
+             * */
+
+            $http.get('api_account/tenant')
+                .then(
+                    function successCallback(response) {
+                        //console.log(response.data);
+                        $scope.credentials.tenant = response.data;
+                        $cookies.put('MCM-TENANT', response.data);
+
+                        if (!response.data) {
+                            $rootScope.$broadcast('FlashMessage', {
+                                "type": "danger",
+                                "text": "unable to retrieve tenant name"
+                            });
+                        }
+                    },
+                    function errorCallback(response) {
+                        console.log(JSON.stringify(response));
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type": "danger",
+                            "text": "Error: "
+                            + response.data
+                        });
+                    });
+
+
+            $scope.login = function () {
+                $http.post('swift/login', $scope.credentials)
+                    .success(function () {
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type": "success",
+                            "text": "Authentication successful"
+                        });
+                        $state.go('fileSystemState');
+
+                    })
+                    .error(function (data) {
+                        console.log(data);
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type": "danger",
+                            "text": "Authentication failed: " + data
+                        });
+                    });
+
+
+            }
+
+
         }]);

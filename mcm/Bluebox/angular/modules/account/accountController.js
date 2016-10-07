@@ -25,6 +25,7 @@ accountModule.controller('AccountController', [
         $scope.forgetToken = function () {
             console.log("bye bye token...");
             $cookies.remove('XSRF-TOKEN');
+            $cookies.remove('MCM-TENANT');
             $scope.tokenText = "None";
 
         };
