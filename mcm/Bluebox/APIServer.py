@@ -26,7 +26,6 @@ from mcm.Bluebox import app
 from mcm.Bluebox.exceptions import HttpError
 from mcm.Bluebox.internal_storage import InternalStorageManager
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
 log = logging.getLogger()
 CLASS_SCHEMA = json.loads(open("mcm/Bluebox/include/object_class_schema").read())
 RETENTIONFIELD = 'x-object-meta-mgmt-retentiondate'

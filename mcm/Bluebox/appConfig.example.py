@@ -7,11 +7,25 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
-import os
+import os, logging
 
 """
 this is the current config file for bluebox. 
 """
+
+
+"""
+###############################################################################
+	Log level setting
+###############################################################################
+"""
+#log_level = logging.CRITICAL
+#log_level = logging.ERROR
+#log_level = logging.WARNING
+#log_level = logging.INFO
+log_level = logging.DEBUG
+log_format = '%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s'
+
 
 """
 ################################################################################

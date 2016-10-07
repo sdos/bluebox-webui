@@ -5,12 +5,11 @@
  * controller for the view of tasks
  */
 tasksModule.controller('TasksController',
-    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', 'fileSystemService', '$cookies',
-        function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, fileSystemService, $cookies) {
+    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', 'fileSystemService', 'tasksService', '$cookies',
+        function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, fileSystemService, tasksService, $cookies) {
 
             console.log("tasks!")
 
-            updateValidTasks();
 
             $scope.validTasks = {"no": "...not loaded..."};
             $scope.availableContainers = undefined;
@@ -27,30 +26,24 @@ tasksModule.controller('TasksController',
              * Get the list of valid tasks
              *
              * */
-            $scope.updateValidTasks = updateValidTasks;
-            function updateValidTasks() {
-                $http.get('api_tasks/types')
-                    .then(
-                        function successCallback(response) {
-                            //console.log(response.data);
-                            $scope.validTasks = response.data;
-
-                            if (!response.data) {
-                                $rootScope.$broadcast('FlashMessage',{
-                                            "type": "danger",
-                                            "text": "unable to retrieve task list..."
-                                        });
-                            }
-                        },
-                        function errorCallback(response) {
-                            console.log(JSON.stringify(response));
-                            $rootScope.$broadcast('FlashMessage',{
-                                        "type": "danger",
-                                        "text": "Error: "
-                                        + response.data
-                                    });
+            tasksService.getValidTasks()
+                .then(function (response) {
+                        $scope.validTasks = response.data;
+                        if (!response.data) {
+                            $rootScope.$broadcast('FlashMessage', {
+                                "type": "danger",
+                                "text": "unable to retrieve task list..."
+                            });
+                        }
+                    },
+                    function errorCallback(response) {
+                        console.log(JSON.stringify(response));
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type": "danger",
+                            "text": "Error: "
+                            + response.data
                         });
-            };
+                    });
 
 
             /**
@@ -74,6 +67,36 @@ tasksModule.controller('TasksController',
                         "text": response.data
                     });
                 });
+
+
+
+            /**
+             *
+             * send a new message
+             *
+             * */
+
+            $scope.sendMessage = function() {
+                tasksService.postMessage($scope.newTaskDefinition)
+                .then(function (response) {
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type": "success",
+                        "text": "message sent"
+                    });
+                    //console.log($scope.availableContainers);
+                })
+                .catch(function (response) {
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type": "warning",
+                        "text": response.data
+                    });
+                })
+            };
+
+
+
+
+
 
 
         }]);

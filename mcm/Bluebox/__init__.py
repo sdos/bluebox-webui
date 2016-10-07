@@ -13,7 +13,6 @@ import logging
 from flask import Flask
 #from flask_socketio import SocketIO
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
 log = logging.getLogger()
 
 app = Flask(__name__, static_folder="angular")

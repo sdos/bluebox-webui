@@ -18,7 +18,6 @@ import re
 import requests
 from mcm.Bluebox import appConfig
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 log = logging.getLogger()
 
 

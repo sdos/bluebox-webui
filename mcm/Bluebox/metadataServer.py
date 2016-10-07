@@ -23,7 +23,6 @@ from mcm.Bluebox import appConfig
 from mcm.Bluebox.exceptions import HttpError
 
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
 log = logging.getLogger()
 
 

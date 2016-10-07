@@ -15,24 +15,18 @@ from functools import wraps
 import json, logging, time, re
 from urllib import parse as urlParse
 
-from bokeh.charts import Area, show, vplot, output_file, Bar, Line, BoxPlot, defaults
-from bokeh.io import vform
-from bokeh.embed import components
-from bokeh.charts.operations import blend
+
 from flask import request, Response, send_file, render_template
 import requests
 
 from mcm.Bluebox import app
 from mcm.Bluebox import appConfig
 from mcm.Bluebox.exceptions import HttpError
-import pandas
-from bokeh.models.tickers import SingleIntervalTicker
-from bokeh.models.axes import LinearAxis
+
 
 import sqlite3
 
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s")
 log = logging.getLogger()
 
 valid_task_types = {"identify_content": "Identify content types",
@@ -44,3 +38,22 @@ valid_task_types = {"identify_content": "Identify content types",
 @app.route("/api_tasks/types", methods=["GET"])
 def get_valid_tasks():
 	return Response(json.dumps(valid_task_types), mimetype="application/json")
+
+
+
+
+
+@app.route("/api_tasks/send_message", methods=["POST"])
+def send_message():
+	try:
+		msg_type = request.json.get("type")
+		msg_container = request.json.get("container")
+		msg_tenant = request.json.get("tenant")
+		msg_token = request.json.get("token")
+
+		log.debug("got message: {}".format(request.json))
+		r = Response()
+		return r
+	except Exception:
+		log.exception("Message parsing error")
+		raise HttpError("Message parsing error", 500)
