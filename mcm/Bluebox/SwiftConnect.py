@@ -55,6 +55,31 @@ def do_bluemix_v1_auth(self):
 
 
 
+def are_tenant_token_valid(tenant, token):
+	"""
+	currently the tenant is "hardcoded" to "test"
+	This method should verify that the combination tenant/token is correct.
+	currently it uses the hardcoded tenant "test" so the check will only succees if the input was "test"
+	:param tenant:
+	:param token:
+	:return:
+	"""
+	try:
+		# we need this since tenant ID is still hardcoded in store_url
+		if (not tenant == appConfig.swift_tenant):
+			return False
+
+		sw = client.Connection(
+			preauthtoken=token,
+			preauthurl=appConfig.swift_store_url
+		)
+		h = sw.head_account()
+		if h:
+			return True
+		return False
+	except Exception:
+		return False
+
 
 
 

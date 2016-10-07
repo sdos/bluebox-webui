@@ -22,6 +22,17 @@ tasksModule.factory(
                         "data":     message
                     })
                 },
+                /**
+                 * retrieve messages
+                 *
+                 */
+                retrieveMessages: function(credentials) {
+                    return $http({
+                        "method":   "POST",
+                        "url":      BACKEND_BASE_URL_TASKS_API + "receive_messages",
+                        "data":     credentials
+                    })
+                },
 
 
                 getValidTasks: function () {

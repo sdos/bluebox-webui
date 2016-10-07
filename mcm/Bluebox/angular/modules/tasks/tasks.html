@@ -35,7 +35,6 @@
                         </md-option>
                     </md-select>
                 </md-input-container>
-<br>
                 <!-- Dropdown to choose container -->
                 <md-input-container class="md-block md-icon-float" flex-gt-sm="50">
                     <label>
@@ -50,7 +49,6 @@
                         </md-option>
                     </md-select>
                 </md-input-container>
-<br>
 
                 <md-input-container class="md-icon-float md-block" flex-gt-sm="50">
                     <label>
@@ -62,7 +60,6 @@
                     <input id="tenant" ng-model="newTaskDefinition.tenant" type="text"/>
                 </md-input-container>
                 <!-- Input of the username -->
-<br>
                 <md-input-container class="md-icon-float md-block" flex-gt-sm="80">
                     <label>
                         Authentication token
@@ -73,16 +70,15 @@
                     <input id="token" ng-model="newTaskDefinition.token" type="text"/>
                 </md-input-container>
 
-                <br>
 
-                      <!-- Button to submit -->
-      <md-button class="md-raised md-primary" ng-click="sendMessage()">
-       <md-icon md-font-set="material-icons">
-        send
-       </md-icon>
-       Send message
-      </md-button>
-</p>
+                <!-- Button to submit -->
+                <md-button class="md-raised md-primary" ng-click="sendMessage()">
+                    <md-icon md-font-set="material-icons">
+                        send
+                    </md-icon>
+                    Send message
+                </md-button>
+            </p>
 
 
         </md-content>
@@ -128,7 +124,7 @@
 </div>
 
 <div layout="row" layout-xs="column">
-        <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
+    <div class="md-whiteframe-4dp bb-container" flex="60" flex-xs="90">
         <md-toolbar class="md-accent md-hue-2">
             <div class="md-toolbar-tools">
                 <h2>
@@ -139,29 +135,20 @@
             </div>
         </md-toolbar>
         <md-content class="bb-container">
-            <ul>
-                <li><b>Identify content types </b>Examine the binary content off each object in the container with
-                    libmagic. This will tell us the mime-type of the content (e.g. pdf, jpg,...).
-                    Then write this result back into the content-type metadata field of the object in Swift. Some
-                    clients already set the correct content type, others don't. This task will
-                    set the correct type for all objects inside the container.
-                </li>
-                <li><b>Extract metadata </b>Examine the binary content off each object in the container with a content
-                    type specific metadata filter. The
-                    resulting metadata are key/value pairs (e.g. subject=hi for an email or resolution=400x500 for an
-                    image). These key/value pairs are then added to the metadata for that object.
-                </li>
-                <li><b>Replicate metadata </b>Get all the metadata key/value pairs for all objects in the container and
-                    insert them into the metadata warehouse.
-                </li>
-                <li><b>Dispose old objects </b>Inspect the retention-data of all objects inside the container, then
-                    issue a DELETE call for all the objects whose retention-date lies in the past.
-                    Objects without retention-date will be left alone.
-                </li>
-
-            </ul>
+            <md-list class="md-dense" flex>
+                <md-list-item class="md-3-line" ng-repeat="msg in myMessages">
+                    <md-icon md-font-set="material-icons" class="md-avatar-icon">
+                        flight_takeoff
+                    </md-icon>
+                    <div class="md-list-item-text" layout="column">
+                        <h3> {{ msg.type }}</h3>
+                        <h4>Container: {{ msg.container }}</h4>
+                        <p>{{ msg.tenant }} - {{ msg.token }}</p>
+                    </div>
+                </md-list-item>
+            </md-list>
         </md-content>
     </div>
-    </div>
+</div>
 </body>
 </html>

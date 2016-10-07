@@ -5,18 +5,23 @@
  * controller for the view of tasks
  */
 tasksModule.controller('TasksController',
-    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', 'fileSystemService', 'tasksService', '$cookies',
-        function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, fileSystemService, tasksService, $cookies) {
+    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', 'fileSystemService', 'tasksService', '$cookies', '$interval',
+        function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, fileSystemService, tasksService, $cookies, $interval) {
 
-            console.log("tasks!")
+            console.log("tasks!");
 
 
+            $scope.myMessages = [];
             $scope.validTasks = {"no": "...not loaded..."};
             $scope.availableContainers = undefined;
 
             $scope.newTaskDefinition = {
                 "type": "",
                 "container": "",
+                "tenant": $cookies.get('MCM-TENANT'),
+                "token": $cookies.get('XSRF-TOKEN')
+            };
+            $scope.credentials = {
                 "tenant": $cookies.get('MCM-TENANT'),
                 "token": $cookies.get('XSRF-TOKEN')
             };
@@ -92,6 +97,30 @@ tasksModule.controller('TasksController',
                     });
                 })
             };
+
+            /**
+             *
+             * receive the messages
+             *
+             * */
+
+            var receive = function() {
+                tasksService.retrieveMessages($scope.credentials)
+                .then(function (response) {
+                    $scope.myMessages = $scope.myMessages.concat(response.data);
+                    console.log(response.data);
+                    $interval(function () {
+                        receive();
+                    }, 2000, 1);
+                })
+                .catch(function (response) {
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type": "warning",
+                        "text": response.data
+                    });
+                })
+            };
+            receive();
 
 
 

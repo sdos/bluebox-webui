@@ -19,7 +19,8 @@ angular.module('bluebox.messageBag', [ 'ngAnimate', 'ngSanitize' ]).controller(
 			$scope.$on('FlashMessage', function(event, message) {
 				if ("success" == message.type) showMessage(message);
 				if ("danger" == message.type) showAlert(message);
-				
+				if ("warning" == message.type) showAlert(message);
+
 				console.log(message.type + ": " + message.text);
 			});	
 
