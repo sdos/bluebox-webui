@@ -155,7 +155,7 @@ tasksModule.controller('TasksController',
                 }
                  catch(err)
                      {
-                    return "white";
+                    return "black";
                 }
 
             };
