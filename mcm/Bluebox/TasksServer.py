@@ -9,7 +9,7 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 import json, logging, uuid
-
+import random
 
 from flask import request, Response
 from kafka.errors import KafkaTimeoutError, KafkaError
@@ -18,6 +18,7 @@ from mcm.Bluebox.SwiftConnect import are_tenant_token_valid
 from mcm.Bluebox import app
 from mcm.Bluebox import appConfig
 from mcm.Bluebox.exceptions import HttpError
+
 
 from kafka import KafkaProducer, KafkaConsumer
 
@@ -78,6 +79,7 @@ def send_message():
 		j = request.json
 		j["correlation"] = str(uuid.uuid4())
 		kafka_producer.send(msg_tenant, request.json).get(timeout=kafka_timeout)
+		kafka_producer.flush(100)
 
 
 		r = Response()
@@ -118,7 +120,7 @@ def receive_messages(from_beginning=False):
 		c = KafkaConsumer(msg_tenant,
 		                  bootstrap_servers=appConfig.kafka_broker_endpoint,
 		                  client_id='mcmbb-{}'.format(msg_tenant),
-		                  group_id='mcmbb-{}-{}'.format(msg_tenant, msg_token[25:]),
+		                  group_id='mcmbb-{}-{}'.format(msg_tenant, msg_token),
 		                  consumer_timeout_ms=500,
 		                  enable_auto_commit=False)
 		if from_beginning:
