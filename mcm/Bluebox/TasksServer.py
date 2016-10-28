@@ -8,16 +8,10 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
-import collections
-from io import StringIO
-from datetime import datetime
-from functools import wraps
-import json, logging, time, re
-from urllib import parse as urlParse
+import json, logging, uuid
 
 
-from flask import request, Response, send_file, render_template
-import requests
+from flask import request, Response
 from kafka.errors import KafkaTimeoutError, KafkaError
 
 from mcm.Bluebox.SwiftConnect import are_tenant_token_valid
@@ -30,11 +24,30 @@ from kafka import KafkaProducer, KafkaConsumer
 
 log = logging.getLogger()
 
-
+"""
+Message definition
+"""
 valid_task_types = {"identify_content": "Identify content types",
 						"extract_metadata": "Extract metadata",
 						"replicate_metadata": "Replicate metadata",
 						"dispose": "Dispose old objects"}
+
+
+
+"""
+Helpers
+"""
+
+def __try_parse_msg_content(m):
+	try:
+		return json.loads(m.value.decode("utf-8"))
+	except Exception as e:
+		return {"type": "Error", "error": "msg parsing failed"}
+
+
+"""
+	Connection
+"""
 
 kafka_timeout = 10
 kafka_producer = KafkaProducer(
@@ -62,6 +75,8 @@ def send_message():
 		if not are_tenant_token_valid(tenant=msg_tenant, token=msg_token):
 			raise HttpError("Credentials are not valid", 500)
 
+		j = request.json
+		j["correlation"] = str(uuid.uuid4())
 		kafka_producer.send(msg_tenant, request.json).get(timeout=kafka_timeout)
 
 
@@ -104,7 +119,7 @@ def receive_messages(from_beginning=False):
 		                  bootstrap_servers=appConfig.kafka_broker_endpoint,
 		                  client_id='mcmbb-{}'.format(msg_tenant),
 		                  group_id='mcmbb-{}-{}'.format(msg_tenant, msg_token[25:]),
-		                  consumer_timeout_ms=5000,
+		                  consumer_timeout_ms=500,
 		                  enable_auto_commit=False)
 		if from_beginning:
 			c.poll()
@@ -116,7 +131,7 @@ def receive_messages(from_beginning=False):
 			c.commit()
 
 		c.close()
-		vals = [json.loads(m.value.decode("utf-8")) for m in msgs]
+		vals = [__try_parse_msg_content(m) for m in msgs]
 		return Response(json.dumps(vals), mimetype="application/json")
 
 	except Exception:
