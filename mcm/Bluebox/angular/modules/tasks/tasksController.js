@@ -74,28 +74,27 @@ tasksModule.controller('TasksController',
                 });
 
 
-
             /**
              *
              * send a new message
              *
              * */
 
-            $scope.sendMessage = function() {
+            $scope.sendMessage = function () {
                 tasksService.postMessage($scope.newTaskDefinition)
-                .then(function (response) {
-                    $rootScope.$broadcast('FlashMessage', {
-                        "type": "success",
-                        "text": "message sent"
-                    });
-                    //console.log($scope.availableContainers);
-                })
-                .catch(function (response) {
-                    $rootScope.$broadcast('FlashMessage', {
-                        "type": "warning",
-                        "text": response.data
-                    });
-                })
+                    .then(function (response) {
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type": "success",
+                            "text": "message sent"
+                        });
+                        //console.log($scope.availableContainers);
+                    })
+                    .catch(function (response) {
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type": "warning",
+                            "text": response.data
+                        });
+                    })
             };
 
             /**
@@ -104,34 +103,34 @@ tasksModule.controller('TasksController',
              *
              * */
 
-            $scope.receive_from_beginning = function() {
+            $scope.receive_from_beginning = function () {
                 tasksService.retrieveMessages($scope.credentials, true)
-                .then(function (response) {
-                    $scope.myMessages = $scope.myMessages.concat(response.data);
-                })
-                .catch(function (response) {
-                    $rootScope.$broadcast('FlashMessage', {
-                        "type": "warning",
-                        "text": response.data
-                    });
-                })
+                    .then(function (response) {
+                        $scope.myMessages = $scope.myMessages.concat(response.data);
+                    })
+                    .catch(function (response) {
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type": "warning",
+                            "text": response.data
+                        });
+                    })
             };
 
-            var receive = function() {
+            var receive = function () {
                 tasksService.retrieveMessages($scope.credentials, false)
-                .then(function (response) {
-                    $scope.myMessages = $scope.myMessages.concat(response.data);
-                    //console.log(response.data);
-                    $interval(function () {
-                        receive();
-                    }, 2000, 1);
-                })
-                .catch(function (response) {
-                    $rootScope.$broadcast('FlashMessage', {
-                        "type": "warning",
-                        "text": response.data
-                    });
-                })
+                    .then(function (response) {
+                        $scope.myMessages = $scope.myMessages.concat(response.data);
+                        //console.log(response.data);
+                        $interval(function () {
+                            receive();
+                        }, 2000, 1);
+                    })
+                    .catch(function (response) {
+                        $rootScope.$broadcast('FlashMessage', {
+                            "type": "warning",
+                            "text": response.data
+                        });
+                    })
             };
             receive();
 
@@ -141,35 +140,45 @@ tasksModule.controller('TasksController',
              * clear the existing messages
              *
              * */
-            $scope.clear_all_messages = function() {
-              $scope.myMessages = [];
+            $scope.clear_all_messages = function () {
+                $scope.myMessages = [];
             };
 
 
             /**
              *
-             * helper for html to figure out styling for the msg types
-             *
+             * helper for html styling
              * */
-            $scope.ui_color_for_msg_direction = function(msg_direction) {
-                if (msg_direction.startsWith("request")) {
-                    return "orangered";
-                } else if (msg_direction.startsWith("response")){
-                    return "green";
+            $scope.ui_color_for_msg = function (msg) {
+                try {
+                    return '#' + msg.correlation.substring(0,6);
                 }
+                 catch(err)
+                     {
+                    return "white";
+                }
+
             };
 
             /**
              *
-             * another helper for html to figure out styling for the msg types
-             *
+             * helper for html styling
              * */
-            $scope.ui_icon_for_msg_direction = function(msg_direction) {
-                if (msg_direction.startsWith("request")) {
-                    return "flight_takeoff";
-                } else if (msg_direction.startsWith("response")){
-                    return "flight_landing";
+            $scope.ui_icon_for_msg = function (msg) {
+                try {
+                    if (msg.type in $scope.validTasks) {
+                        return "flight_takeoff";
+                    } else if (msg.type.startsWith("response")) {
+                        return "flight_landing";
+                    } else{
+                        return "code";
+                    }
                 }
+                 catch(err)
+                     {
+                    return "code";
+                }
+
             };
 
 
