@@ -147,6 +147,7 @@
                         {{ ui_icon_for_msg(msg) }}
                     </md-icon>
                     <div class="md-list-item-text" layout="column">
+                        <p style="font-size: 0.1em;" ng-style='{background: ui_color_for_msg(msg)}'>&nbsp;</p>
                         <h3><b>{{ msg.type }}</b></h3>
                         <h4>{{ msg.message || msg }}</h4>
                         <p>{{ msg.correlation }}</p>
