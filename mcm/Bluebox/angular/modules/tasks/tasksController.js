@@ -146,4 +146,31 @@ tasksModule.controller('TasksController',
             };
 
 
+            /**
+             *
+             * helper for html to figure out styling for the msg types
+             *
+             * */
+            $scope.ui_color_for_msg_direction = function(msg_direction) {
+                if (msg_direction.startsWith("request")) {
+                    return "orangered";
+                } else if (msg_direction.startsWith("response")){
+                    return "green";
+                }
+            };
+
+            /**
+             *
+             * another helper for html to figure out styling for the msg types
+             *
+             * */
+            $scope.ui_icon_for_msg_direction = function(msg_direction) {
+                if (msg_direction.startsWith("request")) {
+                    return "flight_takeoff";
+                } else if (msg_direction.startsWith("response")){
+                    return "flight_landing";
+                }
+            };
+
+
         }]);

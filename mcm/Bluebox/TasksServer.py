@@ -30,7 +30,7 @@ Message definition
 valid_task_types = {"identify_content": "Identify content types",
 						"extract_metadata": "Extract metadata",
 						"replicate_metadata": "Replicate metadata",
-						"dispose": "Dispose old objects"}
+						"dispose": "Dispose of old objects"}
 
 
 

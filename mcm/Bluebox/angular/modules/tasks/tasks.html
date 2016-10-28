@@ -14,17 +14,16 @@
         </md-toolbar>
         <md-content class="bb-container">
             <p>
-                MCM uses an Apache Kafka streaming platform to exchange messages between Bluebox and the task runner
+                MCM uses an Apache Kafka streaming platform to exchange messages between Bluebox and the job runner
                 instances. Here you can
                 create a new message that will be picked up and executed by one of the runners.
             </p>
-            <p>The task runners don't have permissions on Swift, so your message must contain a valid Swift access token
-                as well as your account details.</p>
+            <p>The job runners don't have an account on Swift, so your message must contain a valid Swift access token.</p>
             <p>
-                <!-- Dropdown to choose Task type -->
+                <!-- Dropdown to choose Job type -->
                 <md-input-container class="md-block md-icon-float" flex-gt-sm="65">
                     <label>
-                        Task type
+                        Job type
                     </label>
                     <md-icon md-font-set="material-icons">
                         assignment
@@ -97,22 +96,22 @@
         </md-toolbar>
         <md-content class="bb-container">
             <ul>
-                <li><b>Identify content types </b>Examine the binary content off each object in the container with
-                    libmagic. This will tell us the mime-type of the content (e.g. pdf, jpg,...).
+                <li><b>Identify content types </b>Runs the binary content off each object in the container through
+                    the <enquote>libmagic</enquote> tool. This will tell us the mime-type of the object (e.g. image/jpg,...).
                     Then write this result back into the content-type metadata field of the object in Swift. Some
                     clients already set the correct content type, others don't. This task will
                     set the correct type for all objects inside the container.
                 </li>
-                <li><b>Extract metadata </b>Examine the binary content off each object in the container with a content
+                <li><b>Extract metadata </b>Runs the binary content off each object in the container through a content
                     type specific metadata filter. The
                     resulting metadata are key/value pairs (e.g. subject=hi for an email or resolution=400x500 for an
-                    image). These key/value pairs are then added to the metadata for that object.
+                    image). These key/value pairs are then stored in Swift as metadata for that object.
                 </li>
-                <li><b>Replicate metadata </b>Get all the metadata key/value pairs for all objects in the container and
+                <li><b>Replicate metadata </b>From Swift load all metadata key/values for all objects in the container and
                     insert them into the metadata warehouse.
                 </li>
-                <li><b>Dispose old objects </b>Inspect the retention-data of all objects inside the container, then
-                    issue a DELETE call for all the objects whose retention-date lies in the past.
+                <li><b>Dispose of old objects </b>Inspect the retention-data of all objects inside the container, then
+                    delete all the objects whose retention-date lies in the past.
                     Objects without retention-date will be left alone.
                 </li>
 
@@ -139,9 +138,8 @@
             <md-button class="md-warn" ng-click="receive_from_beginning()">jump to beginning of queue</md-button>
             <md-list class="md-dense" flex>
                 <md-list-item class="md-3-line" ng-repeat="msg in myMessages | orderBy:'+':true">
-                    <md-icon md-font-set="material-icons" class="md-avatar-icon">
-                        {{  (msg.type.startsWith("identify") || msg.type.startsWith("dispose") || msg.type.startsWith("replicate") || msg.type.startsWith("extract")) ? "flight_takeoff" : "" }}
-                        {{  (msg.type.startsWith("response")) ? "flight_landing" : "" }}
+                    <md-icon md-font-set="material-icons" class="md-avatar-icon" ng-style='{background: ui_color_for_msg_direction(msg.direction)}'>
+                        {{  ui_icon_for_msg_direction(msg.direction) }}
                     </md-icon>
                     <div class="md-list-item-text" layout="column">
                         <h3> {{ msg.type }}</h3>
