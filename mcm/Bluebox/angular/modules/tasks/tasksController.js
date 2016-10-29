@@ -9,7 +9,6 @@ tasksModule.controller('TasksController',
         function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, fileSystemService, tasksService, $cookies, $interval) {
 
             console.log("tasks!");
-            console.log($scope);
 
 
             $scope.myMessages = [];
