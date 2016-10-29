@@ -114,13 +114,14 @@ def receive_messages(from_beginning=False):
 	try:
 		msg_tenant = request.json.get("tenant")
 		msg_token = request.json.get("token")
+		msg_client_id = request.json.get("client_id")
 		if not are_tenant_token_valid(tenant=msg_tenant, token=msg_token):
 			raise HttpError("Credentials are not valid", 500)
 
 		c = KafkaConsumer(msg_tenant,
 		                  bootstrap_servers=appConfig.kafka_broker_endpoint,
-		                  client_id='mcmbb-{}'.format(msg_tenant),
-		                  group_id='mcmbb-{}-{}'.format(msg_tenant, msg_token[:5]),
+		                  client_id='mcmbb-{}-{}'.format(msg_tenant, msg_client_id),
+		                  group_id='mcmbb-{}-{}'.format(msg_tenant, msg_client_id),
 		                  consumer_timeout_ms=500,
 		                  enable_auto_commit=False)
 		if from_beginning:

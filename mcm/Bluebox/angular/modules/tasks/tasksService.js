@@ -6,8 +6,8 @@
  */
 tasksModule.factory(
     'tasksService',
-    ['$http', '$filter', 'BACKEND_BASE_URL_TASKS_API',
-        function($http, $filter, BACKEND_BASE_URL_TASKS_API) {
+    ['$http', '$filter', 'BACKEND_BASE_URL_TASKS_API', 'CLIENT_ID',
+        function($http, $filter, BACKEND_BASE_URL_TASKS_API, CLIENT_ID) {
 
             return {
 
@@ -27,6 +27,7 @@ tasksModule.factory(
                  *
                  */
                 retrieveMessages: function(credentials, from_beginning) {
+                     credentials["client_id"] = CLIENT_ID;
                     return $http({
                         "method":   "POST",
                         "url":      BACKEND_BASE_URL_TASKS_API + (from_beginning ? "receive_all_messages" : "receive_messages"),
