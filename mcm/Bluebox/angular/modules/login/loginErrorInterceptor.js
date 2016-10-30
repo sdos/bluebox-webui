@@ -17,7 +17,12 @@ loginModule
                 'responseError': function (response) {
             console.log("intercept ERROR");
             console.log(response.status);
-            $injector.get('$state').go('loginState', {noAuth: true});
+                    s = $injector.get('$state');
+            if(response.status == 401 && ! s.includes('loginState')){
+                s.go('loginState');
+                return;
+            }
+
             return $q.reject(response);
 
 

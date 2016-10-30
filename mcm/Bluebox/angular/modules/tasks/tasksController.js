@@ -33,20 +33,6 @@ tasksModule.controller('TasksController',
             tasksService.getValidTasks()
                 .then(function (response) {
                         $scope.validTasks = response.data;
-                        if (!response.data) {
-                            $rootScope.$broadcast('FlashMessage', {
-                                "type": "danger",
-                                "text": "unable to retrieve task list..."
-                            });
-                        }
-                    },
-                    function errorCallback(response) {
-                        console.log(JSON.stringify(response));
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": "Error: "
-                            + response.data
-                        });
                     });
 
 
@@ -60,12 +46,6 @@ tasksModule.controller('TasksController',
                 .then(function (response) {
                     $scope.availableContainers = response.containers;
                     //console.log($scope.availableContainers);
-                })
-                .catch(function (response) {
-                    $rootScope.$broadcast('FlashMessage', {
-                        "type": "warning",
-                        "text": response.data
-                    });
                 });
 
 
@@ -124,7 +104,7 @@ tasksModule.controller('TasksController',
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "warning",
                             "text": response.data
-                        });
+                       });
                     })
             };
             receive();

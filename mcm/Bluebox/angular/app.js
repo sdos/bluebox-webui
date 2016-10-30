@@ -25,10 +25,12 @@ var app = angular.module('bluebox', [
 
     }])
     .controller('blueboxController',
-        ['$scope', '$state',
-            function ($scope, $state) {
+        ['$scope', '$state', '$rootScope',
+            function ($scope, $state, $rootScope) {
                 console.log("Bluebox!");
-                $scope.$state = $state;
+                $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
+                    $scope.mainMenuSelected = toState.name;
+                })
             }]);
 
 app.constant('BACKEND_BASE_URL', '/swift/');
