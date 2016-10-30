@@ -16,9 +16,7 @@ loginModule
              },*/
             'responseError': function (response) {
                 console.log("intercept ERROR");
-                console.log(response.status);
-                console.log(response);
-
+                //console.log(response);
                 if (response.status === 401) {
                     s = $injector.get('$state');
                     if (!s.includes('loginState')) {

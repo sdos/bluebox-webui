@@ -40,7 +40,6 @@ loginModule.controller('LoginController',
                         }
                     });
 
-
             $scope.login = function () {
                 $http.post('swift/login', $scope.credentials)
                     .success(function () {
@@ -48,7 +47,8 @@ loginModule.controller('LoginController',
                             "type": "success",
                             "text": "Authentication successful"
                         });
-                        $state.go('fileSystemState');
+                        var goBackState = $rootScope.lastState ? $rootScope.lastState : "accountState";
+                        $state.go(goBackState);
 
                     })
                     .error(function (data) {

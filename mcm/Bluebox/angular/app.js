@@ -30,6 +30,7 @@ var app = angular.module('bluebox', [
                 console.log("Bluebox!");
                 $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
                     $scope.mainMenuSelected = toState.name;
+                    $rootScope.lastState = fromState.name;
                 })
             }]);
 
