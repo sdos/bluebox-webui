@@ -32,8 +32,8 @@ tasksModule.controller('TasksController',
              * */
             tasksService.getValidTasks()
                 .then(function (response) {
-                        $scope.validTasks = response.data;
-                    });
+                    $scope.validTasks = response.data;
+                });
 
 
             /**
@@ -94,17 +94,19 @@ tasksModule.controller('TasksController',
             var receive = function () {
                 tasksService.retrieveMessages($scope.credentials, false)
                     .then(function (response) {
-                        $scope.myMessages = $scope.myMessages.concat(response.data);
-                        //console.log(response.data);
-                        $interval(function () {
-                            receive();
-                        }, 2000, 1);
+                        if (response.data) {
+                            $scope.myMessages = $scope.myMessages.concat(response.data);
+                            //console.log(response.data);
+                            $interval(function () {
+                                receive();
+                            }, 2000, 1);
+                        }
                     })
                     .catch(function (response) {
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "warning",
                             "text": response.data
-                       });
+                        });
                     })
             };
             receive();
@@ -126,10 +128,9 @@ tasksModule.controller('TasksController',
              * */
             $scope.ui_color_for_msg = function (msg) {
                 try {
-                    return '#' + msg.correlation.substring(0,6);
+                    return '#' + msg.correlation.substring(0, 6);
                 }
-                 catch(err)
-                     {
+                catch (err) {
                     return "black";
                 }
 
@@ -147,12 +148,11 @@ tasksModule.controller('TasksController',
                         return "flight_landing";
                     } else if (msg.type.startsWith("success")) {
                         return "done";
-                    } else{
+                    } else {
                         return "code";
                     }
                 }
-                 catch(err)
-                     {
+                catch (err) {
                     return "code";
                 }
 

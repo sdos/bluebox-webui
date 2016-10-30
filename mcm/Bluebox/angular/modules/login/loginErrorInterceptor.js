@@ -9,22 +9,24 @@ loginModule
     .factory('loginErrorInterceptor', ['$q', '$injector', function ($q, $injector) {
     return {
 
-        'response': function (response) {
+/*        'response': function (response) {
             console.log("intercept");
             console.log(response.status);
             return response;
-        },
+        },*/
                 'responseError': function (response) {
             console.log("intercept ERROR");
             console.log(response.status);
                     s = $injector.get('$state');
-            if(response.status == 401 && ! s.includes('loginState')){
-                s.go('loginState');
-                return;
+
+            if(response.status == 401){
+                if (! s.includes('loginState')){
+                    s.go('loginState');
+                }
+                return $q.resolve("");
+            } else {
+                return $q.reject(response);
             }
-
-            return $q.reject(response);
-
 
 
         }
