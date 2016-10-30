@@ -59,14 +59,6 @@ fileSystemModule.controller('FileSystemController',
                         $scope.fileSystem.metadata = response.metadata;
                         $scope.isGetContainersRequestPending = false;
                         $scope.isAllDataLoaded = (0 === response.containers.length);
-                    })
-                    .catch(function (response) {
-                        $scope.isGetContainersRequestPending = false;
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "warning",
-                            "text": response.data
-                        });
-
                     });
             };
 
@@ -89,13 +81,7 @@ fileSystemModule.controller('FileSystemController',
                                 $scope.getContainers(true);
 
                             }, 200);
-                        })
-                    .catch(function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": response.data
                         });
-                    });
             };
 
 
@@ -111,13 +97,7 @@ fileSystemModule.controller('FileSystemController',
                                 "text": "Container updated."
                             });
                             getContainerMetadata();
-                        })
-                    .catch(function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": response.data
                         });
-                    });
             };
 
             /**
@@ -130,12 +110,6 @@ fileSystemModule.controller('FileSystemController',
                     .then(function (metadata) {
                         $scope.container.metadata = metadata;
                         $scope.container.objectClass = metadata['x-container-meta-objectclass'];
-                    })
-                    .catch(function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": response.data
-                        });
                     });
             };
 
@@ -159,12 +133,6 @@ fileSystemModule.controller('FileSystemController',
                     .getObjectClasses()
                     .then(function (classes) {
                         $scope.allObjectClasses = classes;
-                    })
-                    .catch(function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": response.data
-                        });
                     });
             };
 
@@ -290,12 +258,6 @@ function DialogController($rootScope, $state, $scope, $mdDialog, fileSystemServi
                 $scope.fileSystem.metadata.objectCount -= $scope.container.count;
                 $scope.fileSystem.containers = _.reject($scope.fileSystem.containers, $scope.container);
                 delete $scope.container;
-            })
-            .catch(function (response) {
-                $rootScope.$broadcast('FlashMessage', {
-                    "type": "danger",
-                    "text": response.data
-                });
             });
     };
 };

@@ -8,6 +8,10 @@ var objectClassModule = angular.module('bluebox.objectClass', [
         'bluebox.filter',
         'bluebox.messageBag'
     ])
+    .config(['$httpProvider', function($httpProvider) {
+        $httpProvider.interceptors.push('loginErrorInterceptor');
+
+    }])
 
     /**
      * the template for the form model of a metadata field

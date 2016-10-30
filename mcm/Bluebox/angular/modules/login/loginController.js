@@ -38,14 +38,6 @@ loginModule.controller('LoginController',
                                 "text": "unable to retrieve tenant name"
                             });
                         }
-                    },
-                    function errorCallback(response) {
-                        console.log(JSON.stringify(response));
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": "Error: "
-                            + response.data
-                        });
                     });
 
 

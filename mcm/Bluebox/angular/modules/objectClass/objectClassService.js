@@ -6,7 +6,7 @@
  */
 objectClassModule.factory(
     'objectClassService',
-    ['$http', '$filter', 'BACKEND_BASE_URL', function($http, $filter, BACKEND_BASE_URL) {
+    ['$http', '$filter', 'BACKEND_BASE_URL', function ($http, $filter, BACKEND_BASE_URL) {
 
         return {
 
@@ -15,10 +15,10 @@ objectClassModule.factory(
              *
              * @returns {promise} resolved or rejected to the plain response
              */
-            getObjectClasses: function() {
+            getObjectClasses: function () {
                 return $http
                     .get(BACKEND_BASE_URL + 'objectclasses')
-                    .then(function(response) {
+                    .then(function (response) {
                         return response.data.classes;
                     });
             },
@@ -29,10 +29,10 @@ objectClassModule.factory(
              * @param {string} name the name of the object class
              * @returns {{name: string, schema: {}}}
              */
-            getObjectClass: function(name) {
+            getObjectClass: function (name) {
                 return $http
                     .get(BACKEND_BASE_URL + 'objectclasses/' + $filter('urlEncode')(name))
-                    .then(function(response) {
+                    .then(function (response) {
                         return response.data;
                     });
             },
@@ -43,11 +43,11 @@ objectClassModule.factory(
              * @param {{name: string, schema: {}}} objectClass the new object class
              * @returns {promise} resolved or rejected to the plain response
              */
-            createObjectClass: function(objectClass) {
+            createObjectClass: function (objectClass) {
                 return $http({
-                    "method":   "POST",
-                    "url":      BACKEND_BASE_URL + "objectclasses",
-                    "data":     {
+                    "method": "POST",
+                    "url": BACKEND_BASE_URL + "objectclasses",
+                    "data": {
                         "objectClass": objectClass
                     }
                 })
@@ -59,11 +59,11 @@ objectClassModule.factory(
              * @param {{name: string, schema: {}}} objectClass the object class to update
              * @returns {promise} resolved or rejected to the plain response
              */
-            updateObjectClass: function(objectClass) {
+            updateObjectClass: function (objectClass) {
                 return $http({
-                    "method":   "PUT",
-                    "url":      BACKEND_BASE_URL + "objectclasses/" + $filter('urlEncode')(objectClass.name),
-                    "data":     {
+                    "method": "PUT",
+                    "url": BACKEND_BASE_URL + "objectclasses/" + $filter('urlEncode')(objectClass.name),
+                    "data": {
                         "objectClass": objectClass
                     }
                 })
@@ -75,7 +75,7 @@ objectClassModule.factory(
              * @param objectClassName the name of the object class to delete
              * @returns {promise} resolved or rejected to the plain response
              */
-            deleteObjectClass: function(objectClassName) {
+            deleteObjectClass: function (objectClassName) {
                 return $http.delete(BACKEND_BASE_URL + "objectclasses/" + $filter('urlEncode')(objectClassName));
             }
         };
