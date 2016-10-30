@@ -55,10 +55,10 @@ angular.module('bluebox.messageBag', [ 'ngAnimate', 'ngSanitize' ]).controller(
 						$mdDialog.alert()
 						.parent(angular.element(document.querySelector('#messageBagContainer')))
 						.clickOutsideToClose(true)
-						.title('Problem...')
+						.title('Warning')
 						.textContent(message.text)
-						.ariaLabel('Problem...')
-						.ok('Got it!')
+						.ariaLabel('Warning')
+						.ok('Dismiss')
 						//.targetEvent(ev)
 				);
 			};
