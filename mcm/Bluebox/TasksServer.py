@@ -74,7 +74,7 @@ def send_message():
 			raise HttpError("Task type is invalid", 500)
 
 		if not are_tenant_token_valid(tenant=msg_tenant, token=msg_token):
-			raise HttpError("Credentials are not valid", 500)
+			raise HttpError("Credentials are not valid", 401)
 
 		j = request.json
 		j["correlation"] = str(uuid.uuid4())
@@ -116,7 +116,7 @@ def receive_messages(from_beginning=False):
 		msg_token = request.json.get("token")
 		msg_client_id = request.json.get("client_id")
 		if not are_tenant_token_valid(tenant=msg_tenant, token=msg_token):
-			raise HttpError("Credentials are not valid", 500)
+			raise HttpError("Credentials are not valid", 401)
 
 		c = KafkaConsumer(msg_tenant,
 		                  bootstrap_servers=appConfig.kafka_broker_endpoint,
@@ -136,6 +136,9 @@ def receive_messages(from_beginning=False):
 		c.close()
 		vals = [__try_parse_msg_content(m) for m in msgs]
 		return Response(json.dumps(vals), mimetype="application/json")
+
+	except HttpError as e:
+		raise e
 
 	except Exception:
 		m = "Error retrieving messages"
