@@ -2,6 +2,10 @@ h2 {
 	color: white;
 }
 
+.bb-navbar {
+  background: #BBDEFB;
+}
+
 md-dialog-content h2 {
 	color: black;
 }
