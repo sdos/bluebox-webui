@@ -49,6 +49,8 @@ tasksModule.controller('TasksController',
                 });
 
 
+
+
             /**
              *
              * send a new message
@@ -64,12 +66,6 @@ tasksModule.controller('TasksController',
                         });
                         //console.log($scope.availableContainers);
                     })
-                    .catch(function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "warning",
-                            "text": response.data
-                        });
-                    })
             };
 
             /**
@@ -83,12 +79,6 @@ tasksModule.controller('TasksController',
                     .then(function (response) {
                         $scope.myMessages = $scope.myMessages.concat(response.data);
                     })
-                    .catch(function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "warning",
-                            "text": response.data
-                        });
-                    })
             };
 
             var receive = function () {
@@ -101,12 +91,6 @@ tasksModule.controller('TasksController',
                                 receive();
                             }, 2000, 1);
                         }
-                    })
-                    .catch(function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "warning",
-                            "text": response.data
-                        });
                     })
             };
             receive();

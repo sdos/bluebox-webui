@@ -152,11 +152,6 @@ containerModule.controller('ContainerController',
                                 "type": "danger",
                                 "text": "Container \"" + $scope.container.name + "\" not found."
                             });
-                        } else {
-                            $rootScope.$broadcast('FlashMessage', {
-                                "type": "danger",
-                                "text": response.data
-                            });
                         }
                         $scope.isGetObjectsRequestPending = false;
                     });
@@ -230,12 +225,6 @@ containerModule.controller('ContainerController',
                             "type": "success",
                             "text": "Container updated."
                         });
-                    })
-                    .catch(function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": response.data
-                        });
                     });
             };
 
@@ -252,12 +241,6 @@ containerModule.controller('ContainerController',
                             "text": "Object updated."
                         });
                         getDetails($scope.object);
-                    })
-                    .catch(function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": response.data
-                        });
                     });
             };
 
@@ -328,12 +311,6 @@ containerModule.controller('ContainerController',
                         //console.log(details);
                         parseMetadataDates(details);
                         object.details = details;
-                    })
-                    .catch(function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": response.data
-                        });
                     });
             };
 
@@ -348,12 +325,6 @@ containerModule.controller('ContainerController',
                     .then(function (fields) {
                         $scope.availableMetadataFields = _.extend($scope.availableMetadataFields, fields);
                         //console.log(fields);
-                    })
-                    .catch(function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": response.data
-                        });
                     });
             };
 
@@ -520,12 +491,6 @@ function ContainerDialogController($rootScope, $state, $scope, $mdDialog, contai
                 $scope.container.metadata.objectCount--;
                 $scope.container.objects = _.reject($scope.container.objects, $scope.object);
                 delete $scope.object;
-            })
-            .catch(function (response) {
-                $rootScope.$broadcast('FlashMessage', {
-                    "type": "danger",
-                    "text": response.data
-                });
             });
     };
 }

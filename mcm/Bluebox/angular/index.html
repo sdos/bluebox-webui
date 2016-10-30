@@ -16,6 +16,8 @@
 
 
 <body ng-app="bluebox">
+    <div ng-controller="messageBagController" id="messageBagContainer">
+    </div>
 <div layout="column" layout-fill="" ng-cloak="">
     <div ng-controller="blueboxController">
         <md-toolbar class="md-tall md-hue-2">
@@ -46,8 +48,7 @@
             </md-nav-bar>
         </md-toolbar>
     </div>
-    <div ng-controller="messageBagController" id="messageBagContainer">
-    </div>
+
     <md-content>
         <div ui-view="">
         </div>

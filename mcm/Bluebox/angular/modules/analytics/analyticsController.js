@@ -59,16 +59,6 @@ analyticsModule
                                             "text": "Error communicating with analytics back end"
                                         });
                             }
-                        },
-                        function errorCallback(response) {
-                            $rootScope
-                                .$broadcast(
-                                    'FlashMessage',
-                                    {
-                                        "type": "danger",
-                                        "text": "Error communicating with analytics back end: "
-                                        + response
-                                    });
                         });
                 /**
                  *
@@ -128,24 +118,6 @@ analyticsModule
                                 }, 100);
 
 
-                            },
-                            function errorCallback(response) {
-                                $scope.waitingForPlot = false;
-                                console
-                                    .log(JSON
-                                        .stringify(response));
-                                if (420 == response.status) {
-
-                                }
-                                $rootScope
-                                    .$broadcast(
-                                        'FlashMessage',
-                                        {
-                                            "type": "danger",
-                                            "text": "Error: "
-                                            + response.data,
-                                            timeout: 30000
-                                        });
                             });
 
                 };
@@ -186,22 +158,6 @@ analyticsModule
                                 };
                                 //console.log($scope.bbTableData);
                                 $scope.waitingForPlot = false;
-                            },
-                            function errorCallback(response) {
-                                $scope.waitingForPlot = false;
-                                console.log(JSON.stringify(response));
-                                if (420 == response.status) {
-
-                                }
-                                $rootScope
-                                    .$broadcast(
-                                        'FlashMessage',
-                                        {
-                                            "type": "danger",
-                                            "text": "Error: "
-                                            + response.data,
-                                            timeout: 30000
-                                        });
                             });
 
                 };
@@ -219,29 +175,6 @@ analyticsModule
                             function successCallback(response) {
                                 console.log(response.data);
                                 $scope.availableSources = response.data;
-
-                                if (!response.data) {
-                                    $rootScope
-                                        .$broadcast(
-                                            'FlashMessage',
-                                            {
-                                                "type": "danger",
-                                                "text": "unable to retrieve Node-RED enpoint list..."
-                                            });
-                                }
-                            },
-                            function errorCallback(response) {
-                                console
-                                    .log(JSON
-                                        .stringify(response));
-                                $rootScope
-                                    .$broadcast(
-                                        'FlashMessage',
-                                        {
-                                            "type": "danger",
-                                            "text": "Error: "
-                                            + response.data
-                                        });
                             });
                 };
 
@@ -257,30 +190,8 @@ analyticsModule
 
                     $http.get('api_analytics/tablestructure').then(
                         function successCallback(response) {
-
                             console.log(response.data)
-
                             $scope.tableData = response.data;
-
-
-                            if (!response.data) {
-                                $rootScope.$broadcast(
-                                    'FlashMessage', {
-                                        'type': 'danger',
-                                        'text': 'unable to retrieve data tables'
-                                    }
-                                );
-                            }
-                        },
-
-                        function errorCallback(response) {
-                            console.log(JSON.stringify(response));
-
-                            $rootScope.broadcast(
-                                'FlashMessage', {
-                                    'type': 'danger',
-                                    'text': 'Error: ' + response.data
-                                });
                         }
                     );
 
