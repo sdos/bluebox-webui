@@ -16,31 +16,39 @@
 
 
 <body ng-app="bluebox">
-<div layout="column" layout-fill="" ng-cloak="" id="messageBagContainer">
-    <md-toolbar class="md-tall md-hue-2">
-        <div class="md-toolbar-tools">
-            <img alt="BlueBox Logo" height="60px" src="/angular/icons/bluebox_icon.png"/>
-     <span class="md-headline">
+<div layout="column" layout-fill="" ng-cloak="">
+    <div ng-controller="blueboxController">
+        <md-toolbar class="md-tall md-hue-2">
+            <div class="md-toolbar-tools">
+                <img alt="BlueBox Logo" height="60px" src="/angular/icons/bluebox_icon.png"/>
+                <span class="md-headline">
       <b style="font-size: 130%;">MCM</b> Micro Content Management &mdash; Bluebox UI
      </span>
-        </div>
-    <span flex="">
+            </div>
+            <span flex="">
     </span>
-        <md-tabs class="" md-border-bottom="" md-dynamic-height="" md-selected="selectedTabIndex">
-            <md-tab label="Content Management" ui-sref="fileSystemState">
-            </md-tab>
-            <md-tab label="Tasks" ui-sref="tasksState">
-            </md-tab>
-            <md-tab label="Analytics" ui-sref="analyticsState">
-            </md-tab>
-            <md-tab label="Account &amp; Security" ui-sref="accountState">
-            </md-tab>
-            <md-tab label="About" ui-sref="aboutState">
-            </md-tab>
-        </md-tabs>
-        <div ng-controller="messageBagController">
-        </div>
-    </md-toolbar>
+
+
+            <md-tabs class="" md-border-bottom="" md-dynamic-height="">
+                <md-tab label="Content Management" ui-sref="fileSystemState"
+                        md-active="$state.includes('fileSystemState')">
+                </md-tab>
+                <md-tab label="Tasks" ui-sref="tasksState" md-active="$state.includes('tasksState')">
+                </md-tab>
+                <md-tab label="Analytics" ui-sref="analyticsState" md-active="$state.includes('analyticsState')">
+                </md-tab>
+                <md-tab label="Account &amp; Security" ui-sref="accountState"
+                        md-active="$state.includes('accountState')">
+                </md-tab>
+                <md-tab label="About" ui-sref="aboutState" md-active="$state.includes('aboutState')">
+                </md-tab>
+            </md-tabs>
+
+
+        </md-toolbar>
+    </div>
+    <div ng-controller="messageBagController" id="messageBagContainer">
+    </div>
     <md-content>
         <div ui-view="">
         </div>

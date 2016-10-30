@@ -12,18 +12,24 @@ var app = angular.module('bluebox', [
     'bluebox.account',
     'bluebox.login'
 ])
-    .config(['$locationProvider', '$httpProvider', '$mdThemingProvider', '$urlRouterProvider', function($locationProvider, $httpProvider, $mdThemingProvider, $urlRouterProvider) {
+    .config(['$locationProvider', '$httpProvider', '$mdThemingProvider', '$urlRouterProvider', function ($locationProvider, $httpProvider, $mdThemingProvider, $urlRouterProvider) {
         // remove the '#' in the url that angular else puts in
         // works only if <base href="/"> is set in html head and URL rewriting is set up properly
         $locationProvider.html5Mode(true);
         $urlRouterProvider.otherwise("/about");
-        
+
         $mdThemingProvider.theme('default')
-        .primaryPalette('blue')
-        .accentPalette('deep-orange')
-        .backgroundPalette('grey');
-        
-    }]);
+            .primaryPalette('blue')
+            .accentPalette('deep-orange')
+            .backgroundPalette('grey');
+
+    }])
+    .controller('blueboxController',
+        ['$scope', '$state',
+            function ($scope, $state) {
+                console.log("Bluebox!");
+                $scope.$state = $state;
+            }]);
 
 app.constant('BACKEND_BASE_URL', '/swift/');
 app.constant('BACKEND_BASE_URL_METADATA_API', '/api_metadata/');
