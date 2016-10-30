@@ -62,11 +62,6 @@ fileSystemModule.controller('FileSystemController',
                     })
                     .catch(function (response) {
                         $scope.isGetContainersRequestPending = false;
-                        if (401 == response.status) {
-                            $state.go('loginState', {noAuth: true});
-                            return;
-                        }
-
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "warning",
                             "text": response.data

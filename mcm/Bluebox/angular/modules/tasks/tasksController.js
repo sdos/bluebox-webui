@@ -10,7 +10,6 @@ tasksModule.controller('TasksController',
 
             console.log("tasks!");
 
-
             $scope.myMessages = [];
             $scope.validTasks = {"no": "...not loaded..."};
             $scope.availableContainers = undefined;
@@ -63,10 +62,6 @@ tasksModule.controller('TasksController',
                     //console.log($scope.availableContainers);
                 })
                 .catch(function (response) {
-                    if (401 == response.status) {
-                        $state.go('loginState', {noAuth: true});
-                        return;
-                    }
                     $rootScope.$broadcast('FlashMessage', {
                         "type": "warning",
                         "text": response.data

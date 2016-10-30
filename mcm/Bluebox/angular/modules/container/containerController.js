@@ -146,10 +146,6 @@ containerModule.controller('ContainerController',
                         }
                     })
                     .catch(function (response) {
-                        if (401 == response.status) {
-                            $state.go('loginState', {noAuth: true});
-                            return;
-                        }
                         if (response.status === 404) {
                             $state.go('fileSystemState');
                             $rootScope.$broadcast('FlashMessage', {

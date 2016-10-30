@@ -13,7 +13,8 @@ var fileSystemModule = angular.module('bluebox.fileSystem', [
         'md.data.table'
     ])
 
-    .config(['$stateProvider', function($stateProvider) {
+    .config(['$stateProvider', '$httpProvider', function($stateProvider, $httpProvider) {
+        $httpProvider.interceptors.push('loginErrorInterceptor');
         $stateProvider.state('fileSystemState', {
             url:            "/",
             templateUrl:    "angular/modules/fileSystem/fileSystem.html",
