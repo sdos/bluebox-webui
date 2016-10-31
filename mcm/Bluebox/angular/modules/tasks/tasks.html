@@ -150,7 +150,7 @@
                         <p style="font-size: 0.2em;" ng-style='{background: ui_color_for_msg(msg)}'>&nbsp;</p>
                         <h3><b>{{ msg.type }}</b></h3>
                         <h4>{{ msg.message || msg }}</h4>
-                        <p>{{ msg.correlation }}</p>
+                        <p>{{ msg.correlation ? "id: " + msg.correlation : "" }} {{ msg.worker ? " - worker: " + msg.worker : "" }}</p>
                     </div>
                 </md-list-item>
             </md-list>
