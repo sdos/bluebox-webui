@@ -72,7 +72,7 @@ def send_message():
 		msg_token = request.json.get("token")
 
 		if (not msg_type or not msg_type in valid_task_types):
-			raise HttpError("Task type is invalid", 500)
+			raise HttpError("Request is invalid", 500)
 
 		if not are_tenant_token_valid(tenant=msg_tenant, token=msg_token):
 			raise HttpError("Credentials are not valid", 401)
