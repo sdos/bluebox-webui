@@ -202,7 +202,7 @@ def doPlot():
 
 	df = getDataFromNodeRed(nrDataSource=nrDataSource)
 	try:
-		print(df)
+		log.debug(df)
 		if('2bar' == plotType):
 			c = doPlot2(data=df, nrDataSource=nrDataSource)
 		elif('bar' == plotType):

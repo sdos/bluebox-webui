@@ -398,13 +398,13 @@ def change_container(container_name):
 	# selected fields
 	try:
 		internal_fields = container_definition.get("mdfi")
-		print(internal_fields)
+		#print(internal_fields)
 		if (internal_fields != None): container_metadata["x-container-meta-mdfi"] = json.dumps(internal_fields)
 	except AttributeError:
 		pass  # ignore empty or missing class definition
 	try:
 		fields = container_definition.get("mdf")
-		print(fields)
+		#print(fields)
 		if (fields != None): container_metadata["x-container-meta-mdf"] = json.dumps(fields)
 	except AttributeError:
 		pass  # ignore empty or missing class definition
@@ -477,7 +477,7 @@ def get_container_metadata(container_name):
 @app.route("/swift/containers/<container_name>/details", methods=["PUT"])
 @log_requests
 def change_container_metadata(container_name, metadata):
-	print(metadata)
+	#print(metadata)
 	raise HttpError("funcion not implemented yet")
 
 
@@ -506,9 +506,9 @@ def update_object(container_name, object_name):
 	if not object_definition:
 		raise HttpError("object_definition is missing", 400)
 
-	print(object_definition)
+	#print(object_definition)
 	h = cleanHeaders(object_definition)
-	print(h)
+	#print(h)
 	rsp = swift.update_object_metadata(object_name=object_name, container_name=container_name, metadata_dict=h)
 	return rsp["reason"], rsp["status"]
 
@@ -683,13 +683,13 @@ def xform_header_names(name):
 
 
 def xform_header_names_on_classdef(classdef):
-	print(classdef)
+	#print(classdef)
 	classdef["name"] = xform_header_names(classdef["name"])
 	classdef["schema"]["description"] = xform_header_names(classdef["schema"]["description"])
 	newP = {}
 	for oldP in classdef["schema"]["properties"]:
 		newP[xform_header_names(oldP)] = classdef["schema"]["properties"][oldP]
-		print(newP)
+		#print(newP)
 	classdef["schema"]["properties"] = newP
-	print(classdef)
+	#print(classdef)
 	return classdef

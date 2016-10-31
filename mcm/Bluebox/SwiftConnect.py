@@ -155,7 +155,6 @@ class SwiftConnect:
 		log.debug("updating object: {} in container: {} mith md: {}".format(object_name, container_name, metadata_dict))
 		rsp=dict()
 		self.conn.post_object(container=container_name, obj=object_name, headers=metadata_dict, response_dict=rsp)
-		print(rsp)
 		return rsp
 		
 	
