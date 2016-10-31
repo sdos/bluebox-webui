@@ -15,6 +15,7 @@ import multiprocessing
 
 bind = "{}:{}".format(appConfig.netHostProd, appConfig.netPortProd)
 workers = multiprocessing.cpu_count() * 2 + 1
+workers = workers * 3 # triple power!
 #workers = 1 #
 timeout = 600
 graceful_timeout = 800
