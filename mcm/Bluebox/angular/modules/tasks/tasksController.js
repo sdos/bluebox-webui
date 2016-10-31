@@ -128,6 +128,8 @@ tasksModule.controller('TasksController',
                 try {
                     if (msg.type in $scope.validTasks) {
                         return "call_made";
+                    } else if (msg.type.startsWith("error")) {
+                        return "error";
                     } else if (msg.type.startsWith("processing")) {
                         return "settings";
                     } else if (msg.type.startsWith("pong")) {
