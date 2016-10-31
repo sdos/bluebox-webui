@@ -125,6 +125,7 @@ def receive_messages(from_beginning=False):
 
 		if not from_beginning:
 			consumer.commit_offsets()
+		consumer.stop()
 		return Response(json.dumps(vals), mimetype="application/json")
 
 	except HttpError as e:
