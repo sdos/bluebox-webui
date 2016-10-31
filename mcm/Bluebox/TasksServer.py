@@ -75,7 +75,7 @@ def send_message():
 		j["correlation"] = str(uuid.uuid4())
 
 		topic = kc.topics[msg_tenant.encode('utf-8')]
-		with topic.get_sync_producer() as producer:
+		with topic.get_producer() as producer:
 			producer.produce(value_serializer(request.json))
 
 
