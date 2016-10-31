@@ -137,8 +137,8 @@
             </div>
         </md-toolbar>
         <md-content class="bb-container">
-            <md-button class="md-warn" ng-click="clear_all_messages()">clear entries</md-button>
-            <md-button class="md-warn" ng-click="receive_from_beginning()">jump to beginning of queue</md-button>
+            <md-button class="md-warn" ng-click="clear_all_messages()">clear list</md-button>
+            <md-button class="md-warn" ng-click="receive_from_beginning()">load from beginning of queue</md-button>
             <md-list class="md-dense" flex>
                 <md-list-item class="md-3-line" ng-repeat="msg in myMessages | orderBy:'+':true">
                     <md-icon md-font-set="material-icons" class="md-avatar-icon"

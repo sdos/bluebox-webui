@@ -127,13 +127,13 @@ tasksModule.controller('TasksController',
             $scope.ui_icon_for_msg = function (msg) {
                 try {
                     if (msg.type in $scope.validTasks) {
-                        return "flight_takeoff";
+                        return "call_made";
                     } else if (msg.type.startsWith("processing")) {
                         return "settings";
                     } else if (msg.type.startsWith("pong")) {
                         return "call_missed_outgoing";
                     } else if (msg.type.startsWith("response")) {
-                        return "flight_landing";
+                        return "call_received";
                     } else if (msg.type.startsWith("success")) {
                         return "done";
                     } else {
