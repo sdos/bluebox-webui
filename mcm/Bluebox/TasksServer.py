@@ -9,18 +9,14 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 import json, logging, uuid
-import random
-
 from flask import request, Response
-from kafka.errors import KafkaTimeoutError, KafkaError
 
 from mcm.Bluebox.SwiftConnect import are_tenant_token_valid
 from mcm.Bluebox import app
 from mcm.Bluebox import appConfig
 from mcm.Bluebox.exceptions import HttpError
 
-
-from kafka import KafkaProducer, KafkaConsumer
+from pykafka import KafkaClient
 
 
 log = logging.getLogger()
@@ -38,6 +34,7 @@ valid_task_types = {"identify_content": "Identify content types",
 """
 Helpers
 """
+value_serializer=lambda v: json.dumps(v).encode('utf-8')
 
 def __try_parse_msg_content(m):
 	try:
@@ -49,11 +46,9 @@ def __try_parse_msg_content(m):
 """
 	Connection
 """
+kc = KafkaClient(hosts=appConfig.kafka_broker_endpoint, use_greenlets=True)
 
-kafka_timeout = 10
-kafka_producer = KafkaProducer(
-	bootstrap_servers=appConfig.kafka_broker_endpoint,
-	value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+
 
 @app.route("/api_tasks/types", methods=["GET"])
 def get_valid_tasks():
@@ -78,18 +73,16 @@ def send_message():
 
 		j = request.json
 		j["correlation"] = str(uuid.uuid4())
-		kafka_producer.send(msg_tenant, request.json).get(timeout=kafka_timeout)
-		kafka_producer.flush(100)
+
+		topic = kc.topics[msg_tenant.encode('utf-8')]
+		with topic.get_sync_producer() as producer:
+			producer.produce(value_serializer(request.json))
 
 
 		r = Response()
 		return r
-	except KafkaTimeoutError:
-		m = "Could not send msg to Kafka broker; timed out after {} sec.".format(kafka_timeout)
-		log.exception(m)
-		raise HttpError(m, 500)
-	except KafkaError:
-		m = "Error handling message"
+	except Exception:
+		m = "Error sending message"
 		log.exception(m)
 		raise HttpError(m, 500)
 
@@ -117,24 +110,12 @@ def receive_messages(from_beginning=False):
 		msg_client_id = request.json.get("client_id")
 		if not are_tenant_token_valid(tenant=msg_tenant, token=msg_token):
 			raise HttpError("Credentials are not valid", 401)
+		consumer_group = 'mcmbb-{}-{}'.format(msg_tenant, msg_client_id).encode('utf-8')
 
-		c = KafkaConsumer(msg_tenant,
-		                  bootstrap_servers=appConfig.kafka_broker_endpoint,
-		                  client_id='mcmbb-{}-{}'.format(msg_tenant, msg_client_id),
-		                  group_id='mcmbb-{}-{}'.format(msg_tenant, msg_client_id),
-		                  consumer_timeout_ms=500,
-		                  enable_auto_commit=False)
-		if from_beginning:
-			c.poll()
-			c.seek_to_beginning()
+		topic = kc.topics[msg_tenant.encode('utf-8')]
+		consumer = topic.get_simple_consumer(consumer_group=consumer_group, consumer_timeout_ms=100)
 
-		# next line we actually get the msgs
-		msgs = list(c)
-		if not from_beginning:
-			c.commit()
-
-		c.close()
-		vals = [__try_parse_msg_content(m) for m in msgs]
+		vals = [__try_parse_msg_content(m) for m in consumer]
 		return Response(json.dumps(vals), mimetype="application/json")
 
 	except HttpError as e:
