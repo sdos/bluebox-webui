@@ -113,9 +113,16 @@ def receive_messages(from_beginning=False):
 		consumer_group = 'mcmbb-{}-{}'.format(msg_tenant, msg_client_id).encode('utf-8')
 
 		topic = kc.topics[msg_tenant.encode('utf-8')]
-		consumer = topic.get_simple_consumer(consumer_group=consumer_group, consumer_timeout_ms=100)
+		consumer = topic.get_simple_consumer(consumer_group=consumer_group, consumer_id=consumer_group, consumer_timeout_ms=100, auto_commit_enable=False)
+
+		if from_beginning:
+			partition_offset_pairs = [(p, p.latest_available_offset()) for p in consumer.partitions.values()]
+			consumer.reset_offsets(partition_offsets=partition_offset_pairs)
 
 		vals = [__try_parse_msg_content(m) for m in consumer]
+
+		if not from_beginning:
+			consumer.commit_offsets()
 		return Response(json.dumps(vals), mimetype="application/json")
 
 	except HttpError as e:
