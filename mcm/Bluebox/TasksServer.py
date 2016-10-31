@@ -8,7 +8,7 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
-import json, logging, uuid
+import json, logging, uuid, socket, os
 from flask import request, Response
 
 from mcm.Bluebox.SwiftConnect import are_tenant_token_valid
@@ -34,6 +34,9 @@ valid_task_types = {"identify_content": "Identify content types",
 """
 Helpers
 """
+
+worker_id = "MCMBluebox-{}-{}".format(socket.getfqdn(), os.getpid())
+
 value_serializer=lambda v: json.dumps(v).encode('utf-8')
 
 def __try_parse_msg_content(m):
@@ -73,6 +76,7 @@ def send_message():
 
 		j = request.json
 		j["correlation"] = str(uuid.uuid4())
+		j["worker"] = worker_id
 
 		topic = kc.topics[msg_tenant.encode('utf-8')]
 		with topic.get_producer() as producer:
