@@ -128,6 +128,8 @@ tasksModule.controller('TasksController',
                 try {
                     if (msg.type in $scope.validTasks) {
                         return "flight_takeoff";
+                    } else if (msg.type.startsWith("processing")) {
+                        return "settings";
                     } else if (msg.type.startsWith("response")) {
                         return "flight_landing";
                     } else if (msg.type.startsWith("success")) {

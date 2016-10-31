@@ -49,7 +49,7 @@
                         </md-option>
                     </md-select>
                 </md-input-container>
-
+<!-- fields for tenant and token
                 <md-input-container class="md-icon-float">
                     <label>
                         Customer
@@ -59,7 +59,6 @@
                     </md-icon>
                     <input id="tenant" ng-model="newTaskDefinition.tenant" type="text"/>
                 </md-input-container>
-                <!-- Input of the username -->
                 <md-input-container class="md-icon-float">
                     <label>
                         Authentication token
@@ -69,7 +68,7 @@
                     </md-icon>
                     <input id="token" ng-model="newTaskDefinition.token" type="text"/>
                 </md-input-container>
-
+-->
 
                 <!-- Button to submit -->
                 <md-button class="md-raised md-primary" ng-click="sendMessage()">
@@ -148,7 +147,7 @@
                     </md-icon>
                     <div class="md-list-item-text" layout="column">
                         <p style="font-size: 0.2em;" ng-style='{background: ui_color_for_msg(msg)}'>&nbsp;</p>
-                        <h3><b>{{ msg.type }}</b></h3>
+                        <h3><b>{{ msg.type }} {{ msg.container ? " > " + msg.container : ""}}</b></h3>
                         <h4>{{ msg.message || msg }}</h4>
                         <p>{{ msg.correlation ? "id: " + msg.correlation : "" }} {{ msg.worker ? " - worker: " + msg.worker : "" }}</p>
                     </div>

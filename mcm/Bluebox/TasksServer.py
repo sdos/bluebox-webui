@@ -8,15 +8,19 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
-import json, logging, uuid, socket, os
-from flask import request, Response
+import json
+import logging
+import os
+import socket
+import uuid
 
-from mcm.Bluebox.SwiftConnect import are_tenant_token_valid
+from flask import request, Response
+from pykafka import KafkaClient
+
 from mcm.Bluebox import app
 from mcm.Bluebox import appConfig
+from mcm.Bluebox.SwiftConnect import are_tenant_token_valid
 from mcm.Bluebox.exceptions import HttpError
-
-from pykafka import KafkaClient
 
 log = logging.getLogger()
 
@@ -26,7 +30,8 @@ Message definition
 valid_task_types = {"identify_content": "Identify content types",
                     "extract_metadata": "Extract metadata",
                     "replicate_metadata": "Replicate metadata",
-                    "dispose": "Dispose of old objects"}
+                    "dispose": "Dispose of old objects",
+                    "ping": "ping"}
 
 """
 Helpers
@@ -63,7 +68,6 @@ def send_message():
 	worker_id = "MCMBluebox-{}-{}".format(socket.getfqdn(), os.getpid())
 	try:
 		msg_type = request.json.get("type")
-		msg_container = request.json.get("container")
 		msg_tenant = request.json.get("tenant")
 		msg_token = request.json.get("token")
 
