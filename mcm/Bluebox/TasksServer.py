@@ -49,7 +49,7 @@ def __try_parse_msg_content(m):
 
 def __get_kafka_topic(topic):
 	kc = KafkaClient(hosts=appConfig.kafka_broker_endpoint, use_greenlets=True)
-	topic = kc.topics[topic.encode('utf-8')]
+	return kc.topics[topic.encode('utf-8')]
 
 
 @app.route("/api_tasks/types", methods=["GET"])
