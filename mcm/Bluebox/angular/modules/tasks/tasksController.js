@@ -130,6 +130,8 @@ tasksModule.controller('TasksController',
                         return "flight_takeoff";
                     } else if (msg.type.startsWith("processing")) {
                         return "settings";
+                    } else if (msg.type.startsWith("pong")) {
+                        return "call_missed_outgoing";
                     } else if (msg.type.startsWith("response")) {
                         return "flight_landing";
                     } else if (msg.type.startsWith("success")) {
