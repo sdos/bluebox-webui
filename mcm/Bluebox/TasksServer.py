@@ -18,26 +18,22 @@ from mcm.Bluebox.exceptions import HttpError
 
 from pykafka import KafkaClient
 
-
 log = logging.getLogger()
 
 """
 Message definition
 """
 valid_task_types = {"identify_content": "Identify content types",
-						"extract_metadata": "Extract metadata",
-						"replicate_metadata": "Replicate metadata",
-						"dispose": "Dispose of old objects"}
-
-
+                    "extract_metadata": "Extract metadata",
+                    "replicate_metadata": "Replicate metadata",
+                    "dispose": "Dispose of old objects"}
 
 """
 Helpers
 """
 
-worker_id = "MCMBluebox-{}-{}".format(socket.getfqdn(), os.getpid())
+value_serializer = lambda v: json.dumps(v).encode('utf-8')
 
-value_serializer=lambda v: json.dumps(v).encode('utf-8')
 
 def __try_parse_msg_content(m):
 	try:
@@ -49,8 +45,11 @@ def __try_parse_msg_content(m):
 """
 	Connection
 """
-kc = KafkaClient(hosts=appConfig.kafka_broker_endpoint, use_greenlets=True)
 
+
+def __get_kafka_topic(topic):
+	kc = KafkaClient(hosts=appConfig.kafka_broker_endpoint, use_greenlets=True)
+	topic = kc.topics[topic.encode('utf-8')]
 
 
 @app.route("/api_tasks/types", methods=["GET"])
@@ -58,17 +57,17 @@ def get_valid_tasks():
 	return Response(json.dumps(valid_task_types), mimetype="application/json")
 
 
-
 @app.route("/api_tasks/send_message", methods=["POST"])
 def send_message():
 	log.debug("got message: {}".format(request.json))
+	worker_id = "MCMBluebox-{}-{}".format(socket.getfqdn(), os.getpid())
 	try:
 		msg_type = request.json.get("type")
 		msg_container = request.json.get("container")
 		msg_tenant = request.json.get("tenant")
 		msg_token = request.json.get("token")
 
-		if(not msg_type or not msg_type in valid_task_types):
+		if (not msg_type or not msg_type in valid_task_types):
 			raise HttpError("Task type is invalid", 500)
 
 		if not are_tenant_token_valid(tenant=msg_tenant, token=msg_token):
@@ -78,10 +77,8 @@ def send_message():
 		j["correlation"] = str(uuid.uuid4())
 		j["worker"] = worker_id
 
-		topic = kc.topics[msg_tenant.encode('utf-8')]
-		with topic.get_producer() as producer:
+		with __get_kafka_topic(msg_tenant).get_producer() as producer:
 			producer.produce(value_serializer(request.json))
-
 
 		r = Response()
 		return r
@@ -116,8 +113,9 @@ def receive_messages(from_beginning=False):
 			raise HttpError("Credentials are not valid", 401)
 		consumer_group = 'mcmbb-{}-{}'.format(msg_tenant, msg_client_id).encode('utf-8')
 
-		topic = kc.topics[msg_tenant.encode('utf-8')]
-		consumer = topic.get_simple_consumer(consumer_group=consumer_group, consumer_id=consumer_group, consumer_timeout_ms=100, auto_commit_enable=False)
+		topic = __get_kafka_topic(msg_tenant)
+		consumer = topic.get_simple_consumer(consumer_group=consumer_group, consumer_id=consumer_group,
+		                                     consumer_timeout_ms=100, auto_commit_enable=False)
 
 		if from_beginning:
 			partition_offset_pairs = [(p, p.latest_available_offset()) for p in consumer.partitions.values()]
