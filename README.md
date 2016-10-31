@@ -108,6 +108,12 @@ save new packages to requirements:
     pip freeze --local > requirements.txt
     cd mcm/Bluebox/angular
     npm install -S <package>
+    
+    
+update existing packages
+
+    pip freeze --local | grep -v '^\-e' | cut -d = -f 1 | xargs pip install -U
+    pip freeze --local > requirements.txt
 
 ## Running
 ### running after first setup
