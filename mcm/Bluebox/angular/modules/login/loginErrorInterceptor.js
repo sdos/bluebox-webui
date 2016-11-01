@@ -21,9 +21,9 @@ loginModule
                     s = $injector.get('$state');
                     if (!s.includes('loginState')) {
                         s.go('loginState');
+                        var deferred = $q.defer();
+                        return deferred.promise;
                     }
-                    var deferred = $q.defer();
-                    return deferred.promise;
                 } else {
                     $rootScope.$broadcast('FlashMessage', {
                         "type": "warning",
