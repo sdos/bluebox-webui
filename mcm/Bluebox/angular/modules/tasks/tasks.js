@@ -11,6 +11,7 @@ var tasksModule = angular.module('bluebox.tasks', [
     .config(['$stateProvider', function($stateProvider) {
         $stateProvider.state("tasksState", {
             url:            "/tasks",
+            params:         {container:null, task:null},
             templateUrl:    "angular/modules/tasks/tasks.html",
             controller:     "TasksController"
         });

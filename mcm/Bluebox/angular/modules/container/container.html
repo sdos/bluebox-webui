@@ -16,7 +16,7 @@
                 </md-icon>
             </md-button>
 
-            <md-button aria-label="Identify content types" class="md-fab md-mini md-hue-1" ui-sref="tasksState()">
+            <md-button aria-label="Identify content types" class="md-fab md-mini md-hue-1" ui-sref="tasksState({container: container.name, task: 'identify_content'})">
                 <md-tooltip md-direction="right">
                     Identify content types
                 </md-tooltip>
@@ -25,7 +25,7 @@
                 </md-icon>
             </md-button>
 
-            <md-button aria-label="Extract metadata" class="md-fab md-mini md-hue-1" ui-sref="tasksState()">
+            <md-button aria-label="Extract metadata" class="md-fab md-mini md-hue-1" ui-sref="tasksState({container: container.name, task: 'extract_metadata'})">
                 <md-tooltip md-direction="right">
                     Extract metadata
                 </md-tooltip>
@@ -34,7 +34,7 @@
                 </md-icon>
             </md-button>
 
-            <md-button aria-label="Replicate metadata to warehouse" class="md-fab md-mini md-hue-1" ui-sref="tasksState()">
+            <md-button aria-label="Replicate metadata to warehouse" class="md-fab md-mini md-hue-1" ui-sref="tasksState({container: container.name, task: 'replicate_metadata'})">
                 <md-tooltip md-direction="right">
                     Replicate metadata to warehouse
                 </md-tooltip>
@@ -43,7 +43,7 @@
                 </md-icon>
             </md-button>
 
-            <md-button aria-label="Dispose old objects" class="md-fab md-mini md-hue-1" ui-sref="tasksState()">
+            <md-button aria-label="Dispose old objects" class="md-fab md-mini md-hue-1" ui-sref="tasksState({container: container.name, task: 'dispose'})">
                 <md-tooltip md-direction="right">
                     Dispose old objects
                 </md-tooltip>

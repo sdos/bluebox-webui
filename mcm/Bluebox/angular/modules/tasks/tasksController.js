@@ -15,8 +15,8 @@ tasksModule.controller('TasksController',
             $scope.availableContainers = undefined;
 
             $scope.newTaskDefinition = {
-                "type": "",
-                "container": "",
+                "type": $stateParams.task,
+                "container": $stateParams.container,
                 "tenant": $cookies.get('MCM-TENANT'),
                 "token": $cookies.get('XSRF-TOKEN')
             };
@@ -45,7 +45,6 @@ tasksModule.controller('TasksController',
             fileSystemService.getContainers("", "", 10000)
                 .then(function (response) {
                     $scope.availableContainers = response.containers;
-                    //console.log($scope.availableContainers);
                 });
 
 
