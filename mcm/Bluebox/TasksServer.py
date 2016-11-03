@@ -7,6 +7,9 @@
 
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
+
+
+	This
 """
 import json
 import logging
@@ -19,10 +22,12 @@ from pykafka import KafkaClient
 
 from mcm.Bluebox import app
 from mcm.Bluebox import appConfig
-from mcm.Bluebox.SwiftConnect import are_tenant_token_valid
+from mcm.Bluebox.SwiftConnect import assert_correct_tenant, assert_token_validity
 from mcm.Bluebox.exceptions import HttpError
 
 log = logging.getLogger()
+
+API_ROOT = "/api_tasks"
 
 """
 Message definition
@@ -57,12 +62,12 @@ def __get_kafka_topic(topic):
 	return kc.topics[topic.encode('utf-8')]
 
 
-@app.route("/api_tasks/types", methods=["GET"])
+@app.route(API_ROOT + "/types", methods=["GET"])
 def get_valid_tasks():
 	return Response(json.dumps(valid_task_types), mimetype="application/json")
 
 
-@app.route("/api_tasks/send_message", methods=["POST"])
+@app.route(API_ROOT + "/send_message", methods=["POST"])
 def send_message():
 	log.debug("got message: {}".format(request.json))
 	worker_id = "MCMBluebox-{}-{}".format(socket.getfqdn(), os.getpid())
@@ -74,8 +79,8 @@ def send_message():
 		if (not msg_type or not msg_type in valid_task_types):
 			raise HttpError("Request is invalid", 500)
 
-		if not are_tenant_token_valid(tenant=msg_tenant, token=msg_token):
-			raise HttpError("Credentials are not valid", 401)
+		assert_correct_tenant(tenant=msg_tenant)
+		assert_token_validity(request)
 
 		j = request.json
 		j["correlation"] = str(uuid.uuid4())
@@ -86,18 +91,20 @@ def send_message():
 
 		r = Response()
 		return r
+	except HttpError as e:
+		raise (e)
 	except Exception:
 		m = "Error sending message"
 		log.exception(m)
 		raise HttpError(m, 500)
 
 
-@app.route('/api_tasks/receive_all_messages', methods=['POST'])
+@app.route(API_ROOT + '/receive_all_messages', methods=['POST'])
 def receive_all_messages():
 	return receive_messages(from_beginning=True)
 
 
-@app.route('/api_tasks/receive_messages', methods=['POST'])
+@app.route(API_ROOT + '/receive_messages', methods=['POST'])
 def receive_messages(from_beginning=False):
 	"""
 	we subscribe to our tenant-topic to see all the sent messages. Our client-ID is tenant-bound
@@ -111,10 +118,11 @@ def receive_messages(from_beginning=False):
 	log.debug("receiving messages for: {}".format(request.json))
 	try:
 		msg_tenant = request.json.get("tenant")
-		msg_token = request.json.get("token")
 		msg_client_id = request.json.get("client_id")
-		if not are_tenant_token_valid(tenant=msg_tenant, token=msg_token):
-			raise HttpError("Credentials are not valid", 401)
+
+		assert_correct_tenant(tenant=msg_tenant)
+		assert_token_validity(request)
+
 		consumer_group = 'mcmbb-{}-{}'.format(msg_tenant, msg_client_id).encode('utf-8')
 
 		topic = __get_kafka_topic(msg_tenant)

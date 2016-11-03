@@ -64,6 +64,7 @@ def handle_invalid_usage(e):
 # login/authenticate
 ##############################################################################
 COOKIE_NAME = "XSRF-TOKEN"
+HEADER_NAME = "X-XSRF-TOKEN"
 
 
 @app.route("/swift/login", methods=["POST"])
@@ -85,6 +86,7 @@ def doLogin():
 
 
 def createConnection(req):
+	SwiftConnect.assert_no_xsrf(req)
 	try:
 		t = req.cookies.get(COOKIE_NAME)
 		if not t: raise HttpError()
