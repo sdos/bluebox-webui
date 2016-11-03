@@ -1,143 +1,132 @@
 <html>
- <body>
-  <md-dialog aria-label="Container Details" ng-cloak="">
-   <md-toolbar>
-    <div class="md-toolbar-tools">
+<body>
+<md-dialog aria-label="Container Details" ng-cloak="">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
      <span ng-click="enterContainer()">
-      Container <q>{{container.name}}</q>
+      Container <q>{{ container.name }}</q>
      </span>
-     <span flex="">
+            <span flex="">
      </span>
-     <md-button class="md-icon-button" ng-click="cancel()">
-      <md-icon md-font-set="material-icons">
-       close
-      </md-icon>
-     </md-button>
-    </div>
-   </md-toolbar>
-   <md-dialog-content class="bb-margin">
-   <h3>Details</h3>
-    <p>
-     <span><b>Size:</b> {{container.bytes | bytes}}, </span><span><b>Number of objects:</b> {{container.count}}, </span>
- 	</p>
+            <md-button class="md-icon-button" ng-click="cancel()">
+                <md-icon md-font-set="material-icons">
+                    close
+                </md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-dialog-content class="bb-margin">
+        <h3>Details</h3>
+        <p>
+            <span><b>Size:</b> {{ container.bytes | bytes }}, </span><span><b>Number of objects:</b> {{ container.count }}, </span>
+        </p>
 
 
-           <h3>Object class</h3>
+        <h3>Object class</h3>
 
-     <md-input-container class="md-block">
-      <label>
-       Select object class
-      </label>
-      <md-icon md-font-set="material-icons">
-       chevron_right
-      </md-icon>
-      <md-select ng-model="container.objectClass">
-       <md-option ng-click="loadSelectedClass(c)" ng-repeat="c in allObjectClasses" value="{{ c }}">
-        {{ c }}
-       </md-option>
-      </md-select>
-     </md-input-container>
-    
-    
-	<!-- Metata about the object-->
-	<h3>Container metadata</h3>
-	<md-table-container>
-	<table md-table="" ng-model="object.details">
-      <thead md-head="">
-       <tr md-row="">
-        <th md-column="">
+        <md-input-container class="md-block">
+            <label>
+                Select object class
+            </label>
+            <md-icon md-font-set="material-icons">
+                chevron_right
+            </md-icon>
+            <md-select ng-model="container.objectClass">
+                <md-option ng-click="loadSelectedClass(c)" ng-repeat="c in allObjectClasses" value="{{ c }}">
+                    {{ c }}
+                </md-option>
+            </md-select>
+        </md-input-container>
+
+
+        <!-- Metata about the object-->
+        <h3>Container metadata</h3>
+        <md-table-container>
+            <table md-table="" ng-model="object.details">
+                <thead md-head="">
+                <tr md-row="">
+                    <th md-column="">
          <span>
           Key
          </span>
-        </th>
-        <th md-column="">
+                    </th>
+                    <th md-column="">
          <span>
           Value
          </span>
-        </th>
-       </tr>
-      </thead>
-      <tbody md-body="">
-       <tr md-row ng-repeat="(key, value) in container.metadata">
-        <td md-cell="" ng-click="">
-         <b>
-          {{key}}
-         </b>
-        </td>
-        <td md-cell="">
-         {{key == "content-length" ? (value | bytes) : value}}
-        </td>
-       </tr>
-      </tbody>
-     </table>	
-    </md-table-container>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-   </md-dialog-content>
-   <md-dialog-actions class="" layout="row">
-    <md-button aria-label="Enter Container" class="md-fab" ng-click="enterContainer(container.name)">
-     <md-tooltip md-direction="top">
-      Enter container
-     </md-tooltip>
-     <md-icon md-font-set="material-icons">
-      chevron_right
-     </md-icon>
-    </md-button>
+                    </th>
+                </tr>
+                </thead>
+                <tbody md-body="">
+                <tr md-row ng-repeat="(key, value) in container.metadata">
+                    <td md-cell="" ng-click="">
+                        <b>
+                            {{ key }}
+                        </b>
+                    </td>
+                    <td md-cell="">
+                        {{ key == "content-length" ? (value | bytes) : value}}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </md-table-container>
 
-    <md-button class="md-fab md-accent md-hue-3" ng-click="updateContainer()">
-     <md-tooltip md-direction="top">
-      Update object class
-     </md-tooltip>
-     <md-icon md-font-set="material-icons">
-      check
-     </md-icon>
-    </md-button>
 
-    <span flex="">
+    </md-dialog-content>
+    <md-dialog-actions class="" layout="row">
+        <md-button aria-label="Enter Container" class="md-fab md-primary" ng-click="enterContainer(container.name)">
+            <md-tooltip md-direction="top">
+                Enter container
+            </md-tooltip>
+            <md-icon md-font-set="material-icons">
+                arrow_forward
+            </md-icon>
+        </md-button>
+
+        <md-button class="md-fab md-warn" ng-click="updateContainer()">
+            <md-tooltip md-direction="top">
+                Update object class
+            </md-tooltip>
+            <md-icon md-font-set="material-icons">
+                check
+            </md-icon>
+        </md-button>
+
+        <span flex="">
     </span>
-    <md-fab-toolbar count="0" md-direction="left" md-open="false">
-     <md-fab-trigger class="align-with-text">
-      <md-button class="md-fab md-warn">
-       <md-tooltip md-direction="top">
-        Delete container
-       </md-tooltip>
-       <md-icon md-font-set="material-icons">
-        delete_forever
-       </md-icon>
-      </md-button>
-     </md-fab-trigger>
-     <md-toolbar class="">
-      <md-fab-actions class="md-toolbar-tools">
-       <md-button aria-label="really delete?" class="" ng-disabled="true">
-        Really delete?
-       </md-button>
-       <md-button aria-label="cancel" class="md-raised">
-        <md-icon md-font-set="material-icons">
-         done
-        </md-icon>
-        No, cancel
-       </md-button>
-       <md-button aria-label="delete" class="md-raised md-warn" ng-click="deleteContainer()">
-        <md-icon md-font-set="material-icons">
-         delete_forever
-        </md-icon>
-        Yes, delete
-       </md-button>
-      </md-fab-actions>
-     </md-toolbar>
-    </md-fab-toolbar>
-   </md-dialog-actions>
-  </md-dialog>
- </body>
+        <md-fab-toolbar count="0" md-direction="left" md-open="false">
+            <md-fab-trigger class="align-with-text">
+                <md-button class="md-fab md-warn">
+                    <md-tooltip md-direction="top">
+                        Delete container
+                    </md-tooltip>
+                    <md-icon md-font-set="material-icons">
+                        delete_forever
+                    </md-icon>
+                </md-button>
+            </md-fab-trigger>
+            <md-toolbar class="">
+                <md-fab-actions class="md-toolbar-tools">
+                    <md-button aria-label="really delete?" class="" ng-disabled="true">
+                        Really delete?
+                    </md-button>
+                    <md-button aria-label="cancel" class="md-raised">
+                        <md-icon md-font-set="material-icons">
+                            done
+                        </md-icon>
+                        No, cancel
+                    </md-button>
+                    <md-button aria-label="delete" class="md-raised md-warn md-hue-2" ng-click="deleteContainer()">
+                        <md-icon md-font-set="material-icons">
+                            delete_forever
+                        </md-icon>
+                        Yes, delete
+                    </md-button>
+                </md-fab-actions>
+            </md-toolbar>
+        </md-fab-toolbar>
+    </md-dialog-actions>
+</md-dialog>
+</body>
 </html>

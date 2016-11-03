@@ -1,59 +1,60 @@
-<html>
-<head>
-</head>
-<body>
-<div>
+<div layout="column">
+
+    <!-- Top buttons -->
+    <div layout="row">
+        <md-button aria-label="Back to container list" class="md-fab bb-pin-button md-primary"
+                   ui-sref="fileSystemState()">
+            <md-tooltip md-direction="right">
+                Back to container list
+            </md-tooltip>
+            <md-icon md-font-set="material-icons">
+                arrow_back
+            </md-icon>
+        </md-button>
+
+        <md-button aria-label="Identify content types" class="md-fab md-mini md-warn"
+                   ui-sref="tasksState({container: container.name, task: 'identify_content'})">
+            <md-tooltip md-direction="right">
+                Identify content types
+            </md-tooltip>
+            <md-icon md-font-set="material-icons">
+                flag
+            </md-icon>
+        </md-button>
+
+        <md-button aria-label="Extract metadata" class="md-fab md-mini md-warn"
+                   ui-sref="tasksState({container: container.name, task: 'extract_metadata'})">
+            <md-tooltip md-direction="right">
+                Extract metadata
+            </md-tooltip>
+            <md-icon md-font-set="material-icons">
+                format_indent_increase
+            </md-icon>
+        </md-button>
+
+        <md-button aria-label="Replicate metadata to warehouse" class="md-fab md-mini md-warn"
+                   ui-sref="tasksState({container: container.name, task: 'replicate_metadata'})">
+            <md-tooltip md-direction="right">
+                Replicate metadata to warehouse
+            </md-tooltip>
+            <md-icon md-font-set="material-icons">
+                content_copy
+            </md-icon>
+        </md-button>
+
+        <md-button aria-label="Dispose old objects" class="md-fab md-mini md-warn"
+                   ui-sref="tasksState({container: container.name, task: 'dispose'})">
+            <md-tooltip md-direction="right">
+                Dispose old objects
+            </md-tooltip>
+            <md-icon md-font-set="material-icons">
+                delete_sweep
+            </md-icon>
+        </md-button>
+    </div>
+
 
     <div layout="row">
-        <div flex="10">
-            <!-- Top buttons -->
-            <md-button aria-label="Back to container list" class="md-fab bb-pin-button md-hue-3" ui-sref="fileSystemState()">
-                <md-tooltip md-direction="right">
-                    Back to container list
-                </md-tooltip>
-                <md-icon md-font-set="material-icons">
-                    undo
-                </md-icon>
-            </md-button>
-
-            <md-button aria-label="Identify content types" class="md-fab md-mini md-hue-1" ui-sref="tasksState({container: container.name, task: 'identify_content'})">
-                <md-tooltip md-direction="right">
-                    Identify content types
-                </md-tooltip>
-                <md-icon md-font-set="material-icons">
-                    flag
-                </md-icon>
-            </md-button>
-
-            <md-button aria-label="Extract metadata" class="md-fab md-mini md-hue-1" ui-sref="tasksState({container: container.name, task: 'extract_metadata'})">
-                <md-tooltip md-direction="right">
-                    Extract metadata
-                </md-tooltip>
-                <md-icon md-font-set="material-icons">
-                    format_indent_increase
-                </md-icon>
-            </md-button>
-
-            <md-button aria-label="Replicate metadata to warehouse" class="md-fab md-mini md-hue-1" ui-sref="tasksState({container: container.name, task: 'replicate_metadata'})">
-                <md-tooltip md-direction="right">
-                    Replicate metadata to warehouse
-                </md-tooltip>
-                <md-icon md-font-set="material-icons">
-                    content_copy
-                </md-icon>
-            </md-button>
-
-            <md-button aria-label="Dispose old objects" class="md-fab md-mini md-hue-1" ui-sref="tasksState({container: container.name, task: 'dispose'})">
-                <md-tooltip md-direction="right">
-                    Dispose old objects
-                </md-tooltip>
-                <md-icon md-font-set="material-icons">
-                    delete_sweep
-                </md-icon>
-            </md-button>
-
-        </div>
-
         <div flex="" flex ng-if="!container.isMeta">
             <div class="md-whiteframe-4dp bb-container">
                 <md-toolbar class="md-hue-2">
@@ -112,7 +113,7 @@
                         <div layout="row" ng-hide="!fileModel.files">
                             <div>
                                 <h3>Set retention date</h3>
-                        <span>
+                                <span>
                         <md-datepicker ng-model="fileModel.retentionDate" md-placeholder="No retention">
                         </md-datepicker></span>
                             </div>
@@ -146,7 +147,7 @@
                         </div>
                         <div layout="row" layout-align="space-between center">
                             <p>
-                                <md-button class="md-raised md-primary" type="submit">
+                                <md-button class="md-raised md-warn" type="submit">
                                     <md-icon md-font-set="material-icons">
                                         cloud_upload
                                     </md-icon>
@@ -201,7 +202,7 @@
                 <!-- Select columns -->
                 <!-- ###################################################################### -->
                 <md-menu>
-                    <md-button class="md-fab md-mini md-hue-1" ng-click="openColumnsMenu($mdOpenMenu, $event)">
+                    <md-button class="md-fab md-mini md-primary" ng-click="openColumnsMenu($mdOpenMenu, $event)">
                         <md-tooltip md-direction="bottom">
                             Add table column
                         </md-tooltip>
@@ -343,7 +344,3 @@
         </md-content>
     </div>
 </div>
-
-
-</body>
-</html>

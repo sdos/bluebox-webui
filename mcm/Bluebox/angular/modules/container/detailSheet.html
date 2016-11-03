@@ -1,140 +1,129 @@
-<html>
- <body>
-  <md-dialog aria-label="Object Details" ng-cloak="">
-   <md-toolbar>
-    <div class="md-toolbar-tools">
+<md-dialog aria-label="Object Details" ng-cloak="">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
      <span>
-      Object <q>{{object.name}}</q>
+      Object <q>{{ object.name }}</q>
      </span>
-     <span flex="">
+            <span flex="">
      </span>
-     <md-button class="md-icon-button" ng-click="cancel()">
-      <md-icon md-font-set="material-icons">
-       close
-      </md-icon>
-     </md-button>
-    </div>
-   </md-toolbar>
-   <md-dialog-content class="bb-margin">
-    <p>
-     <span><b>Size:</b> {{object.bytes | bytes}}, </span><span><b>Type:</b> {{object.content_type}}</span>
- 	</p>
-    
-    <h3>Retention date</h3>
-    <md-datepicker ng-model="object.details['x-object-meta-mgmt-retentiondate']" md-placeholder="None">
-     </md-datepicker>
-    
-    
-	<!-- Metata about the object-->
-	<h3>All object metadata</h3>
-	<md-table-container>
-	<table md-table="" ng-model="object.details">
-      <thead md-head="">
-       <tr md-row="">
-        <th md-column="">
+            <md-button class="md-icon-button" ng-click="cancel()">
+                <md-icon md-font-set="material-icons">
+                    close
+                </md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-dialog-content class="bb-margin">
+        <p>
+            <span><b>Size:</b> {{ object.bytes | bytes }}, </span><span><b>Type:</b> {{ object.content_type }}</span>
+        </p>
+
+        <h3>Retention date</h3>
+        <md-datepicker ng-model="object.details['x-object-meta-mgmt-retentiondate']" md-placeholder="None">
+        </md-datepicker>
+
+
+        <!-- Metata about the object-->
+        <h3>All object metadata</h3>
+        <md-table-container>
+            <table md-table="" ng-model="object.details">
+                <thead md-head="">
+                <tr md-row="">
+                    <th md-column="">
          <span>
           Key
          </span>
-        </th>
-        <th md-column="">
+                    </th>
+                    <th md-column="">
          <span>
           Value
          </span>
-        </th>
-       </tr>
-      </thead>
-      <tbody md-body="">
-       <tr md-row ng-repeat="(key, value) in object.details">
-        <td md-cell="" ng-click="">
-         <b>
-          {{key | metaPrefix}}
-         </b>
-        </td>
-        <td md-cell="">
-         {{key == "content-length" ? (value | bytes) : value}}
-        </td>
-       </tr>
-      </tbody>
-     </table>	    
-    </md-table-container>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-   </md-dialog-content>
-   <md-dialog-actions class="" layout="row">
-   
-    <md-button aria-label="Download" class="md-fab" ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}" target="_blank">
-     <md-tooltip md-direction="top">
-      Download
-     </md-tooltip>
-     <md-icon md-font-set="material-icons">
-      cloud_download
-     </md-icon>
-    </md-button>
-   
-    <md-button aria-label="Preview" class="md-fab" ng-href="/swift/containers/{{container.name}}/objects/{{object.name | urlEncode}}?show_inline=true" target="_blank">
-     <md-tooltip md-direction="top">
-      Preview in browser
-     </md-tooltip>
-     <md-icon md-font-set="material-icons">
-      pageview
-     </md-icon>
-    </md-button>
-   
-    <md-button aria-label="Update metadata" class="md-fab md-accent md-hue-3" ng-click="updateObject()">
-     <md-tooltip md-direction="top">
-      Update metadata
-     </md-tooltip>
-     <md-icon md-font-set="material-icons">
-      check
-     </md-icon>
-    </md-button>
-    
-    
-    <span flex="">
+                    </th>
+                </tr>
+                </thead>
+                <tbody md-body="">
+                <tr md-row ng-repeat="(key, value) in object.details">
+                    <td md-cell="" ng-click="">
+                        <b>
+                            {{ key | metaPrefix }}
+                        </b>
+                    </td>
+                    <td md-cell="">
+                        {{ key == "content-length" ? (value | bytes) : value}}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </md-table-container>
+
+
+    </md-dialog-content>
+    <md-dialog-actions class="" layout="row">
+
+        <md-button aria-label="Download" class="md-fab md-primary"
+                   ng-href="/swift/containers/{{ container.name }}/objects/{{ object.name | urlEncode }}"
+                   target="_blank">
+            <md-tooltip md-direction="top">
+                Download
+            </md-tooltip>
+            <md-icon md-font-set="material-icons">
+                cloud_download
+            </md-icon>
+        </md-button>
+
+        <md-button aria-label="Preview" class="md-fab md-primary"
+                   ng-href="/swift/containers/{{ container.name }}/objects/{{ object.name | urlEncode }}?show_inline=true"
+                   target="_blank">
+            <md-tooltip md-direction="top">
+                Preview in browser
+            </md-tooltip>
+            <md-icon md-font-set="material-icons">
+                pageview
+            </md-icon>
+        </md-button>
+
+        <md-button aria-label="Update metadata" class="md-fab md-warn" ng-click="updateObject()">
+            <md-tooltip md-direction="top">
+                Update metadata
+            </md-tooltip>
+            <md-icon md-font-set="material-icons">
+                check
+            </md-icon>
+        </md-button>
+
+
+        <span flex="">
     </span>
-    <md-fab-toolbar count="0" md-direction="left" md-open="false">
-     <md-fab-trigger class="align-with-text">
-      <md-button class="md-fab md-warn">
-       <md-tooltip md-direction="top">
-        Delete object
-       </md-tooltip>
-       <md-icon md-font-set="material-icons">
-        delete_forever
-       </md-icon>
-      </md-button>
-     </md-fab-trigger>
-     <md-toolbar class="">
-      <md-fab-actions class="md-toolbar-tools">
-       <md-button aria-label="really delete?" class="" ng-disabled="true">
-        Really delete?
-       </md-button>
-       <md-button aria-label="cancel" class="md-raised">
-        <md-icon md-font-set="material-icons">
-         done
-        </md-icon>
-        No, cancel
-       </md-button>
-       <md-button aria-label="delete" class="md-raised md-warn" ng-click="deleteObject()">
-        <md-icon md-font-set="material-icons">
-         delete_forever
-        </md-icon>
-        Yes, delete
-       </md-button>
-      </md-fab-actions>
-     </md-toolbar>
-    </md-fab-toolbar>
-   </md-dialog-actions>
-  </md-dialog>
- </body>
-</html>
+        <md-fab-toolbar count="0" md-direction="left" md-open="false">
+            <md-fab-trigger class="align-with-text">
+                <md-button class="md-fab md-warn">
+                    <md-tooltip md-direction="top">
+                        Delete object
+                    </md-tooltip>
+                    <md-icon md-font-set="material-icons">
+                        delete_forever
+                    </md-icon>
+                </md-button>
+            </md-fab-trigger>
+            <md-toolbar class="">
+                <md-fab-actions class="md-toolbar-tools">
+                    <md-button aria-label="really delete?" class="" ng-disabled="true">
+                        Really delete?
+                    </md-button>
+                    <md-button aria-label="cancel" class="md-raised">
+                        <md-icon md-font-set="material-icons">
+                            done
+                        </md-icon>
+                        No, cancel
+                    </md-button>
+                    <md-button aria-label="delete" class="md-raised md-warn md-hue-2" ng-click="deleteObject()">
+                        <md-icon md-font-set="material-icons">
+                            delete_forever
+                        </md-icon>
+                        Yes, delete
+                    </md-button>
+                </md-fab-actions>
+            </md-toolbar>
+        </md-fab-toolbar>
+    </md-dialog-actions>
+</md-dialog>
