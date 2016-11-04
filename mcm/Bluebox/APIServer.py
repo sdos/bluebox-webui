@@ -71,8 +71,9 @@ def handle_invalid_usage(e):
 ##############################################################################
 # session mgmt
 ##############################################################################
-def createConnection(req):
-	accountServer.assert_no_xsrf(req)
+def createConnection(req, check_xsrf=True):
+	if check_xsrf:
+		accountServer.assert_no_xsrf(req)
 	token = accountServer.get_token_from_request(req)
 	swiftUrl = accountServer.get_swift_store_url_from_request(req)
 	return SwiftConnect.SwiftConnect(token, swiftUrl)
@@ -555,7 +556,14 @@ def create_object(container_name):
 @app.route(API_ROOT + "/containers/<container_name>/objects/<path:object_name>", methods=["GET"])
 @log_requests
 def stream_object(container_name, object_name):
-	swift = createConnection(request)
+	"""
+	function may be called from outside the client app.
+	so we don't check for the XSRF token here...
+	:param container_name:
+	:param object_name:
+	:return:
+	"""
+	swift = createConnection(request, check_xsrf=False)
 	obj_tupel = swift.get_object_as_generator(container_name, object_name)
 
 	headers = {}
