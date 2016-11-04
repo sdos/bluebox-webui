@@ -15,7 +15,7 @@ loginModule.controller('LoginController',
                 });
             }
 
-            $scope.credentials = {tenant: ""};
+            $scope.credentials = {tenant: "test"};
 
             /**
              *
@@ -25,23 +25,24 @@ loginModule.controller('LoginController',
              *
              * */
 
-            $http.get('api_account/tenant')
-                .then(
-                    function successCallback(response) {
-                        //console.log(response.data);
-                        $scope.credentials.tenant = response.data;
-                        $cookies.put('MCM-TENANT', response.data);
+            /*            $http.get('api_account/tenant')
+             .then(
+             function successCallback(response) {
+             //console.log(response.data);
+             $scope.credentials.tenant = response.data;
+             $cookies.put('MCM-TENANT', response.data);
 
-                        if (!response.data) {
-                            $rootScope.$broadcast('FlashMessage', {
-                                "type": "danger",
-                                "text": "unable to retrieve tenant name"
-                            });
-                        }
-                    });
+             if (!response.data) {
+             $rootScope.$broadcast('FlashMessage', {
+             "type": "danger",
+             "text": "unable to retrieve tenant name"
+             });
+             }
+             });
+             */
 
             $scope.login = function () {
-                $http.post('swift/login', $scope.credentials)
+                $http.post('api_account/login', $scope.credentials)
                     .success(function () {
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "success",

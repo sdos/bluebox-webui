@@ -14,103 +14,9 @@ import re
 
 from swiftclient import client
 
-from mcm.Bluebox import appConfig
-from mcm.Bluebox.exceptions import HttpError
 from mcm.Bluebox.exceptions import exception_wrapper
 
 log = logging.getLogger()
-
-"""
-
-	Auth/Login
-
-"""
-
-
-def doAuthGetToken(user, password):
-	log.debug("Connecting to regular swift at: {}".format(appConfig.swift_url))
-	if (1 == appConfig.swift_auth_version):
-		user = appConfig.swift_tenant + ":" + user
-	c = client.Connection(authurl=appConfig.swift_url,
-	                      user=user,
-	                      key=password,
-	                      auth_version=appConfig.swift_auth_version,
-	                      os_options={"project_id": appConfig.swift_tenant,
-	                                  "user_id": user})
-	if c.get_auth()[0] != appConfig.swift_store_url:
-		log.error(
-			"swift suggested a different storage endpoint than our config: {} {}".format(appConfig.swift_store_url,
-			                                                                             c.get_auth()[0]))
-	return c.get_auth()[1]
-
-
-"""
-deprecated. left for documentation purposes.
-this does "manual" authentication in order to receive an authtoken.
-def do_bluemix_v1_auth(self):
-	log.debug("Connecting to Bluemix V1 swift at: {}".format(self.swift_url))
-	authEncoded = base64.b64encode(bytes('{}:{}'.format(self.swift_user, self.swift_pw), "utf-8"))
-	authEncoded = "Basic " + authEncoded.decode("utf-8")
-	response = requests.get(self.swift_url, headers={"Authorization": authEncoded})
-	log.debug(response.headers['x-auth-token'])
-	log.debug(response.headers['x-storage-url'])
-	self.conn = client.Connection(
-		preauthtoken=response.headers['x-auth-token'],
-		preauthurl=response.headers['x-storage-url']
-	)
-"""
-COOKIE_NAME = "XSRF-TOKEN"
-HEADER_NAME = "X-XSRF-TOKEN"
-
-def assert_correct_tenant(tenant):
-	"""
-	this app needs to be configured for a single customer
-	until this is changed, we must only accept requests for this tenant
-	:param tenant:
-	:return:
-	"""
-	if (not tenant == appConfig.swift_tenant):
-		raise HttpError("Tenant is invalid", 401)
-
-
-def assert_token_validity(request):
-	"""
-	the credentials are  checked against swift.
-	:param tenant:
-	:param token:
-	:return:
-	"""
-	assert_no_xsrf(request)
-	try:
-		sw = client.Connection(
-			preauthtoken=request.cookies.get(COOKIE_NAME),
-			preauthurl=appConfig.swift_store_url
-		)
-		h = sw.head_account()
-		if h:
-			return
-			raise HttpError("Token is not valid", 401)
-	except HttpError as e:
-		raise (e)
-	except Exception:
-		raise HttpError("Error checking token", 401)
-
-
-def assert_no_xsrf(request):
-	"""
-	prevent cross-site-request-forgery (XSRF)
-	this is achieved by comparing a header field and a cookie.
-	see explanation here: https://en.wikipedia.org/wiki/Cross-site_request_forgery#Cookie-to-Header_Token
-	:param request:
-	:return:
-	"""
-	c = request.cookies.get(COOKIE_NAME)
-	h = request.headers.get(HEADER_NAME)
-	log.debug("CHECKING XSRF")
-	log.debug("cookie: {} - header: {}".format(c, h))
-	if c != h:
-		raise (HttpError("XSRF token error", 401))
-
 
 """
 
@@ -122,10 +28,10 @@ def assert_no_xsrf(request):
 class SwiftConnect:
 	VALID_ACC_METADATA_KEY_REGEX = re.compile("x-account-meta-[a-z0-9-]+")
 
-	def __init__(self, token):
+	def __init__(self, token, swiftUrl):
 		self.conn = client.Connection(
 			preauthtoken=token,
-			preauthurl=appConfig.swift_store_url
+			preauthurl=swiftUrl
 		)
 
 	##############################################################################

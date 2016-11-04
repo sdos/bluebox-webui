@@ -9,12 +9,13 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 
-from datetime import datetime
+import json
+import logging
+import re
+import time
+from functools import wraps
 
 import dateutil
-from functools import wraps
-import json, logging, time, re
-
 from flask import request, Response, send_file
 from jsonschema import Draft4Validator, FormatChecker
 from jsonschema.exceptions import ValidationError
@@ -22,15 +23,22 @@ from swiftclient.exceptions import ClientException
 from werkzeug import secure_filename
 
 from mcm.Bluebox import SwiftConnect
+from mcm.Bluebox import accountServer
 from mcm.Bluebox import app
 from mcm.Bluebox.exceptions import HttpError
 from mcm.Bluebox.internal_storage import InternalStorageManager
 
+"""
+	Constants
+"""
 log = logging.getLogger()
 CLASS_SCHEMA = json.loads(open("mcm/Bluebox/include/object_class_schema").read())
 RETENTIONFIELD = 'x-object-meta-mgmt-retentiondate'
 OBJECTCLASSFIELD = 'x-container-meta-objectclass'
 INTERNALOCNAME = "object-class-definitions"
+
+API_ROOT = "/swift"
+
 
 ##############################################################################
 # decorators
@@ -61,38 +69,13 @@ def handle_invalid_usage(e):
 
 
 ##############################################################################
-# login/authenticate
+# session mgmt
 ##############################################################################
-COOKIE_NAME = "XSRF-TOKEN"
-HEADER_NAME = "X-XSRF-TOKEN"
-
-
-@app.route("/swift/login", methods=["POST"])
-def doLogin():
-	try:
-		user = request.json.get("username")
-		log.debug("authenticating user: {}".format(user))
-		password = request.json.get("password")
-		token = SwiftConnect.doAuthGetToken(user, password)
-		r = Response()
-		r.set_cookie(COOKIE_NAME, value=token)
-		return r
-	except ClientException as e:
-		log.exception("Login error")
-		raise HttpError(e.msg, 401)
-	except Exception:
-		log.exception("Login error")
-		raise HttpError("Internal Server Error", 500)
-
-
 def createConnection(req):
-	SwiftConnect.assert_no_xsrf(req)
-	try:
-		t = req.cookies.get(COOKIE_NAME)
-		if not t: raise HttpError()
-		return SwiftConnect.SwiftConnect(t)
-	except:
-		raise HttpError("no token received from client", 401)
+	accountServer.assert_no_xsrf(req)
+	token = accountServer.get_token_from_request(req)
+	swiftUrl = accountServer.get_swiftUrl_from_request(req)
+	return SwiftConnect.SwiftConnect(token, swiftUrl)
 
 
 ##############################################################################
@@ -124,7 +107,7 @@ def index(path=""):
 """
 
 
-@app.route("/swift/objectclassschema", methods=["GET"])
+@app.route(API_ROOT + "/objectclassschema", methods=["GET"])
 @log_requests
 def get_objectclass_schema():
 	return Response(json.dumps(CLASS_SCHEMA), mimetype="application/json")
@@ -137,7 +120,7 @@ def get_objectclass_schema():
 """
 
 
-@app.route("/swift/objectclasses", methods=["GET"])
+@app.route(API_ROOT + "/objectclasses", methods=["GET"])
 @log_requests
 def get_objectclasses():
 	swift = createConnection(request)
@@ -160,7 +143,7 @@ def get_objectclasses():
 """
 
 
-@app.route("/swift/objectclasses", methods=["POST"])
+@app.route(API_ROOT + "/objectclasses", methods=["POST"])
 @log_requests
 def create_objectclass():
 	swift = createConnection(request)
@@ -197,7 +180,7 @@ def create_objectclass():
 """
 
 
-@app.route("/swift/objectclasses/<class_name>", methods=["GET"])
+@app.route(API_ROOT + "/objectclasses/<class_name>", methods=["GET"])
 @log_requests
 def get_objectclass(class_name):
 	swift = createConnection(request)
@@ -215,7 +198,7 @@ def get_objectclass(class_name):
 """
 
 
-@app.route("/swift/objectclasses/<class_name>", methods=["PUT"])
+@app.route(API_ROOT + "/objectclasses/<class_name>", methods=["PUT"])
 @log_requests
 def change_objectclass(class_name):
 	swift = createConnection(request)
@@ -244,7 +227,7 @@ def change_objectclass(class_name):
 """
 
 
-@app.route("/swift/objectclasses/<class_name>", methods=["DELETE"])
+@app.route(API_ROOT + "/objectclasses/<class_name>", methods=["DELETE"])
 @log_requests
 def delete_objectclass(class_name):
 	swift = createConnection(request)
@@ -265,7 +248,7 @@ def delete_objectclass(class_name):
 """
 
 
-@app.route("/swift/containers", methods=["GET"])
+@app.route(API_ROOT + "/containers", methods=["GET"])
 @log_requests
 def get_containers():
 	swift = createConnection(request)
@@ -301,7 +284,7 @@ def get_containers():
 """
 
 
-@app.route("/swift/containers", methods=["POST"])
+@app.route(API_ROOT + "/containers", methods=["POST"])
 @log_requests
 def create_container():
 	swift = createConnection(request)
@@ -351,7 +334,7 @@ def create_container():
 """
 
 
-@app.route("/swift/containers/<container_name>", methods=["DELETE"])
+@app.route(API_ROOT + "/containers/<container_name>", methods=["DELETE"])
 @log_requests
 def delete_container(container_name):
 	swift = createConnection(request)
@@ -364,7 +347,7 @@ def delete_container(container_name):
 """
 
 
-@app.route("/swift/containers/<container_name>", methods=["PUT"])
+@app.route(API_ROOT + "/containers/<container_name>", methods=["PUT"])
 @log_requests
 def change_container(container_name):
 	swift = createConnection(request)
@@ -400,13 +383,13 @@ def change_container(container_name):
 	# selected fields
 	try:
 		internal_fields = container_definition.get("mdfi")
-		#print(internal_fields)
+		# print(internal_fields)
 		if (internal_fields != None): container_metadata["x-container-meta-mdfi"] = json.dumps(internal_fields)
 	except AttributeError:
 		pass  # ignore empty or missing class definition
 	try:
 		fields = container_definition.get("mdf")
-		#print(fields)
+		# print(fields)
 		if (fields != None): container_metadata["x-container-meta-mdf"] = json.dumps(fields)
 	except AttributeError:
 		pass  # ignore empty or missing class definition
@@ -422,7 +405,7 @@ def change_container(container_name):
 """
 
 
-@app.route("/swift/containers/<container_name>/objects", methods=["GET"])
+@app.route(API_ROOT + "/containers/<container_name>/objects", methods=["GET"])
 @log_requests
 def get_objects_in_container(container_name):
 	swift = createConnection(request)
@@ -461,7 +444,7 @@ def get_objects_in_container(container_name):
 """
 
 
-@app.route("/swift/containers/<container_name>/details", methods=["GET"])
+@app.route(API_ROOT + "/containers/<container_name>/details", methods=["GET"])
 @log_requests
 def get_container_metadata(container_name):
 	swift = createConnection(request)
@@ -476,10 +459,10 @@ def get_container_metadata(container_name):
 """
 
 
-@app.route("/swift/containers/<container_name>/details", methods=["PUT"])
+@app.route(API_ROOT + "/containers/<container_name>/details", methods=["PUT"])
 @log_requests
 def change_container_metadata(container_name, metadata):
-	#print(metadata)
+	# print(metadata)
 	raise HttpError("funcion not implemented yet")
 
 
@@ -496,7 +479,7 @@ def change_container_metadata(container_name, metadata):
 """
 
 
-@app.route("/swift/containers/<container_name>/objects/<path:object_name>", methods=["POST"])
+@app.route(API_ROOT + "/containers/<container_name>/objects/<path:object_name>", methods=["POST"])
 @log_requests
 def update_object(container_name, object_name):
 	swift = createConnection(request)
@@ -508,9 +491,9 @@ def update_object(container_name, object_name):
 	if not object_definition:
 		raise HttpError("object_definition is missing", 400)
 
-	#print(object_definition)
+	# print(object_definition)
 	h = cleanHeaders(object_definition)
-	#print(h)
+	# print(h)
 	rsp = swift.update_object_metadata(object_name=object_name, container_name=container_name, metadata_dict=h)
 	return rsp["reason"], rsp["status"]
 
@@ -520,7 +503,7 @@ def update_object(container_name, object_name):
 """
 
 
-@app.route("/swift/containers/<container_name>/objects", methods=["POST"])
+@app.route(API_ROOT + "/containers/<container_name>/objects", methods=["POST"])
 @log_requests
 def create_object(container_name):
 	swift = createConnection(request)
@@ -569,7 +552,7 @@ def create_object(container_name):
 """
 
 
-@app.route("/swift/containers/<container_name>/objects/<path:object_name>", methods=["GET"])
+@app.route(API_ROOT + "/containers/<container_name>/objects/<path:object_name>", methods=["GET"])
 @log_requests
 def stream_object(container_name, object_name):
 	swift = createConnection(request)
@@ -592,7 +575,7 @@ def stream_object(container_name, object_name):
 """
 
 
-@app.route("/swift/containers/<container_name>/objects/<path:object_name>", methods=["DELETE"])
+@app.route(API_ROOT + "/containers/<container_name>/objects/<path:object_name>", methods=["DELETE"])
 @log_requests
 def delete_object(container_name, object_name):
 	swift = createConnection(request)
@@ -615,7 +598,7 @@ def delete_object(container_name, object_name):
 """
 
 
-@app.route("/swift/containers/<container_name>/objects/<path:object_name>/details", methods=["GET"])
+@app.route(API_ROOT + "/containers/<container_name>/objects/<path:object_name>/details", methods=["GET"])
 @log_requests
 def get_object_metadata(container_name, object_name):
 	swift = createConnection(request)
@@ -636,7 +619,7 @@ def get_object_metadata(container_name, object_name):
 """
 
 
-@app.route("/swift/containers/<container_name>/objects/<path:object_name>/details", methods=["PUT"])
+@app.route(API_ROOT + "/containers/<container_name>/objects/<path:object_name>/details", methods=["PUT"])
 @log_requests
 def change_object_metadata(container_name, object_name):
 	raise HttpError("funcion not implemented yet")
@@ -685,13 +668,13 @@ def xform_header_names(name):
 
 
 def xform_header_names_on_classdef(classdef):
-	#print(classdef)
+	# print(classdef)
 	classdef["name"] = xform_header_names(classdef["name"])
 	classdef["schema"]["description"] = xform_header_names(classdef["schema"]["description"])
 	newP = {}
 	for oldP in classdef["schema"]["properties"]:
 		newP[xform_header_names(oldP)] = classdef["schema"]["properties"][oldP]
-		#print(newP)
+	# print(newP)
 	classdef["schema"]["properties"] = newP
-	#print(classdef)
+	# print(classdef)
 	return classdef

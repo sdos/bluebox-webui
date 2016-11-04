@@ -20,9 +20,9 @@ import uuid
 from flask import request, Response
 from pykafka import KafkaClient
 
+from mcm.Bluebox import accountServer
 from mcm.Bluebox import app
 from mcm.Bluebox import appConfig
-from mcm.Bluebox.SwiftConnect import assert_correct_tenant, assert_token_validity
 from mcm.Bluebox.exceptions import HttpError
 
 log = logging.getLogger()
@@ -84,8 +84,9 @@ def send_message():
 		the token in the message is not validated, this is up to the recipient.
 		some msgs may not even contain a token...
 		"""
-		assert_correct_tenant(tenant=msg_tenant)
-		assert_token_validity(request)
+		accountServer.assert_no_xsrf(request)
+		accountServer.assert_token_tenant_validity(request)
+		accountServer.assert_correct_tenant(request, msg_tenant)
 
 		j = request.json
 		j["correlation"] = str(uuid.uuid4())
@@ -125,8 +126,9 @@ def receive_messages(from_beginning=False):
 		msg_tenant = request.json.get("tenant")
 		msg_client_id = request.json.get("client_id")
 
-		assert_correct_tenant(tenant=msg_tenant)
-		assert_token_validity(request)
+		accountServer.assert_no_xsrf(request)
+		accountServer.assert_token_tenant_validity(request)
+		accountServer.assert_correct_tenant(request, msg_tenant)
 
 		consumer_group = 'mcmbb-{}-{}'.format(msg_tenant, msg_client_id).encode('utf-8')
 

@@ -34,7 +34,7 @@
        <md-icon md-font-set="material-icons">
         person
        </md-icon>
-       <input id="username" md-autofocus="" ng-model="credentials.username" type="text"/>
+       <input id="user" md-autofocus="" ng-model="credentials.user" type="text"/>
       </md-input-container>
       <!-- Input of the password -->
       <md-input-container class="md-block" flex-gt-sm="">
@@ -47,7 +47,7 @@
        <input id="password" ng-model="credentials.password" type="password"/>
       </md-input-container>
       <!-- Button to submit the form and log in -->
-      <md-button class="md-raised md-warn" ng-disabled="!credentials.username" type="submit">
+      <md-button class="md-raised md-warn" ng-disabled="!credentials.user" type="submit">
        <md-icon md-font-set="material-icons">
         check
        </md-icon>
