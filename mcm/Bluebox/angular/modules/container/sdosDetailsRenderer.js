@@ -8,6 +8,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     var icon_masterkey = "/angular/icons/d3/masterkey.svg";
     var icon_plusfile = "/angular/icons/d3/plusfile.svg";
     var icon_pluskey = "/angular/icons/d3/pluskey.svg";
+    var icon_object = "/angular/icons/d3/pluskey_object.svg";
 
     var dataset;
     var dataP;
@@ -31,6 +32,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             return [d.y, d.x];
         });
 
+    var zoom = d3.behavior.zoom().scaleExtent([0, 1]).translate([120, 20]).on("zoom", zoomed);
+
 
     var svg;
 
@@ -46,6 +49,9 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     };
 
 
+    /*
+     * 2. step
+     * */
     function getSdosPartitions() {
         $http
             .get('swift/containers/' + $scope.container.name + '/objects/__mcm__/sdos_used_partitions')
@@ -62,6 +68,10 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     };
 
 
+    /*
+     * 3. step
+     * start render
+     * */
     function getSdosMapping() {
         $http
             .get('swift/containers/' + $scope.container.name + '/objects/__mcm__/sdos_partition_mapping')
@@ -78,6 +88,9 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     };
 
 
+    /*
+     * starts execution after controller init
+     * */
     getSdosPartitions();
 
     /*
@@ -88,8 +101,6 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
      *
      *
      * */
-
-
     function doRender() {
 
         cascadeData.usedPartitions = $scope.sdosUsedPartitions;
@@ -100,6 +111,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         root = dataset[0];
         root.x0 = height / 2;
         root.y0 = 0;
+
+        d3.selectAll('button').on('click', zoomClick);
 
 
         svg = d3.select("#cascadeRendering").append("svg")
@@ -123,6 +136,68 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         }
         inicialTree = open;
         closeTree(root, open);
+        update(root);
+    }
+
+
+    function loadNode(source, text, data) {
+        var path = [];
+        var aux = text.split("|");
+        leafPath(parseInt(aux[0]), data.partitionSize, path);
+        rightChildren(source, path, aux[1]);
+        closeTree(source, path);
+        update(root);
+    }
+
+    /* Zoom functions area
+     *
+     * */
+    function zoomed() {
+        svg.attr("transform",
+            "translate(" + zoom.translate() + ")" +
+            "scale(" + zoom.scale() + ")"
+        );
+    }
+
+    function interpolateZoom(translate, scale) {
+        var self = this;
+        return d3.transition().duration(duration).tween("zoom", function () {
+            var iTranslate = d3.interpolate(zoom.translate(), translate),
+                iScale = d3.interpolate(zoom.scale(), scale);
+            return function (t) {
+                zoom
+                    .scale(iScale(t))
+                    .translate(iTranslate(t));
+                zoomed();
+            };
+        });
+    }
+
+    function zoomClick() {
+        var factor = 0.5,
+            center = [width / 2, height / 2],
+            extent = zoom.scaleExtent(),
+            translate = zoom.translate(),
+            view = {x: translate[0], y: translate[1], k: zoom.scale()};
+
+        d3.event.preventDefault();
+        var direction;
+        direction = (this.id === 'zoom_in') ? 2 : -1;
+        console.log(extent);
+        var target_zoom;
+        target_zoom = zoom.scale() * (1 + factor * direction);
+
+
+        var translate0;
+        translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
+        view.k = target_zoom;
+        var l = [translate0[0] * view.k + view.x, translate0[1] * view.k + view.y];
+
+        view.x += center[0] - l[0];
+        view.y += center[1] - l[1];
+        console.log(zoom.translate());
+
+        interpolateZoom([120, 20], view.k);
     }
 
 
@@ -150,10 +225,9 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     }
 
     function leafPath(value, ps, path) {
-        var aux = value.toString().split("|");
-        var number = parseInt(aux[0]);
-        var name = aux[1];
-        /* By a number/key node name, finds all the path
+
+        var number = value;
+        /* By the number/key node name, finds all the path
          *  from the root to this current number
          *  returning it in a list
          * */
@@ -184,12 +258,17 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         var nodes = tree.nodes(source).reverse();
 
         nodes.forEach(function (d) {
-            if (d.children != null && openNodes.indexOf(d.name) < 0) {
-                click(d);
-                //console.log(d);
-            }
-            else if (d._children != null && openNodes.indexOf(d.name) > -1) {
-                click(d);
+            /* The actual node d is the node tested to be in the path
+             *  So to open & show the path, the node d have to be in its parent children
+             * */
+            if (d.type != "key_object") {
+                if (d.children != null && openNodes.indexOf(d.name) < 0) {
+                    changeChildren(d);
+                    //console.log(d);
+                }
+                else if (d._children != null && openNodes.indexOf(d.name) > -1) {
+                    changeChildren(d);
+                }
             }
         });
     }
@@ -200,6 +279,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         // Compute the new tree layout.
         var nodes = tree.nodes(root).reverse(),  // list of the nodes objects, descending
             links = tree.links(nodes);
+
+        console.log(nodes);
 
         // Normalize for fixed-depth.
         nodes.forEach(function (d) {
@@ -227,25 +308,46 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             });
 
         // append circles and rectangles to the nodes
-        nodeEnter.append("circle")
-            .attr("r", 1e-6)
-            .style("fill", function (d) {
-                return d._children ? "lightsteelblue" : "#fff";
+
+        function rectHeight(d) {
+
+            var inicial = d.x;
+            var final;
+            var next = false;
+            d.parent.children.forEach(function (e) {
+
+                if (e.name == d.name + 1) {
+                    final = e.x;
+                    next = true;
+                }
             });
 
+            if (!next) {
+                if (d.parent.children[d.parent.children.length - 1].type == "down")
+                    final = d.parent.children[d.parent.children.length - 1].x;
+                else final = inicial + 60;
+            }
+
+            return final - inicial;
+        }
+
+
         nodeEnter.append("rect")
-            .attr("width", 0)
-            .attr("height", 0)
-            .style("fill", function (d) {
-                if (d.type == "master") return "#f26363";
-                else  return d._children ? "lightsteelblue" : "#fff";
-            });
+            .attr("width", function (d) {
+                return (d.type == "key") ? 40 : null
+            })
+            .attr("height", function (d) {
+                return (d.type == "key") ? rectHeight(d) : null;
+            })
+            .attr("x", "-10px")
+            .attr("y", "-24px")
+            .style("fill-opacity", 1e-6);
 
 
         nodeEnter.append("svg:image")
             .attr("xlink:href", function (d) {
                 return d.type == "key" ? icon_key : ( d.type == "master" ? icon_masterkey : ( d.type == "object" ? icon_file :
-                    (d.type == "up" || d.type == "down" ? icon_pluskey : icon_plusfile) ));
+                    (d.type == "key_object" ? icon_object : (d.type == "up" || d.type == "down" ? icon_pluskey : icon_plusfile) )));
             })
             .attr("x", "-10px")
             .attr("y", "-24px")
@@ -276,6 +378,17 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
         // the new style after the transition
 
+        nodeUpdate.select("rect")
+            .attr("width", function (d) {
+                return (d.type == "key") ? 40 : null
+            })
+            .attr("height", function (d) {
+                return (d.type == "key") ? rectHeight(d) : null;
+            })
+            .attr("x", "-10px")
+            .attr("y", "-24px")
+            .style("fill-opacity", 1e-6);
+
 
         nodeUpdate.select("text")
             .style("fill-opacity", 1);
@@ -288,11 +401,10 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             })
             .remove();
 
-        nodeExit.select("circle")
-            .attr("r", 1e-6);
 
         nodeExit.select("text")
             .style("fill-opacity", 1e-6);
+
 
         // Update the links…
         var link = svg.selectAll("path.link")
@@ -330,13 +442,12 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     }
 
     function clickDown(d) {
-        console.log(d.parent);
         // add the list up object
         if (d.parent.siblings_up.length == 0) {
             if (d.type == "object_down")
-                d.parent.children.splice(0, 0, {"name": "up", "children": null, "type": "object_up"});
+                d.parent.children.splice(0, 0, {"name": "↑", "children": null, "type": "object_up"});
             else
-                d.parent.children.splice(0, 0, {"name": "up", "children": null, "type": "up"});
+                d.parent.children.splice(0, 0, {"name": "↑", "children": null, "type": "up"});
         }
         /* Remove the last 5 children from the parent
          * */
@@ -359,7 +470,6 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         if (d.parent.siblings_down.length == 0)
             d.parent.children.splice(-1, 1);
 
-        console.log(d.parent);
         update(d);
     }
 
@@ -374,9 +484,9 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             newSiblings = d.parent.children.splice(1, d.parent.children.length - 1);
 
             if (d.type == "object_up")
-                d.parent.children.splice(1, 0, {"name": "down", "children": null, "type": "object_down"});
+                d.parent.children.splice(1, 0, {"name": "↓", "children": null, "type": "object_down"});
             else
-                d.parent.children.splice(1, 0, {"name": "down", "children": null, "type": "down"});
+                d.parent.children.splice(1, 0, {"name": "↓", "children": null, "type": "down"});
         }
         else {
             newSiblings = d.parent.children.splice(-6, 5);
@@ -396,7 +506,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     }
 
     // Toggle children on click.
-    function click(d) {
+    function changeChildren(d) {
         if (d.children) {
             d._children = d.children;
             d.children = null;
@@ -404,10 +514,18 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             d.children = d._children;
             d._children = null;
         }
+    }
+
+    function click(d) {
+        changeChildren(d);
         update(d);
     }
 
 
+    /* The next functions are responsible for the translation of the
+     * json data to the Flare data, which is used by the drawing functions
+     * of d3js to build a tree
+     * */
     function jsonToFlare(data) {
         /* Start with the root of the tree that is always 0
          *  Then get all the other nodes recursively using getChildren
@@ -423,6 +541,15 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         }];
     }
 
+    /* This functions gets the actual node(parent) and calculates
+     * who will be its children.
+     * For just the key_partitions part of the tree, it uses two calculations
+     * to get the first child and the last child of this node
+     * and check if the children are in the usedPartitions list.
+     * For the object_partitions, it just access the ObjectMapping object
+     * and get the list of objects based on the node/parent name
+     * and creates the right data from it.
+     * */
     function getChildren(parent, level, data) {
         var children = [];
         var siblings = [];
@@ -454,23 +581,35 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                     for (i = 0; i < 5; i++) {
                         /* Just plus nodes have siblings
                          * */
-                        children[i] = {name: objects[i].objName, "children": null, "type": "object", "show": true};
+                        children[i] = {
+                            name: objects[i].slot,
+                            "children": [{name: objects[i].objName, "type": "object"}],
+                            "type": "key_object"
+                        };
                     }
 
                     for (i = 5; i < objects.length; i++) {
                         /* Hide the children
                          * */
-                        siblings[i - 5] = {name: objects[i].objName, "children": null, "type": "object", "show": false};
+                        siblings[i - 5] = {
+                            name: objects[i].slot,
+                            "children": [{name: objects[i].objName, "type": "object"}],
+                            "type": "key_object"
+                        };
                     }
                     /* Add the siblings to the plus nodes
                      * */
                     //children[0]["siblings"] = siblings;
-                    children[5] = {name: "...", "children": null, "type": "object_down", "show": false};
+                    children[5] = {name: "↓", "children": null, "type": "object_down"};
 
                 }
                 else {
                     for (i = 0; i < objects.length; i++) {
-                        children[i] = {name: objects[i].objName, "children": null, "type": "object"};
+                        children[i] = {
+                            name: objects[i].slot,
+                            "children": [{name: objects[i].objName, "type": "object"}],
+                            "type": "object"
+                        };
                     }
                 }
             }
@@ -485,9 +624,11 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             var childs;
 
 
-            children[0] = {"name": "...", "children": null, "type": "up"};
+            children[0] = {"name": "↓", "children": null, "type": "up"};
             k = 1;
-            for (i = first; i <= last; i++) { // for each child of this parent
+            for (i = first; i <= last; i++) {
+                // for each child of this parent
+                // just create nodes for the children that are in the usedPartitions
                 if (data.usedPartitions.indexOf(i) > -1) {
 
                     if (k < 6) {
@@ -497,7 +638,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                             "children": childs[0],
                             "siblings_up": [],
                             "siblings_down": childs[1],
-                            "type": "key"
+                            "type": "key",
+                            "level": level
                         };
                     }
                     else {
@@ -508,14 +650,14 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                             "_children": childs[0],
                             "siblings_up": [],
                             "siblings_down": childs[1],
-                            "type": "key"
+                            "type": "key",
+                            "level": level
                         };
                     }
 
                     k++;
                 }
-                // if a node is not in used partitions, it is not showed
-
+                // if a node is not in used partitions, it is not showed because performance issues
             }
 
             if (children.length < 7 && siblings.length == 0) {
@@ -523,7 +665,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             }
             else {
                 children.splice(0, 1);
-                children[children.length] = {"name": "...", "children": null, "type": "down"};
+                children[children.length] = {"name": "↓", "children": null, "type": "down"};
             }
 
 
@@ -531,6 +673,69 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         return [children, siblings];
 
     }
+
+    function rightChildren(source, openNodes, object) {
+        /* Go through all children
+         * */
+        var inChildren = 0;
+        var next = null;
+        var down = 1;
+
+        /* Testes if the node is not closed, then open it
+         * */
+        if (source._children != null) {
+            //console.log(source);
+            click(source);
+
+        }
+
+        if (source.children != null) {
+            while (!inChildren) {
+
+                source.children.forEach(function (d) {
+
+                    /* See if this node is in the OpenNodes list
+                     *  if it is and it is a "key" type, goes to the next node
+                     *  if it is a "key_object" type
+                     *  */
+                    if (openNodes.indexOf(d.name) > -1 && (d.type == "key")) {
+                        inChildren = 1;
+                        next = d;
+                    }
+                    else if (d.type == "key_object" && d.children[0].name == object) {
+                        inChildren = 1;
+                    }
+
+                });
+
+                if (!inChildren) {
+                    if (down) {
+                        clickDown(source.children[source.children.length - 1]);
+                        if (source.siblings_down.length == 0) {
+                            down = 0;
+                        }
+                    }
+                    else {
+                        clickUp(source.children[0]);
+                        if (source.siblings_up.length == 0) {
+                            down = 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (next != null) {
+            rightChildren(next, openNodes, object);
+        }
+
+    }
+
+    function isFirstChild(d) {
+        var first = pidFop(dataP.partitionSize, d.level);
+        return (d.name == first);
+    }
+
 
     function pidFop(ps, level) {
         /* Calculates the first node of a level
