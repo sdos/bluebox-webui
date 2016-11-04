@@ -74,11 +74,16 @@ def send_message():
 	try:
 		msg_type = request.json.get("type")
 		msg_tenant = request.json.get("tenant")
-		msg_token = request.json.get("token")
 
 		if (not msg_type or not msg_type in valid_task_types):
 			raise HttpError("Request is invalid", 500)
 
+		"""
+		we only assert that the token in the request is valid
+		and that the tenant is the current tenant.
+		the token in the message is not validated, this is up to the recipient.
+		some msgs may not even contain a token...
+		"""
 		assert_correct_tenant(tenant=msg_tenant)
 		assert_token_validity(request)
 

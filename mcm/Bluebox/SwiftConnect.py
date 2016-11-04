@@ -59,7 +59,8 @@ def do_bluemix_v1_auth(self):
 		preauthurl=response.headers['x-storage-url']
 	)
 """
-
+COOKIE_NAME = "XSRF-TOKEN"
+HEADER_NAME = "X-XSRF-TOKEN"
 
 def assert_correct_tenant(tenant):
 	"""
@@ -79,7 +80,6 @@ def assert_token_validity(request):
 	:param token:
 	:return:
 	"""
-	COOKIE_NAME = "XSRF-TOKEN"
 	assert_no_xsrf(request)
 	try:
 		sw = client.Connection(
@@ -104,8 +104,6 @@ def assert_no_xsrf(request):
 	:param request:
 	:return:
 	"""
-	COOKIE_NAME = "XSRF-TOKEN"
-	HEADER_NAME = "X-XSRF-TOKEN"
 	c = request.cookies.get(COOKIE_NAME)
 	h = request.headers.get(HEADER_NAME)
 	log.debug("CHECKING XSRF")
