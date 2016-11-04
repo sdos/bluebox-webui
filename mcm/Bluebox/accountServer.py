@@ -66,21 +66,21 @@ def doLogin():
 
 
 def doAuthGetToken(tenant, user, password):
-	log.debug("Connecting to regular swift at: {}".format(appConfig.swift_url))
-	swiftStoreUrl = appConfig.swift_store_url.format(tenant)
+	log.debug("Connecting to regular swift at: {}".format(appConfig.swift_auth_url))
+	swift_store_url = appConfig.swift_store_url.format(tenant)
 	if (1 == appConfig.swift_auth_version):
 		swift_user = tenant + ":" + user
 	else:
 		swift_user = user
-	c = client.Connection(authurl=appConfig.swift_url,
+	c = client.Connection(authurl=appConfig.swift_auth_url,
 	                      user=swift_user,
 	                      key=password,
 	                      auth_version=appConfig.swift_auth_version,
 	                      os_options={"project_id": tenant,
 	                                  "user_id": swift_user})
-	if c.get_auth()[0] != swiftStoreUrl:
+	if c.get_auth()[0] != swift_store_url:
 		log.error(
-			"swift suggested a different storage endpoint than our config: {} {}".format(swiftStoreUrl,
+			"swift suggested a different storage endpoint than our config: {} {}".format(swift_store_url,
 			                                                                             c.get_auth()[0]))
 	return c.get_auth()[1]
 
@@ -125,7 +125,7 @@ def get_tenant_from_request(request):
 		raise HttpError("cookie missing (tenant)", 401)
 
 
-def get_swiftUrl_from_request(request):
+def get_swift_store_url_from_request(request):
 	t = get_tenant_from_request(request)
 	su = appConfig.swift_store_url.format(t)
 	return su
@@ -160,11 +160,11 @@ def assert_token_tenant_validity(request):
 	:return:
 	"""
 	assert_no_xsrf(request)
-	swiftUrl = get_swiftUrl_from_request(request)
+	swift_store_url = get_swift_store_url_from_request(request)
 	try:
 		sw = client.Connection(
 			preauthtoken=request.cookies.get(COOKIE_NAME_TOKEN),
-			preauthurl=swiftUrl
+			preauthurl=swift_store_url
 		)
 		h = sw.head_account()
 		if not h:
@@ -209,7 +209,7 @@ export ST_KEY=<your password>
 	"""
 	assert_token_tenant_validity(request)
 	s = swiftRcString.format(
-		auth=get_swiftUrl_from_request(request),
+		auth=get_swift_store_url_from_request(request),
 		tenant=get_tenant_from_request(request),
 		user=get_user_from_request(request))
 	return Response(s, mimetype="text/plain")

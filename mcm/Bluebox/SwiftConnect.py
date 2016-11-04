@@ -28,10 +28,10 @@ log = logging.getLogger()
 class SwiftConnect:
 	VALID_ACC_METADATA_KEY_REGEX = re.compile("x-account-meta-[a-z0-9-]+")
 
-	def __init__(self, token, swiftUrl):
+	def __init__(self, token, swift_store_url):
 		self.conn = client.Connection(
 			preauthtoken=token,
-			preauthurl=swiftUrl
+			preauthurl=swift_store_url
 		)
 
 	##############################################################################

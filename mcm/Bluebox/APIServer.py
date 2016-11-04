@@ -74,7 +74,7 @@ def handle_invalid_usage(e):
 def createConnection(req):
 	accountServer.assert_no_xsrf(req)
 	token = accountServer.get_token_from_request(req)
-	swiftUrl = accountServer.get_swiftUrl_from_request(req)
+	swiftUrl = accountServer.get_swift_store_url_from_request(req)
 	return SwiftConnect.SwiftConnect(token, swiftUrl)
 
 
