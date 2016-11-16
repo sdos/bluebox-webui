@@ -77,7 +77,7 @@ in the main directory
     (included in setenv) source venvBB/bin/activate
     pip install -r requirements.txt
     cd mcm/Bluebox/angular
-    yarn install
+    yarnpkg install
     
     
     
@@ -94,20 +94,20 @@ just install the existing reqs
 
     pip install -r requirements.txt
     cd mcm/Bluebox/angular
-    yarn install
+    yarnpkg install
     
 install new packages
 
     pip install <package>
     cd mcm/Bluebox/angular
-    yarn add <package>
+    yarnpkg add <package>
 
 
 save new packages to requirements:
 
     pip freeze --local > requirements.txt
     cd mcm/Bluebox/angular
-    yarn add <package>
+    yarnpkg add <package>
     
     
 update existing packages

@@ -10,7 +10,9 @@ tasksModule.controller('TasksController',
 
             console.log("tasks!");
 
+
             $scope.myMessages = [];
+            $scope.myKeys = [];
             $scope.validTasks = {"no": "...not loaded..."};
             $scope.availableContainers = undefined;
 
@@ -66,17 +68,31 @@ tasksModule.controller('TasksController',
                         //console.log($scope.availableContainers);
                     })
             };
-
+            /**
+            helper function to add response data to messages
+            */
+            var addMsgs= function (resp) {
+                var idx=$scope.myKeys.indexOf(resp.correlation);
+                if(idx==-1)
+                {
+                    $scope.myKeys.unshift(resp.correlation);
+                    $scope.myMessages.unshift([resp]);
+                }
+                else{
+                    $scope.myMessages[idx].push(resp);
+                }
+		     };
             /**
              *
              * receive the messages
              *
              * */
-
             $scope.receive_from_beginning = function () {
                 tasksService.retrieveMessages($scope.credentials, true)
                     .then(function (response) {
-                        $scope.myMessages = $scope.myMessages.concat(response.data);
+                        for (var i = 0; i < response.data.length; i++) {
+                            addMsgs(response.data[i]);
+                        }
                     })
             };
 
@@ -84,8 +100,9 @@ tasksModule.controller('TasksController',
                 tasksService.retrieveMessages($scope.credentials, false)
                     .then(function (response) {
                         if (response.data) {
-                            $scope.myMessages = $scope.myMessages.concat(response.data);
-                            //console.log(response.data);
+                            for (var i = 0; i < response.data.length; i++) {
+                               addMsgs(response.data[i]);
+                            }
                             $interval(function () {
                                 receive();
                             }, 2000, 1);
@@ -101,7 +118,7 @@ tasksModule.controller('TasksController',
              *
              * */
             $scope.clear_all_messages = function () {
-                $scope.myMessages = [];
+                $scope.myMessages = {};
             };
 
 
@@ -110,6 +127,7 @@ tasksModule.controller('TasksController',
              * helper for html styling
              * */
             $scope.ui_color_for_msg = function (msg) {
+
                 try {
                     return '#' + msg.correlation.substring(0, 6);
                 }
@@ -146,6 +164,25 @@ tasksModule.controller('TasksController',
                 }
 
             };
+
+            $scope.txt_for_msg = function (msg) {
+                try {
+                    if (msg.type in $scope.validTasks) {
+                        return "tenant:"+msg.tenant+" > worker:"+msg.worker;     
+                    } else if (msg.type.startsWith("processing")||msg.type.startsWith("pong")) {
+                        return "worker:"+msg.worker;
+                    } else if (msg.type.startsWith("success")) {
+                        return msg.message.substring(msg.message.lastIndexOf("finished:")+"finished:".length) || msg.substring(msg.lastIndexOf("finished:")+"finished:".length);
+                    } else {
+                        return msg;
+                    }
+                }
+                catch (err) {
+                    return msg;
+                }
+
+            };
+
 
 
         }]);
