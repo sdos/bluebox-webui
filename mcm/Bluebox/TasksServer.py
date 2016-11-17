@@ -24,6 +24,7 @@ from mcm.Bluebox import accountServer
 from mcm.Bluebox import app
 from mcm.Bluebox import appConfig
 from mcm.Bluebox.exceptions import HttpError
+from mcm.Bluebox.parallelExecution.Pool import KafkaClientPool
 
 log = logging.getLogger()
 
@@ -58,8 +59,8 @@ def __try_parse_msg_content(m):
 
 
 def __get_kafka_topic(topic):
-	kc = KafkaClient(hosts=appConfig.kafka_broker_endpoint, use_greenlets=True)
-	return kc.topics[topic.encode('utf-8')]
+	pool = KafkaClientPool()
+	return pool.getTopic(appConfig.kafka_broker_endpoint, topic)
 
 
 @app.route(API_ROOT + "/types", methods=["GET"])
