@@ -139,22 +139,24 @@
         <md-content class="bb-container">
             <md-button class="md-warn" ng-click="clear_all_messages()">clear list</md-button>
             <md-button class="md-warn" ng-click="receive_from_beginning()">load from beginning of queue</md-button>
-            <md-list class="md-dense" flex>
-                <md-list-item class="md-3-line" ng-repeat="msg in myMessages | orderBy:'+':true">
-                    <md-icon md-font-set="material-icons" class="md-avatar-icon"
-                             ng-style='{background: ui_color_for_msg(msg)}'>
-                        {{ ui_icon_for_msg(msg) }}
-                    </md-icon>
-                    <div class="md-list-item-text" layout="column">
-                        <p style="font-size: 0.2em;" ng-style='{background: ui_color_for_msg(msg)}'>&nbsp;</p>
-                        <h3><b>{{ msg.type }} {{ msg.container ? " > " + msg.container : ""}}</b></h3>
-                        <h4>{{ msg.message || msg }}</h4>
-                        <p>{{ msg.correlation ? "id: " + msg.correlation : "" }} {{ msg.worker ? " - worker: " + msg.worker : "" }}</p>
-                    </div>
-                </md-list-item>
-            </md-list>
+            <md-content flex-xs layout-xs="column" layout="row" layout-wrap >
+            <md-card layout="column" flex-xs flex="20" ng-repeat="vals in myMessages" ng-style='{background: ui_color_for_msg(vals[0])}' >
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline">{{ vals[0].type }} {{ vals[0].container ? " > " + vals[0].container : ""}}</span>
+                        <span class="md-subhead">{{vals[0].correlation}}</span>
+                    </md-card-title-text>
+                </md-card-title>
+                <div layout="row" layout-align="space-between center" ng-repeat="msg in vals">
+                <md-icon md-font-set="material-icons" class="md-avatar-icon" flex-order="-1">{{ui_icon_for_msg(msg)}}
+                </md-icon>
+                <md-card-content style="overflow-wrap: break-word;" flex="75">
+                    {{txt_for_msg(msg)}}
+                </md-card-content>
+                </div>
+            </md-card>
+            </md-content>
         </md-content>
     </div>
 </div>
 </body>
-</html>
