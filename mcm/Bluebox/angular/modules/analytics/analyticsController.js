@@ -22,13 +22,11 @@ analyticsModule
 
                 $scope.waitingForPlot = false;
 
-                $scope.tableData = {};
-
                 console.log("BB-Insights!");
 
                 updateNodeRedSources();
 
-                getTableStructure();
+
 
                 $scope.nodered = {
                     url: "...Endpoint URL unknown..."
@@ -201,7 +199,7 @@ analyticsModule
 
                 $scope.showTableStructure = function (event) {
 
-
+                     getTableStructure();
                     var useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen;
                     $mdDialog.show({
                         controller: AnalyticsDialogController,
