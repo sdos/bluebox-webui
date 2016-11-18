@@ -23,7 +23,7 @@ from bokeh.charts import Area, vplot, Bar, Line, BoxPlot
 from bokeh.embed import components
 from flask import request, Response
 
-from mcm.Bluebox import app
+from mcm.Bluebox import app, accountServer
 from mcm.Bluebox import appConfig
 from mcm.Bluebox.exceptions import HttpError
 
@@ -38,6 +38,10 @@ Data schema
 
 @app.route("/api_analytics/tablestructure", methods=["GET"])
 def getTableStructure():
+	# check if user is logged in
+	# TODO: we should have multi-tenancy in the warehouse; use tenant name as table or db-name...
+	accountServer.assert_no_xsrf(request)
+	accountServer.assert_token_tenant_validity(request)
 	# Establish connection to PostgreSQL database
 	# conn = sqlite3.connect("/tmp/metadata.sqlite") #SQLITE
 	with psycopg2.connect(**appConfig.metadata_warehouse_endpoint) as conn:
