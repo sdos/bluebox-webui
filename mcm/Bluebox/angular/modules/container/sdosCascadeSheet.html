@@ -22,9 +22,14 @@
     </md-toolbar>
     <md-dialog-content class="bb-margin">
 
+        <div ng-if="!isRenderComplete">
+            <h3>Collecting data... </h3>
+            <md-progress-circular class="md-warn" md-mode="indeterminate"
+                                  md-diameter="80"></md-progress-circular>
+        </div>
+
 
         <div>
-            <h3>Key Cascade view</h3>
             <div id="cascadeRendering"></div>
             <button id="zoom_in">+</button>
             <button id="zoom_out">-</button>
@@ -57,13 +62,6 @@
         <div ng-if="sdosPartitionMapping && showMapping">
 
             <p class="bbAllocBlocks">{{ sdosPartitionMapping }}</p>
-        </div>
-
-
-        <div ng-if="!sdosStats || !sdosUsedPartitions">
-            <h3>Collecting data... </h3>
-            <md-progress-circular class="md-warn" md-mode="indeterminate"
-                                  md-diameter="80"></md-progress-circular>
         </div>
 
 

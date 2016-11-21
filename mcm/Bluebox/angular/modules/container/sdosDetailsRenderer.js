@@ -77,6 +77,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                     $scope.sdosPartitionMapping = response.data;
                     doRender();
                     showSelectedObject();
+                    $scope.isRenderComplete = true;
 
                 },
                 function errorCallback(response) {
@@ -112,6 +113,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     /*
      * starts execution after controller init
      * */
+    $scope.isRenderComplete = false;
     getSdosPartitions();
 
     /*
