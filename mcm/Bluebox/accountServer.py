@@ -79,8 +79,8 @@ def doAuthGetToken(tenant, user, password):
 	                      os_options={"project_id": tenant,
 	                                  "user_id": swift_user})
 	if c.get_auth()[0] != swift_store_url:
-		log.error(
-			"swift suggested a different storage endpoint than our config: {} {}".format(swift_store_url,
+		log.warning(
+			"swift suggested a different storage endpoint than our config: {} -- Swift suggests: {}".format(swift_store_url,
 			                                                                             c.get_auth()[0]))
 	return c.get_auth()[1]
 
