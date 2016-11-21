@@ -2,55 +2,47 @@
 
     <!-- Top buttons -->
     <div layout="row">
-        <md-button aria-label="Back to container list" class="md-fab bb-pin-button md-primary"
-                   ui-sref="fileSystemState()">
-            <md-tooltip md-direction="right">
+        <p>
+            <md-button aria-label="Back to container list" class="md-raised bb-pin-button md-primary"
+                       ui-sref="fileSystemState()">
+                <md-icon md-font-set="material-icons">
+                    arrow_back
+                </md-icon>
                 Back to container list
-            </md-tooltip>
-            <md-icon md-font-set="material-icons">
-                arrow_back
-            </md-icon>
-        </md-button>
+            </md-button>
 
-        <md-button aria-label="Identify content types" class="md-fab md-mini md-warn"
-                   ui-sref="tasksState({container: container.name, task: 'identify_content'})">
-            <md-tooltip md-direction="right">
+            <md-button aria-label="Identify content types"
+                       ui-sref="tasksState({container: container.name, task: 'identify_content'})">
+                <md-icon md-font-set="material-icons">
+                    flag
+                </md-icon>
                 Identify content types
-            </md-tooltip>
-            <md-icon md-font-set="material-icons">
-                flag
-            </md-icon>
-        </md-button>
+            </md-button>
 
-        <md-button aria-label="Extract metadata" class="md-fab md-mini md-warn"
-                   ui-sref="tasksState({container: container.name, task: 'extract_metadata'})">
-            <md-tooltip md-direction="right">
+            <md-button aria-label="Extract metadata"
+                       ui-sref="tasksState({container: container.name, task: 'extract_metadata'})">
+                <md-icon md-font-set="material-icons">
+                    format_indent_increase
+                </md-icon>
                 Extract metadata
-            </md-tooltip>
-            <md-icon md-font-set="material-icons">
-                format_indent_increase
-            </md-icon>
-        </md-button>
+            </md-button>
 
-        <md-button aria-label="Replicate metadata to warehouse" class="md-fab md-mini md-warn"
-                   ui-sref="tasksState({container: container.name, task: 'replicate_metadata'})">
-            <md-tooltip md-direction="right">
+            <md-button aria-label="Replicate metadata to warehouse"
+                       ui-sref="tasksState({container: container.name, task: 'replicate_metadata'})">
+                <md-icon md-font-set="material-icons">
+                    content_copy
+                </md-icon>
                 Replicate metadata to warehouse
-            </md-tooltip>
-            <md-icon md-font-set="material-icons">
-                content_copy
-            </md-icon>
-        </md-button>
+            </md-button>
 
-        <md-button aria-label="Dispose old objects" class="md-fab md-mini md-warn"
-                   ui-sref="tasksState({container: container.name, task: 'dispose'})">
-            <md-tooltip md-direction="right">
+            <md-button aria-label="Dispose old objects"
+                       ui-sref="tasksState({container: container.name, task: 'dispose'})">
+                <md-icon md-font-set="material-icons">
+                    delete_sweep
+                </md-icon>
                 Dispose old objects
-            </md-tooltip>
-            <md-icon md-font-set="material-icons">
-                delete_sweep
-            </md-icon>
-        </md-button>
+            </md-button>
+        </p>
     </div>
 
 

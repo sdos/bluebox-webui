@@ -75,22 +75,18 @@
 
     </md-dialog-content>
     <md-dialog-actions class="" layout="row">
-        <md-button aria-label="Enter Container" class="md-fab md-primary" ng-click="enterContainer(container.name)">
-            <md-tooltip md-direction="top">
-                Enter container
-            </md-tooltip>
+        <md-button aria-label="Enter Container" ng-click="enterContainer(container.name)">
             <md-icon md-font-set="material-icons">
                 arrow_forward
             </md-icon>
+            Enter container
         </md-button>
 
-        <md-button class="md-fab md-warn" ng-click="updateContainer()">
-            <md-tooltip md-direction="top">
-                Update object class
-            </md-tooltip>
+        <md-button class="md-raised md-primary" ng-click="updateContainer()">
             <md-icon md-font-set="material-icons">
                 check
             </md-icon>
+            Update object class
         </md-button>
 
         <span flex="">

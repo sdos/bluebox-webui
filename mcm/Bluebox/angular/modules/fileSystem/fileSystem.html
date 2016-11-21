@@ -3,26 +3,23 @@
 
     <!-- Top buttons -->
     <div layout="row">
+        <p>
+            <!-- Top buttons -->
+            <md-button aria-label="Create new container" class="md-raised md-warn"
+                       ng-click="showCreateContainerSheet($event)">
+                <md-icon md-font-set="material-icons">
+                    create_new_folder
+                </md-icon>
+                New container
+            </md-button>
 
-        <!-- Top buttons -->
-        <md-button aria-label="Create new container" class="md-fab md-warn"
-                   ng-click="showCreateContainerSheet($event)">
-            <md-tooltip md-direction="down">
-                Create new container
-            </md-tooltip>
-            <md-icon md-font-set="material-icons">
-                create_new_folder
-            </md-icon>
-        </md-button>
-
-        <md-button aria-label="Manage object classes" class="md-fab md-warn" ng-click="showObjectClassSheet($event)">
-            <md-tooltip md-direction="down">
+            <md-button aria-label="Manage object classes" ng-click="showObjectClassSheet($event)">
+                <md-icon md-font-set="material-icons">
+                    settings
+                </md-icon>
                 Manage object classes
-            </md-tooltip>
-            <md-icon md-font-set="material-icons">
-                settings
-            </md-icon>
-        </md-button>
+            </md-button>
+        </p>
     </div>
 
     <!-- Card which lists all available containers -->

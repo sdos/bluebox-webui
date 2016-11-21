@@ -60,7 +60,7 @@
     </md-dialog-content>
     <md-dialog-actions class="" layout="row">
 
-        <md-button aria-label="Download" class="md-raised md-primary"
+        <md-button aria-label="Download"
                    ng-href="/swift/containers/{{ container.name }}/objects/{{ object.name | urlEncode }}"
                    target="_blank">
 
@@ -70,7 +70,7 @@
             Download
         </md-button>
 
-        <md-button aria-label="Preview" class="md-raised md-primary"
+        <md-button aria-label="Preview"
                    ng-href="/swift/containers/{{ container.name }}/objects/{{ object.name | urlEncode }}?show_inline=true"
                    target="_blank">
 
@@ -80,7 +80,15 @@
             Preview
         </md-button>
 
-        <md-button aria-label="Update metadata" class="md-raised md-warn" ng-click="updateObject()">
+        <md-button ng-if="container.isSdos" aria-label="Show Key Cascade"
+                   ng-click="showCascadeSheet($event, object)">
+            <md-icon md-font-set="material-icons">
+                filter_b_and_w
+            </md-icon>
+            Show in Key Cascade
+        </md-button>
+
+        <md-button aria-label="Update metadata" class="md-raised md-primary" ng-click="updateObject()">
 
             <md-icon md-font-set="material-icons">
                 check
@@ -89,23 +97,17 @@
         </md-button>
 
 
-        <md-button ng-if="container.isSdos" aria-label="Show Key Cascade" class="md-raised md-primary"
-                   ng-click="showCascadeSheet($event, object)">
-            <md-icon md-font-set="material-icons">
-                filter_b_and_w
-            </md-icon>
-            Show in Key Cascade
-        </md-button>
-
         <span flex="">
     </span>
         <md-fab-toolbar count="0" md-direction="left" md-open="false">
             <md-fab-trigger class="align-with-text">
-                <md-button class="md-raised md-warn">
+                <md-button class="md-fab md-warn">
+                    <md-tooltip md-direction="top">
+                        Delete object
+                    </md-tooltip>
                     <md-icon md-font-set="material-icons">
                         delete_forever
                     </md-icon>
-                    Delete object
                 </md-button>
             </md-fab-trigger>
             <md-toolbar class="">
