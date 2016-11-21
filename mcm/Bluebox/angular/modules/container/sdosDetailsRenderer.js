@@ -6,12 +6,11 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     var icon_file = "/angular/icons/d3/plusfile.svg";
     var icon_key = "/angular/icons/d3/key.svg";
     var icon_masterkey = "/angular/icons/d3/masterkey.svg";
-    var icon_plusfile = "/angular/icons/d3/plusfile.svg";
+    var icon_plusfile = "/angular/icons/d3/pluskey_object.svg";
     var icon_pluskey = "/angular/icons/d3/pluskey.svg";
-    var icon_object = "/angular/icons/d3/pluskey_object.svg";
+    var icon_object = "/angular/icons/d3/key_object.svg";
 
     var dataset;
-    var dataP;
     var inicialTree = [];
     var text;
 
@@ -32,12 +31,10 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             return [d.y, d.x];
         });
 
-    var zoom = d3.behavior.zoom().scaleExtent([0, 1]).translate([120, 20]).on("zoom", zoomed);
-
 
     var svg;
 
-    console.log(d3.select("#cascadeRendering"));
+    //console.log(d3.select("#cascadeRendering"));
 
     var cascadeData = _.clone($scope.sdosStats);
 
@@ -79,6 +76,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                 function successCallback(response) {
                     $scope.sdosPartitionMapping = response.data;
                     doRender();
+                    showSelectedObject();
 
                 },
                 function errorCallback(response) {
@@ -86,6 +84,29 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                 });
 
     };
+
+
+    function showSelectedObject() {
+      if ($scope.selectedObjectInCascade) {
+          var parent, name;
+          name = $scope.selectedObjectInCascade.name;
+          parent = getParentOfObject(name);
+          loadNode(root,parent+"|"+name, cascadeData);
+      }
+    };
+
+
+    function getParentOfObject(objName) {
+        for (var p in $scope.sdosPartitionMapping) {
+            var thisNode = $scope.sdosPartitionMapping[p];
+            for (var n in thisNode) {
+                if (thisNode[n].objName == objName) {
+                    return p;
+                }
+
+            }
+        }
+    }
 
 
     /*
@@ -101,63 +122,16 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
      *
      *
      * */
+
     function doRender() {
 
         cascadeData.usedPartitions = $scope.sdosUsedPartitions;
         cascadeData.objectMapping = $scope.sdosPartitionMapping;
-        dataP = cascadeData;
-        console.log(cascadeData);
-        dataset = jsonToFlare(cascadeData);
-        root = dataset[0];
-        root.x0 = height / 2;
-        root.y0 = 0;
+        //console.log(cascadeData);
+        renderTree(cascadeData);
 
-        d3.selectAll('button').on('click', zoomClick);
-
-
-        svg = d3.select("#cascadeRendering").append("svg")
-            .attr("width", width)
-            .attr("height", height)
-            .append("g")
-            .attr("transform", "translate(20,0)");
-
-
-        //update(root);
-
-        d3.select(self.frameElement).style("height", "500px");
-
-        var open = [];
-        /* For the start configuration of the tree
-         * takes the first node of each level and let
-         * their open
-         * */
-        for (var i = 0; i < cascadeData.levels - 1; i++) {
-            open.push(pidFop(cascadeData.partitionSize, i));
-        }
-        inicialTree = open;
-        closeTree(root, open);
-        update(root);
     }
 
-
-    function loadNode(source, text, data) {
-        var path = [];
-        var aux = text.split("|");
-        leafPath(parseInt(aux[0]), data.partitionSize, path);
-        rightChildren(source, path, aux[1]);
-        closeTree(source, path);
-        update(root);
-    }
-
-    /* Zoom functions area
-     *
-     * */
-    function zoomed() {
-        svg.attr("transform",
-            "translate(" + zoom.translate() + ")" +
-            "scale(" + zoom.scale() + ")"
-        );
-    }
 
     function interpolateZoom(translate, scale) {
         var self = this;
@@ -173,6 +147,15 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         });
     }
 
+    function zoomed() {
+        svg.attr("transform",
+            "translate(" + zoom.translate() + ")" +
+            "scale(" + zoom.scale() + ")"
+        );
+    }
+
+    var zoom = d3.behavior.zoom().scaleExtent([0, 1]).translate([120, 20]).on("zoom", zoomed);
+
     function zoomClick() {
         var factor = 0.5,
             center = [width / 2, height / 2],
@@ -181,47 +164,132 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             view = {x: translate[0], y: translate[1], k: zoom.scale()};
 
         d3.event.preventDefault();
-        var direction;
-        direction = (this.id === 'zoom_in') ? 2 : -1;
-        console.log(extent);
-        var target_zoom;
-        target_zoom = zoom.scale() * (1 + factor * direction);
+        var direction = (this.id === 'zoom_in') ? 2 : -1;
+        var target_zoom = zoom.scale() * (1 + factor * direction);
 
 
-        var translate0;
-        translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
+        var translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
         view.k = target_zoom;
         var l = [translate0[0] * view.k + view.x, translate0[1] * view.k + view.y];
 
         view.x += center[0] - l[0];
         view.y += center[1] - l[1];
-        console.log(zoom.translate());
 
         interpolateZoom([120, 20], view.k);
     }
 
+    d3.selectAll('button').on('click', zoomClick);
 
-    function leafPathName(name, data, path) {
-        /* Receives the name of the object
-         * and search for it in objectMapping
-         * returning the number of the parent
+    /* Ends zoom function */
+
+
+    function renderTree(data) {
+        console.log("rendering: " + data);
+        dataset = jsonToFlare(data);
+        root = dataset[0];
+        root.x0 = height / 2;
+        root.y0 = 0;
+
+        d3.select(self.frameElement).style("height", "500px");
+
+        svg = d3.select("#cascadeRendering").append("svg")
+            .attr("width", width + margin.right + margin.left)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .call(zoom);
+
+        var open = [];
+        /* For the start configuration of the tree
+         * takes the first node of each level and let
+         * their open
          * */
-        var parent = null;
+        for (var i = 0; i < data.levels - 1; i++) {
+            open.push(pidFop(data.partitionSize, i));
+        }
+        inicialTree = open;
+        closeTree(root, open);
+        update(root);
+
+
+        //TODO loadNode(root, "4375|110", data);
+
+        /*
+         * Bellow are the buttons to "Reset tree" and "Search Node"
+         * used only in the development file
+         * */
+
+        /* "Reset Tree" button using the open list configuration
+         * */
+        d3.select("#cascadeRendering").append("input")
+            .attr("type", "button")
+            .attr("value", "Reset Tree")
+            .on("click", function () {
+                closeTree(root, open);
+                update(root);
+            });
+
+        /* "Search Node" button and selection list
+         * Create the select list for the objects names
+         * */
+        text = d3.select("#cascadeRendering").append("select")
+            .attr('id', "valueText");
+
+        /* add to the objects from the objectsMapping
+         * a link to their father in order to find the path
+         * for then later when the user selects an object
+         * */
+        var optionList = [];
         for (i in data.objectMapping) {
             for (var j = 0; j < data.objectMapping[i].length; j++) {
-                if (data.objectMapping[i][j] != null && data.objectMapping[i][j].objName == name) {
-                    parent = i;
-                    break;
-                }
+                if (data.objectMapping[i][j] != null)
+                    data.objectMapping[i][j]['parent'] = i;
             }
+            optionList = optionList.concat(data.objectMapping[i]);
         }
-
-        /* Founded the parent takes the path in the tree
+        /* The value of an <option> is the parent number
          * */
-        if (parent != null) {
-            leafPath(parent, data.partitionSize, path);
-        }
+        text.selectAll('option')
+            .data(optionList).enter()
+            .append('option').text(function (d) {
+            return d.objName
+        })
+            .attr('value', function (d) {
+                return d.parent + "|" + d.objName
+            });
 
+        /* By clicking the search button it calls the leafPath function
+         *  with the value of the option selected
+         * */
+        d3.select("#cascadeRendering").append("input")
+            .attr("type", "button")
+            .attr("value", "Search Node")
+            .on("click", function () {
+                searchNode(root, text, data);
+            });
+    }
+
+    function loadNode(source, text, data) {
+        var path = [];
+        var aux = text.split("|");
+        leafPath(parseInt(aux[0]), data.partitionSize, path);
+        rightChildren(source, path, aux[1]);
+        closeTree(source, path);
+        update(root);
+    }
+
+    /* text is a string in the format "parent|object_name"
+     *  source is the root tree
+     *  data is the raw data from the json file
+     * */
+    function searchNode(source, text, data) {
+        var path = [];
+        var aux = text.property("value").toString().split("|");
+
+        leafPath(parseInt(aux[0]), data.partitionSize, path);
+        rightChildren(source, path, aux[1]);
+        closeTree(source, path);
+        update(root);
     }
 
     function leafPath(value, ps, path) {
@@ -240,13 +308,60 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         }
     }
 
-    function highlightObj(name, path) {
-        /* Go through the root structure to change
-         * the color of the object selected
+    function rightChildren(source, openNodes, object) {
+        /* Go through all children
          * */
-        var i = 0;
-        path.reverse();
+        var inChildren = 0;
+        var next = null;
+        var down = 1;
 
+        /* Testes if the node is not closed, then open it
+         * */
+        if (source._children != null) {
+            //console.log(source);
+            changeChildren(source);
+
+        }
+
+        if (source.children != null) {
+            while (!inChildren) {
+
+                source.children.forEach(function (d) {
+
+                    /* See if this node is in the OpenNodes list
+                     *  if it is and it is a "key" type, goes to the next node
+                     *  if it is a "key_object" type
+                     *  */
+                    if (openNodes.indexOf(d.name) > -1 && (d.type == "key")) {
+                        inChildren = 1;
+                        next = d;
+                    }
+                    else if (d.type == "key_object" && d.children[0].name == object) {
+                        inChildren = 1;
+                    }
+
+                });
+
+                if (!inChildren) {
+                    if (down) {
+                        siblingsDown(source.children[source.children.length - 1]);
+                        if (source.siblings_down.length == 0) {
+                            down = 0;
+                        }
+                    }
+                    else {
+                        siblingsUp(source.children[0]);
+                        if (source.siblings_up.length == 0) {
+                            down = 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (next != null) {
+            rightChildren(next, openNodes, object);
+        }
 
     }
 
@@ -273,19 +388,17 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         });
     }
 
-
     function update(source) {
 
         // Compute the new tree layout.
         var nodes = tree.nodes(root).reverse(),  // list of the nodes objects, descending
             links = tree.links(nodes);
 
-        console.log(nodes);
-
         // Normalize for fixed-depth.
         nodes.forEach(function (d) {
-            d.y = d.depth * 100;
+            d.y = d.depth * 75;
         }); // the distance between nodes
+
 
         // Update the nodes…
         var node = svg.selectAll("g.node")
@@ -334,10 +447,13 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
         nodeEnter.append("rect")
             .attr("width", function (d) {
-                return (d.type == "key") ? 40 : null
+                return (d.type == "key" || d.type == "key_object") ? 40 : null
             })
             .attr("height", function (d) {
-                return (d.type == "key") ? rectHeight(d) : null;
+                return (d.type == "key" || d.type == "key_object") ? rectHeight(d) : null;
+            })
+            .attr("class", function (d) {
+                return (d.type == "key" ) ? "key" : "object";
             })
             .attr("x", "-10px")
             .attr("y", "-24px")
@@ -346,10 +462,11 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
         nodeEnter.append("svg:image")
             .attr("xlink:href", function (d) {
+                //console.log(d);
                 return d.type == "key" ? icon_key : ( d.type == "master" ? icon_masterkey : ( d.type == "object" ? icon_file :
                     (d.type == "key_object" ? icon_object : (d.type == "up" || d.type == "down" ? icon_pluskey : icon_plusfile) )));
             })
-            .attr("x", "-10px")
+            .attr("x", "-9px")
             .attr("y", "-24px")
             .attr("width", "37px")
             .attr("height", "37px");
@@ -357,10 +474,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
         // the label of the node
         nodeEnter.append("text")
-            .attr("x", function (d) {
-                return d.children || d._children ? -13 : 25;
-            })
-            .attr("dy", ".35em")
+            .attr("x", 23)
+            .attr("dy", "1.5em")
             .attr("text-anchor", function (d) {
                 return d.children || d._children ? "end" : "start";
             })
@@ -380,14 +495,20 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
         nodeUpdate.select("rect")
             .attr("width", function (d) {
-                return (d.type == "key") ? 40 : null
+                return (d.type == "key" || d.type == "key_object") ? 40 : null
             })
             .attr("height", function (d) {
-                return (d.type == "key") ? rectHeight(d) : null;
+                return (d.type == "key" || d.type == "key_object") ? rectHeight(d) : null;
+            })
+            .attr("class", function (d) {
+                return (d.type == "key") ? "key" : "object";
             })
             .attr("x", "-10px")
             .attr("y", "-24px")
-            .style("fill-opacity", 1e-6);
+            .style("fill", function (d) {
+                return d._children ? (d.type == "key" ? "lightsteelblue" : "#c3c3c3" ) : "#fff"
+            })
+            .style("fill-opacity", 1);
 
 
         nodeUpdate.select("text")
@@ -442,6 +563,11 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     }
 
     function clickDown(d) {
+        siblingsDown(d);
+        update(d);
+    }
+
+    function siblingsDown(d) {
         // add the list up object
         if (d.parent.siblings_up.length == 0) {
             if (d.type == "object_down")
@@ -470,10 +596,15 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         if (d.parent.siblings_down.length == 0)
             d.parent.children.splice(-1, 1);
 
-        update(d);
+        //update(d);
     }
 
     function clickUp(d) {
+        siblingsUp(d);
+        update(d);
+    }
+
+    function siblingsUp(d) {
 
         // take the new children
         var newChildren = d.parent.siblings_up.splice(d.parent.siblings_up.length - 5, 5);
@@ -502,10 +633,10 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         if (d.parent.siblings_up.length == 0)
             d.parent.children.splice(0, 1);
 
-        update(d);
+        //update(d);
     }
 
-    // Toggle children on click.
+// Toggle children on click.
     function changeChildren(d) {
         if (d.children) {
             d._children = d.children;
@@ -608,7 +739,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                         children[i] = {
                             name: objects[i].slot,
                             "children": [{name: objects[i].objName, "type": "object"}],
-                            "type": "object"
+                            "type": "key_object"
                         };
                     }
                 }
@@ -674,68 +805,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
     }
 
-    function rightChildren(source, openNodes, object) {
-        /* Go through all children
-         * */
-        var inChildren = 0;
-        var next = null;
-        var down = 1;
-
-        /* Testes if the node is not closed, then open it
-         * */
-        if (source._children != null) {
-            //console.log(source);
-            click(source);
-
-        }
-
-        if (source.children != null) {
-            while (!inChildren) {
-
-                source.children.forEach(function (d) {
-
-                    /* See if this node is in the OpenNodes list
-                     *  if it is and it is a "key" type, goes to the next node
-                     *  if it is a "key_object" type
-                     *  */
-                    if (openNodes.indexOf(d.name) > -1 && (d.type == "key")) {
-                        inChildren = 1;
-                        next = d;
-                    }
-                    else if (d.type == "key_object" && d.children[0].name == object) {
-                        inChildren = 1;
-                    }
-
-                });
-
-                if (!inChildren) {
-                    if (down) {
-                        clickDown(source.children[source.children.length - 1]);
-                        if (source.siblings_down.length == 0) {
-                            down = 0;
-                        }
-                    }
-                    else {
-                        clickUp(source.children[0]);
-                        if (source.siblings_up.length == 0) {
-                            down = 1;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (next != null) {
-            rightChildren(next, openNodes, object);
-        }
-
-    }
-
-    function isFirstChild(d) {
-        var first = pidFop(dataP.partitionSize, d.level);
-        return (d.name == first);
-    }
-
+    /* End data translations functions
+     * */
 
     function pidFop(ps, level) {
         /* Calculates the first node of a level
@@ -744,44 +815,4 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     }
 
 
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+};

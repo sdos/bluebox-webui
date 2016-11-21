@@ -1,7 +1,7 @@
 'use strict';
 
 
-function sdosDetailsController($scope, $http, $mdMedia, $mdDialog) {
+function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
     console.log("SDOS");
     var ctrl = this;
     $scope.sdosStats = null;
@@ -24,7 +24,6 @@ function sdosDetailsController($scope, $http, $mdMedia, $mdDialog) {
                 });
 
     };
-    
 
 
     $scope.getSdosSlotAllocation = function () {
@@ -43,7 +42,8 @@ function sdosDetailsController($scope, $http, $mdMedia, $mdDialog) {
 
     };
 
-    $scope.showCascadeSheet = function (ev) {
+    $scope.showCascadeSheet = function (ev, object) {
+        $scope.selectedObjectInCascade = object;
         var useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen;
         $mdDialog.show({
             controller: SdosSheetController,
@@ -56,12 +56,15 @@ function sdosDetailsController($scope, $http, $mdMedia, $mdDialog) {
             preserveScope: true
         });
 
+
         $scope.$watch(function () {
             return $mdMedia('xs') || $mdMedia('sm');
         }, function (wantsFullScreen) {
             $scope.customFullscreen = (wantsFullScreen === true);
         });
     };
+
+    $rootScope.showCascadeSheet = $scope.showCascadeSheet;
 
     $scope.showMappingSheet = function (ev) {
         $scope.getSdosSlotAllocation();
@@ -85,7 +88,7 @@ function sdosDetailsController($scope, $http, $mdMedia, $mdDialog) {
     };
 
 
-    $scope.$watch('container.objects', function() {
+    $scope.$watch('container.objects', function () {
         console.log("refreshing SDOS stats");
         getSdosStats();
     })
