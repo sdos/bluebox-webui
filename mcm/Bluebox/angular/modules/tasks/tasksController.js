@@ -90,6 +90,7 @@ tasksModule.controller('TasksController',
             $scope.receive_from_beginning = function () {
                 tasksService.retrieveMessages($scope.credentials, true)
                     .then(function (response) {
+                        $scope.clear_all_messages();
                         for (var i = 0; i < response.data.length; i++) {
                             addMsgs(response.data[i]);
                         }
@@ -118,7 +119,8 @@ tasksModule.controller('TasksController',
              *
              * */
             $scope.clear_all_messages = function () {
-                $scope.myMessages = {};
+                $scope.myMessages = [];
+                $scope.myKeys = [];
             };
 
 
