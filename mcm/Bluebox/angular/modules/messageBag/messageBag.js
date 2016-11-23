@@ -6,7 +6,7 @@
  */
 angular.module('bluebox.messageBag', ['ngAnimate', 'ngSanitize']).controller(
     'messageBagController',
-    function ($scope, $mdToast, $mdDialog, $mdMedia) {
+    function ($scope, $mdToast, $mdDialog) {
 
 
         /**
@@ -16,9 +16,9 @@ angular.module('bluebox.messageBag', ['ngAnimate', 'ngSanitize']).controller(
          * */
 
         $scope.$on('FlashMessage', function (event, message) {
-            if ("success" == message.type) showMessage(message);
-            if ("danger" == message.type) showAlert(message);
-            if ("warning" == message.type) showMessage(message);
+            if ("success" == message.type) showMessageSuccess(message);
+            if ("danger" == message.type) showMessageWarning(message);
+            if ("warning" == message.type) showMessageWarning(message);
 
             console.log(message.type + ": " + message.text);
         });
@@ -30,13 +30,22 @@ angular.module('bluebox.messageBag', ['ngAnimate', 'ngSanitize']).controller(
          *    for info etc.
          *
          * */
-        function showMessage(message) {
+        function showMessageSuccess(message) {
+            $mdToast.show({
+                hideDelay: 2000,
+                position: 'bottom left',
+                controller: 'ToastCtrl',
+                locals: {message: message},
+                templateUrl: 'angular/modules/messageBag/messageBagSuccess.html'
+            });
+        };
+        function showMessageWarning(message) {
             $mdToast.show({
                 hideDelay: 5000,
                 position: 'bottom left',
                 controller: 'ToastCtrl',
                 locals: {message: message},
-                templateUrl: 'angular/modules/messageBag/messageBag.html'
+                templateUrl: 'angular/modules/messageBag/messageBagWarning.html'
             });
         };
 

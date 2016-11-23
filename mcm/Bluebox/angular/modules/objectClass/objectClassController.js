@@ -69,8 +69,7 @@ objectClassModule.controller('ObjectClassController',
                 if (_.contains($scope.allObjectClasses, $scope.objectClassModel.name)) {
                     $rootScope.$broadcast('FlashMessage', {
                         "type": "danger",
-                        "text": "Object class already exists. Use a different name or edit the existing one.",
-                        "timeout": "10000"
+                        "text": "Object class already exists. Use a different name or edit the existing one."
                     });
                     return;
 
@@ -162,8 +161,6 @@ objectClassModule.controller('ObjectClassController',
                     "schema": $filter('jsonSchema')($scope.objectClassModel)
                 };
 
-                $scope.$broadcast('clearMessageBag');
-
                 submitFunction(objectClass)
                     .then(function () {
                         //$uibModalInstance.close($scope.objectClassModel);
@@ -177,8 +174,7 @@ objectClassModule.controller('ObjectClassController',
                         if (response && response.data) {
                             $rootScope.$broadcast('FlashMessage', {
                                 "type": "danger",
-                                "text": response.data,
-                                "timeout": "never"
+                                "text": response.data
                             });
                         }
                         $scope.isSubmissionPending = false;

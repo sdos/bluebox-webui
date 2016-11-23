@@ -9,7 +9,6 @@ var fileSystemModule = angular.module('bluebox.fileSystem', [
         'bluebox.container',
         'bluebox.filter',
         'bluebox.objectClass',
-        'bluebox.messageBag',
         'md.data.table'
     ])
 
