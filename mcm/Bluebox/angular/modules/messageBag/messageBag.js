@@ -31,31 +31,35 @@ angular.module('bluebox.messageBag', ['ngAnimate', 'ngSanitize']).controller(
          *    for info etc.
          *
          * */
+        var lastToast;
         function showMessageSuccess(message) {
-            $mdToast.show({
+            $mdToast.hide(lastToast);
+            lastToast = $mdToast.show({
                 hideDelay: 2000,
                 position: 'bottom left',
                 controller: 'ToastCtrl',
                 locals: {message: message},
-                templateUrl: 'angular/modules/messageBag/messageBagSuccess.html'
+                template: '<md-toast><md-icon md-font-set="material-icons" style="color: green;">check_circle</md-icon><span class="md-toast-text" flex>{{message.text}}</span></md-toast>'
             });
         };
         function showMessageWarning(message) {
-            $mdToast.show({
+            $mdToast.hide(lastToast);
+            lastToast = $mdToast.show({
                 hideDelay: 5000,
                 position: 'bottom left',
                 controller: 'ToastCtrl',
                 locals: {message: message},
-                templateUrl: 'angular/modules/messageBag/messageBagWarning.html'
+                template: '<md-toast><md-icon md-font-set="material-icons" style="color: red;">error</md-icon><span class="md-toast-text" flex>{{message.text}}</span></md-toast>'
             });
         };
         function showMessageWait(message) {
-            $mdToast.show({
+            $mdToast.hide(lastToast);
+            lastToast = $mdToast.show({
                 hideDelay: 1000,
                 position: 'bottom left',
                 controller: 'ToastCtrl',
                 locals: {message: message},
-                templateUrl: 'angular/modules/messageBag/messageBagWait.html'
+                template: '<md-toast><md-icon md-font-set="material-icons" style="color: yellow;">hourglass_full</md-icon><span class="md-toast-text" flex>{{message.text}}</span></md-toast>'
             });
         };
 
