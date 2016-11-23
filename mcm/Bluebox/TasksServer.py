@@ -93,7 +93,7 @@ def send_message():
 		j["correlation"] = str(uuid.uuid4())
 		j["worker"] = worker_id
 
-		with __get_kafka_topic(msg_tenant).get_producer() as producer:
+		with __get_kafka_topic(msg_tenant).get_producer(linger_ms=100) as producer:
 			producer.produce(value_serializer(request.json))
 
 		r = Response()
