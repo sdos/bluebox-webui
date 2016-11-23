@@ -159,8 +159,9 @@ containerModule.controller('ContainerController',
 
             var parseObjectClassFieldsIntoColumnList = function () {
                 var fields = [];
-                for (var thisField of $scope.objectClassModel.metadataFields) {
-                    fields.push(thisField.name);
+                for (var thisField in $scope.objectClassModel.metadataFields) {
+                    var thisFieldValue = $scope.objectClassModel.metadataFields[thisField];
+                    fields.push(thisFieldValue.name);
                 }
                 $scope.availableMetadataFields['class-' + $scope.objectClassModel.name] = fields;
                 //console.log($scope.availableMetadataFields);
