@@ -13,6 +13,8 @@ var app = angular.module('bluebox', [
     'bluebox.login'
 ])
     .config(['$locationProvider', '$httpProvider', '$mdThemingProvider', '$urlRouterProvider', function ($locationProvider, $httpProvider, $mdThemingProvider, $urlRouterProvider) {
+        $httpProvider.interceptors.push('loginErrorInterceptor');
+
         // remove the '#' in the url that angular else puts in
         // works only if <base href="/"> is set in html head and URL rewriting is set up properly
         $locationProvider.html5Mode(true);

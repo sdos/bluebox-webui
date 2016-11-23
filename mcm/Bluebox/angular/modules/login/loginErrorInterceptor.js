@@ -24,6 +24,11 @@ loginModule
                         var deferred = $q.defer();
                         return deferred.promise;
                     }
+                } else if (response.status === -1) {
+                    $rootScope.$broadcast('FlashMessage', {
+                        "type": "warning",
+                        "text": "http error: no connection to service"
+                    });
                 } else {
                     $rootScope.$broadcast('FlashMessage', {
                         "type": "warning",

@@ -5,9 +5,8 @@
  *
  */
 angular.module('bluebox.messageBag', ['ngAnimate', 'ngSanitize']).controller(
-    'messageBagController',
-    function ($scope, $mdToast, $mdDialog) {
-
+    'messageBagController', ['$mdToast', '$mdDialog', '$scope', '$rootScope',
+    function ($mdToast, $mdDialog, $scope, $rootScope) {
 
         /**
          *
@@ -31,10 +30,9 @@ angular.module('bluebox.messageBag', ['ngAnimate', 'ngSanitize']).controller(
          *    for info etc.
          *
          * */
-        var lastToast;
+
         function showMessageSuccess(message) {
-            $mdToast.hide(lastToast);
-            lastToast = $mdToast.show({
+            $mdToast.show({
                 hideDelay: 2000,
                 position: 'bottom left',
                 controller: 'ToastCtrl',
@@ -43,8 +41,7 @@ angular.module('bluebox.messageBag', ['ngAnimate', 'ngSanitize']).controller(
             });
         };
         function showMessageWarning(message) {
-            $mdToast.hide(lastToast);
-            lastToast = $mdToast.show({
+            $mdToast.show({
                 hideDelay: 5000,
                 position: 'bottom left',
                 controller: 'ToastCtrl',
@@ -53,8 +50,7 @@ angular.module('bluebox.messageBag', ['ngAnimate', 'ngSanitize']).controller(
             });
         };
         function showMessageWait(message) {
-            $mdToast.hide(lastToast);
-            lastToast = $mdToast.show({
+            $mdToast.show({
                 hideDelay: 1000,
                 position: 'bottom left',
                 controller: 'ToastCtrl',
@@ -92,7 +88,7 @@ angular.module('bluebox.messageBag', ['ngAnimate', 'ngSanitize']).controller(
          * */
 
 
-    }).controller('ToastCtrl', function ($scope, $mdToast, message) {
+    }]).controller('ToastCtrl', function ($scope, $mdToast, message) {
     $scope.message = message;
     $scope.closeToast = function () {
         $mdToast.hide();

@@ -15,7 +15,6 @@ var containerModule = angular.module('bluebox.container', [
     ])
 
     .config(['$stateProvider', '$httpProvider', function($stateProvider, $httpProvider) {
-        $httpProvider.interceptors.push('loginErrorInterceptor');
         $stateProvider.state("containerState", {
             url:            "/container/:containerName",
             templateUrl:    "angular/modules/container/container.html",
