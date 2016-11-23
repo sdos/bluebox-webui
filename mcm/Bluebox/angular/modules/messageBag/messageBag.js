@@ -19,6 +19,7 @@ angular.module('bluebox.messageBag', ['ngAnimate', 'ngSanitize']).controller(
             if ("success" == message.type) showMessageSuccess(message);
             if ("danger" == message.type) showMessageWarning(message);
             if ("warning" == message.type) showMessageWarning(message);
+            if ("wait" == message.type) showMessageWait(message);
 
             console.log(message.type + ": " + message.text);
         });
@@ -46,6 +47,15 @@ angular.module('bluebox.messageBag', ['ngAnimate', 'ngSanitize']).controller(
                 controller: 'ToastCtrl',
                 locals: {message: message},
                 templateUrl: 'angular/modules/messageBag/messageBagWarning.html'
+            });
+        };
+        function showMessageWait(message) {
+            $mdToast.show({
+                hideDelay: 1000,
+                position: 'bottom left',
+                controller: 'ToastCtrl',
+                locals: {message: message},
+                templateUrl: 'angular/modules/messageBag/messageBagWait.html'
             });
         };
 

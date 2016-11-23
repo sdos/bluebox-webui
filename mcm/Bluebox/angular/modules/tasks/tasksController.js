@@ -59,11 +59,15 @@ tasksModule.controller('TasksController',
              * */
 
             $scope.sendMessage = function () {
+                $rootScope.$broadcast('FlashMessage', {
+                            "type": "wait",
+                            "text": "sending message..."
+                        });
                 tasksService.postMessage($scope.newTaskDefinition)
                     .then(function (response) {
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "success",
-                            "text": "message sent"
+                            "text": "message sent successfully"
                         });
                         //console.log($scope.availableContainers);
                     })
