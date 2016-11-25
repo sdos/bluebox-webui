@@ -82,13 +82,21 @@
                                         <div ng-show="f.uploadProgress.percentage">
                                             {{ f.uploadProgress.percentage }} % ({{ f.uploadProgress.loaded | bytes }}
                                             / {{ f.uploadProgress.total | bytes }})
-                                            <md-icon ng-show="f.uploadProgress.hasError" class="md-mini md-warn"
-                                                     md-font-set="material-icons">
+                                            <md-icon ng-show="f.uploadProgress.hasError"
+                                                     class="md-mini"
+                                                     md-font-set="material-icons" style="color: red;">
                                                 error
                                             </md-icon>
-                                            <md-icon ng-show="f.uploadProgress.hasSuccess" class="md-mini"
-                                                     md-font-set="material-icons">
+                                            <md-icon ng-show="f.uploadProgress.hasSuccess"
+                                                     class="md-mini"
+                                                     md-font-set="material-icons" style="color: green;">
                                                 check
+                                            </md-icon>
+                                            <md-icon
+                                                    ng-show="!f.uploadProgress.hasSuccess && !f.uploadProgress.hasError"
+                                                    class="md-mini"
+                                                    md-font-set="material-icons" style="color: orange;">
+                                                hourglass_empty
                                             </md-icon>
                                         </div>
                                         <md-progress-linear ng-class="{'md-warn': f.uploadProgress.hasError}"
