@@ -20,7 +20,6 @@ from flask import request, Response, send_file
 from jsonschema import Draft4Validator, FormatChecker
 from jsonschema.exceptions import ValidationError
 from swiftclient.exceptions import ClientException
-from werkzeug import secure_filename
 
 from mcm.Bluebox import SwiftConnect
 from mcm.Bluebox import accountServer
@@ -511,7 +510,7 @@ def create_object(container_name):
 	# returns werkzeug.datastructures.FileStorage i.e. file-like
 	# Underlying stream is either BytesIO for small files or _TemporaryFileWrapper for large files
 	file = request.files["objectName"]
-	object_name = secure_filename(file.filename)
+	object_name = file.filename
 
 	headers = {}
 	retentionDate = request.form["retentionDate"]
