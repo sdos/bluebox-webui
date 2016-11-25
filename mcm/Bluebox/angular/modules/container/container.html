@@ -182,7 +182,7 @@
             <div class="md-toolbar-tools">
                 <h2>
        <span>
-        Listing {{ container.metadata.objectCount | numberFormat }} objects in
+        Listing {{ container.metadata.objectCount | numberFormat }} {{ container.metadata.objectCount == 1 ? "object" : "objects" }} in
         <q>{{ container.name }}</q>
        </span>
                 </h2>
