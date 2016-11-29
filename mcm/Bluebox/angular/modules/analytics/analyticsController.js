@@ -27,7 +27,6 @@ analyticsModule
                 updateNodeRedSources();
 
 
-
                 $scope.nodered = {
                     url: "...Endpoint URL unknown..."
                 };
@@ -199,22 +198,21 @@ analyticsModule
 
                 $scope.showTableStructure = function (event) {
 
-                     getTableStructure();
+                    getTableStructure();
                     var useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen;
-                    $mdDialog.show({
-                        controller: AnalyticsDialogController,
-                        templateUrl: 'angular/modules/analytics/tableStructureSheet.html',
-                        parent: angular.element(document.body),
-                        targetEvent: event,
-                        clickOutsideToClose: true,
-                        fullscreen: useFullScreen,
-                        scope: $scope,
-                        preserveScope: true
-                    })
-                        .then(
-                            function () {
-                                console.log('You cancelled the dialog.');
-                            });
+                    if ($scope.tableData) {
+                        $mdDialog.show({
+                            controller: AnalyticsDialogController,
+                            templateUrl: 'angular/modules/analytics/tableStructureSheet.html',
+                            parent: angular.element(document.body),
+                            targetEvent: event,
+                            clickOutsideToClose: true,
+                            fullscreen: useFullScreen,
+                            scope: $scope,
+                            preserveScope: true
+                        });
+                    }
+
 
                     $scope.$watch(function () {
                         return $mdMedia('xs') || $mdMedia('sm');

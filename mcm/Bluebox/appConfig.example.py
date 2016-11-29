@@ -72,15 +72,16 @@ Kafka bootstrap broker for messaging / Task setup
 """
 kafka_broker_endpoint = "localhost:9092"
 
+
 """
 ################################################################################
 used by Analytics. Endpoint of the metadata warehouse PostgreSQL db
 ################################################################################
 """
 metadata_warehouse_endpoint = {
-	"database": "mcm-metadata-warehouse",
+	"database": "mcm-metadata_{}",
 	"user": "postgres",
-	"password": "testing",
+	"password": "...",
 	"host": "localhost",
 	"port": "5432"
 }

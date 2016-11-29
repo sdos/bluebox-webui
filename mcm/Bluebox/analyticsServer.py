@@ -35,16 +35,22 @@ Data schema
 
 """
 
+def __get_db_connection_for_tenant(tenant):
+	d = appConfig.metadata_warehouse_endpoint.copy()
+	d["database"] = d["database"].format(tenant)
+	return d
+
 
 @app.route("/api_analytics/tablestructure", methods=["GET"])
 def getTableStructure():
 	# check if user is logged in
-	# TODO: we should have multi-tenancy in the warehouse; use tenant name as table or db-name...
 	accountServer.assert_no_xsrf(request)
 	accountServer.assert_token_tenant_validity(request)
+	t = accountServer.get_tenant_from_request(request)
+	d = __get_db_connection_for_tenant(t)
 	# Establish connection to PostgreSQL database
 	# conn = sqlite3.connect("/tmp/metadata.sqlite") #SQLITE
-	with psycopg2.connect(**appConfig.metadata_warehouse_endpoint) as conn:
+	with psycopg2.connect(**d) as conn:
 		with conn.cursor() as cursor:
 			# Retrieve all table names
 			# cursor.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC") #SQLITE
