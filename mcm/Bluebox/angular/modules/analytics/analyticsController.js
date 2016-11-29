@@ -182,45 +182,33 @@ analyticsModule
                  *
                  */
 
-                // retrieve table structure from the analytics data base
-                function getTableStructure() {
+                $scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm');
 
+                $scope.showTableStructure = function (event) {
                     $http.get('api_analytics/tablestructure').then(
                         function successCallback(response) {
                             //console.log(response.data)
                             $scope.tableData = response.data;
+
+                            var useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen;
+                            $mdDialog.show({
+                                controller: AnalyticsDialogController,
+                                templateUrl: 'angular/modules/analytics/tableStructureSheet.html',
+                                parent: angular.element(document.body),
+                                targetEvent: event,
+                                clickOutsideToClose: true,
+                                fullscreen: useFullScreen,
+                                scope: $scope,
+                                preserveScope: true
+                            });
+                            $scope.$watch(function () {
+                                return $mdMedia('xs') || $mdMedia('sm');
+                            }, function (wantsFullScreen) {
+                                $scope.customFullscreen = (wantsFullScreen === true);
+                            });
                         }
                     );
-
                 };
-
-                $scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm');
-
-                $scope.showTableStructure = function (event) {
-
-                    getTableStructure();
-                    var useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen;
-                    if ($scope.tableData) {
-                        $mdDialog.show({
-                            controller: AnalyticsDialogController,
-                            templateUrl: 'angular/modules/analytics/tableStructureSheet.html',
-                            parent: angular.element(document.body),
-                            targetEvent: event,
-                            clickOutsideToClose: true,
-                            fullscreen: useFullScreen,
-                            scope: $scope,
-                            preserveScope: true
-                        });
-                    }
-
-
-                    $scope.$watch(function () {
-                        return $mdMedia('xs') || $mdMedia('sm');
-                    }, function (wantsFullScreen) {
-                        $scope.customFullscreen = (wantsFullScreen === true);
-                    });
-                };
-
             }]);
 
 
