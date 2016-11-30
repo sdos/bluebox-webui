@@ -71,7 +71,7 @@ Kafka bootstrap broker for messaging / Task setup
 ################################################################################
 """
 kafka_broker_endpoint = "localhost:9092"
-
+zookeeper_endpoint = "localhost:2181"
 
 """
 ################################################################################
