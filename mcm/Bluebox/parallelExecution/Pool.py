@@ -22,6 +22,7 @@ from pykafka.common import OffsetType
 from mcm.Bluebox.parallelExecution import Borg
 
 RUNNING_ON_GUNICORN = bool(os.getenv("RUNNING_ON_GUNICORN", False))
+LONGPOLL_DURATION_MS = 3000
 
 
 class KafkaClientPool(Borg):
@@ -90,6 +91,7 @@ class KafkaClientPool(Borg):
                                           auto_commit_enable=False,
                                           auto_offset_reset=OffsetType.LATEST,
                                           reset_offset_on_start=False,
-                                          consumer_timeout_ms=1000)
+                                          consumer_timeout_ms=LONGPOLL_DURATION_MS,
+                                          fetch_min_bytes = 1)
             self.__consumerPool[instance_id] = c
             return c

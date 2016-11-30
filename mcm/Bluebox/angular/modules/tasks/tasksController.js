@@ -50,8 +50,6 @@ tasksModule.controller('TasksController',
                 });
 
 
-
-
             /**
              *
              * send a new message
@@ -60,9 +58,9 @@ tasksModule.controller('TasksController',
 
             $scope.sendMessage = function () {
                 $rootScope.$broadcast('FlashMessage', {
-                            "type": "wait",
-                            "text": "sending message..."
-                        });
+                    "type": "wait",
+                    "text": "sending message..."
+                });
                 tasksService.postMessage($scope.newTaskDefinition)
                     .then(function (response) {
                         $rootScope.$broadcast('FlashMessage', {
@@ -73,45 +71,55 @@ tasksModule.controller('TasksController',
                     })
             };
             /**
-            helper function to add response data to messages
-            */
-            var addMsgs= function (resp) {
-                var idx=$scope.myKeys.indexOf(resp.correlation);
-                if(idx==-1)
-                {
+             helper function to add response data to messages
+             */
+            var addMsgs = function (resp) {
+                var idx = $scope.myKeys.indexOf(resp.correlation);
+                if (idx == -1) {
                     $scope.myKeys.unshift(resp.correlation);
                     $scope.myMessages.unshift([resp]);
                 }
-                else{
+                else {
                     $scope.myMessages[idx].push(resp);
                 }
-		     };
+            };
             /**
              *
              * receive the messages
              *
              * */
             $scope.receive_from_beginning = function () {
+                $scope.loading_stopped = false;
                 tasksService.retrieveMessages($scope.credentials, true)
                     .then(function (response) {
+                        $scope.loading_stopped = true;
                         $scope.clear_all_messages();
                         for (var i = 0; i < response.data.length; i++) {
                             addMsgs(response.data[i]);
                         }
+                    }, function (e) {
+                        $scope.loading_stopped = true;
                     })
             };
 
             var receive = function () {
+                $scope.loading_stopped = false;
                 tasksService.retrieveMessages($scope.credentials, false)
                     .then(function (response) {
                         if (response.data) {
+                            $scope.loading_stopped = true;
                             for (var i = 0; i < response.data.length; i++) {
-                               addMsgs(response.data[i]);
+                                addMsgs(response.data[i]);
                             }
-                            $interval(function () {
-                                receive();
-                            }, 2000, 1);
+                            if (!$scope["$$destroyed"]) {
+                                $interval(function () {
+                                    receive();
+                                }, 2000, 1);
+                            }
+
                         }
+                    }, function (e) {
+                        $scope.loading_stopped = true;
                     })
             };
             receive();
@@ -174,11 +182,11 @@ tasksModule.controller('TasksController',
             $scope.txt_for_msg = function (msg) {
                 try {
                     if (msg.type in $scope.validTasks) {
-                        return "tenant:"+msg.tenant+" > worker:"+msg.worker;     
-                    } else if (msg.type.startsWith("processing")||msg.type.startsWith("pong")) {
-                        return "worker:"+msg.worker;
+                        return "tenant:" + msg.tenant + " > worker:" + msg.worker;
+                    } else if (msg.type.startsWith("processing") || msg.type.startsWith("pong")) {
+                        return "worker:" + msg.worker;
                     } else if (msg.type.startsWith("success")) {
-                        return msg.message.substring(msg.message.lastIndexOf("finished:")+"finished:".length) || msg.substring(msg.lastIndexOf("finished:")+"finished:".length);
+                        return msg.message.substring(msg.message.lastIndexOf("finished:") + "finished:".length) || msg.substring(msg.lastIndexOf("finished:") + "finished:".length);
                     } else {
                         return msg;
                     }
@@ -188,7 +196,6 @@ tasksModule.controller('TasksController',
                 }
 
             };
-
 
 
         }]);
