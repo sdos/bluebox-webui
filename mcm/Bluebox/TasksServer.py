@@ -139,7 +139,7 @@ def receive_messages(from_beginning=False):
         consumer = __get_kafka_consumer(topic=msg_tenant, consumer_group=consumer_group)
 
         if from_beginning:
-            partition_offset_pairs = [(p, p.latest_available_offset()) for p in consumer.partitions.values()]
+            partition_offset_pairs = [(p, p.earliest_available_offset()) for p in consumer.partitions.values()]
             consumer.reset_offsets(partition_offsets=partition_offset_pairs)
 
         vals = [__try_parse_msg_content(m) for m in consumer]
