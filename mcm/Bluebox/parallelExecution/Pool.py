@@ -14,7 +14,7 @@
 	@author: tim
 
 """
-import os
+import os, logging
 
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
@@ -50,6 +50,9 @@ class KafkaClientPool(Borg):
         except:
             kc = KafkaClient(hosts=kafka_broker_endpoint, use_greenlets=RUNNING_ON_GUNICORN)
             self.__clientPool[instance_id] = kc
+            logging.info(
+                "ClientPool has no KafkaClient instance for ID: {}. New instance {} created and added to Pool. Pool size is now: {}".format(
+                    instance_id, kc, len(self.__clientPool)))
             return kc
 
     def getTopic(self, kafka_broker_endpoint, topic_name):
@@ -60,6 +63,9 @@ class KafkaClientPool(Borg):
             client = self.getClient(kafka_broker_endpoint)
             t = client.topics[topic_name.encode('utf-8')]
             self.__topicPool[instance_id] = t
+            logging.info(
+                "TopicPool has no KafkaTopic instance for ID: {}. New instance {} created and added to Pool. Pool size is now: {}".format(
+                    instance_id, t, len(self.__topicPool)))
             return t
 
     def getConsumer(self, kafka_broker_endpoint, topic_name, consumer_group):
@@ -92,6 +98,9 @@ class KafkaClientPool(Borg):
                                           auto_offset_reset=OffsetType.LATEST,
                                           reset_offset_on_start=False,
                                           consumer_timeout_ms=LONGPOLL_DURATION_MS,
-                                          fetch_min_bytes = 1)
+                                          fetch_min_bytes=1)
             self.__consumerPool[instance_id] = c
+            logging.info(
+                "ConsumerPool has no KafkaConsumer instance for ID: {}. New instance {} created and added to Pool. Pool size is now: {}".format(
+                    instance_id, c, len(self.__consumerPool)))
             return c
