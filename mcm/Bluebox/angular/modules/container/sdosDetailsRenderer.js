@@ -1,3 +1,6 @@
+/* This file is released under the GNU General Public License, version 3
+ * */
+
 'use strict';
 
 
@@ -14,6 +17,14 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     var inicialTree = [];
     var text;
 
+    var animate_operations = {
+        "back": null,
+        "next": {
+            "operation": "selecting",
+            "object": 17, //name of the object
+            "parent": 4370 // assuming the parent is given
+        }
+    };
 
     var margin = {top: 20, right: 120, bottom: 20, left: 120},
         width = 1000 - margin.right - margin.left,
@@ -31,12 +42,19 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             return [d.y, d.x];
         });
 
+    var zoom = d3.behavior.zoom().scaleExtent([0, 1]).translate([120, 20]).on("zoom", zoomed);
 
     var svg;
 
-    //console.log(d3.select("#cascadeRendering"));
 
     var cascadeData = _.clone($scope.sdosStats);
+
+
+    /**
+     * ************************************************************************
+     * Bluebox integration
+     * ************************************************************************
+     * */
 
     $scope.hide = function () {
         $mdDialog.hide();
@@ -88,12 +106,12 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
 
     function showSelectedObject() {
-      if ($scope.selectedObjectInCascade) {
-          var parent, name;
-          name = $scope.selectedObjectInCascade.name;
-          parent = getParentOfObject(name);
-          loadNode(root,parent+"|"+name, cascadeData);
-      }
+        if ($scope.selectedObjectInCascade) {
+            var parent, name;
+            name = $scope.selectedObjectInCascade.name;
+            parent = getParentOfObject(name);
+            loadNode(root, parent + "|" + name, cascadeData);
+        }
     };
 
 
@@ -135,6 +153,24 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     }
 
 
+    /**
+     * ************************************************************************
+     * Bluebox integration
+     * ************************************************************************
+     * */
+
+
+    /* Zoom functions area
+     *
+     * Note: the var zoom is created to be called by the svg --> line 33
+     * */
+    function zoomed() {
+        svg.attr("transform",
+            "translate(" + zoom.translate() + ")" +
+            "scale(" + zoom.scale() + ")"
+        );
+    }
+
     function interpolateZoom(translate, scale) {
         var self = this;
         return d3.transition().duration(duration).tween("zoom", function () {
@@ -149,16 +185,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         });
     }
 
-    function zoomed() {
-        svg.attr("transform",
-            "translate(" + zoom.translate() + ")" +
-            "scale(" + zoom.scale() + ")"
-        );
-    }
-
-    var zoom = d3.behavior.zoom().scaleExtent([0, 1]).translate([120, 20]).on("zoom", zoomed);
-
-    function zoomClick() {
+    function zoomClick(id) {
         var factor = 0.5,
             center = [width / 2, height / 2],
             extent = zoom.scaleExtent(),
@@ -166,7 +193,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             view = {x: translate[0], y: translate[1], k: zoom.scale()};
 
         d3.event.preventDefault();
-        var direction = (this.id === 'zoom_in') ? 2 : -1;
+        var direction = (id === 'zoom_in') ? 2 : -1;
         var target_zoom = zoom.scale() * (1 + factor * direction);
 
 
@@ -335,11 +362,16 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                      *  if it is a "key_object" type
                      *  */
                     if (openNodes.indexOf(d.name) > -1 && (d.type == "key")) {
+                        d.operation = "selected";
                         inChildren = 1;
                         next = d;
                     }
                     else if (d.type == "key_object" && d.children[0].name == object) {
+                        d.operation = "selected";
                         inChildren = 1;
+                    }
+                    else {
+                        d.operation = "none";
                     }
 
                 });
@@ -390,6 +422,66 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         });
     }
 
+    function newAnimation(d, visited_keys) {
+        setTimeout(function () {
+            d.operation = "new";
+            update(d);
+            // remove next node from visited nodes
+            var next = visited_keys.shift();
+            fadingAnimation(next, visited_keys, newAnimation);
+
+        }, 750);
+
+    }
+
+    function fadingAnimation(d, visited_keys, callback) {
+        console.log(visited_keys);
+        setTimeout(function () {
+            d.operation = "fade";
+            update(d);
+            // remove next node from visited nodes
+            if (visited_keys.length > 0) {
+                if (visited_keys[0].type != "object") {
+                    callback(d, visited_keys);
+                }
+                else {
+                    var next = visited_keys.shift();
+                    fadingAnimation(next, visited_keys);
+                    // should not have the case of trying call the callback from this point, since order
+                }
+            }
+        }, 750);
+
+    }
+
+    function changingKeysAnimation(d, visited_keys) {
+        console.log(d);
+        console.log(visited_keys.reverse());
+        var list = visited_keys;
+        fadingAnimation(d, list, newAnimation);
+    }
+
+    function selectingAnimation(d, visited_keys, callback) {
+
+        setTimeout(function () {
+            if (d.parent) {
+                d.parent.operation = "selected";
+                update(d.parent);
+                visited_keys.push(d);
+                selectingAnimation(d.parent, visited_keys, callback);
+            }
+            else {
+                callback(d, visited_keys);
+            }
+        }, 750);
+
+    }
+
+
+    function deleteAnimation(d) {
+        selectingAnimation(d, [], changingKeysAnimation);
+    }
+
     function update(source) {
 
         // Compute the new tree layout.
@@ -419,6 +511,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                     return clickDown(d);
                 else if (d.type == "up" || d.type == "object_up")
                     return clickUp(d);
+                else if (d.type == "object")
+                    return deleteAnimation(d);
                 else return click(d)
             });
 
@@ -464,7 +558,6 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
         nodeEnter.append("svg:image")
             .attr("xlink:href", function (d) {
-                //console.log(d);
                 return d.type == "key" ? icon_key : ( d.type == "master" ? icon_masterkey : ( d.type == "object" ? icon_file :
                     (d.type == "key_object" ? icon_object : (d.type == "up" || d.type == "down" ? icon_pluskey : icon_plusfile) )));
             })
@@ -494,7 +587,11 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             });
 
         // the new style after the transition
-
+        nodeUpdate.select("image")
+            .attr("xlink:href", function (d) {
+                return d.operation == "new" ? icon_pluskey : (d.operation == "fade" ? "" : ( d.type == "key" ? icon_key : ( d.type == "master" ? icon_masterkey : ( d.type == "object" ? icon_file :
+                    (d.type == "key_object" ? icon_object : (d.type == "up" || d.type == "down" ? icon_pluskey : icon_plusfile) )))));
+            });
         nodeUpdate.select("rect")
             .attr("width", function (d) {
                 return (d.type == "key" || d.type == "key_object") ? 40 : null
@@ -510,11 +607,18 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             .style("fill", function (d) {
                 return d._children ? (d.type == "key" ? "lightsteelblue" : "#c3c3c3" ) : "#fff"
             })
-            .style("fill-opacity", 1);
+            .style("fill-opacity", 1)
+            //TODO IDEA 1
+            .style("stroke", function (d) {
+                return d.operation == "selected" ? "#dd0000" : "steelblue"
+            })
+        ;
 
 
         nodeUpdate.select("text")
-            .style("fill-opacity", 1);
+            .style("fill-opacity", function (d) {
+                return d.operation == "fade" && (d.type == "key_object" || d.type == "object" ) ? 0 : 1;
+            });
 
         // Transition exiting nodes to the parent's new position.
         var nodeExit = node.exit().transition()
