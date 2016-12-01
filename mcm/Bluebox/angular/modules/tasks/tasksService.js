@@ -6,8 +6,8 @@
  */
 tasksModule.factory(
     'tasksService',
-    ['$http', '$filter', 'BACKEND_BASE_URL_TASKS_API', 'CLIENT_ID',
-        function($http, $filter, BACKEND_BASE_URL_TASKS_API, CLIENT_ID) {
+    ['$http', '$filter', 'BACKEND_BASE_URL_TASKS_API',
+        function ($http, $filter, BACKEND_BASE_URL_TASKS_API) {
 
             return {
 
@@ -15,31 +15,29 @@ tasksModule.factory(
                  * POST a new message
                  *
                  */
-                postMessage: function(message) {
+                postMessage: function (message) {
                     return $http({
-                        "method":   "POST",
-                        "url":      BACKEND_BASE_URL_TASKS_API + "send_message",
-                        "data":     message
+                        "method": "POST",
+                        "url": BACKEND_BASE_URL_TASKS_API + "send_message",
+                        "data": message
                     })
                 },
                 /**
                  * retrieve messages
                  *
                  */
-                retrieveMessages: function(credentials, from_beginning) {
-                     credentials["client_id"] = CLIENT_ID;
+                retrieveMessages: function (from_beginning) {
                     return $http({
-                        "method":   "POST",
-                        "url":      BACKEND_BASE_URL_TASKS_API + (from_beginning ? "receive_all_messages" : "receive_messages"),
-                        "data":     credentials
+                        "method": "POST",
+                        "url": BACKEND_BASE_URL_TASKS_API + (from_beginning ? "receive_all_messages" : "receive_messages")
                     })
                 },
 
 
                 getValidTasks: function () {
                     return $http({
-                        "method":   "GET",
-                        "url":      BACKEND_BASE_URL_TASKS_API + "types"
+                        "method": "GET",
+                        "url": BACKEND_BASE_URL_TASKS_API + "types"
                     })
 
                 }

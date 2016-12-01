@@ -5,14 +5,14 @@
  * module for the container contents page
  */
 var tasksModule = angular.module('bluebox.tasks', [
-        'ui.router'
-    ])
+    'ui.router'
+])
 
-    .config(['$stateProvider', function($stateProvider) {
+    .config(['$stateProvider', function ($stateProvider) {
         $stateProvider.state("tasksState", {
-            url:            "/tasks",
-            params:         {container:null, task:null},
-            templateUrl:    "angular/modules/tasks/tasks.html",
-            controller:     "TasksController"
+            url: "/tasks",
+            params: {container: null, task: null},
+            templateUrl: "angular/modules/tasks/tasks.html",
+            controller: "TasksController"
         });
     }]);

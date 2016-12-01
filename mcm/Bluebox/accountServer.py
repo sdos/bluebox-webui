@@ -9,6 +9,7 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 import logging
+import uuid
 
 from flask import request, Response
 from swiftclient import ClientException
@@ -31,6 +32,7 @@ COOKIE_NAME_TOKEN = "XSRF-TOKEN"
 
 COOKIE_NAME_USER = "MCM-USER"
 COOKIE_NAME_TENANT = "MCM-TENANT"
+COOKIE_NAME_SESSION_ID = "MCM-SESSION-ID"
 
 API_ROOT = "/api_account"
 
@@ -56,6 +58,7 @@ def doLogin():
 		r.set_cookie(COOKIE_NAME_TOKEN, value=token)
 		r.set_cookie(COOKIE_NAME_TENANT, value=tenant)
 		r.set_cookie(COOKIE_NAME_USER, value=user)
+		r.set_cookie(COOKIE_NAME_SESSION_ID, value=str(uuid.uuid4()))
 		return r
 	except ClientException as e:
 		log.exception("Login error")

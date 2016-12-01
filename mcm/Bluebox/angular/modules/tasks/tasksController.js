@@ -19,11 +19,6 @@ tasksModule.controller('TasksController',
             $scope.newTaskDefinition = {
                 "type": $stateParams.task,
                 "container": $stateParams.container,
-                "tenant": $cookies.get('MCM-TENANT'),
-                "token": $cookies.get('XSRF-TOKEN')
-            };
-            $scope.credentials = {
-                "tenant": $cookies.get('MCM-TENANT'),
                 "token": $cookies.get('XSRF-TOKEN')
             };
 
@@ -90,7 +85,7 @@ tasksModule.controller('TasksController',
              * */
             $scope.receive_from_beginning = function () {
                 $scope.loading_stopped = false;
-                tasksService.retrieveMessages($scope.credentials, true)
+                tasksService.retrieveMessages(true)
                     .then(function (response) {
                         $scope.loading_stopped = true;
                         $scope.clear_all_messages();
@@ -104,7 +99,7 @@ tasksModule.controller('TasksController',
 
             var receive = function () {
                 $scope.loading_stopped = false;
-                tasksService.retrieveMessages($scope.credentials, false)
+                tasksService.retrieveMessages(false)
                     .then(function (response) {
                         if (response.data) {
                             $scope.loading_stopped = true;

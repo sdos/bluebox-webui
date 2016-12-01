@@ -78,20 +78,17 @@ def send_message():
     worker_id = "MCMBluebox-{}-{}".format(socket.getfqdn(), os.getpid())
     try:
         msg_type = request.json.get("type")
-        msg_tenant = request.json.get("tenant")
+        msg_tenant = request.cookies.get(accountServer.COOKIE_NAME_TENANT)
 
         if (not msg_type or not msg_type in valid_task_types):
             raise HttpError("Request is invalid", 500)
 
         """
-        we only assert that the token in the request is valid
-        and that the tenant is the current tenant.
+        we only assert that the tenant/token in the request is valid
         the token in the message is not validated, this is up to the recipient.
         some msgs may not even contain a token...
         """
-        accountServer.assert_no_xsrf(request)
         accountServer.assert_token_tenant_validity(request)
-        accountServer.assert_correct_tenant(request, msg_tenant)
 
         j = request.json
         j["correlation"] = str(uuid.uuid4())
@@ -126,14 +123,12 @@ def receive_messages(from_beginning=False):
      will be seen by at least one of the sessions
     :return:
     """
-    log.debug("receiving messages for: {}".format(request.json))
+    from pykafka.exceptions import SocketDisconnectedError
     try:
-        msg_tenant = request.json.get("tenant")
-        msg_client_id = request.json.get("client_id")
-
-        accountServer.assert_no_xsrf(request)
         accountServer.assert_token_tenant_validity(request)
-        accountServer.assert_correct_tenant(request, msg_tenant)
+
+        msg_tenant = request.cookies.get(accountServer.COOKIE_NAME_TENANT)
+        msg_client_id = request.cookies.get(accountServer.COOKIE_NAME_SESSION_ID)
 
         consumer_group = 'mcmbb-{}-{}'.format(msg_tenant, msg_client_id).encode('utf-8')
         consumer = __get_kafka_consumer(topic=msg_tenant, consumer_group=consumer_group)
@@ -150,7 +145,15 @@ def receive_messages(from_beginning=False):
         return Response(json.dumps(vals), mimetype="application/json")
 
     except HttpError as e:
+        """
+        make sure we don't catch existing HTTP errors here and turn them into
+        meaningless 500s
+        """
         raise e
+
+    except SocketDisconnectedError as e:
+        log.exception("Connection to Broker closed unexpectedly; returned empty response to client.")
+        return Response(json.dumps({}), mimetype="application/json")
 
     except Exception:
         m = "Error retrieving messages"

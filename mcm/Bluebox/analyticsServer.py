@@ -44,7 +44,6 @@ def __get_db_connection_for_tenant(tenant):
 @app.route("/api_analytics/tablestructure", methods=["GET"])
 def getTableStructure():
 	# check if user is logged in
-	accountServer.assert_no_xsrf(request)
 	accountServer.assert_token_tenant_validity(request)
 	t = accountServer.get_tenant_from_request(request)
 	d = __get_db_connection_for_tenant(t)
@@ -180,6 +179,7 @@ def getDataFromNodeRed(nrDataSource):
 
 @app.route("/api_analytics/table", methods=["GET"])
 def doTable():
+	accountServer.assert_token_tenant_validity(request)
 	nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
 	log.debug("producing table for: {}".format(nrDataSource))
 	data = getDataFromNodeRed(nrDataSource=nrDataSource)
@@ -197,6 +197,7 @@ def doTable():
 
 @app.route("/api_analytics/plot", methods=["GET"])
 def doPlot():
+	accountServer.assert_token_tenant_validity(request)
 	nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
 	plotType = request.args.get("plotType")
 	log.debug("producing plot: {} for: {}".format(plotType, nrDataSource))
@@ -236,6 +237,7 @@ def getNodeRedEndpoint():
 
 @app.route("/api_analytics/nrsources", methods=["GET"])
 def getNodeRedEnpointList():
+	accountServer.assert_token_tenant_validity(request)
 	n = requests.get(appConfig.nodered_url + "/flows").json()
 	sources = []
 	for s in n:

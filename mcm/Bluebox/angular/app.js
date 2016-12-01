@@ -39,4 +39,3 @@ var app = angular.module('bluebox', [
 app.constant('BACKEND_BASE_URL', '/swift/');
 app.constant('BACKEND_BASE_URL_METADATA_API', '/api_metadata/');
 app.constant('BACKEND_BASE_URL_TASKS_API', '/api_tasks/');
-app.constant('CLIENT_ID', Math.random());
