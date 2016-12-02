@@ -115,6 +115,8 @@ analyticsModule
                                 }, 100);
 
 
+                            }, function e(err) {
+                                $scope.waitingForPlot = false;
                             });
 
                 };
