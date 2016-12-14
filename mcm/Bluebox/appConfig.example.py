@@ -59,10 +59,10 @@ swift_store_url = <>
 endpoint for swift. localhost:3000 is the default for the SDOS API proxy.
 """
 swift_auth_url = "http://localhost:3000/auth/v1.0"
-swift_store_url = "http://localhost:3000/v1/AUTH_{}"
+swift_store_url_valid_prefix = "http://localhost:3000/v1/AUTH_"
 # swift_user = "<account>:<user>"
 # swift_pw = "<pw>"
-swift_auth_version = 1
+swift_auth_version = "1.0"
 
 """
 ################################################################################

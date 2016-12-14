@@ -15,7 +15,7 @@ loginModule.controller('LoginController',
                 });
             }
 
-            $scope.credentials = {tenant: "test"};
+            $scope.credentials = {tenant: "SDOS"};
 
             /**
              *

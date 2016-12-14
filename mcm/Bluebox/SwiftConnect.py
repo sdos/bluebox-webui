@@ -14,6 +14,7 @@ import re
 
 from swiftclient import client
 
+from mcm.Bluebox.accountServer import get_token_from_request, verify_swift_store_url_from_request
 from mcm.Bluebox.exceptions import exception_wrapper
 
 log = logging.getLogger()
@@ -28,10 +29,12 @@ log = logging.getLogger()
 class SwiftConnect:
 	VALID_ACC_METADATA_KEY_REGEX = re.compile("x-account-meta-[a-z0-9-]+")
 
-	def __init__(self, token, swift_store_url):
+	def __init__(self, request):
+		token = get_token_from_request(request)
+		swiftUrl = verify_swift_store_url_from_request(request)
 		self.conn = client.Connection(
 			preauthtoken=token,
-			preauthurl=swift_store_url
+			preauthurl=swiftUrl
 		)
 
 	##############################################################################
