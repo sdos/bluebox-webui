@@ -32,7 +32,8 @@ HEADER_NAME_TOKEN = "X-XSRF-TOKEN"
 COOKIE_NAME_TOKEN = "XSRF-TOKEN"
 
 COOKIE_NAME_USER = "MCM-USER"
-COOKIE_NAME_TENANT = "MCM-TENANT"
+COOKIE_NAME_TENANT_ID = "MCM-TENANT-ID"
+COOKIE_NAME_TENANT_NAME = "MCM-TENANT-NAME"
 COOKIE_NAME_SWIFT_URL = "MCM-SWIFT-URL"
 COOKIE_NAME_SESSION_ID = "MCM-SESSION-ID"
 
@@ -54,15 +55,15 @@ def doLogin():
     """
     try:
         user = request.json.get("user")
-        tenant = request.json.get("tenant")
+        tenantName = request.json.get("tenant")
         password = request.json.get("password")
-        log.debug("authenticating tenant: {},  user: {}".format(tenant, user))
+        log.debug("authenticating tenant: {},  user: {}".format(tenantName, user))
 
-        swift_url, token = doAuthGetToken(tenant, user, password)
+        swift_url, token = doAuthGetToken(tenantName, user, password)
         r = Response()
         r.set_cookie(COOKIE_NAME_TOKEN, value=token)
-        r.set_cookie(COOKIE_NAME_SWIFT_URL, value=swift_url)
-        r.set_cookie(COOKIE_NAME_TENANT, value=tenant)
+        r.set_cookie(COOKIE_NAME_TENANT_NAME, value=tenantName)
+        r.set_cookie(COOKIE_NAME_TENANT_ID, value=strip_url_to_tenant_id(swift_url))
         r.set_cookie(COOKIE_NAME_USER, value=user)
         r.set_cookie(COOKIE_NAME_SESSION_ID, value=str(uuid.uuid4()))
         return r
@@ -99,9 +100,9 @@ def doAuthGetToken(_tenant, _user, _password):
 
 
 def get_swift_connection(request):
+    url = get_swift_url_from_request(request)
     token = get_token_from_request(request)
-    swift_store_url = verify_swift_store_url_from_request(request)
-    return SwiftConnect.SwiftConnect(swift_store_url, token)
+    return SwiftConnect.SwiftConnect(url, token)
 
 
 """
@@ -137,23 +138,25 @@ def get_token_from_request(request):
 
 
 def get_tenant_from_request(request):
-    t = request.cookies.get(COOKIE_NAME_TENANT)
+    t = request.cookies.get(COOKIE_NAME_TENANT_ID)
     if t:
         return t
     else:
         raise HttpError("cookie missing (tenant)", 401)
 
+def get_and_assert_tenant_from_request(request):
+    assert_token_tenant_validity(request)
+    return get_tenant_from_request(request)
 
-def verify_swift_store_url_from_request(request):
-    preauthurl = request.cookies.get(COOKIE_NAME_SWIFT_URL)
-    if len(appConfig.swift_store_url_valid_prefix):
-        if not preauthurl.startswith(appConfig.swift_store_url_valid_prefix):
-            raise HttpError(
-                "Client supplied swift URL doesn't match valid prefix: {} --should start with-- {}".format(preauthurl,
-                                                                                                           appConfig.swift_store_url_valid_prefix),
-                500)
-    return preauthurl
+def get_swift_url_from_request(request):
+    t = get_tenant_from_request(request)
+    return appConfig.swift_store_url_valid_prefix + t
 
+
+def strip_url_to_tenant_id(url):
+    if not url.startswith(appConfig.swift_store_url_valid_prefix):
+        raise HttpError("swift returned wrong storage URL")
+    return url[len(appConfig.swift_store_url_valid_prefix):]
 
 def get_user_from_request(request):
     t = request.cookies.get(COOKIE_NAME_USER)
@@ -161,19 +164,6 @@ def get_user_from_request(request):
         return t
     else:
         raise HttpError("cookie missing (user)", 401)
-
-
-def assert_correct_tenant(request, tenant):
-    """
-    this app needs to be configured for a single customer
-    until this is changed, we must only accept requests for this tenant
-    :param tenant:
-    :return:
-    """
-    assert_token_tenant_validity(request)
-    t = get_tenant_from_request(request)
-    if (tenant != t):
-        raise HttpError("Tenant is invalid", 401)
 
 
 def assert_token_tenant_validity(request):
@@ -184,12 +174,13 @@ def assert_token_tenant_validity(request):
     :return:
     """
     assert_no_xsrf(request)
-    verify_swift_store_url_from_request(request)
+    url = get_swift_url_from_request(request)
+    token = get_token_from_request(request)
 
     try:
         sw = client.Connection(
-            preauthtoken=request.cookies.get(COOKIE_NAME_TOKEN),
-            preauthurl=request.cookies.get(COOKIE_NAME_SWIFT_URL)
+            preauthtoken=token,
+            preauthurl=url
         )
         h = sw.head_account()
         if not h:

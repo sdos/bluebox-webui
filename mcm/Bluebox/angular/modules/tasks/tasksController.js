@@ -19,7 +19,8 @@ tasksModule.controller('TasksController',
             $scope.newTaskDefinition = {
                 "type": $stateParams.task,
                 "container": $stateParams.container,
-                "token": $cookies.get('XSRF-TOKEN')
+                "token": $cookies.get('XSRF-TOKEN'),
+                "tenant-id": $cookies.get('MCM-TENANT-ID')
             };
 
             /**
@@ -177,7 +178,7 @@ tasksModule.controller('TasksController',
             $scope.txt_for_msg = function (msg) {
                 try {
                     if (msg.type in $scope.validTasks) {
-                        return "tenant:" + msg.tenant + " > worker:" + msg.worker;
+                        return "tenant:" + msg["tenant-id"] + " > worker:" + msg.worker;
                     } else if (msg.type.startsWith("processing") || msg.type.startsWith("pong")) {
                         return "worker:" + msg.worker;
                     } else if (msg.type.startsWith("success")) {

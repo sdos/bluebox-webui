@@ -77,22 +77,15 @@ def send_message():
     log.debug("got message: {}".format(request.json))
     worker_id = "MCMBluebox-{}-{}".format(socket.getfqdn(), os.getpid())
     try:
-        msg_type = request.json.get("type")
-        msg_tenant = request.cookies.get(accountServer.COOKIE_NAME_TENANT)
+        j = request.json
+        msg_type = j["type"]
+        j["correlation"] = str(uuid.uuid4())
+        j["worker"] = worker_id
+        msg_tenant = accountServer.get_and_assert_tenant_from_request(request)
 
         if (not msg_type or not msg_type in valid_task_types):
             raise HttpError("Request is invalid", 500)
 
-        """
-        we only assert that the tenant/token in the request is valid
-        the token in the message is not validated, this is up to the recipient.
-        some msgs may not even contain a token...
-        """
-        accountServer.assert_token_tenant_validity(request)
-
-        j = request.json
-        j["correlation"] = str(uuid.uuid4())
-        j["worker"] = worker_id
 
         with __get_kafka_topic(msg_tenant).get_producer(linger_ms=100) as producer:
             producer.produce(value_serializer(request.json))
@@ -125,9 +118,7 @@ def receive_messages(from_beginning=False):
     """
     from pykafka.exceptions import SocketDisconnectedError
     try:
-        accountServer.assert_token_tenant_validity(request)
-
-        msg_tenant = request.cookies.get(accountServer.COOKIE_NAME_TENANT)
+        msg_tenant =  accountServer.get_and_assert_tenant_from_request(request)
         msg_client_id = request.cookies.get(accountServer.COOKIE_NAME_SESSION_ID)
 
         consumer_group = 'mcmbb-{}-{}'.format(msg_tenant, msg_client_id).encode('utf-8')
@@ -141,6 +132,8 @@ def receive_messages(from_beginning=False):
 
         if not from_beginning:
             consumer.commit_offsets()
+
+        log.debug(vals)
 
         return Response(json.dumps(vals), mimetype="application/json")
 
