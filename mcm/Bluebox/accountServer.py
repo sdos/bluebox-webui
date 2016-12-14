@@ -17,6 +17,7 @@ from swiftclient import client
 
 from mcm.Bluebox import app
 from mcm.Bluebox import appConfig
+from mcm.Bluebox import SwiftConnect
 from mcm.Bluebox.exceptions import HttpError
 
 """
@@ -47,6 +48,10 @@ API_ROOT = "/api_account"
 
 @app.route(API_ROOT + "/login", methods=["POST"])
 def doLogin():
+    """
+    handle the UI log in against a configured auth provider; swift internal, openstack keystone etc.
+    :return:
+    """
     try:
         user = request.json.get("user")
         tenant = request.json.get("tenant")
@@ -90,12 +95,13 @@ def doAuthGetToken(_tenant, _user, _password):
     else:
         log.error("Auth version not supported...")
         return None
-    if c.get_auth()[0] != swift_store_url:
-        log.warning(
-            "swift suggested a different storage endpoint than our config: {} -- Swift suggests: {}".format(
-                swift_store_url,
-                c.get_auth()[0]))
     return c.get_auth()
+
+
+def get_swift_connection(request):
+    token = get_token_from_request(request)
+    swift_store_url = verify_swift_store_url_from_request(request)
+    return SwiftConnect.SwiftConnect(swift_store_url, token)
 
 
 """
@@ -139,11 +145,14 @@ def get_tenant_from_request(request):
 
 
 def verify_swift_store_url_from_request(request):
-    preauthurl=request.cookies.get(COOKIE_NAME_SWIFT_URL)
-    if not preauthurl.startswith(appConfig.swift_store_url_valid_prefix):
-        raise HttpError ("Client supplied swift URL doesn't match valid prefix: {} --should start with-- {}".format(preauthurl, appConfig.swift_store_url_valid_prefix), 500)
-    else:
-        return preauthurl
+    preauthurl = request.cookies.get(COOKIE_NAME_SWIFT_URL)
+    if len(appConfig.swift_store_url_valid_prefix):
+        if not preauthurl.startswith(appConfig.swift_store_url_valid_prefix):
+            raise HttpError(
+                "Client supplied swift URL doesn't match valid prefix: {} --should start with-- {}".format(preauthurl,
+                                                                                                           appConfig.swift_store_url_valid_prefix),
+                500)
+    return preauthurl
 
 
 def get_user_from_request(request):

@@ -73,7 +73,7 @@ def handle_invalid_usage(e):
 def createConnection(req, check_xsrf=True):
 	if check_xsrf:
 		accountServer.assert_no_xsrf(req)
-	return SwiftConnect.SwiftConnect(req)
+	return accountServer.get_swift_connection(req)
 
 
 ##############################################################################
