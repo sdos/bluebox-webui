@@ -11,6 +11,13 @@ fileSystemModule.controller('FileSystemController',
 
             $scope.isAllDataLoaded = false;
 
+            var newContainerTemplate = {
+                name: undefined,
+                sdos: false,
+                sdosHeight: 1,
+                sdosPartitionBits: 2
+            };
+            $scope.newContainer = newContainerTemplate;
 
             /**
              * contains the relevant information about the containers
@@ -75,7 +82,7 @@ fileSystemModule.controller('FileSystemController',
                                 "text": "Container \"" + $scope.newContainer.name + "\" created."
                             });
                             // reload containers
-                            $scope.newContainer = undefined;
+                            //$scope.newContainer = newContainerTemplate;
                             setTimeout(function () {
 
                                 $scope.getContainers(true);
