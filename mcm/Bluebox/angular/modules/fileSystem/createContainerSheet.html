@@ -6,7 +6,7 @@
      <span>
       Create Container
      </span>
-     <span flex="">
+            <span flex="">
      </span>
             <md-button class="md-icon-button" ng-click="cancel()">
                 <md-icon md-font-set="material-icons">
@@ -34,6 +34,25 @@
                     Enable SDOS encryption and cryptographic deletion
                 </md-switch>
             </md-input-container>
+
+
+            <md-slider-container ng-disabled="!newContainer.sdos">
+                <span>Tree height</span>
+                <md-slider flex min="0" max="16" ng-model="newContainer.sdosHeight">
+                </md-slider>
+                <md-input-container>
+                    <input flex type="number" ng-model="newContainer.sdosHeight">
+                </md-input-container>
+            </md-slider-container>
+            <md-slider-container ng-disabled="!newContainer.sdos">
+                <span>Partition bits</span>
+                <md-slider flex min="0" max="16" ng-model="newContainer.sdosPartitionBits">
+                </md-slider>
+                <md-input-container>
+                    <input flex type="number" ng-model="newContainer.sdosPartitionBits">
+                </md-input-container>
+            </md-slider-container>
+
             <p>
 
                 <!-- Button to submit the form and create a new container -->

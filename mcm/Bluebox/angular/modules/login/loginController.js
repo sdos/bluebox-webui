@@ -43,7 +43,7 @@ loginModule.controller('LoginController',
 
             $scope.login = function () {
                 $http.post('api_account/login', $scope.credentials)
-                    .success(function () {
+                    .then(function (success) {
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "success",
                             "text": "Authentication successful"
@@ -52,11 +52,11 @@ loginModule.controller('LoginController',
                         $state.go(goBackState);
 
                     })
-                    .error(function (data) {
-                        console.log(data);
+                    .then(function (err) {
+                        console.log(err);
                         $rootScope.$broadcast('FlashMessage', {
                             "type": "danger",
-                            "text": "Authentication failed: " + data
+                            "text": "Authentication failed: " + err
                         });
                     });
 

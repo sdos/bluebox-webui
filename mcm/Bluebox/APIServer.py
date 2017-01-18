@@ -293,6 +293,8 @@ def create_container():
 		container_definition = request.json.get("container")
 		container_name = container_definition.get("name")
 		container_sdos = container_definition.get("sdos", False)
+		container_sdosPartitionBits = container_definition.get("sdosPartitionBits", False)
+		container_sdosHeight = container_definition.get("sdosHeight", False)
 	except AttributeError:
 		raise HttpError("malformed request", 400)
 
@@ -310,6 +312,8 @@ def create_container():
 
 	if container_sdos:
 		container_metadata["x-container-meta-sdos"] = True
+		container_metadata["x-container-meta-sdosPartitionBits"] = container_sdosPartitionBits
+		container_metadata["x-container-meta-sdosHeight"] = container_sdosHeight
 
 	try:
 		class_name = container_definition.get("objectClass")

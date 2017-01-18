@@ -22,7 +22,9 @@ fileSystemModule.factory(
                         "objectClass":  container.objectClass,
                         "mdf":  container.mdf,
                         "mdfi":  container.mdfi,
-                        "sdos": container.sdos
+                        "sdos": container.sdos,
+                        "sdosPartitionBits": container.sdosPartitionBits,
+                        "sdosHeight": container.sdosHeight
                     }
                 };
             };
