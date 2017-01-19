@@ -258,10 +258,7 @@ containerModule.controller('ContainerController',
             var uploadObject = function (myIdx) {
                 if (myIdx >= $scope.fileModel.files.length) {
                     return;
-                } else {
-                    uploadObject(++myIdx);
                 }
-
                 var thisFile = $scope.fileModel.files[myIdx];
                 thisFile.uploadProgress = {
                     percentage: 0,
@@ -269,18 +266,15 @@ containerModule.controller('ContainerController',
                     total: 0,
                     hasError: false
                 };
-
                 containerService
                     .uploadObject(thisFile, $scope.container.name, $scope.fileModel.metadata, $scope.fileModel.retentionDate)
                     .then(
                         function () {
                             thisFile.uploadProgress.hasSuccess = true;
-                            //uploadObject(++myIdx);
                         },
                         function (errorResponse) {
                             $scope.uploadErrorOccurred = true;
                             thisFile.uploadProgress.hasError = "Error: " + errorResponse.data;
-                            uploadObject(++myIdx);
                         },
                         function (event) {
                             // update upload progress
@@ -289,7 +283,7 @@ containerModule.controller('ContainerController',
                             thisFile.uploadProgress.percentage = parseInt(100.0 * event.loaded / event.total);
                         }
                     );
-
+                uploadObject(++myIdx);
             };
 
             /**
