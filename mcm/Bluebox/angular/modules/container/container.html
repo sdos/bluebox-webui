@@ -73,6 +73,15 @@
                                 Drop files here or click to open select dialog
                             </div>
                             <div flex="70">
+                                <md-button ng-hide="!fileModel.files" class="md-raised md-warn" ng-click="resetUploadList()">
+                                    <md-icon md-font-set="material-icons">
+                                        done_all
+                                    </md-icon>
+                                    <md-icon md-font-set="material-icons">
+                                        autorenew
+                                    </md-icon>
+                                    Clear / reload container
+                                </md-button>
                                 <ul class="md-body-1">
                                     <li ng-repeat="f in fileModel.files">
                                         {{ f.name }}
@@ -152,13 +161,6 @@
                                         cloud_upload
                                     </md-icon>
                                     Upload
-                                </md-button>
-
-                                <md-button ng-hide="!fileModel.files" class="md-flat" ng-click="fileModel = undefined">
-                                    <md-icon md-font-set="material-icons">
-                                        clear
-                                    </md-icon>
-                                    Clear
                                 </md-button>
                             </p>
                         </div>

@@ -53,4 +53,12 @@ var filterModule = angular.module('bluebox.filter', []).filter('metaPrefix', fun
             .replace(/8/g, "<span class='bbBlock8'>&nbsp;8&nbsp;</span> ")
             .replace(/9/g, "<span class='bbBlock9'>&nbsp;9&nbsp;</span> ")
     }
+}).filter('sdosPartitionBitsToSize', function () {
+    return function (c) {
+        return Math.pow(2, c);
+    }
+}).filter('sdosCapacity', function () {
+    return function (c) {
+        return Math.pow(Math.pow(2,c.sdosPartitionBits), c.sdosHeight);
+    }
 });

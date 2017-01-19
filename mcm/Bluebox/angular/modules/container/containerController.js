@@ -257,10 +257,11 @@ containerModule.controller('ContainerController',
              */
             var uploadObject = function (myIdx) {
                 if (myIdx >= $scope.fileModel.files.length) {
-                    if (!$scope.uploadErrorOccurred) $scope.resetUploadList();
-                    $scope.getObjects(true);
                     return;
+                } else {
+                    uploadObject(++myIdx);
                 }
+
                 var thisFile = $scope.fileModel.files[myIdx];
                 thisFile.uploadProgress = {
                     percentage: 0,
@@ -268,12 +269,13 @@ containerModule.controller('ContainerController',
                     total: 0,
                     hasError: false
                 };
+
                 containerService
                     .uploadObject(thisFile, $scope.container.name, $scope.fileModel.metadata, $scope.fileModel.retentionDate)
                     .then(
                         function () {
                             thisFile.uploadProgress.hasSuccess = true;
-                            uploadObject(++myIdx);
+                            //uploadObject(++myIdx);
                         },
                         function (errorResponse) {
                             $scope.uploadErrorOccurred = true;
@@ -294,9 +296,8 @@ containerModule.controller('ContainerController',
              * resets the upload list after success
              */
             $scope.resetUploadList = function () {
-                $timeout(function () {
-                    $scope.fileModel.files = null;
-                }, 2000);
+                $scope.fileModel.files = null;
+                $scope.getObjects(true);
             };
 
             /**
