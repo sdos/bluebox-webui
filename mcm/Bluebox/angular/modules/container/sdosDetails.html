@@ -3,43 +3,62 @@
         <div class="md-toolbar-tools">
             <h2>
         <span>
+                        <md-icon md-font-set="material-icons">
+                        enhanced_encryption
+                    </md-icon>&nbsp;
          SDOS encrypted container
         </span>
             </h2>
         </div>
     </md-toolbar>
     <md-content class="bb-container">
-        <div flex layout="row">
-            <div flex="">
-                <ul>
-                    <li ng-repeat="(k, v) in sdosStats"><b>{{ k }}:</b> {{ v | numberFormat }}</li>
 
-                </ul>
+        <div layout="column">
+
+
+            <div>
+                <p>Utilization: <b>{{ sdosStats.utilization }}</b>
+                    <br>
+                    <br>Keys used: <b>{{ sdosStats.numObjects | numberFormat }}</b>
+                    <br>Keys free: <b>{{ sdosStats.freeSlots | numberFormat }}</b>
+                    <br>Keys total: <b>{{ sdosStats.numSlots| numberFormat }}</b>
+                    <br>
+                    <br>Num partitions max: <b>{{ sdosStats.numPartitions| numberFormat }}</b>
+                    <br>Keys in one partition: <b>{{ sdosStats.partitionSize }}</b>
+                    <br>
+                    <br>Tree height: <b>{{ sdosStats.levels }}</b></p>
             </div>
-            <div flex="">
-                <md-icon md-font-set="material-icons" class="bb-huge-icon">
-                    enhanced_encryption
-                </md-icon>
+            <hl>
+            <div>
+                <p>
+                    <md-button aria-label="Show Key Cascade" class="md-raised" ng-click="showCascadeSheet($event)">
+                        <md-icon md-font-set="material-icons">
+                            filter_b_and_w
+                        </md-icon>
+                        Show Key Cascade structure
+                    </md-button>
+
+                    <md-button aria-label="Show key slot allocation" class="md-raised"
+                               ng-click="showMappingSheet($event)">
+                        <md-icon md-font-set="material-icons">
+                            gradient
+                        </md-icon>
+                        Show key slot allocation
+                    </md-button>
+                </p>
+            </div>
+
+            <hr>
+
+            <div>
+                <p>Master key secured by: <b>{{ sdosStats.masterKeySource.type }}</b></p>
+                <p>Master key available: <b style="color: green;">{{ sdosStats.masterKeySource.is_unlocked }}</b></p>
+                <p>please unlock</p>
+                <md-button class="md-raised">Button</md-button>
 
             </div>
+
+
         </div>
-        <p>
-            <md-button aria-label="Show Key Cascade" ng-click="showCascadeSheet($event)">
-                <md-icon md-font-set="material-icons">
-                    filter_b_and_w
-                </md-icon>
-                Show Key Cascade structure
-            </md-button>
-
-            <md-button aria-label="Show key slot allocation"
-                       ng-click="showMappingSheet($event)">
-                <md-icon md-font-set="material-icons">
-                    gradient
-                </md-icon>
-                Show key slot allocation
-            </md-button>
-
-        </p>
-
     </md-content>
 </div>

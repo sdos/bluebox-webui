@@ -17,73 +17,148 @@
 
 
         <form ng-submit="createContainer()">
-            <!-- Input of the container name -->
-            <md-input-container class="md-block md-icon-float" flex-gt-sm="">
-                <label>
-                    Container name
-                </label>
-                <md-icon md-font-set="material-icons">
-                    chevron_right
-                </md-icon>
-                <input id="containerName" ng-model="newContainer.name" ng-trim="false" type="text"/>
-            </md-input-container>
-            <md-input-container>
-                <md-switch ng-model="newContainer.sdos" aria-label="sdos encryption">
-                    Enable SDOS encryption and cryptographic deletion
-                </md-switch>
-            </md-input-container>
+            <div flex layout="column">
 
-            <div flex layout="row" ng-style="newContainer.sdos && {'opacity': 1} || {'opacity': 0.3}">
-                <div flex>
-                    <img alt="Example Key Cascade tree" style="width: 15em;" src="/angular/icons/example-tree.svg"/>
 
-                </div>
-                <div flex><p><- Example tree has height <b>2</b> and <b>2</b> partition bits.</p>
-                    <hr>
-                    <p>New container will have height <b>{{ newContainer.sdosHeight }}</b> and
-                        <b>{{ newContainer.sdosPartitionBits }}</b> partition bits.
-                        The partitions will have <b>{{ newContainer.sdosPartitionBits | sdosPartitionBitsToSize }}</b>
-                        slots.
-                    </p>
-                    <p>The Cascade will support up to <b>{{ newContainer | sdosCapacity | numberFormat }}</b>
-                        object keys.</p></div>
+                <!-- Input of the container name -->
+                <md-input-container class="md-block md-icon-float" flex-gt-sm="">
+                    <label>
+                        Container name
+                    </label>
+                    <md-icon md-font-set="material-icons">
+                        chevron_right
+                    </md-icon>
+                    <input id="containerName" ng-model="newContainer.name" ng-trim="false" type="text"/>
+                </md-input-container>
+
+
+                <md-input-container>
+                    <md-switch ng-model="newContainer.sdos" aria-label="sdos encryption">
+                        Enable SDOS encryption and cryptographic deletion
+                    </md-switch>
+                </md-input-container>
+
+                <md-card ng-style="newContainer.sdos && {'opacity': 1, 'background': 'linen'} || {'opacity': 0.3}">
+                    <md-card-title>
+                        <b>Cascade properties</b>
+                    </md-card-title>
+
+                    <md-card-content>
+                        <div flex layout="row">
+                            <div flex>
+                                <img alt="Example Key Cascade tree" style="width: 15em;"
+                                     src="/angular/icons/example-tree.svg"/>
+                            </div>
+                            <div flex><p><- Example tree has height <b>2</b> and <b>2</b> partition bits.</p>
+                                <hr>
+                                <p>New container will have height <b>{{ newContainer.sdosHeight }}</b> and
+                                    <b>{{ newContainer.sdosPartitionBits }}</b> partition bits.
+                                    The partitions will have
+                                    <b>{{ newContainer.sdosPartitionBits | sdosPartitionBitsToSize }}</b>
+                                    slots.
+                                </p>
+                                <p>The Cascade will support up to
+                                    <b>{{ newContainer | sdosCapacity | numberFormat }}</b>
+                                    object keys.</p></div>
+                        </div>
+
+                        <md-slider-container ng-disabled="!newContainer.sdos">
+                            <span>Tree height</span>
+                            <md-slider flex min="2" max="16" ng-model="newContainer.sdosHeight">
+                            </md-slider>
+                            <md-input-container>
+                                <input flex type="number" ng-model="newContainer.sdosHeight">
+                            </md-input-container>
+                        </md-slider-container>
+                        <md-slider-container ng-disabled="!newContainer.sdos">
+                            <span>Partition bits</span>
+                            <md-slider flex min="2" max="16" ng-model="newContainer.sdosPartitionBits">
+                            </md-slider>
+                            <md-input-container>
+                                <input flex type="number" ng-model="newContainer.sdosPartitionBits">
+                            </md-input-container>
+                        </md-slider-container>
+                    </md-card-content>
+                </md-card>
+
+
+                <md-card ng-style="newContainer.sdos && {'opacity': 1, 'background': 'linen'} || {'opacity': 0.3}">
+                    <md-card-title>
+                        <b>Deletable key</b>
+                    </md-card-title>
+                    <md-card-content>
+
+
+                        <div flex layout="row">
+                            <div flex>
+                                <img alt="deletable key general example" style="width: 15em;"
+                                     src="/angular/icons/dk1.svg"/>
+                            </div>
+                            <div flex><p>The master key for each cascade is stored encrypted with a DELETABLE key.</p>
+                                <p>Please select where the DELETABLE key should come from. Note that the secure-delete
+                                    property depends on this DELETABLE key.</p>
+
+                            </div>
+                        </div>
+                        <hr>
+                        <div flex layout="row">
+                            <div flex>
+                                <img alt="deletable key general example" style="width: 15em;"
+                                     src="/angular/icons/dk2.svg"/>
+                            </div>
+                            <div flex><p>bli blaa</p>
+
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div flex layout="row">
+                            <div flex>
+                                <img alt="deletable key general example" style="width: 15em;"
+                                     src="/angular/icons/dk3.svg"/>
+                            </div>
+                            <div flex><p>bli blaa</p>
+
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div flex layout="row">
+                            <div flex>
+                                <img alt="deletable key general example" style="width: 15em;"
+                                     src="/angular/icons/dk4.svg"/>
+                            </div>
+                            <div flex><p>bli blaa</p>
+
+                            </div>
+                        </div>
+
+
+                    </md-card-content>
+                </md-card>
+
+
+                <p>
+                    <!-- Button to submit the form and create a new container -->
+                    <md-button class="md-raised md-warn" ng-disabled="!newContainer.name" type="submit">
+                        <md-icon md-font-set="material-icons">
+                            done
+                        </md-icon>
+                        Create
+                    </md-button>
+                    <md-button class="md-raised md-warn" ng-disabled="!newContainer.name" type="submit"
+                               ng-click="cancel()">
+                        <md-icon md-font-set="material-icons">
+                            done_all
+                        </md-icon>
+                        Create & Close
+                    </md-button>
+                </p>
+
 
             </div>
 
-            <md-slider-container ng-disabled="!newContainer.sdos">
-                <span>Tree height</span>
-                <md-slider flex min="2" max="16" ng-model="newContainer.sdosHeight">
-                </md-slider>
-                <md-input-container>
-                    <input flex type="number" ng-model="newContainer.sdosHeight">
-                </md-input-container>
-            </md-slider-container>
-            <md-slider-container ng-disabled="!newContainer.sdos">
-                <span>Partition bits</span>
-                <md-slider flex min="2" max="16" ng-model="newContainer.sdosPartitionBits">
-                </md-slider>
-                <md-input-container>
-                    <input flex type="number" ng-model="newContainer.sdosPartitionBits">
-                </md-input-container>
-            </md-slider-container>
 
-            <p>
-
-                <!-- Button to submit the form and create a new container -->
-                <md-button class="md-raised md-warn" ng-disabled="!newContainer.name" type="submit">
-                    <md-icon md-font-set="material-icons">
-                        done
-                    </md-icon>
-                    Create
-                </md-button>
-                <md-button class="md-raised md-warn" ng-disabled="!newContainer.name" type="submit"
-                           ng-click="cancel()">
-                    <md-icon md-font-set="material-icons">
-                        done_all
-                    </md-icon>
-                    Create & Close
-                </md-button>
-            </p>
         </form>
 
 

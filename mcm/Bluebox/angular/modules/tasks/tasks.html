@@ -138,8 +138,8 @@
         </md-toolbar>
         <md-content class="bb-container">
             <md-progress-linear md-mode="query" ng-disabled="loading_stopped"></md-progress-linear>
-            <md-button class="md-warn" ng-click="clear_all_messages()">clear list</md-button>
-            <md-button class="md-warn" ng-click="receive_from_beginning()">load from beginning of queue</md-button>
+            <md-button class="md-warn md-raised" ng-click="clear_all_messages()">clear list</md-button>
+            <md-button class="md-warn md-raised" ng-click="receive_from_beginning()">load from beginning of queue</md-button>
             <md-content flex-xs layout-xs="column" layout="row" layout-wrap >
             <md-card layout="column" flex-xs flex="20" ng-repeat="vals in myMessages" ng-style='{background: ui_color_for_msg(vals[0])}' >
                 <md-card-title>
