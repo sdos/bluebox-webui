@@ -295,7 +295,7 @@ def create_container():
 		container_sdos = container_definition.get("sdos", False)
 		container_sdosPartitionBits = container_definition.get("sdosPartitionBits", False)
 		container_sdosHeight = container_definition.get("sdosHeight", False)
-		container_sdosHeight = container_definition.get("sdosHeight", False)
+		container_sdosMasterKey = container_definition.get("sdosMasterKey", False)
 	except AttributeError:
 		raise HttpError("malformed request", 400)
 

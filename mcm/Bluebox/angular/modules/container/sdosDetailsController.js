@@ -57,6 +57,9 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
             .then(
                 function successCallback(response) {
                     $scope.sdosStats = response.data;
+                    if ($scope.sdosStats.masterKeySource) {
+                        $scope.sdosStats.masterKeySource.keyIdColor = '#' + $scope.sdosStats.masterKeySource.key_id.substring(0,6);
+                    }
 
                 },
                 function errorCallback(response) {
@@ -131,7 +134,8 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
     $scope.$watch('container.objects', function () {
         console.log("refreshing SDOS stats");
         getSdosStats();
-    })
+    });
+
 }
 
 angular.module('bluebox.container').component('sdosDetails', {
