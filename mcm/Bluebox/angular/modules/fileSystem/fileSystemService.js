@@ -24,7 +24,8 @@ fileSystemModule.factory(
                         "mdfi":  container.mdfi,
                         "sdos": container.sdos,
                         "sdosPartitionBits": container.sdosPartitionBits,
-                        "sdosHeight": container.sdosHeight
+                        "sdosHeight": container.sdosHeight,
+                        "sdosMasterKey": container.sdosMasterKey
                     }
                 };
             };

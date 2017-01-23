@@ -50,7 +50,7 @@
                                      src="/angular/icons/example-tree.svg"/>
                             </div>
                             <div flex><p><- Example tree has height <b>2</b> and <b>2</b> partition bits.</p>
-                                <hr>
+                                <md-divider></md-divider>
                                 <p>New container will have height <b>{{ newContainer.sdosHeight }}</b> and
                                     <b>{{ newContainer.sdosPartitionBits }}</b> partition bits.
                                     The partitions will have
@@ -89,49 +89,86 @@
                     <md-card-content>
 
 
-                        <div flex layout="row">
-                            <div flex>
-                                <img alt="deletable key general example" style="width: 15em;"
-                                     src="/angular/icons/dk1.svg"/>
-                            </div>
-                            <div flex><p>The master key for each cascade is stored encrypted with a DELETABLE key.</p>
-                                <p>Please select where the DELETABLE key should come from. Note that the secure-delete
-                                    property depends on this DELETABLE key.</p>
+                        <md-radio-group ng-model="newContainer.sdosMasterKey">
 
-                            </div>
-                        </div>
-                        <hr>
-                        <div flex layout="row">
-                            <div flex>
-                                <img alt="deletable key general example" style="width: 15em;"
-                                     src="/angular/icons/dk2.svg"/>
-                            </div>
-                            <div flex><p>bli blaa</p>
+                            <div flex layout="row" class="bb-align-margin-small">
+                                <div flex>
+                                    <img alt="deletable key general example" style="width: 15em;"
+                                         src="/angular/icons/dk1.svg"/>
+                                </div>
+                                <div flex><p>The master key for each cascade is stored encrypted with a DELETABLE
+                                    key.</p>
+                                    <p>Please select where the DELETABLE key should come from. Note that the
+                                        secure-delete
+                                        property depends on this DELETABLE key.</p>
 
+                                </div>
                             </div>
-                        </div>
+                            <md-divider></md-divider>
+                            <div flex layout="row" class="bb-align-margin-small">
+                                <div flex>
+                                    <img alt="deletable key general example" style="width: 15em;"
+                                         src="/angular/icons/dk2.svg"/>
+                                </div>
+                                <div flex>
+                                    <md-radio-button flex
+                                                     value="static"
+                                                     class="md-primary">
 
-                        <hr>
-                        <div flex layout="row">
-                            <div flex>
-                                <img alt="deletable key general example" style="width: 15em;"
-                                     src="/angular/icons/dk3.svg"/>
-                            </div>
-                            <div flex><p>bli blaa</p>
+                                        <b>Static test key: </b> Uses the same static key every time. Only useful for
+                                        testing and debugging.
 
-                            </div>
-                        </div>
 
-                        <hr>
-                        <div flex layout="row">
-                            <div flex>
-                                <img alt="deletable key general example" style="width: 15em;"
-                                     src="/angular/icons/dk4.svg"/>
-                            </div>
-                            <div flex><p>bli blaa</p>
+                                    </md-radio-button>
 
+                                </div>
                             </div>
-                        </div>
+
+                            <md-divider></md-divider>
+                            <div flex layout="row" class="bb-align-margin-small">
+                                <div flex>
+                                    <img alt="deletable key general example" style="width: 15em;"
+                                         src="/angular/icons/dk3.svg"/>
+                                </div>
+                                <div flex>
+                                    <md-radio-button flex
+                                                     value="password"
+                                                     class="md-primary">
+
+                                        <b>User password: </b> Uses a password to derive a deletable key. Secure
+                                        deletion is provided by setting a new password and <q>forgetting</q> the old one.
+                                        <br>
+                                        You must provide the current password before using the container, and provide a
+                                        new password before starting secure deletion.
+
+
+                                    </md-radio-button>
+
+                                </div>
+                            </div>
+
+                            <md-divider></md-divider>
+                            <div flex layout="row" class="bb-align-margin-small">
+                                <div flex>
+                                    <img alt="deletable key general example" style="width: 15em;"
+                                         src="/angular/icons/dk4.svg"/>
+                                </div>
+                                <div flex>
+                                    <md-radio-button flex
+                                                     value="tpm"
+                                                     class="md-primary">
+
+                                        <b>Trusted Platform Module (TPM): </b> Uses TPM hardware to securely en/decrypt
+                                        the master key. The deletable key is stored inside the TPM, and can never leave
+                                        it. Secure deletion is provided by the TPM which can securely replace internal keys.
+
+
+                                    </md-radio-button>
+
+                                </div>
+                            </div>
+
+                        </md-radio-group>
 
 
                     </md-card-content>

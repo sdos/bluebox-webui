@@ -17,6 +17,31 @@
 
 
             <div>
+
+
+                <p>Master key available: <b
+                        ng-style="sdosStats.masterKeySource.is_unlocked && {'color': 'green'} || {'color': 'red'}">{{ sdosStats.masterKeySource.is_unlocked }}</b>
+                </p>
+                <p ng-hide="sdosStats.masterKeySource.is_unlocked">
+                    <md-button class="md-raised md-primary" ng-click="unlockMasterKey()">Unlock master key: provide current deletable key</md-button>
+                </p>
+                <p ng-hide="!sdosStats.masterKeySource.is_unlocked">
+                    <md-button class="md-raised md-warn" ng-click="lockMasterKey()">Lock master key</md-button>
+                </p>
+                <p>Master key ID: <b>{{ sdosStats.masterKeySource.key_id }}</b></p>
+                <p>Master key secured by: <b>{{ sdosStats.masterKeySource.type }}</b></p>
+                <p>Next deletable key available: <b
+                        ng-style="sdosStats.masterKeySource.is_next_wrapper_ready && {'color': 'green'} || {'color': 'red'}">{{ sdosStats.masterKeySource.is_next_wrapper_ready }}</b>
+                </p>
+                <p ng-hide="sdosStats.masterKeySource.is_next_wrapper_ready">
+                    <md-button class="md-raised md-primary">Provide next deletable key</md-button>
+                </p>
+
+
+            </div>
+
+            <md-divider></md-divider>
+            <div>
                 <p>Utilization: <b>{{ sdosStats.utilization }}</b>
                     <br>
                     <br>Keys used: <b>{{ sdosStats.numObjects | numberFormat }}</b>
@@ -28,7 +53,6 @@
                     <br>
                     <br>Tree height: <b>{{ sdosStats.levels }}</b></p>
             </div>
-            <hl>
             <div>
                 <p>
                     <md-button aria-label="Show Key Cascade" class="md-raised" ng-click="showCascadeSheet($event)">
@@ -48,15 +72,9 @@
                 </p>
             </div>
 
-            <hr>
 
-            <div>
-                <p>Master key secured by: <b>{{ sdosStats.masterKeySource.type }}</b></p>
-                <p>Master key available: <b style="color: green;">{{ sdosStats.masterKeySource.is_unlocked }}</b></p>
-                <p>please unlock</p>
-                <md-button class="md-raised">Button</md-button>
 
-            </div>
+
 
 
         </div>

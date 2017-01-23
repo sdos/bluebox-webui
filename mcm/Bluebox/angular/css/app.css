@@ -73,6 +73,11 @@ md-dialog-content h2 {
 	margin: 1em;
 }
 
+.bb-align-margin-small {
+	margin: 0.5em;
+	align-items: center;
+}
+
 .bb-table-col {
 	 word-wrap:break-word;
 }

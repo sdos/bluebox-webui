@@ -11,6 +11,46 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
     $scope.availableSlotBlockCounts = [10, 100, 1000, 10000];
     $scope.slotBlockCount = $scope.availableSlotBlockCounts[2];
 
+
+    /*
+     *
+     * key management
+     *
+     * */
+
+    $scope.unlockMasterKey = function () {
+        var d = {'metadata' : {
+            'x-object-meta-dummy' : "for swift API compliance"
+        }};
+        $http
+            .post('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_masterkey_unlock', d)
+            .then(
+                function successCallback(response) {
+                    getSdosStats();
+
+                });
+    };
+
+    $scope.lockMasterKey = function () {
+        var d = {'metadata' : {
+            'x-object-meta-dummy' : "for swift API compliance"
+        }};
+        $http
+            .post('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_masterkey_lock', d)
+            .then(
+                function successCallback(response) {
+                    getSdosStats();
+
+                });
+    };
+
+
+    /*
+     *
+     * Stats / Info retrieval
+     *
+     * */
+
     function getSdosStats() {
         $http
             .get('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_cascade_stats')
