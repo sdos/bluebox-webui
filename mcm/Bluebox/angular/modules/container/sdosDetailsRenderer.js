@@ -7,8 +7,7 @@
 function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
     var icon_file = "/angular/icons/d3/plusfile.svg";
-    //var icon_key = "/angular/icons/d3/key.svg";
-    var icon_key = "/angular/icons/d3/k.png";
+    var icon_key = "/angular/icons/d3/key.svg";
     var icon_masterkey = "/angular/icons/d3/masterkey.svg";
     var icon_plusfile = "/angular/icons/d3/pluskey_object.svg";
     var icon_pluskey = "/angular/icons/d3/pluskey.svg";
