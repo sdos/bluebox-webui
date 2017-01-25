@@ -23,7 +23,7 @@
                         ng-style="sdosStats.masterKeySource.is_unlocked && {'color': 'green'} || {'color': 'red'}">{{ sdosStats.masterKeySource.is_unlocked }}</b>
                 </p>
                 <p ng-hide="sdosStats.masterKeySource.is_unlocked">
-                    <md-button class="md-raised md-primary" ng-click="unlockMasterKey()">Unlock master key: provide current deletable key</md-button>
+                    <md-button class="md-raised md-primary" ng-click="unlockMasterKey()">Unlock master key</md-button>
                 </p>
                 <p ng-hide="!sdosStats.masterKeySource.is_unlocked">
                     <md-button class="md-raised md-warn" ng-click="lockMasterKey()">Lock master key</md-button>

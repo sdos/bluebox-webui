@@ -37,7 +37,7 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
 
     $scope.unlockMasterKey = function (ev) {
         // if the deletable key is a passphrase, we need to prompt for it
-        if ($scope.sdosStats.masterKeySource.type == "static") {
+        if ($scope.sdosStats.masterKeySource.type == "passphrase") {
             var confirm = $mdDialog.prompt()
                 .title('Unlock the master key for ' + ctrl.container.name)
                 .textContent('The deletable key is a passphrase; please enter it')
