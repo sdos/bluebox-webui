@@ -133,28 +133,28 @@ containerModule.controller('ContainerController',
                     .getObjects($scope.container, $scope.prefix, marker, limit)
                     .then(function (response) {
 
-                        $scope.container.objects = reload ? response.objects : $scope.container.objects.concat(response.objects);
-                        $scope.container.metadata = response.metadata;
-                        parseMetadataIntoModel();
+                            $scope.container.objects = reload ? response.objects : $scope.container.objects.concat(response.objects);
+                            $scope.container.metadata = response.metadata;
+                            parseMetadataIntoModel();
 
-                        $scope.isGetObjectsRequestPending = false;
+                            $scope.isGetObjectsRequestPending = false;
 
-                        $scope.isAllDataLoaded = ($scope.container.objects.length == response.metadata.objectCount);
+                            $scope.isAllDataLoaded = ($scope.container.objects.length == response.metadata.objectCount);
 
-                        if ($scope.selectedMetadataFields.length > 0) {
-                            getAllMissingDetails();
-                        }
-                    })
-                    .catch(function (response) {
-                        if (response.status === 404) {
-                            $state.go('fileSystemState');
-                            $rootScope.$broadcast('FlashMessage', {
-                                "type": "danger",
-                                "text": "Container \"" + $scope.container.name + "\" not found."
-                            });
-                        }
-                        $scope.isGetObjectsRequestPending = false;
-                    });
+                            if ($scope.selectedMetadataFields.length > 0) {
+                                getAllMissingDetails();
+                            }
+                        },
+                        function (response) {
+                            if (response.status === 404) {
+                                $state.go('fileSystemState');
+                                $rootScope.$broadcast('FlashMessage', {
+                                    "type": "danger",
+                                    "text": "Container \"" + $scope.container.name + "\" not found."
+                                });
+                            }
+                            $scope.isGetObjectsRequestPending = false;
+                        });
             };
 
             var parseObjectClassFieldsIntoColumnList = function () {

@@ -163,22 +163,22 @@ objectClassModule.controller('ObjectClassController',
 
                 submitFunction(objectClass)
                     .then(function () {
-                        //$uibModalInstance.close($scope.objectClassModel);
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "success",
-                            "text": "created the object class!"
-                        });
-                        $mdDialog.cancel();
-                    })
-                    .catch(function (response) {
-                        if (response && response.data) {
+                            //$uibModalInstance.close($scope.objectClassModel);
                             $rootScope.$broadcast('FlashMessage', {
-                                "type": "danger",
-                                "text": response.data
+                                "type": "success",
+                                "text": "created the object class!"
                             });
-                        }
-                        $scope.isSubmissionPending = false;
-                    });
+                            $mdDialog.cancel();
+                        },
+                        function (response) {
+                            if (response && response.data) {
+                                $rootScope.$broadcast('FlashMessage', {
+                                    "type": "danger",
+                                    "text": response.data
+                                });
+                            }
+                            $scope.isSubmissionPending = false;
+                        });
             };
 
 

@@ -7,7 +7,7 @@
 loginModule.controller('LoginController',
     ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', '$cookies',
         function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, $cookies) {
-
+            console.log("loginController init");
             if ($stateParams.noAuth) {
                 $rootScope.$broadcast('FlashMessage', {
                     "type": "success",
@@ -44,21 +44,21 @@ loginModule.controller('LoginController',
             $scope.login = function () {
                 $http.post('api_account/login', $scope.credentials)
                     .then(function (success) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "success",
-                            "text": "Authentication successful"
-                        });
-                        var goBackState = $rootScope.lastState ? $rootScope.lastState : "accountState";
-                        $state.go(goBackState);
+                            $rootScope.$broadcast('FlashMessage', {
+                                "type": "success",
+                                "text": "Authentication successful"
+                            });
+                            var goBackState = $rootScope.lastState ? $rootScope.lastState : "accountState";
+                            $state.go(goBackState);
 
-                    })
-                    .then(function (err) {
-                        console.log(err);
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "danger",
-                            "text": "Authentication failed: " + err
+                        },
+                        function (err) {
+                            console.log(err);
+                            $rootScope.$broadcast('FlashMessage', {
+                                "type": "danger",
+                                "text": "Authentication failed: " + err
+                            });
                         });
-                    });
 
 
             }
