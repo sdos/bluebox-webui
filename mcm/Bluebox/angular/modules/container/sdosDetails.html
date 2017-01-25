@@ -32,6 +32,12 @@
                 <p>Master key secured by: <b>{{ sdosStats.masterKeySource.type }}</b></p>
                 <p>Next deletable key available: <b
                         ng-style="sdosStats.masterKeySource.is_next_deletable_ready && {'color': 'green'} || {'color': 'red'}">{{ sdosStats.masterKeySource.is_next_deletable_ready }}</b>
+
+                    <md-icon ng-click="clearNextDeletable()" ng-hide="!sdosStats.masterKeySource.is_next_deletable_ready" md-font-set="material-icons">
+                        clear
+                    </md-icon>&nbsp;
+
+
                 </p>
                 <p ng-hide="sdosStats.masterKeySource.is_next_deletable_ready">
                     <md-button class="md-raised md-primary" ng-click="provideNextDeletable()">Provide next deletable key</md-button>

@@ -34,6 +34,10 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
         });
     };
 
+    $scope.clearNextDeletable = function (ev) {
+        pseudoObjectPost("clear_next_deletable");
+    };
+
 
     $scope.unlockMasterKey = function (ev) {
         // if the deletable key is a passphrase, we need to prompt for it
