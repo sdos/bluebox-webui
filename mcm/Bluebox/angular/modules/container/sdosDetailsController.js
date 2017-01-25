@@ -18,29 +18,64 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
      *
      * */
 
-    $scope.unlockMasterKey = function () {
-        var d = {'metadata' : {
-            'x-object-meta-dummy' : "for swift API compliance"
-        }};
-        $http
-            .post('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_masterkey_unlock', d)
-            .then(
-                function successCallback(response) {
-                    getSdosStats();
 
-                });
+    $scope.provideNextDeletable = function (ev) {
+        var confirm = $mdDialog.prompt()
+            .title('Provide the next deletable key for ' + ctrl.container.name)
+            .textContent('The deletable key is a passphrase; please enter the next passphrase. Once you trigger secure deletion, the master key will be replaced and encrypted with this next/new deletable key.')
+            .placeholder('passphrase')
+            .ariaLabel('passphrase')
+            .targetEvent(ev)
+            .ok('Check in')
+            .cancel('Cancel');
+
+        $mdDialog.show(confirm).then(function (result) {
+            pseudoObjectPost("next_deletable", result);
+        });
+    };
+
+
+    $scope.unlockMasterKey = function (ev) {
+        // if the deletable key is a passphrase, we need to prompt for it
+        if ($scope.sdosStats.masterKeySource.type == "static") {
+            var confirm = $mdDialog.prompt()
+                .title('Unlock the master key for ' + ctrl.container.name)
+                .textContent('The deletable key is a passphrase; please enter it')
+                .placeholder('passphrase')
+                .ariaLabel('passphrase')
+                .targetEvent(ev)
+                .ok('Unlock')
+                .cancel('Cancel');
+
+            $mdDialog.show(confirm).then(function (result) {
+                pseudoObjectPost("masterkey_unlock", result);
+            });
+        }
+        else {
+            pseudoObjectPost("masterkey_unlock");
+        }
     };
 
     $scope.lockMasterKey = function () {
-        var d = {'metadata' : {
-            'x-object-meta-dummy' : "for swift API compliance"
-        }};
+        pseudoObjectPost("masterkey_lock");
+    };
+
+    function pseudoObjectPost(operation, passphrase) {
+        var d = {
+            'metadata': {
+                'x-object-meta-dummy': "for swift API compliance"
+            }
+        };
+        if (passphrase) {
+            d.metadata['x-object-meta-passphrase'] = passphrase;
+        }
+        console.log(passphrase)
+        console.log(d)
         $http
-            .post('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_masterkey_lock', d)
+            .post('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_' + operation, d)
             .then(
                 function successCallback(response) {
                     getSdosStats();
-
                 });
     };
 
@@ -58,7 +93,7 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
                 function successCallback(response) {
                     $scope.sdosStats = response.data;
                     if ($scope.sdosStats.masterKeySource) {
-                        $scope.sdosStats.masterKeySource.keyIdColor = '#' + $scope.sdosStats.masterKeySource.key_id.substring(0,6);
+                        $scope.sdosStats.masterKeySource.keyIdColor = '#' + $scope.sdosStats.masterKeySource.key_id.substring(0, 6);
                     }
 
                 },
