@@ -101,11 +101,11 @@ def doPlot1log(data, nrDataSource):
     return c
 
 
-def doPlot11(data, nrDataSource):
+def doPlot11(data, nrDataSource, logScale=""):
     print(data)
     print(data.columns)
     p = Line(data, title="Line graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1],
-             responsive=True)
+             responsive=True, y_mapper_type=logScale)
     c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
     return c
 
@@ -212,6 +212,8 @@ def doPlot():
             c = doPlot1log(data=df, nrDataSource=nrDataSource)
         elif ('line' == plotType):
             c = doPlot11(data=df, nrDataSource=nrDataSource)
+        elif ('line_log' == plotType):
+            c = doPlot11(data=df, nrDataSource=nrDataSource, logScale="log")
         elif ('box' == plotType):
             c = doPlot_Box(data=df, nrDataSource=nrDataSource)
         elif ('stackedBar' == plotType):
