@@ -20,9 +20,9 @@ this is the current config file for bluebox.
 """
 # log_level = logging.CRITICAL
 # log_level = logging.ERROR
-# log_level = logging.WARNING
+log_level = logging.WARNING
 # log_level = logging.INFO
-log_level = logging.DEBUG
+#log_level = logging.DEBUG
 
 """
 ################################################################################
