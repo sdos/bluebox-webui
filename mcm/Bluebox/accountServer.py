@@ -144,9 +144,11 @@ def get_tenant_from_request(request):
     else:
         raise HttpError("cookie missing (tenant)", 401)
 
+
 def get_and_assert_tenant_from_request(request):
     assert_token_tenant_validity(request)
     return get_tenant_from_request(request)
+
 
 def get_swift_url_from_request(request):
     t = get_tenant_from_request(request)
@@ -157,6 +159,7 @@ def strip_url_to_tenant_id(url):
     if not url.startswith(configuration.swift_store_url_valid_prefix):
         raise HttpError("swift returned wrong storage URL")
     return url[len(configuration.swift_store_url_valid_prefix):]
+
 
 def get_user_from_request(request):
     t = request.cookies.get(COOKIE_NAME_USER)
@@ -219,13 +222,30 @@ def assert_no_xsrf(request):
 def getAccount():
     swiftRcString = """
 #!/bin/bash
-export ST_AUTH={auth}
-export ST_USER={tenant}:{user}
-export ST_KEY=<your password>
+# for use with python-swiftclient and keystone auth v2.0
+# and other openstack tools that use the object store API
+
+export OS_AUTH_URL={swift_auth_url}
+
+# With the addition of Keystone we have standardized on the term **tenant**
+# as the entity that owns the resources.
+export OS_TENANT_ID={tenant}
+export OS_TENANT_NAME="SDOS"
+export OS_PROJECT_NAME="SDOS"
+
+# In addition to the owning entity (tenant), OpenStack stores the entity
+# performing the action as the **user**.
+export OS_USERNAME="{user}"
+
+# With Keystone you pass the keystone password.
+echo "Please enter your OpenStack Password: "
+read -sr OS_PASSWORD_INPUT
+export OS_PASSWORD=$OS_PASSWORD_INPUT
+
 	"""
     assert_token_tenant_validity(request)
     s = swiftRcString.format(
-        auth=request.cookies.get(COOKIE_NAME_SWIFT_URL),
+        swift_auth_url=configuration.swift_auth_url,
         tenant=get_tenant_from_request(request),
         user=get_user_from_request(request))
     return Response(s, mimetype="text/plain")
