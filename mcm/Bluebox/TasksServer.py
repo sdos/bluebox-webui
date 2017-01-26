@@ -21,7 +21,7 @@ from flask import request, Response
 
 from mcm.Bluebox import accountServer
 from mcm.Bluebox import app
-from mcm.Bluebox import appConfig
+from mcm.Bluebox import configuration
 from mcm.Bluebox.exceptions import HttpError
 from mcm.Bluebox.parallelExecution.Pool import KafkaClientPool
 
@@ -59,12 +59,12 @@ def __try_parse_msg_content(m):
 
 def __get_kafka_topic(topic):
     pool = KafkaClientPool()
-    return pool.getTopic(appConfig.kafka_broker_endpoint, topic)
+    return pool.getTopic(configuration.kafka_broker_endpoint, topic)
 
 
 def __get_kafka_consumer(topic, consumer_group):
     pool = KafkaClientPool()
-    return pool.getConsumer(appConfig.kafka_broker_endpoint, topic, consumer_group)
+    return pool.getConsumer(configuration.kafka_broker_endpoint, topic, consumer_group)
 
 
 @app.route(API_ROOT + "/types", methods=["GET"])

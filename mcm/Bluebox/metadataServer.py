@@ -19,7 +19,7 @@ from flask import request, Response, send_file, render_template
 import requests
 
 from mcm.Bluebox import app, metadataFieldDefinitions
-from mcm.Bluebox import appConfig
+from mcm.Bluebox import configuration
 from mcm.Bluebox.exceptions import HttpError
 
 

@@ -23,7 +23,7 @@ from bokeh.embed import components
 from flask import request, Response
 
 from mcm.Bluebox import app, accountServer
-from mcm.Bluebox import appConfig
+from mcm.Bluebox import configuration
 from mcm.Bluebox.exceptions import HttpError
 
 """
@@ -34,7 +34,7 @@ Data schema
 
 
 def __get_db_connection_for_tenant(tenant):
-    d = appConfig.metadata_warehouse_endpoint.copy()
+    d = configuration.metadata_warehouse_endpoint.copy()
     d["database"] = d["database"].format(tenant)
     return d
 
@@ -159,7 +159,7 @@ HTTP-API endpoints
 
 
 def getDataFromNodeRed(nrDataSource):
-    url = appConfig.nodered_url + nrDataSource['url']
+    url = configuration.nodered_url + nrDataSource['url']
     logging.info("getting data from node red at: {}".format(url))
     r = requests.get(url)
     if r.status_code == 404:
@@ -232,14 +232,14 @@ def doPlot():
 
 @app.route("/api_analytics/nrendpoint", methods=["GET"])
 def getNodeRedEndpoint():
-    e = {"url": appConfig.nodered_url}
+    e = {"url": configuration.nodered_url}
     return Response(json.dumps(e), mimetype="application/json")
 
 
 @app.route("/api_analytics/nrsources", methods=["GET"])
 def getNodeRedEnpointList():
     accountServer.assert_token_tenant_validity(request)
-    n = requests.get(appConfig.nodered_url + "/flows").json()
+    n = requests.get(configuration.nodered_url + "/flows").json()
     sources = []
     for s in n:
         # Node-RED has a strange API... we can't reconstruct node/flow relationships...

@@ -9,11 +9,11 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 
-from mcm.Bluebox import appConfig
+from mcm.Bluebox import configuration
 import multiprocessing
 
 
-bind = "{}:{}".format(appConfig.netHostProd, appConfig.netPortProd)
+bind = "{}:{}".format(configuration.netHostProd, configuration.netPortProd)
 workers = multiprocessing.cpu_count() * 2 + 1
 workers = workers * 3 # triple power!
 #workers = 1 #

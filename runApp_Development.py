@@ -10,14 +10,14 @@
 """
 
 from mcm.Bluebox import app
-from mcm.Bluebox import appConfig
+from mcm.Bluebox import configuration
 
 
 # socketio.run(
 # 			app,
 app.run(
-			host=appConfig.netHostDev,
-			port=int(appConfig.netPortDev),
+			host=configuration.netHostDev,
+			port=int(configuration.netPortDev),
 			debug=True,
 			threaded=True
 )

@@ -16,7 +16,7 @@ from swiftclient import ClientException
 from swiftclient import client
 
 from mcm.Bluebox import app
-from mcm.Bluebox import appConfig
+from mcm.Bluebox import configuration
 from mcm.Bluebox import SwiftConnect
 from mcm.Bluebox.exceptions import HttpError
 
@@ -76,19 +76,19 @@ def doLogin():
 
 
 def doAuthGetToken(_tenant, _user, _password):
-    log.debug("Connecting to authentication endpoint at: {}".format(appConfig.swift_auth_url))
-    swift_store_url = appConfig.swift_store_url_valid_prefix.format(_tenant)
+    log.debug("Connecting to authentication endpoint at: {}".format(configuration.swift_auth_url))
+    swift_store_url = configuration.swift_store_url_valid_prefix.format(_tenant)
 
-    if ("1.0" == appConfig.swift_auth_version):
-        c = client.Connection(authurl=appConfig.swift_auth_url,
+    if ("1.0" == configuration.swift_auth_version):
+        c = client.Connection(authurl=configuration.swift_auth_url,
                               user=_tenant + ":" + _user,
                               key=_password,
                               auth_version="2.0",
                               os_options={"project_id": _tenant,
                                           "user_id": _user})
 
-    elif ("2.0" == appConfig.swift_auth_version):
-        c = client.Connection(authurl=appConfig.swift_auth_url,
+    elif ("2.0" == configuration.swift_auth_version):
+        c = client.Connection(authurl=configuration.swift_auth_url,
                               user=_user,
                               key=_password,
                               tenant_name=_tenant,
@@ -150,13 +150,13 @@ def get_and_assert_tenant_from_request(request):
 
 def get_swift_url_from_request(request):
     t = get_tenant_from_request(request)
-    return appConfig.swift_store_url_valid_prefix + t
+    return configuration.swift_store_url_valid_prefix + t
 
 
 def strip_url_to_tenant_id(url):
-    if not url.startswith(appConfig.swift_store_url_valid_prefix):
+    if not url.startswith(configuration.swift_store_url_valid_prefix):
         raise HttpError("swift returned wrong storage URL")
-    return url[len(appConfig.swift_store_url_valid_prefix):]
+    return url[len(configuration.swift_store_url_valid_prefix):]
 
 def get_user_from_request(request):
     t = request.cookies.get(COOKIE_NAME_USER)

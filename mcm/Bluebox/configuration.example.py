@@ -35,10 +35,10 @@ this is the socket that the "dev" runner will listen on.
 VCAP_APP_* variables are used in cloudfoundry environments; the second parameter is the fallback which will be used normally
 note that with this config, the DEV runner is only locally visible. Only the PROD runner listening on 0.0.0.0 will be accessible form th eoutside
 """
-netPortDev = os.getenv("VCAP_APP_PORT", "8080")
+netPortDev = os.getenv("VCAP_APP_PORT", "8000")
 netHostDev = os.getenv("VCAP_APP_HOST", "127.0.0.1")
 
-netPortProd = os.getenv("VCAP_APP_PORT", "8080")
+netPortProd = os.getenv("VCAP_APP_PORT", "8000")
 netHostProd = os.getenv("VCAP_APP_HOST", "0.0.0.0")
 
 """
@@ -58,10 +58,10 @@ swift_store_url = <>
 """
 endpoint for swift. localhost:3000 is the default for the SDOS API proxy.
 """
-swift_auth_url = "http://localhost:5000/auth/v1.0"
-swift_store_url_valid_prefix = "http://localhost:5000/v1/AUTH_"
+swift_auth_url = "http://localhost:3000/auth/v2.0"
+swift_store_url_valid_prefix = "http://localhost:3000/v1/AUTH_"
 
-swift_auth_version = "1.0"
+swift_auth_version = "2.0"
 
 """
 ################################################################################
