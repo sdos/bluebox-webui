@@ -90,4 +90,4 @@ metadata_warehouse_endpoint = {
 used by Analytics. Please provide the URL that points to the Node-RED root.
 ################################################################################
 """
-nodered_url = "http://host:1880"
+nodered_url = "http://localhost:1880"
