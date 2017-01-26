@@ -79,7 +79,7 @@ used by Analytics. Endpoint of the metadata warehouse PostgreSQL db
 metadata_warehouse_endpoint = {
 	"database": "mcm-metadata_{}",
 	"user": "postgres",
-	"password": "...",
+	"password": "testing",
 	"host": "localhost",
 	"port": "5432"
 }
