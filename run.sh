@@ -6,4 +6,4 @@ source setenv.sh
 #python _runApp_Development.py
 
 # listen on all interfaces, no debug
-_runApp_Production.sh
+./_runApp_Production.sh
