@@ -14,39 +14,6 @@
     <md-content class="bb-container">
 
         <div layout="column">
-
-
-            <div>
-
-
-                <p>Master key available: <b
-                        ng-style="sdosStats.masterKeySource.is_unlocked && {'color': 'green'} || {'color': 'red'}">{{ sdosStats.masterKeySource.is_unlocked }}</b>
-                </p>
-                <p ng-hide="sdosStats.masterKeySource.is_unlocked">
-                    <md-button class="md-raised md-primary" ng-click="unlockMasterKey()">Unlock master key</md-button>
-                </p>
-                <p ng-hide="!sdosStats.masterKeySource.is_unlocked">
-                    <md-button class="md-raised md-warn" ng-click="lockMasterKey()">Lock master key</md-button>
-                </p>
-                <p>Master key ID: <b ng-style="{ 'mix-blend-mode': 'difference',  'color': 'black', 'background': sdosStats.masterKeySource.keyIdColor }">{{ sdosStats.masterKeySource.key_id }}</b></p>
-                <p>Master key secured by: <b>{{ sdosStats.masterKeySource.type }}</b></p>
-                <p>Next deletable key available: <b
-                        ng-style="sdosStats.masterKeySource.is_next_deletable_ready && {'color': 'green'} || {'color': 'red'}">{{ sdosStats.masterKeySource.is_next_deletable_ready }}</b>
-
-                    <md-icon ng-click="clearNextDeletable()" ng-hide="!sdosStats.masterKeySource.is_next_deletable_ready" md-font-set="material-icons">
-                        clear
-                    </md-icon>&nbsp;
-
-
-                </p>
-                <p ng-hide="sdosStats.masterKeySource.is_next_deletable_ready">
-                    <md-button class="md-raised md-primary" ng-click="provideNextDeletable()">Provide next deletable key</md-button>
-                </p>
-
-
-            </div>
-
-            <md-divider></md-divider>
             <div>
                 <p>Utilization: <b>{{ sdosStats.utilization }}</b>
                     <br>
@@ -58,8 +25,6 @@
                     <br>Keys in one partition: <b>{{ sdosStats.partitionSize }}</b>
                     <br>
                     <br>Tree height: <b>{{ sdosStats.levels }}</b></p>
-            </div>
-            <div>
                 <p>
                     <md-button aria-label="Show Key Cascade" class="md-raised" ng-click="showCascadeSheet($event)">
                         <md-icon md-font-set="material-icons">
@@ -77,10 +42,54 @@
                     </md-button>
                 </p>
             </div>
+            <md-divider></md-divider>
+
+            <div>
+                <p>Master key available: <b
+                        ng-style="sdosStats.masterKeySource.is_unlocked && {'color': 'green'} || {'color': 'red'}">{{ sdosStats.masterKeySource.is_unlocked }}</b>
+                </p>
+                <p ng-hide="sdosStats.masterKeySource.is_unlocked">
+                    <md-button class="md-raised md-primary" ng-click="unlockMasterKey()">Unlock master key</md-button>
+                </p>
+                <p ng-hide="!sdosStats.masterKeySource.is_unlocked">
+                    <md-button class="md-raised md-warn" ng-click="lockMasterKey()">Lock master key</md-button>
+                </p>
+                <p>Master key ID: <b
+                        ng-style="{ 'mix-blend-mode': 'difference',  'color': 'black', 'background': sdosStats.masterKeySource.keyIdColor }">{{ sdosStats.masterKeySource.key_id }}</b>
+                </p>
+                <p>Master key secured by: <b>{{ sdosStats.masterKeySource.type }}</b></p>
+                <p>Next deletable key available: <b
+                        ng-style="sdosStats.masterKeySource.is_next_deletable_ready && {'color': 'green'} || {'color': 'red'}">{{ sdosStats.masterKeySource.is_next_deletable_ready }}</b>
+
+                    <md-icon ng-click="clearNextDeletable()"
+                             ng-hide="!sdosStats.masterKeySource.is_next_deletable_ready" md-font-set="material-icons">
+                        clear
+                    </md-icon>
+                    &nbsp;
 
 
+                </p>
+                <p ng-hide="sdosStats.masterKeySource.is_next_deletable_ready">
+                    <md-button class="md-raised md-primary" ng-click="provideNextDeletable()">Provide next deletable
+                        key
+                    </md-button>
+                </p>
+            </div>
 
+            <md-divider></md-divider>
 
+            <div>
+                <p>Batch delete active:
+                    <md-input-container>
+                        <md-switch ng-model="sdosStats.batchDelete"
+                                   aria-label="sdos batch delete">
+                            <b
+                                    ng-style="sdosStats.batchDelete && {'color': 'green'} || {'color': 'grey'}">{{ sdosStats.batchDelete }}</b>
+                        </md-switch>
+                    </md-input-container>
+                </p>
+                <p>Log has a length of: {{ sdosStats.batchDeleteLogLength }}</p>
+            </div>
 
 
         </div>

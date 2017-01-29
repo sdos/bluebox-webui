@@ -14,9 +14,10 @@ fileSystemModule.controller('FileSystemController',
             var newContainerTemplate = {
                 name: undefined,
                 sdos: false,
-                sdosHeight: 2, //height is with root in the UI/API but without SDOS-internally!
-                sdosPartitionBits: 2,
-                sdosMasterKey : "static"
+                sdosHeight: 3, //height is with root in the UI/API but without SDOS-internally!
+                sdosPartitionBits: 8,
+                sdosMasterKey : "static",
+                sdosBatchDelete: false
             };
             $scope.newContainer = newContainerTemplate;
 

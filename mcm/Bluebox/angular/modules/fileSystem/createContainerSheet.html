@@ -32,15 +32,34 @@
                 </md-input-container>
 
 
+                <p>
+                    <!-- Button to submit the form and create a new container -->
+                    <md-button class="md-raised md-warn" ng-disabled="!newContainer.name" type="submit">
+                        <md-icon md-font-set="material-icons">
+                            done
+                        </md-icon>
+                        Create
+                    </md-button>
+                    <md-button class="md-raised md-warn" ng-disabled="!newContainer.name" type="submit"
+                               ng-click="cancel()">
+                        <md-icon md-font-set="material-icons">
+                            done_all
+                        </md-icon>
+                        Create & Close
+                    </md-button>
+                </p>
+
+
                 <md-input-container>
                     <md-switch ng-model="newContainer.sdos" aria-label="sdos encryption">
                         Enable SDOS encryption and cryptographic deletion
                     </md-switch>
                 </md-input-container>
 
+
                 <md-card ng-style="newContainer.sdos && {'opacity': 1, 'background': 'linen'} || {'opacity': 0.3}">
                     <md-card-title>
-                        <b>Cascade properties</b>
+                        <b>Tree properties</b>
                     </md-card-title>
 
                     <md-card-content>
@@ -50,8 +69,10 @@
                                      src="/angular/icons/example-tree.svg"/>
                             </div>
                             <div flex>
-                                <p>The <i>Key Cascade</i> tree structure manages all the object keys in its leaves. The height
-                                    and node degree determine how many keys are available as well as the performance.</p>
+                                <p>The <i>Key Cascade</i> tree structure manages all the object keys in its leaves. The
+                                    height
+                                    and node degree determine how many keys are available as well as the performance.
+                                </p>
                                 <p><- This example tree has height <b>2</b> and <b>2</b> partition bits.</p>
                                 <md-divider></md-divider>
                                 <p>New container will have height <b>{{ newContainer.sdosHeight }}</b> and
@@ -67,7 +88,8 @@
 
                         <md-slider-container ng-disabled="!newContainer.sdos">
                             <span>Tree height</span>
-                            <md-slider flex min="2" md-discrete class="md-primary" max="16" ng-model="newContainer.sdosHeight">
+                            <md-slider flex min="2" md-discrete class="md-primary" max="16"
+                                       ng-model="newContainer.sdosHeight">
                             </md-slider>
                             <md-input-container>
                                 <input flex type="number" ng-model="newContainer.sdosHeight">
@@ -75,7 +97,8 @@
                         </md-slider-container>
                         <md-slider-container ng-disabled="!newContainer.sdos">
                             <span>Partition bits</span>
-                            <md-slider flex min="2" max="16" md-discrete class="md-primary" ng-model="newContainer.sdosPartitionBits">
+                            <md-slider flex min="2" max="16" md-discrete class="md-primary"
+                                       ng-model="newContainer.sdosPartitionBits">
                             </md-slider>
                             <md-input-container>
                                 <input flex type="number" ng-model="newContainer.sdosPartitionBits">
@@ -192,6 +215,40 @@
                             </div>
 
                         </md-radio-group>
+
+
+                    </md-card-content>
+                </md-card>
+
+
+                <md-card ng-style="newContainer.sdos && {'opacity': 1, 'background': 'linen'} || {'opacity': 0.3}">
+                    <md-card-title>
+                        <b>Batch deletion</b>
+                    </md-card-title>
+                    <md-card-content>
+
+                        <div flex layout="row" class="bb-align-margin-small">
+                            <div flex>
+
+
+                                <md-input-container>
+                                    <md-switch ng-model="newContainer.sdosBatchDelete"
+                                               aria-label="sdos batch delete">
+                                        <b>{{ newContainer.sdosBatchDelete }}</b>
+                                    </md-switch>
+                                </md-input-container>
+                            </div>
+                            <div flex>
+                                <p>Names of deleted objects get saved to a log so that secure deletion
+                                    (re-keying) can be done later for a batch of objects.
+                                </p>
+                                <p>Object contents are deleted from the object store but the keys remain, and the names
+                                    remain allocated, until batch deletion is triggered. This <q>batch delete</q>
+                                    mode can be turned on/off at any time.</p>
+
+
+                            </div>
+                        </div>
 
 
                     </md-card-content>
