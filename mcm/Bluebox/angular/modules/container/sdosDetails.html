@@ -79,16 +79,17 @@
             <md-divider></md-divider>
 
             <div>
-                <p>Batch delete active:
-                    <md-input-container>
-                        <md-switch ng-model="sdosStats.batchDelete"
-                                   aria-label="sdos batch delete">
-                            <b
-                                    ng-style="sdosStats.batchDelete && {'color': 'green'} || {'color': 'grey'}">{{ sdosStats.batchDelete }}</b>
-                        </md-switch>
-                    </md-input-container>
+                <p>Batch delete in use:
+                    <b ng-style="sdosStats.batchDelete && {'color': 'green'} || {'color': 'grey'}">{{ sdosStats.batchDelete }}</b>
                 </p>
-                <p>Log has a length of: {{ sdosStats.batchDeleteLogLength }}</p>
+
+
+                <p ng-hide="!sdosStats.batchDelete">Log has a length
+                    of: {{ sdosStats.batchDeleteLogLength }}</p>
+                <p ng-hide="!sdosStats.batchDeleteLogLength">
+                    <md-button class="md-raised md-warn" ng-click="batch_delete_start()">Execute batch delete log
+                    </md-button>
+                </p>
             </div>
 
 

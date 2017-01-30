@@ -19,6 +19,11 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
      * */
 
 
+    $scope.batch_delete_start = function (ev) {
+        pseudoObjectPost("batch_delete_start");
+    }
+
+
     $scope.provideNextDeletable = function (ev) {
         var confirm = $mdDialog.prompt()
             .title('Provide the next deletable key for ' + ctrl.container.name)
