@@ -4,9 +4,10 @@
 function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
     console.log("SDOS");
     var ctrl = this;
-    $scope.sdosStats = null;
-    $scope.sdosUsedPartitions = null;
-    $scope.sdosPartitionMapping = null;
+    $scope.sdos_cascade_stats = null;
+    $scope.sdos_batch_delete_log = null;
+    $scope.sdos_used_partitions = null;
+    $scope.sdos_partition_mapping = null;
     $scope.container = ctrl.container;
     $scope.availableSlotBlockCounts = [10, 100, 1000, 10000];
     $scope.slotBlockCount = $scope.availableSlotBlockCounts[2];
@@ -46,7 +47,7 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
 
     $scope.unlockMasterKey = function (ev) {
         // if the deletable key is a passphrase, we need to prompt for it
-        if ($scope.sdosStats.masterKeySource.type == "passphrase") {
+        if ($scope.sdos_cascade_stats.masterKeySource.type == "passphrase") {
             var confirm = $mdDialog.prompt()
                 .title('Unlock the master key for ' + ctrl.container.name)
                 .textContent('The deletable key is a passphrase; please enter it')
@@ -100,9 +101,9 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
             .get('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_cascade_stats')
             .then(
                 function successCallback(response) {
-                    $scope.sdosStats = response.data;
-                    if ($scope.sdosStats.masterKeySource) {
-                        $scope.sdosStats.masterKeySource.keyIdColor = '#' + $scope.sdosStats.masterKeySource.key_id.substring(0, 6);
+                    $scope.sdos_cascade_stats = response.data;
+                    if ($scope.sdos_cascade_stats.masterKeySource) {
+                        $scope.sdos_cascade_stats.masterKeySource.keyIdColor = '#' + $scope.sdos_cascade_stats.masterKeySource.key_id.substring(0, 6);
                     }
 
                 },

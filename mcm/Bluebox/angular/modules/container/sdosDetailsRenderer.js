@@ -47,7 +47,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     var svg;
 
 
-    var cascadeData = _.clone($scope.sdosStats);
+    var cascadeData = _.clone($scope.sdos_cascade_stats);
 
 
     /**
@@ -72,7 +72,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             .get('swift/containers/' + $scope.container.name + '/objects/__mcm__/sdos_used_partitions')
             .then(
                 function successCallback(response) {
-                    $scope.sdosUsedPartitions = response.data;
+                    $scope.sdos_used_partitions = response.data;
                     getSdosMapping();
 
                 },
@@ -92,7 +92,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             .get('swift/containers/' + $scope.container.name + '/objects/__mcm__/sdos_partition_mapping')
             .then(
                 function successCallback(response) {
-                    $scope.sdosPartitionMapping = response.data;
+                    $scope.sdos_partition_mapping = response.data;
                     doRender();
                     showSelectedObject();
                     $scope.isRenderComplete = true;
@@ -116,8 +116,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
 
     function getParentOfObject(objName) {
-        for (var p in $scope.sdosPartitionMapping) {
-            var thisNode = $scope.sdosPartitionMapping[p];
+        for (var p in $scope.sdos_partition_mapping) {
+            var thisNode = $scope.sdos_partition_mapping[p];
             for (var n in thisNode) {
                 if (thisNode[n].objName == objName) {
                     return p;
@@ -145,8 +145,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
     function doRender() {
 
-        cascadeData.usedPartitions = $scope.sdosUsedPartitions;
-        cascadeData.objectMapping = $scope.sdosPartitionMapping;
+        cascadeData.usedPartitions = $scope.sdos_used_partitions;
+        cascadeData.objectMapping = $scope.sdos_partition_mapping;
         //console.log(cascadeData);
         renderTree(cascadeData);
 

@@ -7,11 +7,8 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
-import os, logging
+import logging
 
-"""
-this is the current config file for bluebox. 
-"""
 
 """
 ###############################################################################
@@ -35,24 +32,16 @@ this is the socket that the "dev" runner will listen on.
 VCAP_APP_* variables are used in cloudfoundry environments; the second parameter is the fallback which will be used normally
 note that with this config, the DEV runner is only locally visible. Only the PROD runner listening on 0.0.0.0 will be accessible form th eoutside
 """
-netPortDev = os.getenv("VCAP_APP_PORT", "8000")
-netHostDev = os.getenv("VCAP_APP_HOST", "127.0.0.1")
+netPortDev = "8000"
+netHostDev = "127.0.0.1"
 
-netPortProd = os.getenv("VCAP_APP_PORT", "8000")
-netHostProd = os.getenv("VCAP_APP_HOST", "0.0.0.0")
+netPortProd = "8000"
+netHostProd = "0.0.0.0"
 
 """
 ################################################################################
 define the Swift server connection below:
 ################################################################################
-
-when using the Object Storage service on Bluemix:
-swift_url = <url>/v3
-#swift_user = "<userId>"
-#swift_pw = "<password>"
-swift_auth_version = 3
-swift_tenant = <projectId>
-swift_store_url = <>
 """
 
 """

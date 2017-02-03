@@ -35,7 +35,7 @@
             <button id="zoom_out">-</button>
         </div>
 
-        <div ng-if="sdosStats">
+        <div ng-if="sdos_cascade_stats">
             <h3>sdosStats</h3>
             <p class="bbAllocBlocks">{{ sdosStats }}</p>
         </div>
@@ -47,7 +47,7 @@
             </md-switch>
         </md-input-container>
 
-        <div ng-if="sdosUsedPartitions && showPartitions">
+        <div ng-if="sdos_used_partitions && showPartitions">
 
             <p class="bbAllocBlocks">{{ sdosUsedPartitions }}</p>
         </div>
@@ -59,7 +59,7 @@
             </md-switch>
         </md-input-container>
 
-        <div ng-if="sdosPartitionMapping && showMapping">
+        <div ng-if="sdos_partition_mapping && showMapping">
 
             <p class="bbAllocBlocks">{{ sdosPartitionMapping }}</p>
         </div>
