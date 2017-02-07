@@ -15,16 +15,16 @@
 
         <div layout="column">
             <div>
-                <p>Utilization: <b>{{ sdosStats.utilization }}</b>
+                <p>Utilization: <b>{{ sdos_cascade_stats.utilization }}</b>
                     <br>
-                    <br>Keys used: <b>{{ sdosStats.numObjects | numberFormat }}</b>
-                    <br>Keys free: <b>{{ sdosStats.freeSlots | numberFormat }}</b>
-                    <br>Keys total: <b>{{ sdosStats.numSlots| numberFormat }}</b>
+                    <br>Keys used: <b>{{ sdos_cascade_stats.numObjects | numberFormat }}</b>
+                    <br>Keys free: <b>{{ sdos_cascade_stats.freeSlots | numberFormat }}</b>
+                    <br>Keys total: <b>{{ sdos_cascade_stats.numSlots| numberFormat }}</b>
                     <br>
-                    <br>Num partitions max: <b>{{ sdosStats.numPartitions| numberFormat }}</b>
-                    <br>Keys in one partition: <b>{{ sdosStats.partitionSize }}</b>
+                    <br>Num partitions max: <b>{{ sdos_cascade_stats.numPartitions| numberFormat }}</b>
+                    <br>Keys in one partition: <b>{{ sdos_cascade_stats.partitionSize }}</b>
                     <br>
-                    <br>Tree height: <b>{{ sdosStats.levels }}</b></p>
+                    <br>Tree height: <b>{{ sdos_cascade_stats.levels }}</b></p>
                 <p>
                     <md-button aria-label="Show Key Cascade" class="md-raised" ng-click="showCascadeSheet($event)">
                         <md-icon md-font-set="material-icons">
@@ -46,7 +46,7 @@
 
             <div>
                 <p>Master key available: <b
-                        ng-style="sdos_cascade_stats.masterKeySource.is_unlocked && {'color': 'green'} || {'color': 'red'}">{{ sdosStats.masterKeySource.is_unlocked }}</b>
+                        ng-style="sdos_cascade_stats.masterKeySource.is_unlocked && {'color': 'green'} || {'color': 'red'}">{{ sdos_cascade_stats.masterKeySource.is_unlocked }}</b>
                 </p>
                 <p ng-hide="sdos_cascade_stats.masterKeySource.is_unlocked">
                     <md-button class="md-raised md-primary" ng-click="unlockMasterKey()">Unlock master key</md-button>
@@ -55,11 +55,11 @@
                     <md-button class="md-raised md-warn" ng-click="lockMasterKey()">Lock master key</md-button>
                 </p>
                 <p>Master key ID: <b
-                        ng-style="{ 'mix-blend-mode': 'difference',  'color': 'black', 'background': sdos_cascade_stats.masterKeySource.keyIdColor }">{{ sdosStats.masterKeySource.key_id }}</b>
+                        ng-style="{ 'mix-blend-mode': 'difference',  'color': 'black', 'background': sdos_cascade_stats.masterKeySource.keyIdColor }">{{ sdos_cascade_stats.masterKeySource.key_id }}</b>
                 </p>
-                <p>Master key secured by: <b>{{ sdosStats.masterKeySource.type }}</b></p>
+                <p>Master key secured by: <b>{{ sdos_cascade_stats.masterKeySource.type }}</b></p>
                 <p>Next deletable key available: <b
-                        ng-style="sdos_cascade_stats.masterKeySource.is_next_deletable_ready && {'color': 'green'} || {'color': 'red'}">{{ sdosStats.masterKeySource.is_next_deletable_ready }}</b>
+                        ng-style="sdos_cascade_stats.masterKeySource.is_next_deletable_ready && {'color': 'green'} || {'color': 'red'}">{{ sdos_cascade_stats.masterKeySource.is_next_deletable_ready }}</b>
 
                     <md-icon ng-click="clearNextDeletable()"
                              ng-hide="!sdos_cascade_stats.masterKeySource.is_next_deletable_ready" md-font-set="material-icons">
@@ -80,12 +80,12 @@
 
             <div>
                 <p>Batch delete in use:
-                    <b ng-style="sdos_cascade_stats.batchDelete && {'color': 'green'} || {'color': 'grey'}">{{ sdosStats.batchDelete }}</b>
+                    <b ng-style="sdos_cascade_stats.batchDelete && {'color': 'green'} || {'color': 'grey'}">{{ sdos_cascade_stats.batchDelete }}</b>
                 </p>
 
 
                 <p ng-hide="!sdos_cascade_stats.batchDelete">Log has a length
-                    of: {{ sdosStats.batchDeleteLogLength }}</p>
+                    of: {{ sdos_cascade_stats.batchDeleteLogLength }}</p>
                 <p ng-hide="!sdos_cascade_stats.batchDeleteLogLength">
                     <md-button class="md-raised md-warn" ng-click="batch_delete_start()">Execute batch delete log
                     </md-button>

@@ -8,10 +8,15 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
     var icon_file = "/angular/icons/d3/plusfile.svg";
     var icon_key = "/angular/icons/d3/key.svg";
+    var icon_key_closed = "/angular/icons/d3/key_closed.svg";
     var icon_masterkey = "/angular/icons/d3/masterkey.svg";
     var icon_plusfile = "/angular/icons/d3/pluskey_object.svg";
     var icon_pluskey = "/angular/icons/d3/pluskey.svg";
     var icon_object = "/angular/icons/d3/key_object.svg";
+    var icon_selectedfile = "/angular/icons/d3/selected_file.svg";
+    var icon_selectedkey = "/angular/icons/d3/selected_key.svg";
+    var icon_key_delete = "/angular/icons/d3/key_object_delete.svg";
+    var icon_file_delete = "/angular/icons/d3/plusfile_delete.svg";
 
     var dataset;
     var inicialTree = [];
@@ -73,33 +78,23 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             .then(
                 function successCallback(response) {
                     $scope.sdos_used_partitions = response.data;
-                    getSdosMapping();
+                    $http
+                        .get('swift/containers/' + $scope.container.name + '/objects/__mcm__/sdos_partition_mapping')
+                        .then(
+                            function successCallback(response) {
+                                $scope.sdos_partition_mapping = response.data;
+                                $http
+                                    .get('swift/containers/' + $scope.container.name + '/objects/__mcm__/sdos_batch_delete_log')
+                                    .then(
+                                        function successCallback(response) {
+                                            $scope.sdos_batch_delete_log = response.data;
+                                            doRender();
+                                            showSelectedObject();
+                                            $scope.isRenderComplete = true;
 
-                },
-                function errorCallback(response) {
-                    console.error("ERROR GETTING DETAILS FROM SERVER: " + response.data);
-                });
+                                        });
 
-    };
-
-
-    /*
-     * 3. step
-     * start render
-     * */
-    function getSdosMapping() {
-        $http
-            .get('swift/containers/' + $scope.container.name + '/objects/__mcm__/sdos_partition_mapping')
-            .then(
-                function successCallback(response) {
-                    $scope.sdos_partition_mapping = response.data;
-                    doRender();
-                    showSelectedObject();
-                    $scope.isRenderComplete = true;
-
-                },
-                function errorCallback(response) {
-                    console.error("ERROR GETTING DETAILS FROM SERVER: " + response.data);
+                            });
                 });
 
     };
@@ -147,6 +142,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
         cascadeData.usedPartitions = $scope.sdos_used_partitions;
         cascadeData.objectMapping = $scope.sdos_partition_mapping;
+        cascadeData.sdos_batch_delete_log = $scope.sdos_batch_delete_log;
         //console.log(cascadeData);
         renderTree(cascadeData);
 
@@ -160,57 +156,35 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
      * */
 
 
-    /* Zoom functions area
-     *
-     * Note: the var zoom is created to be called by the svg --> line 33
-     * */
-    function zoomed() {
-        svg.attr("transform",
-            "translate(" + zoom.translate() + ")" +
-            "scale(" + zoom.scale() + ")"
-        );
+    function objMapping(root) {
+
+        if (root.type == "object") {
+            if (root.parent != null)
+                mappging.push(root);
+        }
+        else {
+            if (root.children) {
+                root.children.forEach(function (d) {
+                    objMapping(d);
+                });
+            }
+            if (root._children) {
+                root._children.forEach(function (d) {
+                    objMapping(d);
+                });
+            }
+            if (root.siblings_up) {
+                root.siblings_up.forEach(function (d) {
+                    objMapping(d);
+                });
+            }
+            if (root.siblings_down) {
+                root.siblings_down.forEach(function (d) {
+                    objMapping(d);
+                });
+            }
+        }
     }
-
-    function interpolateZoom(translate, scale) {
-        var self = this;
-        return d3.transition().duration(duration).tween("zoom", function () {
-            var iTranslate = d3.interpolate(zoom.translate(), translate),
-                iScale = d3.interpolate(zoom.scale(), scale);
-            return function (t) {
-                zoom
-                    .scale(iScale(t))
-                    .translate(iTranslate(t));
-                zoomed();
-            };
-        });
-    }
-
-    function zoomClick(id) {
-        var factor = 0.5,
-            center = [width / 2, height / 2],
-            extent = zoom.scaleExtent(),
-            translate = zoom.translate(),
-            view = {x: translate[0], y: translate[1], k: zoom.scale()};
-
-        d3.event.preventDefault();
-        var direction = (id === 'zoom_in') ? 2 : -1;
-        var target_zoom = zoom.scale() * (1 + factor * direction);
-
-
-        var translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
-        view.k = target_zoom;
-        var l = [translate0[0] * view.k + view.x, translate0[1] * view.k + view.y];
-
-        view.x += center[0] - l[0];
-        view.y += center[1] - l[1];
-
-        interpolateZoom([120, 20], view.k);
-    }
-
-    d3.selectAll('button').on('click', zoomClick);
-
-    /* Ends zoom function */
-
 
     function renderTree(data) {
         console.log("rendering: " + data);
@@ -240,8 +214,36 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         closeTree(root, open);
         update(root);
 
+        d3.select("#cascadeRendering").append("input")
+            .attr("type", "checkbox")
+            .attr("id", "autoAnimation")
+            .attr("checked", "checked");
 
-        //TODO loadNode(root, "4375|110", data);
+        d3.select("#cascadeRendering").append("span")
+            .text("Automatic animation ");
+
+        d3.select("#cascadeRendering").append("input")
+            .attr("type", "button")
+            .attr("value", "next")
+            .on("click", function () {
+                stepAnimation(selected_object);
+            });
+
+        d3.select("#cascadeRendering").append("input")
+            .attr("type", "button")
+            .attr("value", "delete")
+            .on("click", function () {
+                deleteAnimation(selected_object);
+            });
+
+        var delete_text = d3.select("#cascadeRendering").append("input")
+            .attr("type", "text")
+            .attr("disabled", "disabled")
+            .attr("id", "delete_text")
+            .attr("size", 100);
+
+        d3.select("#cascadeRendering").append("br");
+
 
         /*
          * Bellow are the buttons to "Reset tree" and "Search Node"
@@ -296,15 +298,96 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             .on("click", function () {
                 searchNode(root, text, data);
             });
+
+        /*
+         *  Button and camp text delete
+         * */
+
+
     }
 
+    /*
+     * Ends rendering functions
+     * */
+
+
+    /* Zoom functions area
+     *
+     * Note: the var zoom is created to be called by the svg --> line 33
+     * */
+    function zoomed() {
+        svg.attr("transform",
+            "translate(" + zoom.translate() + ")" +
+            "scale(" + zoom.scale() + ")"
+        );
+    }
+
+    function interpolateZoom(translate, scale) {
+        var self = this;
+        return d3.transition().duration(duration).tween("zoom", function () {
+            var iTranslate = d3.interpolate(zoom.translate(), translate),
+                iScale = d3.interpolate(zoom.scale(), scale);
+            return function (t) {
+                zoom
+                    .scale(iScale(t))
+                    .translate(iTranslate(t));
+                zoomed();
+            };
+        });
+    }
+
+    function zoomClick(id) {
+        var factor = 0.5,
+            center = [width / 2, height / 2],
+            extent = zoom.scaleExtent(),
+            translate = zoom.translate(),
+            view = {x: translate[0], y: translate[1], k: zoom.scale()};
+
+        d3.event.preventDefault();
+        var direction = (id === 'zoom_in') ? 2 : -1;
+        var target_zoom = zoom.scale() * (1 + factor * direction);
+
+
+        var translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
+        view.k = target_zoom;
+        var l = [translate0[0] * view.k + view.x, translate0[1] * view.k + view.y];
+
+        view.x += center[0] - l[0];
+        view.y += center[1] - l[1];
+
+        interpolateZoom([120, 20], view.k);
+    }
+
+    function buttonClick() {
+        console.log(this.id);
+        if (this.id == 'zoom_in' || this.id == 'zoom_out') {
+
+            return zoomClick(this.id);
+        }
+        else {
+            animateClick(this.id);
+        }
+    }
+
+    d3.selectAll('button').on('click', buttonClick);
+
+    /* Ends zoom functions */
+
+
+    /*
+     *
+     * Selecting path and objects functions
+     *
+     * */
     function loadNode(source, text, data) {
         var path = [];
-        var aux = text.split("|");
-        leafPath(parseInt(aux[0]), data.partitionSize, path);
-        rightChildren(source, path, aux[1]);
+        var aux = text;
+
+
+        multipleLeafsPath(source, [aux], data.partitionSize, path);
         closeTree(source, path);
         update(root);
+        selected_object = mappging[0];
     }
 
     /* text is a string in the format "parent|object_name"
@@ -313,12 +396,81 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
      * */
     function searchNode(source, text, data) {
         var path = [];
-        var aux = text.property("value").toString().split("|");
+        var aux = text.property("value").toString();
 
-        leafPath(parseInt(aux[0]), data.partitionSize, path);
-        rightChildren(source, path, aux[1]);
+        //leafPath(parseInt(aux[0]), data.partitionSize, path);
+        multipleLeafsPath(source, [aux], data.partitionSize, path);
+
+
         closeTree(source, path);
         update(root);
+        objMapping(root);
+
+        selected_object = mappging[0];
+    }
+
+    function multipleLeafsPath(source, list, ps, path) {
+        var multiplePath = [];
+        var objects = [];
+        var open;
+
+        //list = ["4369|0", "4369|2", "4369|9", "4373|66"];
+
+        list.forEach(function (d) {
+            console.log(d);
+            var aux = d.split("|");
+            leafPath(parseInt(aux[0]), ps, path);
+            multiplePath = multiplePath.concat(path.filter(function (item) {
+                return multiplePath.indexOf(item) < 0;
+            }));
+            objects.push(aux[1]);
+
+        });
+
+        //select all nodes
+        open = rightChildren(source, multiplePath, objects);
+
+        console.log(multiplePath);
+        console.log(objects);
+
+        if (objects.length == 1) { //Search one just object
+
+            console.log(open);
+
+            var found = 0;
+            var down = 1;
+            while (!found) {
+                //look if the object is in children
+                open[1].children.forEach(function (d) {
+                    if (d.name == open[0].name) {
+                        found = 1;
+                    }
+
+                });
+
+                if (!found) {
+                    //go siblings down
+                    if (down) {
+                        siblingsDown(open[1].children[open[1].children.length - 1]);
+                        if (open[1].siblings_down.length == 0) {
+                            down = 0;
+                        }
+                    }
+                    else {
+                        siblingsUp(open[1].children[0]);
+                        if (open[1].siblings_up.length == 0) {
+                            down = 1;
+                        }
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    function openChildren(source, path, object) {
+
     }
 
     function leafPath(value, ps, path) {
@@ -330,19 +482,21 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
          * */
         if (number > 0) {
             var parent = parseInt((number - 1) / ps);
-            path.push(number);
+
+            if (path.indexOf(number) < 0)
+                path.push(number);
             leafPath(parent, ps, path);
         } else {
-            path.push(0);
+            if (path.indexOf(0) < 0)
+                path.push(0);
         }
     }
 
     function rightChildren(source, openNodes, object) {
         /* Go through all children
          * */
-        var inChildren = 0;
         var next = null;
-        var down = 1;
+        var open = null;
 
         /* Testes if the node is not closed, then open it
          * */
@@ -352,50 +506,63 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
         }
 
-        if (source.children != null) {
-            while (!inChildren) {
+        // take all children to be selected
+        var uz = [];
+        if (source.children != null)
+            uz = uz.concat(source.children);
+        if (source.siblings_down != null)
+            uz = uz.concat(source.siblings_down);
+        if (source.siblings_up != null)
+            uz = uz.concat(source.siblings_up);
 
-                source.children.forEach(function (d) {
 
-                    /* See if this node is in the OpenNodes list
-                     *  if it is and it is a "key" type, goes to the next node
-                     *  if it is a "key_object" type
-                     *  */
-                    if (openNodes.indexOf(d.name) > -1 && (d.type == "key")) {
-                        d.operation = "selected";
-                        inChildren = 1;
-                        next = d;
+        if (uz != null) {
+
+            uz.forEach(function (d) {
+
+                /* See if this node is in the OpenNodes list
+                 *  if it is and it is a "key" type, goes to the next node
+                 *  if it is a "key_object" type
+                 *  */
+
+                /*
+                 * NOTE: assume that this function will be use to mark all nodes
+                 * once and will be not another "search"
+                 * if it is, probably will be in the case of "else"
+                 * */
+
+                if (openNodes.indexOf(d.name) > -1 && (d.type == "key")) {
+                    d.operation = "selected";
+                    next = d;
+
+                    open = rightChildren(next, openNodes, object);
+
+                }
+                else if (d.type == "key_object") {
+                    if (d.children != null) {
+                        changeChildren(d);
                     }
-                    else if (d.type == "key_object" && d.children[0].name == object) {
+
+                    if (d._children[0] && object.indexOf(d._children[0].name) > -1) {
                         d.operation = "selected";
-                        inChildren = 1;
+                        changeChildren(d);
+                        console.log("dhufh");
+
+                        open = [d, source];
                     }
                     else {
                         d.operation = "none";
                     }
-
-                });
-
-                if (!inChildren) {
-                    if (down) {
-                        siblingsDown(source.children[source.children.length - 1]);
-                        if (source.siblings_down.length == 0) {
-                            down = 0;
-                        }
-                    }
-                    else {
-                        siblingsUp(source.children[0]);
-                        if (source.siblings_up.length == 0) {
-                            down = 1;
-                        }
-                    }
                 }
-            }
+                else {
+                    d.operation = "none";
+                }
+
+
+            });
         }
 
-        if (next != null) {
-            rightChildren(next, openNodes, object);
-        }
+        return open; //in case of one
 
     }
 
@@ -422,14 +589,27 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         });
     }
 
-    function newAnimation(d, visited_keys) {
+    /*
+     * ends Selecting path and objects functions
+     * */
+
+
+    /*
+     *
+     * Animation functions
+     *
+     * */
+
+    function newAnimation(d, visited_keys, callback) {
         setTimeout(function () {
+            d3.select("#delete_text").attr("value", "Inputing new key");
             d.operation = "new";
             update(d);
-            // remove next node from visited nodes
-            var next = visited_keys.shift();
-            fadingAnimation(next, visited_keys, newAnimation);
-
+            if (callback) {
+                // remove next node from visited nodes
+                var next = visited_keys.shift();
+                callback(next, visited_keys, newAnimation);
+            }
         }, 750);
 
     }
@@ -437,17 +617,28 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     function fadingAnimation(d, visited_keys, callback) {
         console.log(visited_keys);
         setTimeout(function () {
+            console.log("sdsdsdsd", d);
+            d3.select("#delete_text").attr("value", "Deleting old key");
             d.operation = "fade";
             update(d);
+            if (d.type == "object") {
+                var parent = d.parent;
+                parent.children = null;
+                update(parent);
+            }
             // remove next node from visited nodes
             if (visited_keys.length > 0) {
                 if (visited_keys[0].type != "object") {
-                    callback(d, visited_keys);
+                    callback(d, visited_keys, fadingAnimation);
                 }
                 else {
                     var next = visited_keys.shift();
                     fadingAnimation(next, visited_keys);
                     // should not have the case of trying call the callback from this point, since order
+                }
+            } else if (visited_keys.length == 0 && callback) {
+                if (d.type != "key_object" && d.type != "object") {
+                    callback(d, visited_keys);
                 }
             }
         }, 750);
@@ -455,7 +646,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     }
 
     function changingKeysAnimation(d, visited_keys) {
-        console.log(d);
+        console.log("changing", d);
         console.log(visited_keys.reverse());
         var list = visited_keys;
         fadingAnimation(d, list, newAnimation);
@@ -465,34 +656,87 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
         setTimeout(function () {
             if (d.parent) {
-                d.parent.operation = "selected";
-                update(d.parent);
+                d3.select("#delete_text").attr("value", "Selecting path from leaf to root");
+                d.operation = "selecting";
+                update(d);
                 visited_keys.push(d);
                 selectingAnimation(d.parent, visited_keys, callback);
             }
             else {
-                callback(d, visited_keys);
+                if (callback)
+                    callback(d, visited_keys);
+                else {
+                    // case when the step animation called, need put key master in the array
+                    var last = visited_keys.pop();
+                    visited_keys.push(last);
+                    visited_keys.push(last.parent);
+                }
             }
         }, 750);
 
     }
 
+    var step = 0;
+    var keys = [];
 
-    function deleteAnimation(d) {
-        selectingAnimation(d, [], changingKeysAnimation);
+    function stepAnimation(d) {
+
+        if (step == 0) {
+            // selecting step
+            selectingAnimation(d, keys);
+            step = 1;
+
+        }
+        else {
+            if (keys != []) {
+                var node = keys.pop();
+                console.log("steo", d);
+                changingKeysAnimation(node, []);
+            }
+        }
     }
 
+    function deleteAnimation(d) {
+        var auto = d3.select("#autoAnimation").property("checked");
+        if (!animation) {
+            if (auto) {
+                animation = 1;
+                selectingAnimation(d, [], changingKeysAnimation);
+            }
+            else {
+                // step by step
+                console.log("step");
+                stepAnimation(d);
+
+            }
+        }
+    }
+
+    /*
+     * End animations functions
+     *
+     * */
+
+
+    /*
+     * Drawing function
+     * */
     function update(source) {
 
         // Compute the new tree layout.
-        var nodes = tree.nodes(root).reverse(),  // list of the nodes objects, descending
-            links = tree.links(nodes);
-
+        var nodes = tree.nodes(root).reverse(); // list of the nodes objects, descending
+        var links = tree.links(nodes);
+        console.log(nodes);
         // Normalize for fixed-depth.
         nodes.forEach(function (d) {
-            d.y = d.depth * 75;
+            d.y = d.depth * 100;
         }); // the distance between nodes
 
+
+        tree.separation(separation);
+        function separation(a, b) {
+            return a.parent == b.parent ? 0.5 : 0.6;
+        }
 
         // Update the nodes…
         var node = svg.selectAll("g.node")
@@ -511,12 +755,22 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                     return clickDown(d);
                 else if (d.type == "up" || d.type == "object_up")
                     return clickUp(d);
-                else if (d.type == "object")
-                    return deleteAnimation(d);
+                else if (d.type == "object") {
+                    console.log("clicked!!");
+                    console.log(d);
+                    selected_object = d;
+                    d3.select("#valueText")
+                        .property("value",
+                            d.parent.parent.name.toString() + "|" + d.name
+                        )
+                        .attr("selected", true);
+
+                    return loadNode(root, d.parent.parent.name.toString() + "|" + d.name.toString(), dataP);
+                }
                 else return click(d)
             });
 
-        // append circles and rectangles to the nodes
+        // append svg and rectangles to the nodes
 
         function rectHeight(d) {
 
@@ -537,7 +791,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                 else final = inicial + 60;
             }
 
-            return final - inicial;
+            return final - inicial + 2;
         }
 
 
@@ -558,10 +812,10 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
         nodeEnter.append("svg:image")
             .attr("xlink:href", function (d) {
-                return d.type == "key" ? icon_key : ( d.type == "master" ? icon_masterkey : ( d.type == "object" ? icon_file :
-                    (d.type == "key_object" ? icon_object : (d.type == "up" || d.type == "down" ? icon_pluskey : icon_plusfile) )));
+                return d.type == "key" ? (d._children ? icon_key_closed : icon_key) : ( d.type == "master" ? icon_masterkey : ( d.type == "object" ? icon_file :
+                            (d.type == "key_object" ? icon_object : (d.type == "up" || d.type == "down" ? icon_pluskey : icon_plusfile) )));
             })
-            .attr("x", "-9px")
+            .attr("x", "-19px")
             .attr("y", "-24px")
             .attr("width", "37px")
             .attr("height", "37px");
@@ -569,7 +823,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
         // the label of the node
         nodeEnter.append("text")
-            .attr("x", 23)
+            .attr("x", 13)
             .attr("dy", "1.5em")
             .attr("text-anchor", function (d) {
                 return d.children || d._children ? "end" : "start";
@@ -583,15 +837,22 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         var nodeUpdate = node.transition()
             .duration(duration)
             .attr("transform", function (d) {
-                return "translate(" + d.y + "," + d.x + ")";
+                return "translate(" + (d.y) + "," + d.x + ")";
             });
 
         // the new style after the transition
         nodeUpdate.select("image")
             .attr("xlink:href", function (d) {
-                return d.operation == "new" ? icon_pluskey : (d.operation == "fade" ? "" : ( d.type == "key" ? icon_key : ( d.type == "master" ? icon_masterkey : ( d.type == "object" ? icon_file :
-                    (d.type == "key_object" ? icon_object : (d.type == "up" || d.type == "down" ? icon_pluskey : icon_plusfile) )))));
+                if ((d.type == "object" || d.type == "key_object") && d.operation == "selecting") {
+                    return d.type == "object" ? icon_file_delete : icon_key_delete;
+                }
+                if (d.type == "object" && d.parent.operation == "selected")
+                    return icon_selectedfile;
+                return d.operation == "selected" ? icon_selectedkey : (d.operation == "new" ? icon_pluskey : (d.operation == "fade" ? "" : ( d.type == "key" ? (d._children ? icon_key_closed : icon_key) : ( d.type == "master" ? icon_masterkey : ( d.type == "object" ? icon_file :
+                                        (d.type == "key_object" ? icon_object : (d.type == "up" || d.type == "down" ? icon_pluskey : icon_plusfile) ))))));
             });
+
+
         nodeUpdate.select("rect")
             .attr("width", function (d) {
                 return (d.type == "key" || d.type == "key_object") ? 40 : null
@@ -602,20 +863,26 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             .attr("class", function (d) {
                 return (d.type == "key") ? "key" : "object";
             })
-            .attr("x", "-10px")
+            .attr("x", "-20px")
             .attr("y", "-24px")
             .style("fill", function (d) {
-                return d._children ? (d.type == "key" ? "lightsteelblue" : "#c3c3c3" ) : "#fff"
+                return "lightsteelblue";
+                //return d._children ? (d.type == "key" ? "lightsteelblue" : "#c3c3c3" ) : "#fff"
             })
             .style("fill-opacity", 1)
             //TODO IDEA 1
             .style("stroke", function (d) {
-                return d.operation == "selected" ? "#dd0000" : "steelblue"
+                return "none";
+                //return d.operation == "selected" ? "#DA6B03" : ( d.operation == "selecting"? "#B83737" :"steelblue")
             })
         ;
 
 
         nodeUpdate.select("text")
+            .style("fill", function (d) {
+                if (d.type == "object" && d.parent.operation == "selected")
+                    return "#DA6B03";
+            })
             .style("fill-opacity", function (d) {
                 return d.operation == "fade" && (d.type == "key_object" || d.type == "object" ) ? 0 : 1;
             });
@@ -639,8 +906,18 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                 return d.target.id;
             });
 
+        console.log(link);
+
         // Enter any new links at the parent's previous position.
         link.enter().insert("path", "g")
+        /*.filter(function (d) {
+         console.log(d);
+         if (d.target.type != "down" && d.target.type != "up"){
+         return true;
+         }
+         else this.remove();
+
+         })*/
             .attr("class", "link")
             .attr("d", function () {
                 var o = {x: source.x0, y: source.y0};
@@ -668,6 +945,11 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         });
     }
 
+    /*
+     *
+     * Function for navigation and click events
+     *
+     * */
     function clickDown(d) {
         siblingsDown(d);
         update(d);
@@ -711,7 +993,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     }
 
     function siblingsUp(d) {
-
+        console.log("here:" + d);
         // take the new children
         var newChildren = d.parent.siblings_up.splice(d.parent.siblings_up.length - 5, 5);
 
@@ -757,6 +1039,10 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         changeChildren(d);
         update(d);
     }
+
+    /*
+     * Ends navigation and click events functions
+     * */
 
 
     /* The next functions are responsible for the translation of the
@@ -820,7 +1106,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                          * */
                         children[i] = {
                             name: objects[i].slot,
-                            "children": [{name: objects[i].objName, "type": "object"}],
+                            "_children": [{name: objects[i].objName, "type": "object"}],
                             "type": "key_object"
                         };
                     }
@@ -830,7 +1116,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                          * */
                         siblings[i - 5] = {
                             name: objects[i].slot,
-                            "children": [{name: objects[i].objName, "type": "object"}],
+                            "_children": [{name: objects[i].objName, "type": "object"}],
                             "type": "key_object"
                         };
                     }
@@ -844,7 +1130,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                     for (i = 0; i < objects.length; i++) {
                         children[i] = {
                             name: objects[i].slot,
-                            "children": [{name: objects[i].objName, "type": "object"}],
+                            "_children": [{name: objects[i].objName, "type": "object"}],
                             "type": "key_object"
                         };
                     }
@@ -919,6 +1205,5 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
          * */
         return (Math.pow(ps, level) - 1) / (ps - 1);
     }
-
 
 };

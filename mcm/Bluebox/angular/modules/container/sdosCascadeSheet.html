@@ -28,41 +28,54 @@
                                   md-diameter="80"></md-progress-circular>
         </div>
 
+        <div id="cascadeRendering"></div>
 
-        <div>
-            <div id="cascadeRendering"></div>
-            <button id="zoom_in">+</button>
-            <button id="zoom_out">-</button>
-        </div>
 
-        <div ng-if="sdos_cascade_stats">
-            <h3>sdosStats</h3>
-            <p class="bbAllocBlocks">{{ sdosStats }}</p>
-        </div>
+        <md-card>
+            <md-card-title>
+                <b>sdos_cascade_stats</b>
+            </md-card-title>
 
-        <h3>sdosUsedPartitions</h3>
-        <md-input-container>
-            <md-switch ng-model="showPartitions" aria-label="Show used partitions">
-                Show used partitions
-            </md-switch>
-        </md-input-container>
+            <md-card-content>
+                <p class="bbAllocBlocks">{{ sdos_cascade_stats }}</p>
+            </md-card-content>
+        </md-card>
 
-        <div ng-if="sdos_used_partitions && showPartitions">
 
-            <p class="bbAllocBlocks">{{ sdosUsedPartitions }}</p>
-        </div>
+        <md-card>
+            <md-card-title>
+                <b>sdos_used_partitions</b>
+            </md-card-title>
 
-        <h3>sdosPartitionMapping</h3>
-        <md-input-container>
-            <md-switch ng-model="showMapping" aria-label="Show partition mapping">
-                Show partition mapping
-            </md-switch>
-        </md-input-container>
+            <md-card-content>
+                <md-button class="md-raised" ng-hide="showPartitions" ng-click="showPartitions = true;">show</md-button>
+                <p ng-if="sdos_used_partitions && showPartitions" class="bbAllocBlocks">{{ sdos_used_partitions }}</p>
+            </md-card-content>
+        </md-card>
 
-        <div ng-if="sdos_partition_mapping && showMapping">
 
-            <p class="bbAllocBlocks">{{ sdosPartitionMapping }}</p>
-        </div>
+        <md-card>
+            <md-card-title>
+                <b>sdos_partition_mapping</b>
+            </md-card-title>
+
+            <md-card-content>
+                <md-button class="md-raised" ng-hide="showMapping" ng-click="showMapping = true;">show</md-button>
+                <p ng-if="sdos_used_partitions && showMapping" class="bbAllocBlocks">{{ sdos_partition_mapping }}</p>
+            </md-card-content>
+        </md-card>
+
+
+        <md-card>
+            <md-card-title>
+                <b>sdos_batch_delete_log</b>
+            </md-card-title>
+
+            <md-card-content>
+                <md-button class="md-raised" ng-hide="showLog" ng-click="showLog = true;">show</md-button>
+                <p ng-if="sdos_batch_delete_log && showLog" class="bbAllocBlocks">{{ sdos_batch_delete_log }}</p>
+            </md-card-content>
+        </md-card>
 
 
     </md-dialog-content>
