@@ -13,8 +13,9 @@ accountModule.controller('AccountController', [
     '$filter',
     '$cookies',
     '$http',
+    '$mdDialog',
     function ($scope, $rootScope, $state, $stateParams, $timeout, $filter,
-              $cookies, $http) {
+              $cookies, $http, $mdDialog) {
 
         console.log("Hello, AccountController");
 
@@ -32,13 +33,14 @@ accountModule.controller('AccountController', [
 
 
         $scope.rcFileContent = "";
+        $scope.tpm_status = "";
 
         /**
          *
          * Get the connection details from the back end
          *
          * */
-        function updateRcFileContent() {
+        function get_rcfile_content() {
             $http
                 .get('api_account/account')
                 .then(
@@ -51,6 +53,64 @@ accountModule.controller('AccountController', [
                     });
 
         };
-        updateRcFileContent();
+
+        /**
+         *
+         * Get the connection details from the back end
+         *
+         * */
+        function get_tpm_status() {
+            $http
+                .get('swift/containers/__mcm-pseudo-container__/objects/tpm_status')
+                .then(
+                    function successCallback(response) {
+                        $scope.tpm_status = response.data;
+
+                    });
+
+        };
+
+        $scope.unlock_tpm = function (ev) {
+            var confirm = $mdDialog.prompt()
+                .title('Unlock the Trusted Platform Module')
+                .textContent('Please enter the Storage Root Key (SRK) password')
+                .placeholder('SRK password')
+                .ariaLabel('SRK password')
+                .targetEvent(ev)
+                .ok('Unlock')
+                .cancel('Cancel');
+
+            $mdDialog.show(confirm).then(function (result) {
+                pseudoObjectPost("tpm_unlock", result);
+            });
+        };
+
+        $scope.lock_tpm = function () {
+            pseudoObjectPost("tpm_lock");
+        };
+
+
+        function pseudoObjectPost(operation, passphrase) {
+            var d = {
+                'metadata': {
+                    'x-object-meta-dummy': "for swift API compliance"
+                }
+            };
+            if (passphrase) {
+                d.metadata['x-object-meta-passphrase'] = passphrase;
+            }
+            console.log(passphrase)
+            console.log(d)
+            $http
+                .post('swift/containers/__mcm-pseudo-container__/objects/' + operation, d)
+                .then(
+                    function successCallback(response) {
+                        get_tpm_status();
+                    });
+        };
+
+
+        get_rcfile_content();
+        get_tpm_status();
 
     }]);

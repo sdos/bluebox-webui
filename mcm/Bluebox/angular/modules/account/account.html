@@ -1,47 +1,70 @@
-<!-- Account & Security card -->
-<html>
-<head>
-</head>
-<body>
-
 <div layout="row" layout-xs="column">
-    <div flex="">
-    </div>
 
 
-    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
-        <md-toolbar class="md-hue-2">
-            <div class="md-toolbar-tools">
-                <h2>
+    <div layout="column" flex="50" flex-xs="90">
+
+        <div class="md-whiteframe-4dp bb-container">
+            <md-toolbar class="md-hue-2">
+                <div class="md-toolbar-tools">
+                    <h2>
+       <span>
+        TPM (Trusted Platform Module) Integration
+       </span>
+                    </h2>
+                </div>
+            </md-toolbar>
+            <md-content class="bb-container">
+                <p>
+                    SDOS can use a hardware TPM in order to store the deletable keys for certain containers.
+                </p>
+                <md-card>
+                    <md-card-title>
+                        <b>TPM status</b>
+                    </md-card-title>
+                    <md-card-content>
+                        <pre><code>{{ tpm_status }}</code></pre>
+                    </md-card-content>
+                </md-card>
+                <md-button class="md-raised md-primary" ng-click="unlock_tpm()">Unlock TPM</md-button>
+                <md-button class="md-raised md-warn" ng-click="lock_tpm()">Lock TPM</md-button>
+            </md-content>
+        </div>
+
+
+        <div class="md-whiteframe-4dp bb-container">
+            <md-toolbar class="md-hue-2">
+                <div class="md-toolbar-tools">
+                    <h2>
        <span>
         Session token
        </span>
-                </h2>
-            </div>
-        </md-toolbar>
-        <md-content class="bb-container">
-            <p>
-                The
-                <code>
+                    </h2>
+                </div>
+            </md-toolbar>
+            <md-content class="bb-container">
+                <p>
+                    The SDOS
+                    back end gives us a token that identifies our session after successful authentication. Currently,
                     SDOS
-                </code>
-                back end gives us a token that identifies our session after successful authentication. Currently, SDOS
-                has no way of invalidating these tokens; we
-                can only forget them in order to log out.
-            </p>
-            <p>
-                Your current token is:
-                <code>
-                    {{ tokenText }}
-                </code>
-            </p>
-            <md-button class="md-raised md-warn" ng-click="forgetToken()">
-                <md-icon md-font-set="material-icons">
-                    clear
-                </md-icon>
-                Forget authentication token
-            </md-button>
-        </md-content>
+                    has no way of invalidating these tokens; we
+                    can only forget them in order to log out.
+                </p>
+                <p>
+                    Your current token is:
+                    <code>
+                        {{ tokenText }}
+                    </code>
+                </p>
+                <md-button class="md-raised md-warn" ng-click="forgetToken()">
+                    <md-icon md-font-set="material-icons">
+                        clear
+                    </md-icon>
+                    Forget authentication token
+                </md-button>
+            </md-content>
+        </div>
+
+
     </div>
 
 
@@ -81,8 +104,4 @@
     </div>
 
 
-    <div flex="">
-    </div>
 </div>
-</body>
-</html>
