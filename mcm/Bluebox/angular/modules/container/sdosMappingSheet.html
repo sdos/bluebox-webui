@@ -38,7 +38,7 @@
             <p>Each number represents a block of {{ sdosSlotAllocation.groupSize | numberFormat }} key slots.
                 Numbers 0 through 9 indicate how many slots are used in that block; with 0 all slots are empty and with
                 9 all are utilized.
-                Note that these <q>blocks</q> are only used here for visualizing allocation. They don't align with key
+                <br>Note that these <q>blocks</q> are only used here for visualizing allocation. They don't align with key
                 partitions or anything.</p>
             <div class="bbAllocBlocks" ng-bind-html="sdosSlotAllocation.alloc | paintBlocks">
             </div>
