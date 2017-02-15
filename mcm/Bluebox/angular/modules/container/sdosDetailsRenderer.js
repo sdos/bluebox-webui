@@ -12,7 +12,9 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     var icon_masterkey_new = "/angular/icons/d3/masterkey_test_new.svg";
     var icon_masterkey_pass_new = "/angular/icons/d3/masterkey_password_new.svg";
     var icon_masterkey_TPM_new = "/angular/icons/d3/masterkey_TPM_new.svg";
-    var icon_plusfile = "/angular/icons/d3/pluskey_object.svg";
+    var icon_scroll_up = "/angular/icons/d3/scroll_up.svg";
+    var icon_scroll_down = "/angular/icons/d3/scroll_down.svg";
+    var icon_plusfile = icon_scroll_down;
     var icon_pluskey = "/angular/icons/d3/pluskey.svg";
     var icon_object = "/angular/icons/d3/key_object.svg";
     var icon_selectedfile = "/angular/icons/d3/selected_file.svg";
@@ -1092,9 +1094,10 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         // add the list up object
         if (d.parent.siblings_up.length == 0) {
             if (d.type == "object_down")
-                d.parent.children.splice(0, 0, {"name": "↑", "children": null, "type": "object_up"});
+                //d.parent.children.splice(0, 0, {"name": "↑", "children": null, "type": "object_up"});
+                d.parent.children.splice(0, 0, {"name": "", "children": null, "type": "object_up"});
             else
-                d.parent.children.splice(0, 0, {"name": "↑", "children": null, "type": "up"});
+                d.parent.children.splice(0, 0, {"name": "", "children": null, "type": "up"});
         }
         /* Remove the last 5 children from the parent
          * */
@@ -1135,9 +1138,10 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             newSiblings = d.parent.children.splice(1, d.parent.children.length - 1);
 
             if (d.type == "object_up")
-                d.parent.children.splice(1, 0, {"name": "↓", "children": null, "type": "object_down"});
+                //d.parent.children.splice(1, 0, {"name": "↓", "children": null, "type": "object_down"});
+                d.parent.children.splice(1, 0, {"name": "", "children": null, "type": "object_down"});
             else
-                d.parent.children.splice(1, 0, {"name": "↓", "children": null, "type": "down"});
+                d.parent.children.splice(1, 0, {"name": "", "children": null, "type": "down"});
         }
         else {
             newSiblings = d.parent.children.splice(-6, 5);
@@ -1263,7 +1267,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                     /* Add the siblings to the plus nodes
                      * */
                     //children[0]["siblings"] = siblings;
-                    children[5] = {name: "↓", "children": null, "type": "object_down"};
+                    //children[5] = {name: "↓", "children": null, "type": "object_down"};
+                    children[5] = {name: "", "children": null, "type": "object_down"};
 
                 }
                 else {
@@ -1287,7 +1292,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             var childs;
 
 
-            children[0] = {"name": "↓", "children": null, "type": "up"};
+            //children[0] = {"name": "↓", "children": null, "type": "up"};
+            children[0] = {"name": "", "children": null, "type": "up"};
             k = 1;
             for (i = first; i <= last; i++) {
                 // for each child of this parent
@@ -1328,7 +1334,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             }
             else {
                 children.splice(0, 1);
-                children[children.length] = {"name": "↓", "children": null, "type": "down"};
+                //children[children.length] = {"name": "↓", "children": null, "type": "down"};
+                children[children.length] = {"name": "", "children": null, "type": "down"};
             }
 
 

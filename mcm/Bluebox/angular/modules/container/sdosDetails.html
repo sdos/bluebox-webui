@@ -34,7 +34,7 @@
                         <md-icon md-font-set="material-icons">
                             filter_b_and_w
                         </md-icon>
-                        Show Key Cascade structure
+                        Key Cascade structure
                     </md-button>
 
                     <md-button aria-label="Show key slot allocation" class="md-raised"
@@ -42,7 +42,15 @@
                         <md-icon md-font-set="material-icons">
                             gradient
                         </md-icon>
-                        Show key slot allocation
+                        Key slot allocation
+                    </md-button>
+
+                    <md-button aria-label="Show key slot allocation" class="md-raised"
+                               ng-click="showDebugSheet($event)">
+                        <md-icon md-font-set="material-icons">
+                            code
+                        </md-icon>
+                        Debug data
                     </md-button>
                 </p>
             </div>
@@ -60,7 +68,7 @@
                     <span ng-hide="!sdos_cascade_stats.masterKeySource.is_unlocked"><br><md-button
                             class="md-raised md-warn" ng-click="lockMasterKey()">Lock master key</md-button></span>
 
-                    <br>Master key ID: <b
+                    <br>Master key hash: <b
                             ng-style="{ 'mix-blend-mode': 'difference',  'color': 'black', 'background': sdos_cascade_stats.masterKeySource.keyIdColor }">{{ sdos_cascade_stats.masterKeySource.key_id }}</b>
 
                     <br>Deletable key provided by: <b>{{ sdos_cascade_stats.masterKeySource.type }}</b>

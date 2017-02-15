@@ -1,0 +1,36 @@
+<md-dialog aria-label="Key Cascade object key allocation" ng-cloak="">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+     <span>
+      Debug data
+     </span>
+            <span flex="">
+     </span>
+            <md-button class="md-icon-button" ng-click="cancel()">
+                <md-icon md-font-set="material-icons">
+                    close
+                </md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-dialog-content class="bb-margin">
+
+
+        <h3>sdos_cascade_stats</h3>
+        <p class="bbAllocBlocks"><pre>{{ sdos_cascade_stats | json }}</pre></p>
+
+        <h3>sdos_used_partitions</h3>
+        <md-button class="md-raised" ng-hide="showPartitions" ng-click="showPartitions = true;">show</md-button>
+        <pre ng-if="sdos_used_partitions && showPartitions">{{ sdos_used_partitions | json }}</pre>
+
+        <h3>sdos_partition_mapping</h3>
+        <md-button class="md-raised" ng-hide="showMapping" ng-click="showMapping = true;">show</md-button>
+        <pre ng-if="sdos_used_partitions && showMapping" >{{ sdos_partition_mapping | json }}</pre>
+
+        <h3>sdos_batch_delete_log</h3>
+        <md-button class="md-raised" ng-hide="showLog" ng-click="showLog = true;">show</md-button>
+        <pre ng-if="sdos_batch_delete_log && showLog">{{ sdos_batch_delete_log | json }}</pre>
+
+
+    </md-dialog-content>
+</md-dialog>

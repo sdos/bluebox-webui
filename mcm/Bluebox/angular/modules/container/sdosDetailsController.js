@@ -175,6 +175,26 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
         });
     };
 
+    $scope.showDebugSheet = function (ev) {
+        var useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen;
+        $mdDialog.show({
+            controller: SdosSheetController,
+            templateUrl: 'angular/modules/container/sdosDebugSheet.html',
+            parent: angular.element(document.body),
+            targetEvent: ev,
+            clickOutsideToClose: true,
+            fullscreen: useFullScreen,
+            scope: $scope,
+            preserveScope: true
+        });
+
+        $scope.$watch(function () {
+            return $mdMedia('xs') || $mdMedia('sm');
+        }, function (wantsFullScreen) {
+            $scope.customFullscreen = (wantsFullScreen === true);
+        });
+    };
+
 
     $scope.$watch('container.objects', function () {
         console.log("refreshing SDOS stats");
