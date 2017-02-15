@@ -114,3 +114,7 @@ table.md-table tbody.md-body > tr.md-row {
 .fade.ng-show-active {
 	opacity:1;
 }
+
+.bbSmallIcon {
+	width: 1.5em;
+}

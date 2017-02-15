@@ -27,7 +27,7 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
 
     $scope.provideNextDeletable = function (ev) {
         var confirm = $mdDialog.prompt()
-            .title('Provide the next deletable key for ' + ctrl.container.name)
+            .title('Provide the next deletable key for "' + ctrl.container.name + '"')
             .textContent('The deletable key is a passphrase; please enter the next passphrase. Once you trigger secure deletion, the master key will be replaced and encrypted with this next/new deletable key.')
             .placeholder('passphrase')
             .ariaLabel('passphrase')
@@ -49,7 +49,7 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
         // if the deletable key is a passphrase, we need to prompt for it
         if ($scope.sdos_cascade_stats.masterKeySource.type == "passphrase") {
             var confirm = $mdDialog.prompt()
-                .title('Unlock the master key for ' + ctrl.container.name)
+                .title('Unlock the master key for "' + ctrl.container.name + '"')
                 .textContent('The deletable key is a passphrase; please enter it')
                 .placeholder('passphrase')
                 .ariaLabel('passphrase')
