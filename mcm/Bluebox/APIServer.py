@@ -297,6 +297,7 @@ def create_container():
 		container_sdosHeight = container_definition.get("sdosHeight", False)
 		container_sdosMasterKey = container_definition.get("sdosMasterKey", False)
 		container_sdosBatchDelete = container_definition.get("sdosBatchDelete", False)
+		container_sdosTpmKeyId = container_definition.get("sdosTpmKeyId", False)
 	except AttributeError:
 		raise HttpError("malformed request", 400)
 
@@ -318,6 +319,10 @@ def create_container():
 		container_metadata["x-container-meta-sdosHeight"] = container_sdosHeight
 		container_metadata["x-container-meta-sdosMasterKey"] = container_sdosMasterKey
 		container_metadata["x-container-meta-sdosBatchDelete"] = container_sdosBatchDelete
+		if container_sdosMasterKey == "tpm":
+			assert(int(container_sdosTpmKeyId) > 0)
+			container_metadata["x-container-meta-sdosTpmKeyId"] = container_sdosTpmKeyId
+
 
 	try:
 		class_name = container_definition.get("objectClass")

@@ -28,7 +28,49 @@
                                   md-diameter="80"></md-progress-circular>
         </div>
 
-        <div id="cascadeRendering"></div>
+        <div layout="row" layout-xs="column">
+            <div flex id="cascadeRendering"></div>
+            <div flex>
+                <h3>Icon legend</h3>
+                <p><img src="/angular/icons/d3/masterkey.svg">Master key, <img
+                        src="/angular/icons/d3/masterkey_new.svg">New master key, <img
+                        src="/angular/icons/d3/deletable_key.svg">Deletable key</p>
+                <p><img src="/angular/icons/d3/key_closed.svg">Node key, <img src="/angular/icons/d3/pluskey.svg">New
+                    node key, <img src="/angular/icons/d3/key_object.svg">Object key</p>
+                <p><img src="/angular/icons/d3/selected_key.svg"><img src="/angular/icons/d3/selected_file.svg">Path to
+                    requested Object, <img src="/angular/icons/d3/key_object_delete.svg"><img
+                            src="/angular/icons/d3/plusfile_delete.svg">Marked for deletion</p>
+                <p><img src="/angular/icons/d3/plusfile.svg">Object / File, <img
+                        src="/angular/icons/d3/pluskey_object.svg">↓↑ Scroll through large node</p>
+
+                <h3>Cascaded re-keying steps</h3>
+                <ol>
+                    <li>SDOS scans the delete log and finds all the paths to those objects</li>
+                    <li>The Key-Source deletes and replaces its deletable key</li>
+                    <li>SDOS generates a new master key and encrypts it with the new deletable key</li>
+                </ol>
+
+                <h3>Animation controls</h3>
+                <p>The animation shows the steps for cascaded re-keying</p>
+                <p>
+                    <md-button class="md-raised" ng-click="showMapping = true;">
+                        <md-icon md-font-set="material-icons">
+                            play_arrow
+                        </md-icon>
+                        Single step
+                    </md-button>
+
+                    <md-button class="md-raised" ng-click="showMapping = true;">
+                        <md-icon md-font-set="material-icons">
+                            playlist_play
+                        </md-icon>
+                        Autorun
+                    </md-button>
+                </p>
+
+            </div>
+
+        </div>
 
 
         <md-card>

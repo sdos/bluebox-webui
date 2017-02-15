@@ -191,8 +191,12 @@
                                         it. Secure deletion is provided by the TPM which can securely replace internal
                                         keys.
 
-
                                     </md-radio-button>
+
+                                    <md-input-container ng-show="newContainer.sdosMasterKey == 'tpm'">
+                                        <label>TPM key slot (must be free)</label>
+                                        <input flex type="number" ng-model="newContainer.sdosTpmKeyId">
+                                    </md-input-container>
 
                                 </div>
                             </div>
