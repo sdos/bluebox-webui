@@ -38,35 +38,44 @@
                 <p><img src="/angular/icons/d3/key_closed.svg">Node key, <img src="/angular/icons/d3/pluskey.svg">New
                     node key, <img src="/angular/icons/d3/key_object.svg">Object key</p>
                 <p><img src="/angular/icons/d3/selected_key.svg"><img src="/angular/icons/d3/selected_file.svg">Path to
-                    requested Object, <img src="/angular/icons/d3/key_object_delete.svg"><img
+                    requested object, <img src="/angular/icons/d3/key_object_delete.svg"><img
                             src="/angular/icons/d3/plusfile_delete.svg">Marked for deletion</p>
                 <p><img src="/angular/icons/d3/plusfile.svg">Object / File, <img
-                        src="/angular/icons/d3/pluskey_object.svg">↓↑ Scroll through large node</p>
+                        src="/angular/icons/d3/pluskey_object.svg">↓↑ Scroll through large nodes</p>
 
-                <h3>Cascaded re-keying steps</h3>
-                <ol>
-                    <li>SDOS scans the delete log and finds all the paths to those objects</li>
-                    <li>The Key-Source deletes and replaces its deletable key</li>
-                    <li>SDOS generates a new master key and encrypts it with the new deletable key</li>
-                </ol>
 
                 <h3>Animation controls</h3>
                 <p>The animation shows the steps for cascaded re-keying</p>
                 <p>
-                    <md-button class="md-raised" ng-click="showMapping = true;">
+                    <md-button class="md-raised" ng-click="run_animation_step()">
                         <md-icon md-font-set="material-icons">
                             play_arrow
                         </md-icon>
                         Single step
                     </md-button>
 
-                    <md-button class="md-raised" ng-click="showMapping = true;">
+                    <md-button class="md-raised" ng-click="run_animation_autorun()">
                         <md-icon md-font-set="material-icons">
                             playlist_play
                         </md-icon>
                         Autorun
                     </md-button>
                 </p>
+
+
+                <h3>Cascaded re-keying steps</h3>
+                <ol>
+                    <li ng-style="current_animation_step == 1 && {'color': 'darkred', 'font-weight': 'bold', 'font-size': '1.2em'}">
+                        SDOS scans the delete log and finds all the paths to those objects
+                    </li>
+                    <li ng-style="current_animation_step == 2 && {'color': 'darkred', 'font-weight': 'bold', 'font-size': '1.2em'}">
+                        The Key-Source deletes and replaces its deletable key
+                    </li>
+                    <li ng-style="current_animation_step == 3 && {'color': 'darkred', 'font-weight': 'bold', 'font-size': '1.2em'}">
+                        SDOS generates a new master key and encrypts it with the new deletable key
+                    </li>
+                </ol>
+
 
             </div>
 
