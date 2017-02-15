@@ -45,7 +45,7 @@
                         <md-icon md-font-set="material-icons">
                             done_all
                         </md-icon>
-                        Create & Close
+                        Create & Close window
                     </md-button>
                 </p>
 
@@ -79,7 +79,7 @@
                                     <b>{{ newContainer.sdosPartitionBits }}</b> partition bits.
                                     The partitions will have
                                     <b>{{ newContainer.sdosPartitionBits | sdosPartitionBitsToSize }}</b>
-                                    slots (2^bits).
+                                    slots (2^{{ newContainer.sdosPartitionBits }}).
                                 </p>
                                 <p>The Cascade will support up to
                                     <b>{{ newContainer | sdosCapacity | numberFormat }}</b>
@@ -229,7 +229,7 @@
                                 <p>Names of deleted objects get saved to a log so that secure deletion
                                     (re-keying) can be done later for a batch of objects.
                                 </p>
-                                <p>Object contents are deleted from the object store but the keys remain, and the names
+                                <p>Object contents are deleted from the object store immediately but the keys remain, and the names
                                     remain allocated, until batch deletion is triggered.</p>
 
 
@@ -254,7 +254,7 @@
                         <md-icon md-font-set="material-icons">
                             done_all
                         </md-icon>
-                        Create & Close
+                        Create & Close window
                     </md-button>
                 </p>
 

@@ -62,11 +62,14 @@
                         ng-style="sdos_cascade_stats.masterKeySource.is_unlocked && {'color': 'green'} || {'color': 'red'}">{{ sdos_cascade_stats.masterKeySource.is_unlocked }}</b>
 
 
-                    <span ng-hide="sdos_cascade_stats.masterKeySource.is_unlocked"><br><md-button
-                            class="md-raised md-primary"
-                            ng-click="unlockMasterKey()">Unlock master key</md-button></span>
-                    <span ng-hide="!sdos_cascade_stats.masterKeySource.is_unlocked"><br><md-button
-                            class="md-raised md-warn" ng-click="lockMasterKey()">Lock master key</md-button></span>
+                    <md-button ng-hide="sdos_cascade_stats.masterKeySource.is_unlocked"
+                               class="md-raised md-primary"
+                               ng-click="unlockMasterKey()">Unlock master key
+                    </md-button>
+
+                    <md-button ng-hide="!sdos_cascade_stats.masterKeySource.is_unlocked"
+                               class="md-raised md-warn" ng-click="lockMasterKey()">Lock master key
+                    </md-button>
 
                     <br>Master key hash: <b
                             ng-style="{ 'mix-blend-mode': 'difference',  'color': 'black', 'background': sdos_cascade_stats.masterKeySource.keyIdColor }">{{ sdos_cascade_stats.masterKeySource.key_id }}</b>
@@ -75,7 +78,7 @@
                     <br>Next deletable key available: <b
                             ng-style="sdos_cascade_stats.masterKeySource.is_next_deletable_ready && {'color': 'green'} || {'color': 'red'}">{{ sdos_cascade_stats.masterKeySource.is_next_deletable_ready }}</b>
 
-                    <md-icon ng-click="clearNextDeletable()"
+                    <md-icon class="md-warn" ng-click="clearNextDeletable()"
                              ng-hide="!sdos_cascade_stats.masterKeySource.is_next_deletable_ready"
                              md-font-set="material-icons">
                         clear
@@ -83,11 +86,10 @@
                     &nbsp;
 
 
-                    <span ng-hide="sdos_cascade_stats.masterKeySource.is_next_deletable_ready">
-                    <md-button class="md-raised md-primary" ng-click="provideNextDeletable()">Provide next deletable
+                    <md-button ng-hide="sdos_cascade_stats.masterKeySource.is_next_deletable_ready"
+                               class="md-raised md-primary" ng-click="provideNextDeletable()">Provide next deletable
                         key
                     </md-button>
-                </span>
                 </p>
             </div>
 
