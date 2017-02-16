@@ -14,7 +14,6 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     var icon_masterkey_TPM_new = "/angular/icons/d3/masterkey_TPM_new.svg";
     var icon_scroll_up = "/angular/icons/d3/scroll_up.svg";
     var icon_scroll_down = "/angular/icons/d3/scroll_down.svg";
-    var icon_plusfile = icon_scroll_down;
     var icon_pluskey = "/angular/icons/d3/pluskey.svg";
     var icon_object = "/angular/icons/d3/key_object.svg";
     var icon_selectedfile = "/angular/icons/d3/selected_file.svg";
@@ -99,6 +98,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                                         function successCallback(response) {
                                             $scope.sdos_batch_delete_log = response.data;
                                             doRender();
+
                                             showSelectedObject();
                                             $scope.isRenderComplete = true;
 
@@ -112,10 +112,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
     function showSelectedObject() {
         if ($scope.selectedObjectInCascade) {
-            var parent, name;
-            name = $scope.selectedObjectInCascade.name;
-            parent = getParentOfObject(name);
-            loadNode(root, parent + "|" + name, cascadeData);
+            var name = $scope.selectedObjectInCascade.name;
+            loadNode(root, [name], cascadeData);
         }
     };
 
@@ -155,7 +153,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         cascadeData.sdos_batch_delete_log = $scope.sdos_batch_delete_log;
         cascadeData.container = $scope.container;
 
-        //console.log(cascadeData);
+        console.log(cascadeData);
         renderTree(cascadeData);
 
     }
@@ -228,7 +226,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         update(root);
 
 
-        if (data.sdos_batch_delete_log.length) {
+        if (!($scope.selectedObjectInCascade) && data.sdos_batch_delete_log.length) {
             loadNode(root, data.sdos_batch_delete_log, data);
         }
 
@@ -269,11 +267,11 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         //         deleteAnimation(selected_object);
         //     });
 
-         // var delete_text = d3.select("#cascadeRendering").append("input")
-         //     .attr("type", "text")
-         //     .attr("disabled", "disabled")
-         //     .attr("id", "delete_text")
-         //     .attr("size", 100);
+        // var delete_text = d3.select("#cascadeRendering").append("input")
+        //     .attr("type", "text")
+        //     .attr("disabled", "disabled")
+        //     .attr("id", "delete_text")
+        //     .attr("size", 100);
 
         //d3.select("#cascadeRendering").append("br");
 
@@ -331,7 +329,6 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         //     .on("click", function () {
         //         searchNode(root, text, data);
         //     });
-
 
 
     }
@@ -462,7 +459,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     function multipleLeafsPath(source, list, ps, path) {
         var multiplePath = [];
         var objects = [];
-        var open;
+        var open = [];
 
         //list = ["4369|0", "4369|2", "4369|9", "4373|66"];
 
@@ -477,38 +474,42 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         });
 
         //select all nodes
-        open = rightChildren(source, multiplePath, objects);
+        rightChildren(source, multiplePath, objects, open);
 
+        console.log(open);
 
         if (objects.length == 1) { //Search one just object
+            open.forEach(function (op) {
+                console.log(op);
+                var found = 0;
+                var down = 1;
+                while (!found) {
 
-            var found = 0;
-            var down = 1;
-            while (!found) {
-                //look if the object is in children
-                open[1].children.forEach(function (d) {
-                    if (d.name == open[0].name) {
-                        found = 1;
-                    }
-
-                });
-
-                if (!found) {
-                    //go siblings down
-                    if (down) {
-                        siblingsDown(open[1].children[open[1].children.length - 1]);
-                        if (open[1].siblings_down.length == 0) {
-                            down = 0;
+                    //look if the object is in children
+                    op[1].children.forEach(function (d) {
+                        if (d.name == op[0].name) {
+                            found = 1;
                         }
-                    }
-                    else {
-                        siblingsUp(open[1].children[0]);
-                        if (open[1].siblings_up.length == 0) {
-                            down = 1;
+
+                    });
+
+                    if (!found) {
+                        //go siblings down
+                        if (down) {
+                            siblingsDown(op[1].children[op[1].children.length - 1], op[1]);
+                            if (op[1].siblings_down.length == 0) {
+                                down = 0;
+                            }
+                        }
+                        else {
+                            siblingsUp(op[1].children[0], op[1]);
+                            if (op[1].siblings_up.length == 0) {
+                                down = 1;
+                            }
                         }
                     }
                 }
-            }
+            });
         }
 
 
@@ -533,11 +534,10 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         }
     }
 
-    function rightChildren(source, openNodes, object) {
+    function rightChildren(source, openNodes, object, open) {
         /* Go through all children
          * */
         var next = null;
-        var open = null;
 
         /* Testes if the node is not closed, then open it
          * */
@@ -575,8 +575,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                 if (openNodes.indexOf(d.name) > -1 && (d.type == "key")) {
                     d.operation = "selected";
                     next = d;
-
-                    open = rightChildren(next, openNodes, object);
+                    open.push([d, source]);
+                    rightChildren(next, openNodes, object, open);
 
                 }
                 else if (d.type == "key_object") {
@@ -588,7 +588,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
                         d.operation = "selected";
                         changeChildren(d);
 
-                        open = [d, source];
+                        open.push([d, source]);
                     }
                     else {
                         d.operation = "none";
@@ -693,7 +693,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     }
 
     function changingKeysAnimation(d, visited_keys) {
-        console.log("changing", d);
+        // console.log("changing", d);
         visited_keys.reverse();
         var list = visited_keys;
         fadingAnimation(d, list, newAnimation);
@@ -740,7 +740,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         else {
             if (keys != []) {
                 var node = keys.pop();
-                console.log("steo", d[0]);
+                //console.log("steo", d[0]);
                 changingKeysAnimation(node, []);
             }
         }
@@ -840,6 +840,8 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         var nodes = tree.nodes(root).reverse(); // list of the nodes objects, descending
         var links = tree.links(nodes);
 
+        console.log(nodes);
+
         // Normalize for fixed-depth.
         nodes.forEach(function (d) {
             d.y = d.depth * 100;
@@ -915,12 +917,21 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
         nodeEnter.append("svg:image")
             .attr("xlink:href", function (d) {
-                return d.type == "key" ? (d._children ? icon_key_closed : icon_key) : (
-                        d.type == "master" ?
-                            (d.key_type == "static" ? icon_masterkey :
-                                (d.key_type == "tpm" ? icon_masterkey_TPM : icon_masterkey_pass ) )
-                            : ( d.type == "object" ? icon_file :
-                                (d.type == "key_object" ? icon_object : (d.type == "up" || d.type == "down" ? icon_plusfile : icon_plusfile) )));
+
+                if (d.type == "up") {
+                    return icon_scroll_up;
+                } else if (d.type == "down") {
+                    return icon_scroll_down;
+                } else {
+                    return d.type == "key" ? (d._children ? icon_key_closed : icon_key) : (
+                            d.type == "master" ?
+                                (d.key_type == "static" ? icon_masterkey :
+                                    (d.key_type == "tpm" ? icon_masterkey_TPM : icon_masterkey_pass ) )
+                                : ( d.type == "object" ? icon_file :
+                                    (d.type == "key_object" ? icon_object : null )));
+                }
+
+
             })
             .attr("x", function (d) {
                 return d.type == "master" && d.operation == null ? "-30px" : "-19px"
@@ -961,19 +972,26 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             .attr("xlink:href", function (d) {
                 if ((d.type == "object" || d.type == "key_object") && d.operation == "selecting") {
                     return d.type == "object" ? icon_file_delete : icon_key_delete;
-                }
-                if (d.type == "object" && d.parent.operation == "selected")
+                } else if (d.type == "object" && d.parent.operation == "selected") {
                     return icon_selectedfile;
-                return d.operation == "selected" ? icon_selectedkey :
-                    (d.operation == "new" ? ( d.type == "master" ? (
-                                d.key_type == "static" ? icon_masterkey_new :
-                                    (d.key_type == "tpm" ? icon_masterkey_TPM_new : icon_masterkey_pass_new )
-                            ) : icon_pluskey) :
-                        (d.operation == "fade" ? "" : ( d.type == "key" ?
-                                (d._children ? icon_key_closed : icon_key) : (  d.type == "master" ?
-                                    (d.key_type == "static" ? icon_masterkey :
-                                        (d.key_type == "tpm" ? icon_masterkey_TPM : icon_masterkey_pass ) ) : ( d.type == "object" ? icon_file :
-                                        (d.type == "key_object" ? icon_object : (d.type == "up" || d.type == "down" ? icon_plusfile : icon_plusfile) ))))));
+                } else if (d.type == "object_up" || d.type == "up") {
+                    return icon_scroll_up;
+                } else if (d.type == "object_down" || d.type == "down") {
+                    return icon_scroll_down;
+                } else {
+                    return d.operation == "selected" ? icon_selectedkey :
+                        (d.operation == "new" ? ( d.type == "master" ? (
+                                    d.key_type == "static" ? icon_masterkey_new :
+                                        (d.key_type == "tpm" ? icon_masterkey_TPM_new : icon_masterkey_pass_new )
+                                ) : icon_pluskey) :
+                            (d.operation == "fade" ? "" : ( d.type == "key" ?
+                                    (d._children ? icon_key_closed : icon_key) : (  d.type == "master" ?
+                                        (d.key_type == "static" ? icon_masterkey :
+                                            (d.key_type == "tpm" ? icon_masterkey_TPM : icon_masterkey_pass ) ) : ( d.type == "object" ? icon_file :
+                                            (d.type == "key_object" ? icon_object : null ))))));
+                }
+
+
             })
             .attr("x", function (d) {
                 return d.type == "master" ? "-30px" : "-19px"
@@ -1086,76 +1104,74 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
      *
      * */
     function clickDown(d) {
-        siblingsDown(d);
+        siblingsDown(d, d.parent);
         update(d);
     }
 
-    function siblingsDown(d) {
+    function siblingsDown(d, parent) {
         // add the list up object
-        if (d.parent.siblings_up.length == 0) {
+        if (parent.siblings_up.length == 0) {
             if (d.type == "object_down")
-                //d.parent.children.splice(0, 0, {"name": "↑", "children": null, "type": "object_up"});
-                d.parent.children.splice(0, 0, {"name": "", "children": null, "type": "object_up"});
+                parent.children.splice(0, 0, {"name": "↑", "children": null, "type": "object_up"});
             else
-                d.parent.children.splice(0, 0, {"name": "", "children": null, "type": "up"});
+                parent.children.splice(0, 0, {"name": "↑", "children": null, "type": "up"});
         }
         /* Remove the last 5 children from the parent
          * */
         var newSiblings;
 
-        if (d.parent.siblings_up.lenght == 0)
-            newSiblings = d.parent.children.splice(0, d.parent.children.length - 1);
+        if (parent.siblings_up.lenght == 0)
+            newSiblings = parent.children.splice(0, parent.children.length - 1);
         else
-            newSiblings = d.parent.children.splice(-6, 5);
+            newSiblings = parent.children.splice(-6, 5);
         // Take new children from the siblings_down
-        var newChildren = d.parent.siblings_down.splice(0, 5);
+        var newChildren = parent.siblings_down.splice(0, 5);
         newChildren.forEach(function (e) {
-            d.parent.children.splice(-1, 0, e);
+            parent.children.splice(-1, 0, e);
         });
 
         // put the old children in siblings_up
-        d.parent.siblings_up = d.parent.siblings_up.concat(newSiblings);
+        parent.siblings_up = parent.siblings_up.concat(newSiblings);
 
         // if comes to the end of the list siblings_down, remove the list down objetc
-        if (d.parent.siblings_down.length == 0)
-            d.parent.children.splice(-1, 1);
+        if (parent.siblings_down.length == 0)
+            parent.children.splice(-1, 1);
 
         //update(d);
     }
 
     function clickUp(d) {
-        siblingsUp(d);
+        siblingsUp(d, d.parent);
         update(d);
     }
 
-    function siblingsUp(d) {
+    function siblingsUp(d, parent) {
         // take the new children
-        var newChildren = d.parent.siblings_up.splice(d.parent.siblings_up.length - 5, 5);
+        var newChildren = parent.siblings_up.splice(parent.siblings_up.length - 5, 5);
 
         var newSiblings;
         // remove children
-        if (d.parent.siblings_down.length == 0) {
-            newSiblings = d.parent.children.splice(1, d.parent.children.length - 1);
+        if (parent.siblings_down.length == 0) {
+            newSiblings = parent.children.splice(1, parent.children.length - 1);
 
             if (d.type == "object_up")
-                //d.parent.children.splice(1, 0, {"name": "↓", "children": null, "type": "object_down"});
-                d.parent.children.splice(1, 0, {"name": "", "children": null, "type": "object_down"});
+                parent.children.splice(1, 0, {"name": "↓", "children": null, "type": "object_down"});
             else
-                d.parent.children.splice(1, 0, {"name": "", "children": null, "type": "down"});
+                parent.children.splice(1, 0, {"name": "↓", "children": null, "type": "down"});
         }
         else {
-            newSiblings = d.parent.children.splice(-6, 5);
+            newSiblings = parent.children.splice(-6, 5);
         }
 
         newChildren.forEach(function (e) {
-            d.parent.children.splice(-1, 0, e);
+            parent.children.splice(-1, 0, e);
         });
 
 
-        d.parent.siblings_down = newSiblings.concat(d.parent.siblings_down);
+        parent.siblings_down = newSiblings.concat(d.parent.siblings_down);
 
-        if (d.parent.siblings_up.length == 0)
-            d.parent.children.splice(0, 1);
+        if (parent.siblings_up.length == 0)
+            parent.children.splice(0, 1);
 
         //update(d);
     }
@@ -1197,7 +1213,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
          * */
         var name = 0; //pidFop(data.partitionSize, 0);  it is always 0
         var children = getChildren(name, 1, data);
-        console.log(data);
+        //console.log(data);
         return [{
             "name": name,
             "children": children[0],
