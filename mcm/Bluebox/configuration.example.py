@@ -48,9 +48,15 @@ define the Swift server connection below:
 endpoint for swift. localhost:3000 is the default for the SDOS API proxy.
 """
 # SDOS on localhost example
-swift_auth_url = "http://localhost:3000/v2.0"
+#swift_auth_url = "http://localhost:3000/v2.0"
+#swift_store_url_valid_prefix = "http://localhost:3000/v1/AUTH_"
+#swift_auth_version = "2.0"
+
+
+# local SDOS with CEPH auth/backend
+swift_auth_url = "http://localhost:3000/auth/1.0"
 swift_store_url_valid_prefix = "http://localhost:3000/v1/AUTH_"
-swift_auth_version = "2.0"
+swift_auth_version = "1.0"
 
 # local docker CEPH
 #swift_auth_url = "http://172.18.0.2/auth/1.0"
@@ -62,8 +68,8 @@ swift_auth_version = "2.0"
 Kafka bootstrap broker for messaging / Task setup
 ################################################################################
 """
-kafka_broker_endpoint = "localhost:9092"
-zookeeper_endpoint = "localhost:2181"
+kafka_broker_endpoint = "172.18.0.33:9092"
+zookeeper_endpoint = "172.18.0.33:2181"
 
 """
 ################################################################################
@@ -71,11 +77,11 @@ used by Analytics. Endpoint of the metadata warehouse PostgreSQL db
 ################################################################################
 """
 metadata_warehouse_endpoint = {
-	"database": "mcm-metadata_{}",
-	"user": "postgres",
-	"password": "testing",
-	"host": "localhost",
-	"port": "5432"
+    "database": "mcm-metadata_{}",
+    "user": "postgres",
+    "password": "testing",
+    "host": "172.18.0.44",
+    "port": "5432"
 }
 
 
