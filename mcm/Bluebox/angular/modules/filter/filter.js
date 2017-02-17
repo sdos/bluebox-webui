@@ -10,6 +10,7 @@ var filterModule = angular.module('bluebox.filter', []).filter('metaPrefix', fun
     }
 }).filter('fileTypeIcon', function () {
     return function (input) {
+        if (!input) return "insert_drive_file";
         if (input.startsWith("image/"))                        return "image";
         if (input.startsWith("audio/"))                        return "audiotrack";
         if (input.startsWith("text/plain"))                    return "description";

@@ -133,6 +133,7 @@ containerModule.controller('ContainerController',
                     .getObjects($scope.container, $scope.prefix, marker, limit)
                     .then(function (response) {
 
+                            //console.log(response.objects);
                             $scope.container.objects = reload ? response.objects : $scope.container.objects.concat(response.objects);
                             $scope.container.metadata = response.metadata;
                             parseMetadataIntoModel();
