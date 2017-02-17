@@ -86,7 +86,6 @@ def send_message():
         if (not msg_type or not msg_type in valid_task_types):
             raise HttpError("Request is invalid", 500)
 
-
         with __get_kafka_topic(msg_tenant).get_producer(linger_ms=100) as producer:
             producer.produce(value_serializer(request.json))
 
@@ -118,7 +117,7 @@ def receive_messages(from_beginning=False):
     """
     from pykafka.exceptions import SocketDisconnectedError
     try:
-        msg_tenant =  accountServer.get_and_assert_tenant_from_request(request)
+        msg_tenant = accountServer.get_and_assert_tenant_from_request(request)
         msg_client_id = request.cookies.get(accountServer.COOKIE_NAME_SESSION_ID)
 
         consumer_group = 'mcmbb-{}-{}'.format(msg_tenant, msg_client_id).encode('utf-8')
@@ -128,12 +127,14 @@ def receive_messages(from_beginning=False):
             partition_offset_pairs = [(p, p.earliest_available_offset()) for p in consumer.partitions.values()]
             consumer.reset_offsets(partition_offsets=partition_offset_pairs)
 
-        vals = [__try_parse_msg_content(m) for m in consumer]
+        # vals = [__try_parse_msg_content(m) for m in consumer]
+        vals = [__try_parse_msg_content(consumer.consume(block=True))]
 
         if not from_beginning:
             consumer.commit_offsets()
 
-        log.debug(vals)
+        if len(vals):
+            logging.info("sending msg to UI {}".format(vals))
 
         return Response(json.dumps(vals), mimetype="application/json")
 
