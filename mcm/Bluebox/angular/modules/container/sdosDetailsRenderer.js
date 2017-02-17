@@ -478,39 +478,37 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
         console.log(open);
 
-        if (objects.length == 1) { //Search one just object
-            open.forEach(function (op) {
-                console.log(op);
-                var found = 0;
-                var down = 1;
-                while (!found) {
+        open.forEach(function (op) {
+            console.log(op);
+            var found = 0;
+            var down = 1;
+            while (!found) {
 
-                    //look if the object is in children
-                    op[1].children.forEach(function (d) {
-                        if (d.name == op[0].name) {
-                            found = 1;
+                //look if the object is in children
+                op[1].children.forEach(function (d) {
+                    if (d.name == op[0].name) {
+                        found = 1;
+                    }
+
+                });
+
+                if (!found) {
+                    //go siblings down
+                    if (down) {
+                        siblingsDown(op[1].children[op[1].children.length - 1], op[1]);
+                        if (op[1].siblings_down.length == 0) {
+                            down = 0;
                         }
-
-                    });
-
-                    if (!found) {
-                        //go siblings down
-                        if (down) {
-                            siblingsDown(op[1].children[op[1].children.length - 1], op[1]);
-                            if (op[1].siblings_down.length == 0) {
-                                down = 0;
-                            }
-                        }
-                        else {
-                            siblingsUp(op[1].children[0], op[1]);
-                            if (op[1].siblings_up.length == 0) {
-                                down = 1;
-                            }
+                    }
+                    else {
+                        siblingsUp(op[1].children[0], op[1]);
+                        if (op[1].siblings_up.length == 0) {
+                            down = 1;
                         }
                     }
                 }
-            });
-        }
+            }
+        });
 
 
     }
