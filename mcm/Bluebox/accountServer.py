@@ -212,6 +212,8 @@ def assert_no_xsrf(request):
     c = request.cookies.get(COOKIE_NAME_TOKEN)
     h = request.headers.get(HEADER_NAME_TOKEN)
     log.debug("CHECKING XSRF")
+    if (not c or not h):
+        raise (HttpError("no auth", 401))
     log.debug("cookie: {} - header: {}".format(c, h))
     if c != h:
         raise (HttpError("XSRF?", 500))
