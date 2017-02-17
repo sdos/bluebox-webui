@@ -145,6 +145,13 @@ def get_tenant_from_request(request):
     """
     return request.cookies.get(COOKIE_NAME_TENANT_ID)
 
+def get_tenant_name_from_request(request):
+    """
+    :param request:
+    :return:
+    """
+    return request.cookies.get(COOKIE_NAME_TENANT_NAME)
+
 def get_and_assert_tenant_from_request(request):
     assert_token_tenant_validity(request)
     return get_tenant_from_request(request)
@@ -216,10 +223,17 @@ def assert_no_xsrf(request):
 	###########################################################################
 
 """
-
-
 @app.route(API_ROOT + "/account", methods=["GET"])
 def getAccount():
+    if configuration.swift_auth_version == "2.0":
+        return Response(__get_openrc_v2(), mimetype="text/plain")
+    elif configuration.swift_auth_version == "1.0":
+        return Response(__get_openrc_v1(), mimetype="text/plain")
+    else:
+        return Response("no template for this auth version present", mimetype="text/plain")
+
+
+def __get_openrc_v2():
     swiftRcString = """
 #!/bin/bash
 # for use with python-swiftclient and keystone auth v2.0
@@ -230,8 +244,8 @@ export OS_AUTH_URL={swift_auth_url}
 # With the addition of Keystone we have standardized on the term **tenant**
 # as the entity that owns the resources.
 export OS_TENANT_ID={tenant}
-export OS_TENANT_NAME="SDOS"
-export OS_PROJECT_NAME="SDOS"
+export OS_TENANT_NAME="{tenant_name}"
+export OS_PROJECT_NAME="{tenant_name}"
 
 # In addition to the owning entity (tenant), OpenStack stores the entity
 # performing the action as the **user**.
@@ -247,8 +261,33 @@ export OS_PASSWORD=$OS_PASSWORD_INPUT
     s = swiftRcString.format(
         swift_auth_url=configuration.swift_auth_url,
         tenant=get_tenant_from_request(request),
+        tenant_name=get_tenant_name_from_request(request),
         user=get_user_from_request(request))
-    return Response(s, mimetype="text/plain")
+    return s
+
+
+def __get_openrc_v1():
+    swiftRcString = """
+#!/bin/bash
+# for use with python-swiftclient and auth v1.0
+# and other openstack tools that use the object store API
+
+export ST_AUTH={swift_auth_url}
+
+export ST_USER="{tenant_name}:{user}"
+
+
+echo "Please enter your OpenStack Password: "
+read -sr OS_PASSWORD_INPUT
+export ST_KEY=$OS_PASSWORD_INPUT
+
+	"""
+    assert_token_tenant_validity(request)
+    s = swiftRcString.format(
+        swift_auth_url=configuration.swift_auth_url,
+        tenant_name=get_tenant_name_from_request(request),
+        user=get_user_from_request(request))
+    return s
 
 
 """
