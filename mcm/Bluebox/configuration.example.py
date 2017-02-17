@@ -47,10 +47,15 @@ define the Swift server connection below:
 """
 endpoint for swift. localhost:3000 is the default for the SDOS API proxy.
 """
+# SDOS on localhost example
 swift_auth_url = "http://localhost:3000/v2.0"
 swift_store_url_valid_prefix = "http://localhost:3000/v1/AUTH_"
-
 swift_auth_version = "2.0"
+
+# local docker CEPH
+#swift_auth_url = "http://172.18.0.2/auth/1.0"
+#swift_store_url_valid_prefix = "http://172.18.0.2/swift/v1"
+#swift_auth_version = "1.0"
 
 """
 ################################################################################

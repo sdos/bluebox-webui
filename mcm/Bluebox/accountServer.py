@@ -83,7 +83,7 @@ def doAuthGetToken(_tenant, _user, _password):
         c = client.Connection(authurl=configuration.swift_auth_url,
                               user=_tenant + ":" + _user,
                               key=_password,
-                              auth_version="2.0",
+                              auth_version="1.0",
                               os_options={"project_id": _tenant,
                                           "user_id": _user})
 
@@ -138,12 +138,12 @@ def get_token_from_request(request):
 
 
 def get_tenant_from_request(request):
-    t = request.cookies.get(COOKIE_NAME_TENANT_ID)
-    if t:
-        return t
-    else:
-        raise HttpError("cookie missing (tenant)", 401)
-
+    """
+    don't check contents; tenant ID might be missing in auth 1.0 scenarios
+    :param request:
+    :return:
+    """
+    return request.cookies.get(COOKIE_NAME_TENANT_ID)
 
 def get_and_assert_tenant_from_request(request):
     assert_token_tenant_validity(request)
