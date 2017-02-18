@@ -76,9 +76,9 @@ used by Analytics. Endpoint of the metadata warehouse PostgreSQL db
 ################################################################################
 """
 metadata_warehouse_endpoint = {
-    "database": "mcm-metadata_{}",
+    "database": "mcm_metadata_{}",
     "user": "postgres",
-    "password": "testing",
+    "password": "passw0rd",
     "host": "172.18.0.44",
     "port": "5432"
 }
@@ -89,4 +89,4 @@ metadata_warehouse_endpoint = {
 used by Analytics. Please provide the URL that points to the Node-RED root.
 ################################################################################
 """
-nodered_url = "http://localhost:1880"
+nodered_url = "http://172.18.0.55:1880"
