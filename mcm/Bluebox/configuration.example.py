@@ -54,13 +54,13 @@ endpoint for swift. localhost:3000 is the default for the SDOS API proxy.
 
 
 # local SDOS with CEPH auth/backend
-swift_auth_url = "http://localhost:3000/auth/1.0"
-swift_store_url_valid_prefix = "http://localhost:3000/v1/AUTH_"
+swift_auth_url = "http://172.18.0.11:3000/auth/1.0"
+swift_store_url_valid_prefix = "http://172.18.0.11:3000/v1/AUTH_"
 swift_auth_version = "1.0"
 
 # local docker CEPH
-#swift_auth_url = "http://172.18.0.2/auth/1.0"
-#swift_store_url_valid_prefix = "http://172.18.0.2/swift/v1"
+#swift_auth_url = "http://172.18.0.22/auth/1.0"
+#swift_store_url_valid_prefix = "http://172.18.0.22/swift/v1"
 #swift_auth_version = "1.0"
 
 """
