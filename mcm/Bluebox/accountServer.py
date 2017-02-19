@@ -145,12 +145,14 @@ def get_tenant_from_request(request):
     """
     return request.cookies.get(COOKIE_NAME_TENANT_ID)
 
+
 def get_tenant_name_from_request(request):
     """
     :param request:
     :return:
     """
     return request.cookies.get(COOKIE_NAME_TENANT_NAME)
+
 
 def get_and_assert_tenant_from_request(request):
     assert_token_tenant_validity(request)
@@ -176,14 +178,15 @@ def get_user_from_request(request):
         raise HttpError("cookie missing (user)", 401)
 
 
-def assert_token_tenant_validity(request):
+def assert_token_tenant_validity(request, check_xsrf=True):
     """
     the credentials are  checked against swift.
     :param tenant:
     :param token:
     :return:
     """
-    assert_no_xsrf(request)
+    if check_xsrf:
+        assert_no_xsrf(request)
     url = get_swift_url_from_request(request)
     token = get_token_from_request(request)
 
@@ -225,14 +228,30 @@ def assert_no_xsrf(request):
 	###########################################################################
 
 """
+
+
+@app.route(API_ROOT + "/openrc_file", methods=["GET"])
+def getOpenrcFile():
+    assert_token_tenant_validity(request, check_xsrf=False)
+    print(request.headers)
+    h = {"Content-disposition":
+             "attachment; filename={}-openrc.sh".format(get_tenant_from_request(request))}
+    return Response(__get_openrc(), mimetype="text/x-shellscript", headers=h)
+
+
 @app.route(API_ROOT + "/account", methods=["GET"])
 def getAccount():
+    assert_token_tenant_validity(request)
+    return Response(__get_openrc(), mimetype="text/plain")
+
+
+def __get_openrc():
     if configuration.swift_auth_version == "2.0":
-        return Response(__get_openrc_v2(), mimetype="text/plain")
+        return __get_openrc_v2()
     elif configuration.swift_auth_version == "1.0":
-        return Response(__get_openrc_v1(), mimetype="text/plain")
+        return __get_openrc_v1()
     else:
-        return Response("no template for this auth version present", mimetype="text/plain")
+        return "no template for this auth version present"
 
 
 def __get_openrc_v2():
@@ -259,7 +278,6 @@ read -sr OS_PASSWORD_INPUT
 export OS_PASSWORD=$OS_PASSWORD_INPUT
 
 	"""
-    assert_token_tenant_validity(request)
     s = swiftRcString.format(
         swift_auth_url=configuration.swift_auth_url,
         tenant=get_tenant_from_request(request),
@@ -284,7 +302,6 @@ read -sr OS_PASSWORD_INPUT
 export ST_KEY=$OS_PASSWORD_INPUT
 
 	"""
-    assert_token_tenant_validity(request)
     s = swiftRcString.format(
         swift_auth_url=configuration.swift_auth_url,
         tenant_name=get_tenant_name_from_request(request),
