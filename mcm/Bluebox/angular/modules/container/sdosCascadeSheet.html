@@ -101,14 +101,40 @@
 
                         <ol>
                             <li ng-style="current_animation_step == 1 && {'color': 'darkred', 'font-weight': 'bold', 'font-size': '1.2em'}">
-                                SDOS scans the delete log and finds all the paths to those objects
+                                <b>Paths:</b> SDOS scans the delete log and finds all the paths to deleted objects (using ID calculations),
                             </li>
+
+                            <li ng-style="current_animation_step == 4 && {'color': 'darkred', 'font-weight': 'bold', 'font-size': '1.2em'}">
+                                <b>Deletable key:</b> the key source securely deletes, and provides a new deletable key,
+                            </li>
+
+                            <li ng-style="current_animation_step == 7 && {'color': 'darkred', 'font-weight': 'bold', 'font-size': '1.2em'}">
+                                <b>Master key:</b> a new, random master key is generated and ecrypted with the new deletable key. The old and new master key
+                                are held in memory for de/encrypting child partitions during this re-key run.
+                            </li>
+
+
+
+
                             <li ng-style="current_animation_step == 2 && {'color': 'darkred', 'font-weight': 'bold', 'font-size': '1.2em'}">
-                                The Key-Source deletes and replaces its deletable key
+                                <b>Internal nodes:</b> are decrypted in memory with their old node key. This old node key is held in memory from previous steps
+                                that processed its parent.
                             </li>
                             <li ng-style="current_animation_step == 3 && {'color': 'darkred', 'font-weight': 'bold', 'font-size': '1.2em'}">
-                                SDOS generates a new master key and encrypts it with the new deletable key
+                                <b>Node keys:</b> are recursively replaced. While the node is in memory (decrypted), the node keys for modified child-nodes
+                                are replaced with new, random generated ones. These old and new keys are held in memory for de/encrypting child nodes. Once all keys in this
+                                node were processed, the node is encrypted/stored with its new key.
                             </li>
+
+                            <li ng-style="current_animation_step == 5 && {'color': 'darkred', 'font-weight': 'bold', 'font-size': '1.2em'}">
+                                <b>Object keys:</b> the node is decrypted in memory with its old key, then all necessary object keys are removed. Once these keys were removed,
+                                the node is encrypted/stored with its new key.
+                            </li>
+                            <li ng-style="current_animation_step == 6 && {'color': 'darkred', 'font-weight': 'bold', 'font-size': '1.2em'}">
+                                <b>Objects: </b> are now no longer recoverable. The <q>deleted</q> object keys can't be decrypted with keys from the current Key-Cascade,
+                                and the old Key-Cascade nodes are no longer recoverable because the old deletable key, and therefore master key, are no longer readable.
+                            </li>
+
                         </ol>
                     </md-card-content>
                 </md-card>

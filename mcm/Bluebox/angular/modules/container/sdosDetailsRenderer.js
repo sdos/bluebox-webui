@@ -646,8 +646,18 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     function newAnimation(d, visited_keys, callback) {
         setTimeout(function () {
             d3.select("#delete_text").attr("value", "Inputing new key");
-            $scope.current_animation_step = 3;
-            $scope.$apply();
+
+            // New key
+            if(d.type == "master"){
+                $scope.current_animation_step = 7;
+                $scope.$apply();
+            }
+            else { // key_object and object do not call newAnimation
+                $scope.current_animation_step = 3;
+                $scope.$apply();
+            }
+
+
             d.operation = "new";
             update(d);
             if (callback) {
@@ -662,8 +672,26 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     function fadingAnimation(d, visited_keys, callback) {
         setTimeout(function () {
             d3.select("#delete_text").attr("value", "Deleting old key");
-            $scope.current_animation_step = 2;
-            $scope.$apply();
+
+            // Remove OLD key
+            if(d.type == "master"){
+                $scope.current_animation_step = 4;
+                $scope.$apply();
+            }
+            else if(d.type == "key") {
+                $scope.current_animation_step = 2;
+                $scope.$apply();
+            }
+            else if(d.type == "key_object") {
+                $scope.current_animation_step = 5;
+                $scope.$apply();
+            }
+            else{ //remove object
+                $scope.current_animation_step = 6;
+                $scope.$apply();
+            }
+
+
             d.operation = "fade";
             update(d);
             if (d.type == "object") {
@@ -837,8 +865,6 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
         // Compute the new tree layout.
         var nodes = tree.nodes(root).reverse(); // list of the nodes objects, descending
         var links = tree.links(nodes);
-
-        console.log(nodes);
 
         // Normalize for fixed-depth.
         nodes.forEach(function (d) {
