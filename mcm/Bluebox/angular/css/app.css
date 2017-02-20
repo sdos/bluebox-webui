@@ -69,6 +69,27 @@ md-dialog-content h2 {
 	margin: 1em;
 }
 
+.bb-task-box {
+	margin: 0.2em;
+	padding: 0.2em;
+}
+
+.bb-task-box-left {
+    text-align: left;
+	color: white;
+	font-size: 1.3em;
+}
+.bb-task-box-right {
+    text-align: right;
+	font-family: 'Consolas', 'Monaco', 'Bitstream Vera Sans Mono', monospace;
+}
+.bb-task-box-left, .bb-task-box-right {
+	padding: 0.2em;
+    display: inline-block;
+    width: 48%;
+}
+
+
 .bb-margin {
 	margin: 1em;
 }

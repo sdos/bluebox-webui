@@ -49,26 +49,26 @@
                         </md-option>
                     </md-select>
                 </md-input-container>
-<!-- fields for tenant and token
-                <md-input-container class="md-icon-float">
-                    <label>
-                        Customer
-                    </label>
-                    <md-icon md-font-set="material-icons">
-                        domain
-                    </md-icon>
-                    <input id="tenant" ng-model="newTaskDefinition.tenant" type="text"/>
-                </md-input-container>
-                <md-input-container class="md-icon-float">
-                    <label>
-                        Authentication token
-                    </label>
-                    <md-icon md-font-set="material-icons">
-                        security
-                    </md-icon>
-                    <input id="token" ng-model="newTaskDefinition.token" type="text"/>
-                </md-input-container>
--->
+                <!-- fields for tenant and token
+                                <md-input-container class="md-icon-float">
+                                    <label>
+                                        Customer
+                                    </label>
+                                    <md-icon md-font-set="material-icons">
+                                        domain
+                                    </md-icon>
+                                    <input id="tenant" ng-model="newTaskDefinition.tenant" type="text"/>
+                                </md-input-container>
+                                <md-input-container class="md-icon-float">
+                                    <label>
+                                        Authentication token
+                                    </label>
+                                    <md-icon md-font-set="material-icons">
+                                        security
+                                    </md-icon>
+                                    <input id="token" ng-model="newTaskDefinition.token" type="text"/>
+                                </md-input-container>
+                -->
 
                 <!-- Button to submit -->
                 <md-button class="md-raised md-warn md-hue-2" ng-click="sendMessage()">
@@ -131,31 +131,39 @@
             <div class="md-toolbar-tools">
                 <h2>
        <span>
-        Messages
-       </span>
+        Messages &nbsp;&nbsp;&nbsp;</span>
                 </h2>
+                <md-button class="md-accent md-raised" ng-click="clear_all_messages()">clear list</md-button>
+                <md-button class="md-accent md-raised"  ng-click="receive_from_beginning()">load from beginning of queue
+                </md-button>
+
             </div>
         </md-toolbar>
         <md-content class="bb-container">
             <md-progress-linear md-mode="query" ng-disabled="loading_stopped"></md-progress-linear>
-            <md-button class="md-warn md-raised" ng-click="clear_all_messages()">clear list</md-button>
-            <md-button class="md-warn md-raised" ng-click="receive_from_beginning()">load from beginning of queue</md-button>
-            <md-content flex-xs layout-xs="column" layout="row" layout-wrap >
-            <md-card layout="column" flex-xs flex="20" ng-repeat="vals in myMessages" ng-style='{background: ui_color_for_msg(vals[0])}' >
-                <md-card-title>
-                    <md-card-title-text>
-                        <span class="md-headline">{{ vals[0].type }} {{ vals[0].container ? " > " + vals[0].container : ""}}</span>
-                        <span class="md-subhead">{{vals[0].correlation}}</span>
-                    </md-card-title-text>
-                </md-card-title>
-                <div layout="row" layout-align="space-between center" ng-repeat="msg in vals">
-                <md-icon md-font-set="material-icons" flex-order="-1">{{ui_icon_for_msg(msg)}}
-                </md-icon>
-                <md-card-content style="overflow-wrap: break-word;" flex="75">
-                    {{txt_for_msg(msg)}}
-                </md-card-content>
-                </div>
-            </md-card>
+
+            <md-content flex-xs layout-xs="column" layout="row" layout-wrap>
+
+
+                <div flex="" layout="column">
+                    <div class="bb-task-box" ng-repeat="vals in myMessages">
+
+
+                        <div ng-style='{background: ui_color_for_msg(vals[0])}'>
+                            <div class="bb-task-box-left"><b>{{ vals[0].type }}</b> {{ vals[0].container }}</div>
+                            <div class="bb-task-box-right">{{ vals[0].correlation }}</div>
+                        </div>
+
+                        <p ng-repeat="msg in vals">
+                            <md-icon ng-style='{color: ui_color_for_msg(vals[0])}'
+                                     md-font-set="material-icons">{{ ui_icon_for_msg(msg) }}
+                            </md-icon>
+                            {{ txt_for_msg(msg) }}
+                        </p>
+
+                    </div>
+
+
             </md-content>
         </md-content>
     </div>
