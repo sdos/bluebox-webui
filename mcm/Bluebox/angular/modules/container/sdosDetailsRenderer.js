@@ -28,14 +28,6 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
     var selected_object = null;
     var animation = 0;
 
-    var animate_operations = {
-        "back": null,
-        "next": {
-            "operation": "selecting",
-            "object": 17, //name of the object
-            "parent": 4370 // assuming the parent is given
-        }
-    };
 
     // this is how the UI knows which explain-text to highlight
     $scope.current_animation_step = 0;
@@ -62,6 +54,11 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
 
 
     var cascadeData = _.clone($scope.sdos_cascade_stats);
+
+
+    $scope.reset_cascade = function () {
+        $state.reload();
+    }
 
 
     /**
@@ -648,7 +645,7 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             d3.select("#delete_text").attr("value", "Inputing new key");
 
             // New key
-            if(d.type == "master"){
+            if (d.type == "master") {
                 $scope.current_animation_step = 7;
                 $scope.$apply();
             }
@@ -674,19 +671,19 @@ function SdosSheetController($rootScope, $state, $scope, $mdDialog, $http) {
             d3.select("#delete_text").attr("value", "Deleting old key");
 
             // Remove OLD key
-            if(d.type == "master"){
+            if (d.type == "master") {
                 $scope.current_animation_step = 4;
                 $scope.$apply();
             }
-            else if(d.type == "key") {
+            else if (d.type == "key") {
                 $scope.current_animation_step = 2;
                 $scope.$apply();
             }
-            else if(d.type == "key_object") {
+            else if (d.type == "key_object") {
                 $scope.current_animation_step = 5;
                 $scope.$apply();
             }
-            else{ //remove object
+            else { //remove object
                 $scope.current_animation_step = 6;
                 $scope.$apply();
             }
