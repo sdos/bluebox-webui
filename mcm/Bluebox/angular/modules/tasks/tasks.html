@@ -136,11 +136,11 @@
                 <md-button class="md-raised" ng-click="clear_all_messages()">clear list</md-button>
                 <md-button class="md-raised"  ng-click="receive_from_beginning()">load from beginning of queue
                 </md-button>
+                <md-button ng-hide="loading_stopped" ng-disabled="true" style="color: red;" class="md-raised">Autoreload on</md-button>
 
             </div>
         </md-toolbar>
         <md-content class="bb-container">
-            <md-progress-linear md-mode="query" ng-disabled="loading_stopped"></md-progress-linear>
 
             <md-content flex-xs layout-xs="column" layout="row" layout-wrap>
 

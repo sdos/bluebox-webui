@@ -45,13 +45,6 @@ Helpers
 value_serializer = lambda v: json.dumps(v).encode('utf-8')
 
 
-def __try_parse_msg_content(m):
-    try:
-        return json.loads(m.value.decode("utf-8"))
-    except Exception as e:
-        return {"type": "Error", "error": "msg parsing failed"}
-
-
 """
 	Connection
 """
@@ -74,7 +67,7 @@ def get_valid_tasks():
 
 @app.route(API_ROOT + "/send_message", methods=["POST"])
 def send_message():
-    log.debug("got message: {}".format(request.json))
+    log.debug("sending message: {}".format(request.json))
     worker_id = "MCMBluebox-{}-{}".format(socket.getfqdn(), os.getpid())
     try:
         j = request.json
@@ -128,15 +121,17 @@ def receive_messages(from_beginning=False):
             consumer.reset_offsets(partition_offsets=partition_offset_pairs)
 
         # vals = [__try_parse_msg_content(m) for m in consumer]
-        vals = [__try_parse_msg_content(consumer.consume(block=True))]
+        try:
+            messages = [json.loads(consumer.consume(block=True).value.decode("utf-8"))]
+            logging.info("sending msg to UI {}".format(messages))
 
-        if not from_beginning:
-            consumer.commit_offsets()
+            if not from_beginning:
+                consumer.commit_offsets()
 
-        if len(vals):
-            logging.info("sending msg to UI {}".format(vals))
-
-        return Response(json.dumps(vals), mimetype="application/json")
+            return Response(json.dumps(messages), mimetype="application/json")
+        except:
+            #logging.exception() # usually this is just kafka timeout returned None...
+            return Response("", mimetype="text/plain")
 
     except HttpError as e:
         """
