@@ -193,7 +193,8 @@ containerModule.controller('ContainerController',
                 try {
                     mdfi = JSON.parse($scope.container.metadata['x-container-meta-mdfi']);
                 } catch (err) {
-                    //console.log(err);
+                    //console.log("no metadata field selection found, setting default");
+                    mdfi = ["content_type", "bytes"];
                 }
 
                 try {
