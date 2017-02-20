@@ -154,7 +154,7 @@ tasksModule.controller('TasksController',
             $scope.ui_icon_for_msg = function (msg) {
                 try {
                     if (msg.type in $scope.validTasks) {
-                        return "call_made";
+                        return "send";
                     } else if (msg.type.startsWith("error")) {
                         return "error";
                     } else if (msg.type.startsWith("processing")) {
