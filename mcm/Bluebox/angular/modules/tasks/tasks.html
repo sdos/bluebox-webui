@@ -127,14 +127,14 @@
 
 <div layout="row" layout-xs="column">
     <div class="md-whiteframe-4dp bb-container" flex="90" flex-xs="100">
-        <md-toolbar class="md-accent md-hue-2">
+        <md-toolbar class="md-hue-2">
             <div class="md-toolbar-tools">
                 <h2>
        <span>
         Messages &nbsp;&nbsp;&nbsp;</span>
                 </h2>
-                <md-button class="md-accent md-raised" ng-click="clear_all_messages()">clear list</md-button>
-                <md-button class="md-accent md-raised"  ng-click="receive_from_beginning()">load from beginning of queue
+                <md-button class="md-raised" ng-click="clear_all_messages()">clear list</md-button>
+                <md-button class="md-raised"  ng-click="receive_from_beginning()">load from beginning of queue
                 </md-button>
 
             </div>
@@ -154,12 +154,13 @@
                             <div class="bb-task-box-right">{{ vals[0].correlation }}</div>
                         </div>
 
-                        <p ng-repeat="msg in vals">
+                        <span ng-repeat="msg in vals">
                             <md-icon ng-style='{color: ui_color_for_msg(vals[0])}'
                                      md-font-set="material-icons">{{ ui_icon_for_msg(msg) }}
                             </md-icon>
                             {{ txt_for_msg(msg) }}
-                        </p>
+                            <br>
+                        </span>
 
                     </div>
 

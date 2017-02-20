@@ -1,51 +1,5 @@
 <div layout="column">
 
-    <!-- Top buttons -->
-    <div layout="row">
-        <p>
-            <md-button aria-label="Back to container list" class="md-raised bb-pin-button md-primary"
-                       ui-sref="fileSystemState()">
-                <md-icon md-font-set="material-icons">
-                    arrow_back
-                </md-icon>
-                Back to container list
-            </md-button>
-
-            <md-button aria-label="Identify content types" class="md-raised"
-                       ui-sref="tasksState({container: container.name, task: 'identify_content'})">
-                <md-icon md-font-set="material-icons">
-                    flag
-                </md-icon>
-                Identify content types
-            </md-button>
-
-            <md-button aria-label="Extract metadata" class="md-raised"
-                       ui-sref="tasksState({container: container.name, task: 'extract_metadata'})">
-                <md-icon md-font-set="material-icons">
-                    format_indent_increase
-                </md-icon>
-                Extract metadata
-            </md-button>
-
-            <md-button aria-label="Replicate metadata to warehouse" class="md-raised"
-                       ui-sref="tasksState({container: container.name, task: 'replicate_metadata'})">
-                <md-icon md-font-set="material-icons">
-                    content_copy
-                </md-icon>
-                Replicate metadata to warehouse
-            </md-button>
-
-            <md-button aria-label="Dispose old objects" class="md-raised"
-                       ui-sref="tasksState({container: container.name, task: 'dispose'})">
-                <md-icon md-font-set="material-icons">
-                    delete_sweep
-                </md-icon>
-                Dispose old objects
-            </md-button>
-        </p>
-    </div>
-
-
     <div layout="row">
         <div flex="" flex ng-if="!container.isMeta">
             <div class="md-whiteframe-4dp bb-container">
@@ -211,68 +165,54 @@
         <q>{{ container.name }}</q>
        </span>
                 </h2>
+
+
+                <md-button aria-label="Identify content types" class="md-raised"
+                           ui-sref="tasksState({container: container.name, task: 'identify_content'})">
+                    <md-icon md-font-set="material-icons">
+                        flag
+                    </md-icon>
+                    Identify content
+                </md-button>
+
+                <md-button aria-label="Extract metadata" class="md-raised"
+                           ui-sref="tasksState({container: container.name, task: 'extract_metadata'})">
+                    <md-icon md-font-set="material-icons">
+                        format_indent_increase
+                    </md-icon>
+                    Extract metadata
+                </md-button>
+
+                <md-button aria-label="Replicate metadata to warehouse" class="md-raised"
+                           ui-sref="tasksState({container: container.name, task: 'replicate_metadata'})">
+                    <md-icon md-font-set="material-icons">
+                        content_copy
+                    </md-icon>
+                    Replicate metadata
+                </md-button>
+
+                <md-button aria-label="Dispose old objects" class="md-raised"
+                           ui-sref="tasksState({container: container.name, task: 'dispose'})">
+                    <md-icon md-font-set="material-icons">
+                        delete_sweep
+                    </md-icon>
+                    Dispose old objects
+                </md-button>
+
+
             </div>
         </md-toolbar>
         <md-content class="bb-container">
-            <section layout="row">
+            <div layout="row">
                 <!-- ###################################################################### -->
                 <!-- Select columns -->
                 <!-- ###################################################################### -->
-                <md-menu>
-                    <md-button class="md-fab md-mini md-primary" ng-click="openColumnsMenu($mdOpenMenu, $event)">
-                        <md-tooltip md-direction="bottom">
-                            Add table column
-                        </md-tooltip>
-                        <md-icon md-font-set="material-icons">
-                            add
-                        </md-icon>
-                    </md-button>
-                    <md-menu-content width="2">
-                        <!-- INTERNAL MD MENU -->
-                        <md-menu-item>
-                            <md-menu md-offset="60 0">
-                                <md-button ng-click="">
-                                    Internal
-                                </md-button>
-                                <md-menu-content width="4">
-                                    <md-menu-item ng-repeat="field in availableInternalMetadataFields">
-                                        <md-button ng-click="addInternalMenuColumn(field)">
-                                            {{ field }}
-                                        </md-button>
-                                    </md-menu-item>
-                                </md-menu-content>
-                            </md-menu>
-                        </md-menu-item>
-                        <!-- EXTRACTOR MD MENU -->
-                        <md-menu-divider>
-                        </md-menu-divider>
-                        <md-menu-item>
-                            <md-button disabled="disabled" ng-click="">
-                                <b>
-                                    Content management
-                                </b>
-                            </md-button>
-                        </md-menu-item>
-                        <md-menu-item ng-repeat="(key, valueList) in availableMetadataFields">
-                            <md-menu md-offset="60 0">
-                                <md-button ng-click="">
-                                    {{ key }}
-                                </md-button>
-                                <md-menu-content width="4">
-                                    <md-menu-item ng-repeat="val in valueList">
-                                        <md-button ng-click="addMenuColumn(key, val)">
-                                            {{ val }}
-                                        </md-button>
-                                    </md-menu-item>
-                                </md-menu-content>
-                            </md-menu>
-                        </md-menu-item>
-                    </md-menu-content>
-                </md-menu>
+
+
                 <!-- ###################################################################### -->
                 <!-- Text input to filter objects -->
                 <!-- ###################################################################### -->
-                <md-input-container class="md-icon-float md-block" flex-gt-sm="">
+                <md-input-container style="margin: 0" class="md-icon-float md-block" flex-gt-sm="">
                     <label>
                         Filter objects by prefix
                     </label>
@@ -281,7 +221,7 @@
                     </md-icon>
                     <input ng-change="getObjects(true)" ng-model="prefix"/>
                 </md-input-container>
-            </section>
+            </div>
             <!-- ###################################################################### -->
             <!-- Table -->
             <!-- ###################################################################### -->
@@ -290,6 +230,57 @@
                     <thead md-head="">
                     <tr md-row="">
                         <th class="bb-table-icon-col" md-column="">
+                            <md-menu>
+                                <md-button style="margin: 0" class="md-icon-button" ng-click="openColumnsMenu($mdOpenMenu, $event)">
+                                    <md-tooltip md-direction="bottom">
+                                        Add table column
+                                    </md-tooltip>
+                                    <md-icon md-font-set="material-icons">
+                                        add
+                                    </md-icon>
+                                </md-button>
+                                <md-menu-content width="2">
+                                    <!-- INTERNAL MD MENU -->
+                                    <md-menu-item>
+                                        <md-menu md-offset="60 0">
+                                            <md-button ng-click="">
+                                                Internal
+                                            </md-button>
+                                            <md-menu-content width="4">
+                                                <md-menu-item ng-repeat="field in availableInternalMetadataFields">
+                                                    <md-button ng-click="addInternalMenuColumn(field)">
+                                                        {{ field }}
+                                                    </md-button>
+                                                </md-menu-item>
+                                            </md-menu-content>
+                                        </md-menu>
+                                    </md-menu-item>
+                                    <!-- EXTRACTOR MD MENU -->
+                                    <md-menu-divider>
+                                    </md-menu-divider>
+                                    <md-menu-item>
+                                        <md-button disabled="disabled" ng-click="">
+                                            <b>
+                                                Content management
+                                            </b>
+                                        </md-button>
+                                    </md-menu-item>
+                                    <md-menu-item ng-repeat="(key, valueList) in availableMetadataFields">
+                                        <md-menu md-offset="60 0">
+                                            <md-button ng-click="">
+                                                {{ key }}
+                                            </md-button>
+                                            <md-menu-content width="4">
+                                                <md-menu-item ng-repeat="val in valueList">
+                                                    <md-button ng-click="addMenuColumn(key, val)">
+                                                        {{ val }}
+                                                    </md-button>
+                                                </md-menu-item>
+                                            </md-menu-content>
+                                        </md-menu>
+                                    </md-menu-item>
+                                </md-menu-content>
+                            </md-menu>
                         </th>
                         <th md-column="">
                             <h3>

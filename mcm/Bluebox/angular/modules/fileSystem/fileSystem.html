@@ -1,27 +1,6 @@
 <!-- Card where you can create a new container -->
 <div layout="column">
 
-    <!-- Top buttons -->
-    <div layout="row">
-        <p>
-            <!-- Top buttons -->
-            <md-button aria-label="Create new container" class="md-raised md-warn"
-                       ng-click="showCreateContainerSheet($event)">
-                <md-icon md-font-set="material-icons">
-                    create_new_folder
-                </md-icon>
-                New container
-            </md-button>
-
-            <md-button class="md-raised" aria-label="Manage object classes" ng-click="showObjectClassSheet($event)">
-                <md-icon md-font-set="material-icons">
-                    settings
-                </md-icon>
-                Manage object classes
-            </md-button>
-        </p>
-    </div>
-
     <!-- Card which lists all available containers -->
     <div class="md-whiteframe-4dp bb-container" flex="">
         <md-toolbar class="md-hue-2">
@@ -29,13 +8,30 @@
                 <h2>
       <span>
        Listing {{ fileSystem.metadata.containerCount | numberFormat }} containers
-      </span>
+      &nbsp;&nbsp;&nbsp;</span>
                 </h2>
+
+                <md-button aria-label="Create new container" class="md-raised"
+                           ng-click="showCreateContainerSheet($event)">
+                    <md-icon md-font-set="material-icons">
+                        create_new_folder
+                    </md-icon>
+                    New container
+                </md-button>
+
+                <md-button class="md-raised" aria-label="Manage object classes" ng-click="showObjectClassSheet($event)">
+                    <md-icon md-font-set="material-icons">
+                        settings
+                    </md-icon>
+                    Manage object classes
+                </md-button>
+
+
             </div>
         </md-toolbar>
         <md-content class="bb-container">
             <!-- Text input to filter containers -->
-            <md-input-container class="md-icon-float md-block" flex-gt-sm="">
+            <md-input-container style="margin: 0" class="md-icon-float md-block" flex-gt-sm="">
                 <label>
                     Filter containers by prefix
                 </label>
