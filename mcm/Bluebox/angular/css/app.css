@@ -81,6 +81,7 @@ md-dialog-content h2 {
 }
 .bb-task-box-right {
     text-align: right;
+	color: white;
 	font-family: 'Consolas', 'Monaco', 'Bitstream Vera Sans Mono', monospace;
 }
 .bb-task-box-left, .bb-task-box-right {
