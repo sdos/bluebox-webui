@@ -14,12 +14,10 @@
         </md-toolbar>
         <md-content class="bb-container">
             <p>
-                MCM uses an Apache Kafka streaming platform to exchange messages between Bluebox and the job runner
+                MCM uses an Apache Kafka streaming platform to exchange messages between Bluebox and a task runner
                 instances. Here you can
-                create a new message that will be picked up and executed by one of the runners.
+                create a new message that will start task execution.
             </p>
-            <p>The job runners don't have an account on Swift, so your message must contain a valid Swift access
-                token.</p>
             <p>
                 <!-- Dropdown to choose Job type -->
                 <md-input-container class="md-block md-icon-float" flex-gt-sm="65">
