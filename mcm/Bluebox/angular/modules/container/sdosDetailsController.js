@@ -96,6 +96,9 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
      *
      * */
 
+    function getCryptoStats() {
+    };
+
     function getSdosStats() {
         $http
             .get('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_cascade_stats')
@@ -198,23 +201,38 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
 
     $scope.$watch('container.objects', function () {
         console.log("refreshing SDOS stats");
-        getSdosStats();
+        if ($scope.container.isSdos) {
+            getSdosStats();
+        }
+        else if ($scope.container.isCrypto) {
+            getCryptoStats();
+        }
+
     });
 
 }
 
-angular.module('bluebox.container').component('sdosDetails', {
-    templateUrl: 'angular/modules/container/sdosDetails.html',
-    controller: sdosDetailsController,
-    bindings: {
-        container: '<'
-    }
-}).component('mcmMetaContainer', {
-    templateUrl: 'angular/modules/container/mcmMetaContainer.html',
-    bindings: {
-        container: '<'
-    }
-});
+angular.module('bluebox.container')
+    .component('sdosDetails', {
+        templateUrl: 'angular/modules/container/sdosDetails.html',
+        controller: sdosDetailsController,
+        bindings: {
+            container: '<'
+        }
+    })
+    .component('cryptoDetails', {
+        templateUrl: 'angular/modules/container/cryptoDetails.html',
+        controller: sdosDetailsController,
+        bindings: {
+            container: '<'
+        }
+    })
+    .component('mcmMetaContainer', {
+        templateUrl: 'angular/modules/container/mcmMetaContainer.html',
+        bindings: {
+            container: '<'
+        }
+    });
 
 
 

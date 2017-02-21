@@ -144,6 +144,10 @@
             <sdos-details container="container">
             </sdos-details>
         </div>
+        <div flex ng-if="container.isCrypto">
+            <crypto-details container="container">
+            </crypto-details>
+        </div>
         <div flex="50" ng-if="container.isMeta">
             <mcm-meta-container>
             </mcm-meta-container>
@@ -231,7 +235,8 @@
                     <tr md-row="">
                         <th class="bb-table-icon-col" md-column="">
                             <md-menu>
-                                <md-button style="margin: 0" class="md-icon-button" ng-click="openColumnsMenu($mdOpenMenu, $event)">
+                                <md-button style="margin: 0" class="md-icon-button"
+                                           ng-click="openColumnsMenu($mdOpenMenu, $event)">
                                     <md-tooltip md-direction="bottom">
                                         Add table column
                                     </md-tooltip>
