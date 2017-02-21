@@ -232,7 +232,7 @@ def doPlot():
 
 @app.route("/api_analytics/nrendpoint", methods=["GET"])
 def getNodeRedEndpoint():
-    e = {"url": configuration.nodered_url}
+    e = {"url": configuration.nodered_url_public}
     return Response(json.dumps(e), mimetype="application/json")
 
 

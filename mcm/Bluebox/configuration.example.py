@@ -34,16 +34,10 @@ Server / runtime config
 ################################################################################
 """
 
-"""
-this is the socket that the "dev" runner will listen on.
-VCAP_APP_* variables are used in cloudfoundry environments; the second parameter is the fallback which will be used normally
-note that with this config, the DEV runner is only locally visible. Only the PROD runner listening on 0.0.0.0 will be accessible form th eoutside
-"""
-netPortDev = 8000
-netHostDev = "127.0.0.1"
+my_endpoint_port = 8000
+my_endpoint_host = os.getenv("MY_ENDPOINT_HOST", "localhost")
+my_bind_host = "0.0.0.0"
 
-netPortProd = 8000
-netHostProd = "0.0.0.0"
 
 """
 ################################################################################
@@ -60,7 +54,11 @@ swift_host = os.getenv("SWIFT_HOST", "localhost")
 swift_port = os.getenv("SWIFT_PORT", 3000)
 
 swift_auth_url = "http://{}:{}/auth/1.0".format(swift_host, swift_port)
+swift_auth_url_public = "http://{}:{}/auth/1.0".format(my_endpoint_host, swift_port)
+
 swift_store_url_valid_prefix = "http://{}:{}/v1/AUTH_".format(swift_host, swift_port)
+swift_store_url_valid_prefix_public = "http://{}:{}/v1/AUTH_".format(my_endpoint_host, swift_port)
+
 swift_auth_version = "1.0"
 
 # SDOS on localhost example
@@ -108,3 +106,4 @@ nodered_host = os.getenv("NODERED_HOST", "localhost")
 nodered_port = os.getenv("NODERED_PORT", 1880)
 
 nodered_url = "http://{}:{}".format(nodered_host, nodered_port)
+nodered_url_public = "http://{}:{}".format(my_endpoint_host, nodered_port)

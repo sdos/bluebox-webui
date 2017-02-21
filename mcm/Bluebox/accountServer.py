@@ -292,20 +292,30 @@ def __get_openrc_v1():
 # for use with python-swiftclient and auth v1.0
 # and other openstack tools that use the object store API
 
-export ST_AUTH={swift_auth_url}
-
 export ST_USER="{tenant_name}:{user}"
-
 
 echo "Please enter your OpenStack Password: "
 read -sr OS_PASSWORD_INPUT
 export ST_KEY=$OS_PASSWORD_INPUT
 
+# if you have direct access to the internal network
+export ST_AUTH={swift_auth_url}
+
+# if you access from outside
+#export ST_AUTH={swift_auth_url_public}
+#export OS_STORAGE_URL={swift_store_url_public}{tenant_name}
+
+
+
 	"""
     s = swiftRcString.format(
         swift_auth_url=configuration.swift_auth_url,
+        swift_auth_url_public=configuration.swift_auth_url_public,
+        swift_store_url_public=configuration.swift_store_url_valid_prefix_public,
         tenant_name=get_tenant_name_from_request(request),
-        user=get_user_from_request(request))
+        user=get_user_from_request(request),
+        endpoint_host=configuration.my_endpoint_host,
+        swift_port=configuration.swift_port)
     return s
 
 

@@ -12,12 +12,11 @@
 from mcm.Bluebox import app
 from mcm.Bluebox import configuration
 
-
 # socketio.run(
 # 			app,
 app.run(
-			host=configuration.netHostDev,
-			port=int(configuration.netPortDev),
-			debug=True,
-			threaded=True
+    host=configuration.my_bind_host,
+    port=int(configuration.my_endpoint_port),
+    debug=True,
+    threaded=True
 )
