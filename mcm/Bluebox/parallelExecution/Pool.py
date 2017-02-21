@@ -22,7 +22,7 @@ from pykafka.common import OffsetType
 from mcm.Bluebox.parallelExecution import Borg
 
 RUNNING_ON_GUNICORN = bool(os.getenv("RUNNING_ON_GUNICORN", False))
-LONGPOLL_DURATION_MS = 60000
+LONGPOLL_DURATION_MS = 3000
 
 
 class KafkaClientPool(Borg):
