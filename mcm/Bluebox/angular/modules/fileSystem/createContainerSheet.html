@@ -51,13 +51,22 @@
 
 
                 <md-input-container>
-                    <md-switch ng-model="newContainer.sdos" aria-label="sdos encryption">
-                        Enable SDOS encryption and cryptographic deletion
+                    <md-switch
+                            ng-model="newContainer.sdosEncryption"
+                            ng-change="newContainer.sdosKeyCascade = newContainer.sdosEncryption"
+                            aria-label="encryption">
+                        Enable content encryption
+                    </md-switch>
+                    <md-switch
+                            ng-disabled="!newContainer.sdosEncryption"
+                            ng-model="newContainer.sdosKeyCascade"
+                            aria-label="sdos cryptographic deletion">
+                        Enable SDOS key management for cryptographic deletion
                     </md-switch>
                 </md-input-container>
 
 
-                <md-card ng-style="newContainer.sdos && {'opacity': 1, 'background': 'linen'} || {'opacity': 0.3}">
+                <md-card ng-style="newContainer.sdosKeyCascade && {'opacity': 1, 'background': 'linen'} || {'opacity': 0.3}">
                     <md-card-title>
                         <b>Tree properties</b>
                     </md-card-title>
@@ -86,7 +95,7 @@
                                     object keys.</p></div>
                         </div>
 
-                        <md-slider-container ng-disabled="!newContainer.sdos">
+                        <md-slider-container ng-disabled="!newContainer.sdosKeyCascade">
                             <span>Tree height</span>
                             <md-slider flex min="2" md-discrete class="md-primary" max="16"
                                        ng-model="newContainer.sdosHeight">
@@ -95,7 +104,7 @@
                                 <input flex type="number" ng-model="newContainer.sdosHeight">
                             </md-input-container>
                         </md-slider-container>
-                        <md-slider-container ng-disabled="!newContainer.sdos">
+                        <md-slider-container ng-disabled="!newContainer.sdosKeyCascade">
                             <span>Partition bits</span>
                             <md-slider flex min="2" max="16" md-discrete class="md-primary"
                                        ng-model="newContainer.sdosPartitionBits">
@@ -108,7 +117,7 @@
                 </md-card>
 
 
-                <md-card ng-style="newContainer.sdos && {'opacity': 1, 'background': 'linen'} || {'opacity': 0.3}">
+                <md-card ng-style="newContainer.sdosEncryption && {'opacity': 1, 'background': 'linen'} || {'opacity': 0.3}">
                     <md-card-title>
                         <b>Deletable key</b>
                     </md-card-title>
@@ -208,7 +217,7 @@
                 </md-card>
 
 
-                <md-card ng-style="newContainer.sdos && {'opacity': 1, 'background': 'linen'} || {'opacity': 0.3}">
+                <md-card ng-style="newContainer.sdosKeyCascade && {'opacity': 1, 'background': 'linen'} || {'opacity': 0.3}">
                     <md-card-title>
                         <b>Batch deletion</b>
                     </md-card-title>
@@ -229,7 +238,8 @@
                                 <p>Names of deleted objects get saved to a log so that secure deletion
                                     (re-keying) can be done later for a batch of objects.
                                 </p>
-                                <p>Object contents are deleted from the object store immediately but the keys remain, and the names
+                                <p>Object contents are deleted from the object store immediately but the keys remain,
+                                    and the names
                                     remain allocated, until batch deletion is triggered.</p>
 
 

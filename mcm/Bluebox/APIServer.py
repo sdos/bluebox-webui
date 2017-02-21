@@ -292,7 +292,8 @@ def create_container():
     try:
         container_definition = request.json.get("container")
         container_name = container_definition.get("name")
-        container_sdos = container_definition.get("sdos", False)
+        container_sdosEncryption = container_definition.get("sdosEncryption", False)
+        container_sdosKeyCascade = container_definition.get("sdosKeyCascade", False)
         container_sdosPartitionBits = container_definition.get("sdosPartitionBits", False)
         container_sdosHeight = container_definition.get("sdosHeight", False)
         container_sdosMasterKey = container_definition.get("sdosMasterKey", False)
@@ -313,15 +314,19 @@ def create_container():
 
     container_metadata = {}
 
-    if container_sdos:
-        container_metadata["x-container-meta-sdos"] = True
-        container_metadata["x-container-meta-sdosPartitionBits"] = container_sdosPartitionBits
-        container_metadata["x-container-meta-sdosHeight"] = container_sdosHeight
+    if container_sdosEncryption:
+        container_metadata["x-container-meta-sdosEncryption"] = True
         container_metadata["x-container-meta-sdosMasterKey"] = container_sdosMasterKey
-        container_metadata["x-container-meta-sdosBatchDelete"] = container_sdosBatchDelete
         if container_sdosMasterKey == "tpm":
             assert (int(container_sdosTpmKeyId) > 0)
             container_metadata["x-container-meta-sdosTpmKeyId"] = container_sdosTpmKeyId
+
+        if container_sdosKeyCascade:
+            container_metadata["x-container-meta-sdosKeyCascade"] = True
+            container_metadata["x-container-meta-sdosPartitionBits"] = container_sdosPartitionBits
+            container_metadata["x-container-meta-sdosHeight"] = container_sdosHeight
+            container_metadata["x-container-meta-sdosBatchDelete"] = container_sdosBatchDelete
+
 
     try:
         class_name = container_definition.get("objectClass")

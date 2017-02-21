@@ -13,7 +13,8 @@ fileSystemModule.controller('FileSystemController',
 
             var newContainerTemplate = {
                 name: undefined,
-                sdos: false,
+                sdosEncryption: false,
+                sdosKeyCascade: false,
                 sdosHeight: 3, //height is with root in the UI/API but without SDOS-internally!
                 sdosPartitionBits: 8,
                 sdosMasterKey : "static",

@@ -203,11 +203,14 @@ containerModule.controller('ContainerController',
                     //console.log(err);
                 }
 
-
+                //console.log($scope.container.metadata);
                 $scope.selectedMetadataFields = mdf;
                 $scope.selectedInternalMetadataFields = mdfi;
-                $scope.container.isSdos = $scope.container.metadata['x-container-meta-sdos'] == 'True';
+                $scope.container.isSdos = ($scope.container.metadata['x-container-meta-sdos'] == 'True')
+                    || ($scope.container.metadata['x-container-meta-sdoskeycascade'] == 'True');
 
+                $scope.container.isCrypto = ($scope.container.metadata['x-container-meta-sdosencryption'] == 'True')
+                    && !$scope.container.isSdos;
             };
 
 
