@@ -17,46 +17,21 @@ analyticsModule
             '$location',
             '$mdDialog',
             '$mdMedia',
+            'HTTP_NODERED_PORT',
+            'MY_PUBLIC_HOSTNAME',
             function ($scope, $rootScope, $state, $stateParams,
-                      $timeout, $filter, $http, $location, $mdDialog, $mdMedia) {
+                      $timeout, $filter, $http, $location, $mdDialog, $mdMedia, HTTP_NODERED_PORT, MY_PUBLIC_HOSTNAME) {
 
                 $scope.waitingForPlot = false;
+                $scope.nodered = {
+                    url: "http://" + MY_PUBLIC_HOSTNAME + ":" + HTTP_NODERED_PORT
+                };
 
-                console.log("BB-Insights!");
+                console.log("Analytics!");
 
                 updateNodeRedSources();
 
 
-                $scope.nodered = {
-                    url: "...Endpoint URL unknown..."
-                };
-                // $scope.selectedSource = {url:"", name: "",
-                // initialLabel: "Select your data source here"};
-
-                /**
-                 *
-                 * Get the endpoint URL for Node-RED. This is used for the "Open Node-RED" button
-                 *
-                 * */
-                $http
-                    .get('api_analytics/nrendpoint')
-                    .then(
-                        function successCallback(response) {
-                            console.log("endpoint is at: "
-                                + response.data.url);
-                            $scope.nodered = {
-                                url: response.data.url
-                            };
-                            if (!response.data.url) {
-                                $rootScope
-                                    .$broadcast(
-                                        'FlashMessage',
-                                        {
-                                            "type": "danger",
-                                            "text": "Error communicating with analytics back end"
-                                        });
-                            }
-                        });
                 /**
                  *
                  * Draws the plot. Get the data from backend and run bokeh

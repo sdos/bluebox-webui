@@ -96,4 +96,3 @@ nodered_host = os.getenv("NODERED_HOST", "localhost")
 nodered_port = os.getenv("NODERED_PORT", 1880)
 
 nodered_url = "http://{}:{}".format(nodered_host, nodered_port)
-nodered_url_public = "http://{}:{}".format(my_endpoint_host, nodered_port)

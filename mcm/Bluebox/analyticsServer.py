@@ -230,12 +230,6 @@ def doPlot():
                 str(e)), 500)
 
 
-@app.route("/api_analytics/nrendpoint", methods=["GET"])
-def getNodeRedEndpoint():
-    e = {"url": configuration.nodered_url_public}
-    return Response(json.dumps(e), mimetype="application/json")
-
-
 @app.route("/api_analytics/nrsources", methods=["GET"])
 def getNodeRedEnpointList():
     accountServer.assert_token_tenant_validity(request)

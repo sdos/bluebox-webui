@@ -5,8 +5,8 @@
  * controller for the view of tasks
  */
 tasksModule.controller('TasksController',
-    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', 'fileSystemService', '$cookies', '$interval', '$websocket', 'WEBSOCKET_HOST_TASKS',
-        function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, fileSystemService, $cookies, $interval, $websocket, WEBSOCKET_HOST_TASKS) {
+    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', 'fileSystemService', '$cookies', '$interval', '$websocket', 'WEBSOCKET_TASKS_PORT', 'MY_PUBLIC_HOSTNAME',
+        function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, fileSystemService, $cookies, $interval, $websocket, WEBSOCKET_TASKS_PORT, MY_PUBLIC_HOSTNAME) {
 
             console.log("tasks!");
 
@@ -33,7 +33,7 @@ tasksModule.controller('TasksController',
                 "worker": "bluebox-" + $cookies.get('MCM-SESSION-ID')
             };
 
-            var ws_url = 'ws://' + WEBSOCKET_HOST_TASKS + '/v2/broker/?topics=' + my_topic;
+            var ws_url = 'ws://' + MY_PUBLIC_HOSTNAME + ":" + WEBSOCKET_TASKS_PORT + '/v2/broker/?topics=' + my_topic;
             var ws = $websocket(ws_url);
 
 
