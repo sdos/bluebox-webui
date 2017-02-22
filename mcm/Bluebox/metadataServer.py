@@ -9,29 +9,20 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 
+import json
+import logging
 
-import collections
-from datetime import datetime
-from functools import wraps
-import json, logging, time, re
-
-from flask import request, Response, send_file, render_template
-import requests
+from flask import Response
 
 from mcm.Bluebox import app, metadataFieldDefinitions
-from mcm.Bluebox import configuration
-from mcm.Bluebox.exceptions import HttpError
-
 
 log = logging.getLogger()
-
 
 """
 
 Get all the filter definitions once
 
 """
-
 
 mapping = dict()
 # image filters
@@ -48,8 +39,7 @@ mapping[metadataFieldDefinitions.ImportFilterPDF.myName] = metadataFieldDefiniti
 f = dict()
 
 for key in mapping:
-	f[key] = mapping[key].myValidTagNames
-
+    f[key] = mapping[key].myValidTagNames
 
 """
 
@@ -57,10 +47,7 @@ HTTP-API endpoints
 
 """
 
+
 @app.route("/api_metadata/filterFields", methods=["GET"])
 def getFilterFields():
-	return Response(json.dumps(f), mimetype="application/json")
-
-
-
-
+    return Response(json.dumps(f), mimetype="application/json")

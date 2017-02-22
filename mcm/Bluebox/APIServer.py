@@ -21,7 +21,6 @@ from jsonschema import Draft4Validator, FormatChecker
 from jsonschema.exceptions import ValidationError
 from swiftclient.exceptions import ClientException
 
-from mcm.Bluebox import SwiftConnect
 from mcm.Bluebox import accountServer
 from mcm.Bluebox import app
 from mcm.Bluebox.exceptions import HttpError
@@ -56,8 +55,7 @@ def log_requests(f):
 ##############################################################################
 @app.errorhandler(Exception)
 def handle_invalid_usage(e):
-    log.error(e.__str__())
-    log.error(type(e))
+    log.exception("api exception")
     if (ClientException == type(e)):
         if (401 == e.http_status):
             return "not authenticated", 401
