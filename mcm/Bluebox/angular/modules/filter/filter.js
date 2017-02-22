@@ -22,7 +22,11 @@ var filterModule = angular.module('bluebox.filter', []).filter('metaPrefix', fun
     }
 }).filter('containerTypeIcon', function () {
     return function (c) {
-        if (c.name.startsWith("_mcm-internal_"))             return "folder_special";
+        if (c.metadata) {
+            if (c.metadata["x-container-meta-sdoskeycascade"]) return "enhanced_encryption"
+            if (c.metadata["x-container-meta-sdosencryption"]) return "lock_outline"
+        }
+        if (c.name.startsWith("_mcm-internal_"))             return "code";
         if (c.count == 0)                                    return "folder_open";
         return "folder";
     }
@@ -60,6 +64,6 @@ var filterModule = angular.module('bluebox.filter', []).filter('metaPrefix', fun
     }
 }).filter('sdosCapacity', function () {
     return function (c) {
-        return Math.pow(Math.pow(2,c.sdosPartitionBits), c.sdosHeight);
+        return Math.pow(Math.pow(2, c.sdosPartitionBits), c.sdosHeight);
     }
 });

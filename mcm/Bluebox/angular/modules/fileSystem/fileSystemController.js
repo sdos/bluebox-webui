@@ -17,8 +17,8 @@ fileSystemModule.controller('FileSystemController',
                 sdosKeyCascade: false,
                 sdosHeight: 3, //height is with root in the UI/API but without SDOS-internally!
                 sdosPartitionBits: 8,
-                sdosMasterKey : "static",
-                sdosTpmKeyId : 1, // usually not present
+                sdosMasterKey: "static",
+                sdosTpmKeyId: 1, // usually not present
                 sdosBatchDelete: false
             };
             $scope.newContainer = newContainerTemplate;
@@ -70,6 +70,7 @@ fileSystemModule.controller('FileSystemController',
                         $scope.fileSystem.metadata = response.metadata;
                         $scope.isGetContainersRequestPending = false;
                         $scope.isAllDataLoaded = (0 === response.containers.length);
+                        getAllContainerMetadata();
                     });
             };
 
@@ -111,6 +112,21 @@ fileSystemModule.controller('FileSystemController',
                         });
             };
 
+            /**
+             * GET all the  details for all containers
+             *
+             */
+            var getAllContainerMetadata = function () {
+                $scope.fileSystem.containers.forEach(function (this_container) {
+                    fileSystemService
+                        .getContainerMetadata(this_container)
+                        .then(function (metadata) {
+                            this_container.metadata = metadata;
+                            this_container.objectClass = metadata['x-container-meta-objectclass'];
+                        });
+                });
+
+            };
             /**
              * GET the details for a container
              *
