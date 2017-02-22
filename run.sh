@@ -13,4 +13,4 @@ source setenv.sh
 #python _runApp_Development.py
 
 # listen on all interfaces, no debug
-_runApp_Gunicorn.sh
+./_runApp_Gunicorn.sh

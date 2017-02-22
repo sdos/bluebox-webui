@@ -3,7 +3,9 @@ Flask==0.12
 python-dateutil==2.6.0
 python-swiftclient==3.3.0
 jsonschema==2.6.0
-pykafka==2.5.0
 pandas==0.19.2
 psycopg2==2.6.2
 bokeh==0.12.4
+gevent==1.2.1
+greenlet==0.4.12
+gunicorn==19.6.0

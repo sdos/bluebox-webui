@@ -73,16 +73,6 @@ swift_auth_version = "1.0"
 
 """
 ################################################################################
-Kafka bootstrap broker for messaging / Task setup
-################################################################################
-"""
-kafka_host = os.getenv("KAFKA_HOST", "localhost")
-kafka_port = os.getenv("KAFKA_PORT", 9092)
-
-kafka_broker_endpoint = "{}:{}".format(kafka_host, kafka_port)
-
-"""
-################################################################################
 used by Analytics. Endpoint of the metadata warehouse PostgreSQL db
 ################################################################################
 """

@@ -18,7 +18,6 @@ app = Flask(__name__, static_folder="angular")
 #socketio = SocketIO(app)
 
 import mcm.Bluebox.APIServer
-import mcm.Bluebox.TasksServer
 import mcm.Bluebox.analyticsServer
 import mcm.Bluebox.metadataServer
 import mcm.Bluebox.accountServer
