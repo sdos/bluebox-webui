@@ -53,8 +53,8 @@ here we assume that auth/store run on the same host/port. this is true with SDOS
 swift_host = os.getenv("SWIFT_HOST", "localhost")
 swift_port = os.getenv("SWIFT_PORT", 3000)
 
-swift_auth_url = "http://{}:{}/auth/1.0".format(swift_host, swift_port)
-swift_auth_url_public = "http://{}:{}/auth/1.0".format(my_endpoint_host, swift_port)
+swift_auth_url = "http://{}:{}/auth/v1.0".format(swift_host, swift_port)
+swift_auth_url_public = "http://{}:{}/auth/v1.0".format(my_endpoint_host, swift_port)
 
 swift_store_url_valid_prefix = "http://{}:{}/v1/AUTH_".format(swift_host, swift_port)
 swift_store_url_valid_prefix_public = "http://{}:{}/v1/AUTH_".format(my_endpoint_host, swift_port)
