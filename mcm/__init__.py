@@ -8,7 +8,7 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
-import coloredlogs, logging
+import coloredlogs, logging, sys
 from mcm.Bluebox import configuration
 
 log_format = '%(asctime)s %(module)s %(name)s[%(process)d] %(levelname)s %(message)s'
@@ -29,4 +29,5 @@ logging.basicConfig(level=appConfig.log_level, format=log_format)
 
 logging.error("###############################################################################")
 logging.error("Bluebox service running")
+logging.error("Python {}".format(sys.version))
 logging.error("###############################################################################")
