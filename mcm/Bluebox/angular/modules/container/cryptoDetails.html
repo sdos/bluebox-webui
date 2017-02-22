@@ -4,7 +4,7 @@
             <h2>
         <span>
                         <md-icon md-font-set="material-icons">
-                        encryption
+                        lock_outline
                     </md-icon>&nbsp;
          Content encryption
         </span>
@@ -15,6 +15,8 @@
 
         <div layout="column">
             <div>
+                <p>Encryption-only container. No key management, a single master key for all objects. Master key is
+                    stored encrypted by a key source.</p>
 
                 <p>Master key available: <b
                         ng-style="sdos_cascade_stats.masterKeySource.is_unlocked && {'color': 'green'} || {'color': 'red'}">{{ sdos_cascade_stats.masterKeySource.is_unlocked }}</b>
@@ -32,22 +34,7 @@
                     <br>Master key hash: <b
                             ng-style="{ 'mix-blend-mode': 'difference',  'color': 'black', 'background': sdos_cascade_stats.masterKeySource.keyIdColor }">{{ sdos_cascade_stats.masterKeySource.key_id }}</b>
 
-                    <br>Deletable key provided by: <b>{{ sdos_cascade_stats.masterKeySource.type }}</b>
-                    <br>Next deletable key available: <b
-                            ng-style="sdos_cascade_stats.masterKeySource.is_next_deletable_ready && {'color': 'green'} || {'color': 'red'}">{{ sdos_cascade_stats.masterKeySource.is_next_deletable_ready }}</b>
-
-                    <md-icon class="md-warn" ng-click="clearNextDeletable()"
-                             ng-hide="!sdos_cascade_stats.masterKeySource.is_next_deletable_ready"
-                             md-font-set="material-icons">
-                        clear
-                    </md-icon>
-                    &nbsp;
-
-
-                    <md-button ng-hide="sdos_cascade_stats.masterKeySource.is_next_deletable_ready"
-                               class="md-raised md-primary" ng-click="provideNextDeletable()">Provide next deletable
-                        key
-                    </md-button>
+                    <br>Master key encrypted by: <b>{{ sdos_cascade_stats.masterKeySource.type }}</b>
                 </p>
             </div>
 

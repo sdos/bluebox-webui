@@ -85,7 +85,7 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
             .post('swift/containers/' + ctrl.container.name + '/objects/__mcm__/sdos_' + operation, d)
             .then(
                 function successCallback(response) {
-                    getSdosStats();
+                    getFrontendStats();
                 });
     };
 
@@ -96,7 +96,28 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
      *
      * */
 
+    function getFrontendStats() {
+        if ($scope.container.isSdos) {
+            getSdosStats();
+        }
+        else if ($scope.container.isCrypto) {
+            getCryptoStats();
+        }
+    };
+
+
     function getCryptoStats() {
+        $http
+            .get('swift/containers/' + ctrl.container.name + '/objects/__mcm__/crypto_key_stats')
+            .then(
+                function successCallback(response) {
+                    $scope.sdos_cascade_stats = {masterKeySource: response.data};
+                    $scope.sdos_cascade_stats.masterKeySource.keyIdColor = '#' + $scope.sdos_cascade_stats.masterKeySource.key_id.substring(0, 6);
+
+                },
+                function errorCallback(response) {
+                    console.error("ERROR GETTING DETAILS FROM SERVER: " + response.data);
+                });
     };
 
     function getSdosStats() {
@@ -201,12 +222,7 @@ function sdosDetailsController($scope, $rootScope, $http, $mdMedia, $mdDialog) {
 
     $scope.$watch('container.objects', function () {
         console.log("refreshing SDOS stats");
-        if ($scope.container.isSdos) {
-            getSdosStats();
-        }
-        else if ($scope.container.isCrypto) {
-            getCryptoStats();
-        }
+        getFrontendStats();
 
     });
 
