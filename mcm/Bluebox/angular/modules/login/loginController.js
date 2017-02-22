@@ -5,8 +5,8 @@
  * controller for login
  */
 loginModule.controller('LoginController',
-    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', '$cookies',
-        function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, $cookies) {
+    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', '$cookies', 'MY_DEFAULT_TENANT_NAME',
+        function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, $cookies, MY_DEFAULT_TENANT_NAME) {
             console.log("loginController init");
             if ($stateParams.noAuth) {
                 $rootScope.$broadcast('FlashMessage', {
@@ -15,7 +15,7 @@ loginModule.controller('LoginController',
                 });
             }
 
-            $scope.credentials = {tenant: "mcmdemo"};
+            $scope.credentials = {tenant: MY_DEFAULT_TENANT_NAME};
 
             /**
              *

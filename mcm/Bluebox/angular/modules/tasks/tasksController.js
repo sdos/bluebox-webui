@@ -5,33 +5,36 @@
  * controller for the view of tasks
  */
 tasksModule.controller('TasksController',
-    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', 'fileSystemService', 'tasksService', '$cookies', '$interval',
-        function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, fileSystemService, tasksService, $cookies, $interval) {
+    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$filter', '$http', 'fileSystemService', '$cookies', '$interval', '$websocket', 'WEBSOCKET_HOST_TASKS',
+        function ($scope, $rootScope, $state, $stateParams, $timeout, $filter, $http, fileSystemService, $cookies, $interval, $websocket, WEBSOCKET_HOST_TASKS) {
 
             console.log("tasks!");
 
-
+            $scope.loading_stopped = true;
             $scope.myMessages = [];
             $scope.myKeys = [];
-            $scope.validTasks = {"no": "...not loaded..."};
+            $scope.validTasks = {
+                "identify_content": "Identify content types",
+                "extract_metadata": "Extract metadata",
+                "replicate_metadata": "Replicate metadata",
+                "dispose": "Dispose of old objects",
+                "ping": "ping"
+            };
             $scope.availableContainers = undefined;
+
+            var my_topic = $cookies.get('MCM-TENANT-NAME');
 
             $scope.newTaskDefinition = {
                 "type": $stateParams.task,
                 "container": $stateParams.container,
                 "token": $cookies.get('XSRF-TOKEN'),
-                "tenant-id": $cookies.get('MCM-TENANT-ID')
+                "tenant-id": $cookies.get('MCM-TENANT-ID'),
+                "correlation": undefined,
+                "worker": "bluebox-" + $cookies.get('MCM-SESSION-ID')
             };
 
-            /**
-             *
-             * Get the list of valid tasks
-             *
-             * */
-            tasksService.getValidTasks()
-                .then(function (response) {
-                    $scope.validTasks = response.data;
-                });
+            var ws_url = 'ws://' + WEBSOCKET_HOST_TASKS + '/v2/broker/?topics=' + my_topic;
+            var ws = $websocket(ws_url);
 
 
             /**
@@ -53,19 +56,50 @@ tasksModule.controller('TasksController',
              * */
 
             $scope.sendMessage = function () {
+                var task = $scope.newTaskDefinition;
+                task.correlation = generateUUID();
+                var msg = {
+                    topic: my_topic,
+                    message: JSON.stringify(task)
+                };
+
                 $rootScope.$broadcast('FlashMessage', {
                     "type": "wait",
                     "text": "sending message..."
                 });
-                tasksService.postMessage($scope.newTaskDefinition)
-                    .then(function (response) {
-                        $rootScope.$broadcast('FlashMessage', {
-                            "type": "success",
-                            "text": "message sent successfully"
-                        });
-                        //console.log($scope.availableContainers);
-                    })
+                ws.send(JSON.stringify(msg));
+
             };
+
+            /**
+             retrieve messages
+             */
+            ws.onClose(function () {
+                $scope.loading_stopped = true;
+                console.log("websocket closed; reopening...");
+                ws = $websocket(ws_url);
+            });
+
+            ws.onError(function () {
+                $scope.loading_stopped = true;
+                console.log("websocket error!");
+            });
+
+            ws.onOpen(function () {
+                $scope.loading_stopped = false;
+                console.log("websocket connected!");
+            });
+
+
+            ws.onMessage(function (message) {
+                var d = JSON.parse(message.data);
+                var m = JSON.parse(d.message);
+                //console.log(d);
+                //console.log(m);
+                addMsgs(m);
+            });
+
+
             /**
              helper function to add response data to messages
              */
@@ -79,46 +113,6 @@ tasksModule.controller('TasksController',
                     $scope.myMessages[idx].push(resp);
                 }
             };
-            /**
-             *
-             * receive the messages
-             *
-             * */
-            $scope.receive_from_beginning = function () {
-                $scope.loading_stopped = false;
-                tasksService.retrieveMessages(true)
-                    .then(function (response) {
-                        $scope.loading_stopped = true;
-                        $scope.clear_all_messages();
-                        for (var i = 0; i < response.data.length; i++) {
-                            addMsgs(response.data[i]);
-                        }
-                    }, function (e) {
-                        $scope.loading_stopped = true;
-                    })
-            };
-
-            var receive = function () {
-                $scope.loading_stopped = false;
-                tasksService.retrieveMessages(false)
-                    .then(function (response) {
-                        if (response.data) {
-                            $scope.loading_stopped = true;
-                            for (var i = 0; i < response.data.length; i++) {
-                                addMsgs(response.data[i]);
-                            }
-                            if (!$scope["$$destroyed"]) {
-                                $interval(function () {
-                                    receive();
-                                }, 2000, 1);
-                            }
-
-                        }
-                    }, function (e) {
-                        $scope.loading_stopped = true;
-                    })
-            };
-            receive();
 
 
             /**
@@ -193,5 +187,15 @@ tasksModule.controller('TasksController',
 
             };
 
+
+            function generateUUID() {
+                var d = new Date().getTime();
+                var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                    var r = (d + Math.random() * 16) % 16 | 0;
+                    d = Math.floor(d / 16);
+                    return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                });
+                return uuid;
+            };
 
         }]);

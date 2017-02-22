@@ -5,7 +5,8 @@
  * module for the container contents page
  */
 var tasksModule = angular.module('bluebox.tasks', [
-    'ui.router'
+    'ui.router',
+    'angular-websocket'
 ])
 
     .config(['$stateProvider', function ($stateProvider) {

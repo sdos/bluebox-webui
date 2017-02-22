@@ -13,6 +13,7 @@
     "angular-material-data-table": "^0.10.9",
     "angular-sanitize": "^1.5",
     "angular-ui-router": "^0.3.1",
+    "angular-websocket": "^2.0.1",
     "bokehjs": "^0.12.2",
     "d3": "^3",
     "ng-elif": "^0.1.4",
