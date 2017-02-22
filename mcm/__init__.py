@@ -26,3 +26,7 @@ logging.getLogger("swiftclient").setLevel(level=logging.WARNING)
 import logging
 logging.basicConfig(level=appConfig.log_level, format=log_format)
 """
+
+logging.error("###############################################################################")
+logging.error("Bluebox service running")
+logging.error("###############################################################################")
