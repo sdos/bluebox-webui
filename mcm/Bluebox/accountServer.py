@@ -287,6 +287,7 @@ export OS_PASSWORD=$OS_PASSWORD_INPUT
     s = swiftRcString.format(
         swift_auth_url=configuration.swift_auth_url,
         swift_auth_url_public=configuration.swift_auth_url_public,
+        swift_store_url_public=configuration.swift_store_url_valid_prefix_public,
         tenant=get_tenant_from_request(request),
         tenant_name=get_tenant_name_from_request(request),
         user=get_user_from_request(request))
