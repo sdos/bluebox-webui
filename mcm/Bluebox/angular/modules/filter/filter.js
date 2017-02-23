@@ -35,6 +35,16 @@ var filterModule = angular.module('bluebox.filter', []).filter('metaPrefix', fun
         if (c.name.startsWith("_mcm-internal_"))             return "color: grey; font-style: italic;";
         return "";
     }
+}).filter('parseContainerCount', function () {
+    return function (c) {
+        if (c.metadata && c.metadata["x-container-object-count"])   return c.metadata && c.metadata["x-container-object-count"];
+        return c.count;
+    }
+}).filter('parseContainerBytes', function () {
+    return function (c) {
+        if (c.metadata && c.metadata["x-container-bytes-used"])   return c.metadata && c.metadata["x-container-bytes-used"];
+        return c.count;
+    }
 }).filter('isMetaContainer', function () {
     return function (c) {
         if (c.startsWith("_mcm-internal_"))             return true;

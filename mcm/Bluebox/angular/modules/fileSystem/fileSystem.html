@@ -78,10 +78,10 @@
                             {{ thisContainer.name }}
                         </td>
                         <td md-cell="" class="bb-table-col" style="{{ thisContainer | containerTypeColor }}">
-                            {{ thisContainer.bytes | bytes }}
+                            {{ thisContainer | parseContainerCount | bytes }}
                         </td>
                         <td md-cell="" class="bb-table-col" style="{{ thisContainer | containerTypeColor }}">
-                            {{ thisContainer.count }}
+                            {{ thisContainer | parseContainerCount }}
                         </td>
                     </tr>
                     </tbody>
