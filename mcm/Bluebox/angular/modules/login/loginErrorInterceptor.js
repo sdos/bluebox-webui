@@ -16,7 +16,7 @@ loginModule
              },*/
             'responseError': function (response) {
                 console.log("intercept ERROR");
-                //console.log(response);
+                console.log(response);
                 if (response.status === 401) {
                     s = $injector.get('$state');
                     if (!s.includes('loginState')) {
@@ -30,9 +30,10 @@ loginModule
                         "text": "http error: no connection to service"
                     });
                 } else {
+                    var text = (response.data.error && response.data.error.message) ? response.data.error.message : response.data;
                     $rootScope.$broadcast('FlashMessage', {
                         "type": "warning",
-                        "text": "http error: " + response.status + " " + response.data
+                        "text": "HTTP error " + response.status + " - " + text
                     });
                 }
                 return $q.reject(response);

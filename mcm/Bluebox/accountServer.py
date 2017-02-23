@@ -68,10 +68,16 @@ def doLogin():
         r.set_cookie(COOKIE_NAME_SESSION_ID, value=str(uuid.uuid4()))
         return r
     except ClientException as e:
-        log.exception("Login error")
-        return e.msg, 401
+        log.error("Login ClientException: {}".format(e))
+        # swifts ClientExceptions can take many forms...
+        if e.http_status:
+            return Response(response=e.http_response_content, status=e.http_status)
+        elif e.msg and e.msg.startswith("Unauthorized."):
+            return e.msg, 401
+        else:
+            return "{}".format(e), 500
     except Exception as e:
-        log.exception("Login error")
+        log.exception("Login exception")
         return "{}".format(e), 500
 
 
