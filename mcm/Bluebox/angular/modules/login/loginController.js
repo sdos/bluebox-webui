@@ -56,7 +56,7 @@ loginModule.controller('LoginController',
                             console.log(err);
                             $rootScope.$broadcast('FlashMessage', {
                                 "type": "danger",
-                                "text": "Authentication failed: " + err.data
+                                "text": "Error " + err.data
                             });
                         });
 
