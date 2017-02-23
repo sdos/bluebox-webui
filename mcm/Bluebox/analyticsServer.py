@@ -20,6 +20,7 @@ import psycopg2
 import requests
 from bokeh.charts import Area, vplot, Bar, Line, BoxPlot
 from bokeh.embed import components
+from bokeh.models import ColumnDataSource
 from flask import request, Response
 
 from mcm.Bluebox import app, accountServer
@@ -86,12 +87,51 @@ PLOTS
 
 """
 
+###############################################################################
+# WORKING
+###############################################################################
+def bokeh_plot_line(data, nrDataSource, logScale=""):
+    data_as_columns = ColumnDataSource().from_df(data)
+    title = "Line graph: " + nrDataSource['name']
+    index_column = data.columns[0]
+    col_names = [d for d in data.columns[1:]]
+    print("öööööööööööööööööööööööööööööööööööööö")
+    print(col_names)
+    print(data[col_names[1]])
 
-def doPlot1(data, nrDataSource):
-    p = Bar(data, data.columns[0], values=data.columns[1], title="Bar graph: " + nrDataSource['name'],
-            xlabel=data.columns[0], ylabel=data.columns[1], responsive=True)
-    c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
+    plot = Line(data_as_columns, title=title, x=index_column,
+             #   y=col_names,
+             responsive=False, y_mapper_type=logScale)
+
+    c = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
     return c
+
+
+def bokeh_plot_bar(data, nrDataSource, logScale=""):
+    data_as_columns = ColumnDataSource().from_df(data)
+    title = "Bar graph: " + nrDataSource['name']
+    index_column = data.columns[0]
+    print(data)
+    print(data.columns)
+    print(data.columns[1])
+
+    col_names = [d for d in data.columns[1:]]
+
+    plot = Bar(data_as_columns, values=data.columns[0],
+           agg='sum', title=title, responsive=True)
+
+
+    c = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
+    return c
+
+
+
+
+
+###############################################################################
+# LEGACY
+###############################################################################
+
 
 
 def doPlot1log(data, nrDataSource):
@@ -101,13 +141,7 @@ def doPlot1log(data, nrDataSource):
     return c
 
 
-def doPlot11(data, nrDataSource, logScale=""):
-    print(data)
-    print(data.columns)
-    p = Line(data, title="Line graph: " + nrDataSource['name'], xlabel=data.columns[0], ylabel=data.columns[1],
-             responsive=True, y_mapper_type=logScale)
-    c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
-    return c
+
 
 
 def doPlot_Box(data, nrDataSource):
@@ -207,13 +241,13 @@ def doPlot():
         if ('2bar' == plotType):
             c = doPlot2(data=df, nrDataSource=nrDataSource)
         elif ('bar' == plotType):
-            c = doPlot1(data=df, nrDataSource=nrDataSource)
+            c = bokeh_plot_bar(data=df, nrDataSource=nrDataSource)
         elif ('bar_log' == plotType):
             c = doPlot1log(data=df, nrDataSource=nrDataSource)
         elif ('line' == plotType):
-            c = doPlot11(data=df, nrDataSource=nrDataSource)
+            c = bokeh_plot_line(data=df, nrDataSource=nrDataSource)
         elif ('line_log' == plotType):
-            c = doPlot11(data=df, nrDataSource=nrDataSource, logScale="log")
+            c = bokeh_plot_line(data=df, nrDataSource=nrDataSource, logScale="log")
         elif ('box' == plotType):
             c = doPlot_Box(data=df, nrDataSource=nrDataSource)
         elif ('stackedBar' == plotType):
