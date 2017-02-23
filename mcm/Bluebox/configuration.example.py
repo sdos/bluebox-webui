@@ -55,13 +55,12 @@ swift_port = os.getenv("SWIFT_PORT", 3000)
 
 swift_auth_version = "1.0"
 
-# v1 swift auth
-swift_auth_url = "http://{}:{}/auth/v1.0".format(swift_host, swift_port)
-swift_auth_url_public = "http://{}:{}/auth/v1.0".format(my_endpoint_host, swift_port)
-
-# v2 keystone auth
-#swift_auth_url = "http://{}:{}/v2.0/tokens".format(swift_host, swift_port)
-#swift_auth_url_public = "http://{}:{}/v2.0/tokens".format(my_endpoint_host, swift_port)
+if swift_auth_version == "1.0":
+    swift_auth_url = "http://{}:{}/auth/v1.0".format(swift_host, swift_port)
+    swift_auth_url_public = "http://{}:{}/auth/v1.0".format(my_endpoint_host, swift_port)
+elif swift_auth_version == "2.0":
+    swift_auth_url = "http://{}:{}/v2.0/tokens".format(swift_host, swift_port)
+    swift_auth_url_public = "http://{}:{}/v2.0/tokens".format(my_endpoint_host, swift_port)
 
 # store URL is always the same independent of auth version
 swift_store_url_valid_prefix = "http://{}:{}/v1/AUTH_".format(swift_host, swift_port)
