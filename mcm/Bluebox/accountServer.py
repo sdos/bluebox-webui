@@ -264,6 +264,7 @@ def __get_openrc_v2():
 # change this depending on where you access from
 # if you are on the same network as Bluebox
 export OS_AUTH_URL={swift_auth_url}
+
 # if you access from outside
 #export OS_AUTH_URL={swift_auth_url_public}
 #export OS_STORAGE_URL={swift_store_url_public}{tenant_name}
