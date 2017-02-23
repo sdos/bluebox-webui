@@ -23,7 +23,7 @@ var filterModule = angular.module('bluebox.filter', []).filter('metaPrefix', fun
 }).filter('containerTypeIcon', function () {
     return function (c) {
         if (c.metadata) {
-            if (c.metadata["x-container-meta-sdoskeycascade"]) return "enhanced_encryption"
+            if (c.metadata["x-container-meta-sdoskeycascade"] || c.metadata["x-container-meta-sdos"]) return "enhanced_encryption"
             if (c.metadata["x-container-meta-sdosencryption"]) return "lock_outline"
         }
         if (c.name.startsWith("_mcm-internal_"))             return "code";
