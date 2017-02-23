@@ -235,7 +235,7 @@ def getOpenrcFile():
     assert_token_tenant_validity(request, check_xsrf=False)
     print(request.headers)
     h = {"Content-disposition":
-             "attachment; filename={}-openrc.sh".format(get_tenant_from_request(request))}
+             "attachment; filename=openrc-{}.sh".format(get_tenant_from_request(request))}
     return Response(__get_openrc(), mimetype="text/x-shellscript", headers=h)
 
 
@@ -255,8 +255,7 @@ def __get_openrc():
 
 
 def __get_openrc_v2():
-    swiftRcString = """
-#!/bin/bash
+    swiftRcString = """#!/bin/bash
 # for use with python-swiftclient and keystone auth v2.0
 # and other openstack tools that use the object store API
 
@@ -267,7 +266,7 @@ export OS_AUTH_URL={swift_auth_url}
 
 # if you access from outside
 #export OS_AUTH_URL={swift_auth_url_public}
-#export OS_STORAGE_URL={swift_store_url_public}{tenant_name}
+#export OS_STORAGE_URL={swift_store_url_public}{tenant}
 
 # With the addition of Keystone we have standardized on the term **tenant**
 # as the entity that owns the resources.
@@ -296,8 +295,7 @@ export OS_PASSWORD=$OS_PASSWORD_INPUT
 
 
 def __get_openrc_v1():
-    swiftRcString = """
-#!/bin/bash
+    swiftRcString = """#!/bin/bash
 # for use with python-swiftclient and auth v1.0
 # and other openstack tools that use the object store API
 
