@@ -260,7 +260,13 @@ def __get_openrc_v2():
 # for use with python-swiftclient and keystone auth v2.0
 # and other openstack tools that use the object store API
 
+
+# change this depending on where you access from
+# if you are on the same network as Bluebox
 export OS_AUTH_URL={swift_auth_url}
+# if you access from outside
+#export OS_AUTH_URL={swift_auth_url_public}
+#export OS_STORAGE_URL={swift_store_url_public}{tenant_name}
 
 # With the addition of Keystone we have standardized on the term **tenant**
 # as the entity that owns the resources.
@@ -280,6 +286,7 @@ export OS_PASSWORD=$OS_PASSWORD_INPUT
 	"""
     s = swiftRcString.format(
         swift_auth_url=configuration.swift_auth_url,
+        swift_auth_url_public=configuration.swift_auth_url_public,
         tenant=get_tenant_from_request(request),
         tenant_name=get_tenant_name_from_request(request),
         user=get_user_from_request(request))
