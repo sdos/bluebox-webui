@@ -49,27 +49,26 @@ here we assume that auth/store run on the same host/port. this is true with SDOS
  to configure two different endpoints below
 ################################################################################
 """
-
+# env-vars or localhost docker container
 swift_host = os.getenv("SWIFT_HOST", "localhost")
 swift_port = os.getenv("SWIFT_PORT", 3000)
 
+swift_auth_version = "1.0"
+
+# v1 swift auth
 swift_auth_url = "http://{}:{}/auth/v1.0".format(swift_host, swift_port)
 swift_auth_url_public = "http://{}:{}/auth/v1.0".format(my_endpoint_host, swift_port)
 
+# v2 keystone auth
+#swift_auth_url = "http://{}:{}/v2.0/tokens".format(swift_host, swift_port)
+#swift_auth_url_public = "http://{}:{}/v2.0/tokens".format(my_endpoint_host, swift_port)
+
+# store URL is always the same independent of auth version
 swift_store_url_valid_prefix = "http://{}:{}/v1/AUTH_".format(swift_host, swift_port)
 swift_store_url_valid_prefix_public = "http://{}:{}/v1/AUTH_".format(my_endpoint_host, swift_port)
 
-swift_auth_version = "1.0"
 
-# SDOS on localhost example
-# swift_auth_url = "http://localhost:3000/v2.0"
-# swift_store_url_valid_prefix = "http://localhost:3000/v1/AUTH_"
-# swift_auth_version = "2.0"
 
-# local docker CEPH
-# swift_auth_url = "http://172.18.0.22/auth/1.0"
-# swift_store_url_valid_prefix = "http://172.18.0.22/swift/v1"
-# swift_auth_version = "1.0"
 
 """
 ################################################################################
