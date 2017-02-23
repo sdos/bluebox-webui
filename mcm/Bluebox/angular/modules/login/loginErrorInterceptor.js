@@ -16,10 +16,11 @@ loginModule
              },*/
             'responseError': function (response) {
                 console.log("intercept ERROR");
-                if ($injector.get('$state').includes('loginState')) return $q.reject(response);
+                var state = $injector.get('$state');
+                if (state.includes('loginState')) return $q.reject(response);
                 console.log(response);
                 if (response.status === 401) {
-                    s.go('loginState');
+                    state.go('loginState');
                     var deferred = $q.defer();
                     return deferred.promise;
                 } else if (response.status === -1) {
