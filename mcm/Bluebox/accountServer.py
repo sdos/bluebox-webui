@@ -69,10 +69,10 @@ def doLogin():
         return r
     except ClientException as e:
         log.exception("Login error")
-        raise HttpError(e.msg, 401)
-    except Exception:
+        return e.msg, 401
+    except Exception as e:
         log.exception("Login error")
-        raise HttpError("Internal Server Error", 500)
+        return "{}".format(e), 500
 
 
 def doAuthGetToken(_tenant, _user, _password):
