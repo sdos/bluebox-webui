@@ -235,7 +235,7 @@ def getOpenrcFile():
     assert_token_tenant_validity(request, check_xsrf=False)
     print(request.headers)
     h = {"Content-disposition":
-             "attachment; filename=openrc-{}.sh".format(get_tenant_from_request(request))}
+             "attachment; filename=openrc-{}.sh".format(get_tenant_name_from_request(request))}
     return Response(__get_openrc(), mimetype="text/x-shellscript", headers=h)
 
 
