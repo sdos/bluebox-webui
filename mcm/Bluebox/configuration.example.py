@@ -53,7 +53,7 @@ here we assume that auth/store run on the same host/port. this is true with SDOS
 swift_host = os.getenv("SWIFT_HOST", "localhost")
 swift_port = os.getenv("SWIFT_PORT", 3000)
 
-swift_auth_version = "1.0"
+swift_auth_version = os.getenv("SWIFT_AUTH_VERSION", "1.0")
 
 if swift_auth_version == "1.0":
     swift_auth_url = "http://{}:{}/auth/v1.0".format(swift_host, swift_port)
