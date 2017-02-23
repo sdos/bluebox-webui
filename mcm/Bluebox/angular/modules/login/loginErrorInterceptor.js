@@ -9,11 +9,6 @@ loginModule
     .factory('loginErrorInterceptor', ['$q', '$injector', '$rootScope', function ($q, $injector, $rootScope) {
         return {
 
-            /*        'response': function (response) {
-             console.log("intercept");
-             console.log(response.status);
-             return response;
-             },*/
             'responseError': function (response) {
                 console.log("intercept ERROR");
                 var state = $injector.get('$state');
