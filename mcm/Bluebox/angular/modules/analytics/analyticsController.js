@@ -19,8 +19,9 @@ analyticsModule
             '$mdMedia',
             'HTTP_NODERED_PORT',
             'MY_PUBLIC_HOSTNAME',
+            'fileSystemService',
             function ($scope, $rootScope, $state, $stateParams,
-                      $timeout, $filter, $http, $location, $mdDialog, $mdMedia, HTTP_NODERED_PORT, MY_PUBLIC_HOSTNAME) {
+                      $timeout, $filter, $http, $location, $mdDialog, $mdMedia, HTTP_NODERED_PORT, MY_PUBLIC_HOSTNAME, fileSystemService) {
 
                 $scope.waitingForPlot = false;
                 $scope.nodered = {
@@ -30,6 +31,17 @@ analyticsModule
                 console.log("Analytics!");
 
                 updateNodeRedSources();
+
+                /**
+                 *
+                 * Get the list of container from swift
+                 *
+                 * */
+
+                fileSystemService.getContainers("", "", 10000)
+                    .then(function (response) {
+                        $scope.availableContainers = response.containers;
+                    })
 
 
                 /**

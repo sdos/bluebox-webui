@@ -21,7 +21,7 @@ import psycopg2
 import requests
 from bokeh.embed import components
 from bokeh.models import TickFormatter
-from bokeh.palettes import small_palettes
+from bokeh import palettes
 from bokeh.plotting import figure
 from bokeh.charts import Donut
 
@@ -136,6 +136,21 @@ def __col_to_label_dict(col, offset=1):
     return r
 
 
+def __get_color_palette(length):
+    #print("__get_color_palette", length)
+    """
+    see
+    http://bokeh.pydata.org/en/latest/docs/reference/palettes.html
+    """
+    if length <= 8-2:
+        # small_palettes only works with 2+ items; so we increase size by two
+        #   and later reduce back down
+        colors = palettes.Colorblind[length + 2]
+        return colors[:length]
+    else:
+        return palettes.viridis(length)
+
+
 ###############################################################################
 # Plots
 ###############################################################################
@@ -148,17 +163,14 @@ def bokeh_plot_line(data, nrDataSource, logScale="linear"):
     value_col_names = [d for d in data.columns[1:]]
     # print(data)
 
-    # small_palettes only works with 2+ items; so we increase size by two
-    #   and later reduce back down
-    colors = small_palettes['Dark2'][len(value_col_names) + 2]
-    colors = colors[:len(value_col_names)]
+
 
     plot = figure(plot_width=1000, plot_height=600, y_axis_type=logScale)
     plot.title.text = title
     plot.yaxis.axis_label = "values"
     plot.xaxis.axis_label = data.columns[0]
 
-    for (col_name, color) in zip(value_col_names, colors):
+    for (col_name, color) in zip(value_col_names, __get_color_palette(len(value_col_names))):
         plot.line(data.index, data[col_name], name=col_name, legend=col_name, color=color, line_width=3)
 
     plot.xaxis[0].formatter = FixedTickFormatter(labels=__col_to_label_dict(data[data.columns[0]]))
@@ -176,11 +188,6 @@ def bokeh_plot_bar(data, nrDataSource, logScale="linear"):
     value_col_names = [d for d in data.columns[1:]]
     # print(data)
 
-    # small_palettes only works with 2+ items; so we increase size by two
-    #   and later reduce back down
-    colors = small_palettes['Dark2'][len(value_col_names) + 2]
-    colors = colors[:len(value_col_names)]
-
     plot = figure(plot_width=1000, plot_height=600, y_axis_type=logScale)
     plot.title.text = title
     plot.yaxis.axis_label = "values"
@@ -188,7 +195,7 @@ def bokeh_plot_bar(data, nrDataSource, logScale="linear"):
 
     num_series = len(value_col_names)
     max_idx = len(data.index) * (num_series + 1)
-    for (col_name, color, idx) in zip(value_col_names, colors, range(0, num_series)):
+    for (col_name, color, idx) in zip(value_col_names, __get_color_palette(len(value_col_names)), range(0, num_series)):
         this_index = RangeIndex(start=idx, stop=max_idx, step=num_series + 1)
         plot.vbar(x=this_index, width=0.8, top=data[col_name], name=col_name, legend=col_name, color=color)
 
@@ -205,10 +212,12 @@ def bokeh_plot_bar(data, nrDataSource, logScale="linear"):
 
 def bokeh_plot_pie(data, nrDataSource):
     value_col_names = [d for d in data.columns[1:]]
+    num_rows = len(data[data.columns[0]])
 
     plot = Donut(data, values=value_col_names[0], label=data.columns[0],
-                 text_font_size='8pt', color=small_palettes['Dark2'])
+                 text_font_size='8pt', plot_width=600, plot_height=600) #, color=__get_color_palette(num_rows)) #default palette looks best
 
+    print("ccc", num_rows, __get_color_palette(num_rows))
     script, div = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
     return (script, div)
 
