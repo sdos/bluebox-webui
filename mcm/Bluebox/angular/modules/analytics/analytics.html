@@ -25,13 +25,13 @@
             </div>
         </md-toolbar>
         <md-content class="bb-container">
-            <h3>Postgres (warehouse) -> Nodered (SQL
+            <h3>Postgres (warehouse) -> Node-Red (SQL
                 queries)
                 -> Bokeh (Plot)</h3>
             <p>
                 Analytics runs on metadata replicated to the warehouse and SQL queries in node-red. Results are shown
                 here after bokeh renders them server-side. <br>
-                The result-table from node-red has to be: [0] first column contains keys; stings. [1..n] further columns
+                The result-table schema from node-red has to be: [0] first column contains keys (stings). [1..n] further columns
                 with numerical values.
             </p>
 
@@ -43,7 +43,7 @@
             </md-button>
             <md-button class="md-raised md-primary" ng-href="{{ nodered.url }}" target="_blank">
                 <md-icon md-font-set="material-icons">
-                    timeline
+                    code
                 </md-icon>
                 Open Node-RED editor
             </md-button>
@@ -65,6 +65,7 @@
                                 no easier way to achieve that -->
                         <md-option ng-repeat="source in availableSources" value="{{ source }}" selected="selected">
                             <code>{{ source.url }}</code>
+                            &nbsp;&nbsp;
                             <b>
                                 {{ source.name }}
                             </b>
@@ -175,7 +176,7 @@
 
             <pre>{{ bbTableData.info }}</pre>
             <p ng-hide="!bbTableData.truncated"><b>Showing only the first 50 rows</b></p>
-            <p>Data format should be: [0] first column contains keys; stings. [1..n] further columns with numerical
+            <p>Data schema should be: [0] first column contains keys (stings). [1..n] further columns with numerical
                 values.</p>
 
             <md-table-container>
