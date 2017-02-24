@@ -173,20 +173,7 @@
     </md-toolbar>
     <md-content class="bb-container">
         <p>
-            BB-Insights uses
-            <a href="http://bokeh.pydata.org" target="_blank">
-                Bokeh
-            </a>
-            and
-            <a href="http://bokeh.pydata.org/en/latest/docs/dev_guide/bokehjs.html" target="_blank">
-                BokehJS
-            </a>
-            to visualize your data. You can now choose which type of visualization you want to use.
-        </p>
-        <p>
-            Each type supports different data structures. All data from Node-RED has to come in tables or matrixes, the
-            different visualization types
-            support different amounts of rows and columns.
+            Select the plot type.
         </p>
         <md-button class="md-raised md-primary" ng-click="showResultTable()" ng-disabled="!selectedSource">
             <md-icon md-font-set="material-icons">
@@ -203,49 +190,31 @@
             <md-icon md-font-set="material-icons">
                 trending_up
             </md-icon>
-            <p><b>
                 Line graph
-            </b></p>
-            <p>
-                0: index<br>
-                1-n: num. values
-            </p>
         </md-button>
         <md-button class="md-raised md-primary" ng-click="drawPlot('line_log')" ng-disabled="!selectedSource">
             <md-icon md-font-set="material-icons">
                 trending_up
             </md-icon>
-            <p><b>
                 Line graph - log scale
-            </b></p>
-            <p>
-                0: index<br>
-                1-n: num. values
-            </p>
         </md-button>
         <md-button class="md-raised md-primary" ng-click="drawPlot('bar')" ng-disabled="!selectedSource">
             <md-icon md-font-set="material-icons">
                 equalizer
             </md-icon>
-            <p><b>
                 Bar graph
-            </b></p>
-            <p>
-                0: index<br>
-                1-n: num. values
-            </p>
         </md-button>
         <md-button class="md-raised md-primary" ng-click="drawPlot('bar_log')" ng-disabled="!selectedSource">
             <md-icon md-font-set="material-icons">
                 equalizer
             </md-icon>
-            <p><b>
                 Bar graph - log scale
-            </b></p>
-            <p>
-                0: index<br>
-                1-n: num. values
-            </p>
+        </md-button>
+        <md-button class="md-raised md-primary" ng-click="drawPlot('pie')" ng-disabled="!selectedSource">
+            <md-icon md-font-set="material-icons">
+                pie_chart
+            </md-icon>
+                Pie chart
         </md-button>
 
 
