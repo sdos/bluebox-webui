@@ -205,15 +205,11 @@ def bokeh_plot_bar(data, nrDataSource, logScale="linear"):
 
 def bokeh_plot_pie(data, nrDataSource):
     value_col_names = [d for d in data.columns[1:]]
-    # print(data)
 
-
-
-    plot = Donut(data, label=['abbr', 'medal'], values='medal_count',
+    plot = Donut(data, values=value_col_names[0], label=data.columns[0],
                  text_font_size='8pt', color=small_palettes['Dark2'])
 
     script, div = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
-
     return (script, div)
 
 
