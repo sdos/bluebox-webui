@@ -104,7 +104,7 @@ analyticsModule
                  * */
 
                 $scope.showResultTable = function () {
-                    $scope.bbplot = undefined;
+                    //$scope.bbplot = undefined;
                     $scope.waitingForPlot = true;
                     $http
                         .get('api_analytics/table',
@@ -151,6 +151,7 @@ analyticsModule
                             function successCallback(response) {
                                 //console.log(response.data);
                                 $scope.availableSources = response.data;
+                                //$scope.selectedSource = $scope.availableSources[0];
                             });
                 };
 
