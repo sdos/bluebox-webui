@@ -16,13 +16,14 @@ from io import StringIO
 from urllib import parse as urlParse
 
 import pandas
+from pandas.indexes.range import RangeIndex
 import psycopg2
 import requests
 from bokeh.plotting import figure
 from bokeh.charts import Area, vplot, Bar, Line, BoxPlot
 from bokeh.embed import components
 from bokeh.models import ColumnDataSource, TickFormatter
-from bokeh.properties import Dict, Int, String
+from bokeh.properties import Dict, Int, String, Auto
 from bokeh.palettes import small_palettes
 from bokeh.util.compiler import CoffeeScript
 from bokeh.resources import EMPTY
@@ -64,22 +65,14 @@ def doPlot():
     df = getDataFromNodeRed(nrDataSource=nrDataSource)
     try:
         logging.info(df)
-        if ('2bar' == plotType):
-            c = doPlot2(data=df, nrDataSource=nrDataSource)
-        elif ('bar' == plotType):
+        if ('bar' == plotType):
             c = bokeh_plot_bar(data=df, nrDataSource=nrDataSource)
         elif ('bar_log' == plotType):
-            c = doPlot1log(data=df, nrDataSource=nrDataSource)
+            c = bokeh_plot_bar(data=df, nrDataSource=nrDataSource, logScale="log")
         elif ('line' == plotType):
             c = bokeh_plot_line(data=df, nrDataSource=nrDataSource)
         elif ('line_log' == plotType):
             c = bokeh_plot_line(data=df, nrDataSource=nrDataSource, logScale="log")
-        elif ('box' == plotType):
-            c = doPlot_Box(data=df, nrDataSource=nrDataSource)
-        elif ('stackedBar' == plotType):
-            c = doPlot_stackedBar(data=df, nrDataSource=nrDataSource)
-        elif ('area' == plotType):
-            c = doPlot_Area(data=df, nrDataSource=nrDataSource)
         else:
             return Response("Plot type unknown", status=500)
         return Response(json.dumps(c), mimetype="application/json")
@@ -132,10 +125,10 @@ class FixedTickFormatter(TickFormatter):
     __implementation__ = CoffeeScript(COFFEESCRIPT)
 
 
-def __col_to_label_dict(col):
+def __col_to_label_dict(col, offset=1):
     r = dict()
     for k, v in dict(col).items():
-        r[int(k)] = v
+        r[(int(k) * offset)] = v
     return r
 
 
@@ -146,98 +139,64 @@ def __col_to_label_dict(col):
 ###############################################################################
 # WORKING
 ###############################################################################
-def bokeh_plot_line(data, nrDataSource, logScale=""):
+def bokeh_plot_line(data, nrDataSource, logScale="linear"):
     title = "Line graph: " + nrDataSource['name']
-    index_column = data.index
     value_col_names = [d for d in data.columns[1:]]
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    print(data)
+    # print(data)
 
+    # small_palettes only works with 2+ items; so we increase size by two
+    #   and later reduce back down
     colors = small_palettes['Dark2'][len(value_col_names) + 2]
     colors = colors[:len(value_col_names)]
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    plot = figure(plot_width=1000, plot_height=600)
+
+    plot = figure(plot_width=1000, plot_height=600, y_axis_type=logScale)
     plot.title.text = title
     plot.yaxis.axis_label = "values"
     plot.xaxis.axis_label = data.columns[0]
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
     for (col_name, color) in zip(value_col_names, colors):
         plot.line(data.index, data[col_name], name=col_name, legend=col_name, color=color, line_width=3)
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
     plot.xaxis[0].formatter = FixedTickFormatter(labels=__col_to_label_dict(data[data.columns[0]]))
 
     script, div = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
-    js= EMPTY.js_raw[0] + script
-    #EMPTY.render()
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    js = EMPTY.js_raw[0] + script
 
     return (js, div)
 
 
-def bokeh_plot_bar(data, nrDataSource, logScale=""):
-    data_as_columns = ColumnDataSource().from_df(data)
+def bokeh_plot_bar(data, nrDataSource, logScale="linear"):
     title = "Bar graph: " + nrDataSource['name']
-    index_column = data.columns[0]
-    print(data)
-    print(data.columns)
-    print(data.columns[1])
+    value_col_names = [d for d in data.columns[1:]]
+    # print(data)
 
-    col_names = [d for d in data.columns[1:]]
+    # small_palettes only works with 2+ items; so we increase size by two
+    #   and later reduce back down
+    colors = small_palettes['Dark2'][len(value_col_names) + 2]
+    colors = colors[:len(value_col_names)]
 
-    plot = Bar(data_as_columns, values=data.columns[0],
-               agg='sum', title=title, responsive=True)
+    plot = figure(plot_width=1000, plot_height=600, y_axis_type=logScale)
+    plot.title.text = title
+    plot.yaxis.axis_label = "values"
+    plot.xaxis.axis_label = data.columns[0]
 
-    c = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
-    return c
+    num_series = len(value_col_names)
+    for (col_name, color, idx) in zip(value_col_names, colors, range(0, num_series)):
+        this_index = RangeIndex(start=idx, stop=len(data.index) * num_series, step=num_series)
+        print(data[col_name])
+        print(col_name)
+        print(this_index)
+        plot.vbar(x=this_index, width=0.5, top=data[col_name], name=col_name, legend=col_name, color=color)
 
+    print(__col_to_label_dict(data[data.columns[0]], offset=num_series))
+    plot.xaxis[0].formatter = FixedTickFormatter(labels=__col_to_label_dict(data[data.columns[0]], offset=num_series))
 
-###############################################################################
-# LEGACY
-###############################################################################
+    script, div = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
 
+    js = EMPTY.js_raw[0] + script
 
-
-def doPlot1log(data, nrDataSource):
-    p = Bar(data, data.columns[0], values=data.columns[1], title="Bar graph: " + nrDataSource['name'],
-            xlabel=data.columns[0], ylabel=data.columns[1], responsive=True, y_mapper_type="log")
-    c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
-    return c
-
-
-def doPlot_Box(data, nrDataSource):
-    p = BoxPlot(data, values=data.columns[1], label=data.columns[0], marker='square',
-                color=data.columns[0],
-                title="BoxPlot: " + nrDataSource['name'])
-
-    c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
-    return c
-
-
-def doPlot_stackedBar(data, nrDataSource):
-    p = Bar(data, data.columns[0], values=data.columns[1], title="StackedBar graph: " + nrDataSource['name'],
-            xlabel=data.columns[0], ylabel=data.columns[1], plot_width=900, responsive=True)
-
-    c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
-    return c
-
-
-def doPlot_Area(data, nrDataSource):
-    p = Area(data, title="Area Chart: " + nrDataSource['name'], legend="top_left",
-             xlabel=data.columns[0], ylabel=data.columns[1])
-
-    c = components(p, resources=None, wrap_script=False, wrap_plot_info=True)
-    return c
-
-
-def doPlot2(data, nrDataSource):
-    plots = []
-    for thisColumn in data.columns[1:]:
-        plots.append(Bar(data, data.columns[0], values=thisColumn, title="Bar graph: " + nrDataSource['name'],
-                         xlabel=data.columns[0], ylabel=thisColumn, responsive=True))
-    c = components(vplot(*plots), resources=None, wrap_script=False, wrap_plot_info=True)
-    return c
+    return (js, div)
 
 
 ###############################################################################

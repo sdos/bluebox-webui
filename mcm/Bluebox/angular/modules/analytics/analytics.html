@@ -9,11 +9,6 @@
 <body>
 
 
-
-<md-progress-circular class="md-accent" md-mode="query" ng-hide="!waitingForPlot">
-        </md-progress-circular>
-
-
 <!--   ############################################################################# -->
 <!-- PLOT AREA -->
 <!--   ############################################################################# -->
@@ -28,12 +23,16 @@
                 </h2>
             </div>
         </md-toolbar>
-        <md-content ng-bind-html="bbplot | to_trusted">
+        <md-content>
+            <div ng-bind-html="bbplot | to_trusted"></div>
         </md-content>
     </div>
     <div flex="">
     </div>
 </div>
+
+<md-progress-circular class="md-accent" md-mode="query" ng-hide="!waitingForPlot" md-diameter="70">
+            </md-progress-circular>
 
 <!--   ############################################################################# -->
 <!-- TABLE AREA -->
@@ -208,8 +207,8 @@
                 Line graph
             </b></p>
             <p>
-              0: index
-                1-n: values
+                0: index<br>
+                1-n: num. values
             </p>
         </md-button>
         <md-button class="md-raised md-primary" ng-click="drawPlot('line_log')" ng-disabled="!selectedSource">
@@ -220,7 +219,8 @@
                 Line graph - log scale
             </b></p>
             <p>
-                * rows, 1 column
+                0: index<br>
+                1-n: num. values
             </p>
         </md-button>
         <md-button class="md-raised md-primary" ng-click="drawPlot('bar')" ng-disabled="!selectedSource">
@@ -231,7 +231,8 @@
                 Bar graph
             </b></p>
             <p>
-                * rows, 1 column
+                0: index<br>
+                1-n: num. values
             </p>
         </md-button>
         <md-button class="md-raised md-primary" ng-click="drawPlot('bar_log')" ng-disabled="!selectedSource">
@@ -242,67 +243,10 @@
                 Bar graph - log scale
             </b></p>
             <p>
-                * rows, 1 column
+                0: index<br>
+                1-n: num. values
             </p>
         </md-button>
-
-
-        <md-button class="md-raised md-primary" ng-click="drawPlot('2bar')" ng-disabled="!selectedSource">
-            <md-icon md-font-set="material-icons">
-                equalizer
-            </md-icon>
-            <md-icon md-font-set="material-icons">
-                equalizer
-            </md-icon>
-            <md-icon md-font-set="material-icons">
-                equalizer
-            </md-icon>
-            <p><b>
-                Multiple bar graphs
-            </b></p>
-            <p>
-                * rows, * column
-            </p>
-        </md-button>
-
-        <md-button class="md-raised md-primary" ng-click="drawPlot('stackedBar')" ng-disabled="!selectedSource">
-            <md-icon md-font-set="material-icons">
-                poll
-            </md-icon>
-            <p><b>
-                Stacked bar graph
-            </b></p>
-            <p>
-                * rows, * column
-            </p>
-        </md-button>
-
-
-        <md-button class="md-raised md-primary" ng-click="drawPlot('box')" ng-disabled="!selectedSource">
-            <md-icon md-font-set="material-icons">
-                fullscreen
-            </md-icon>
-            <p><b>
-                Box plot
-            </b></p>
-            <p>
-                * rows, * column
-            </p>
-        </md-button>
-
-
-        <md-button class="md-raised md-primary" ng-click="drawPlot('area')" ng-disabled="!selectedSource">
-            <md-icon md-font-set="material-icons">
-                terrain
-            </md-icon>
-            <p><b>
-                Area graph
-            </b></p>
-            <p>
-                * rows, * column
-            </p>
-        </md-button>
-
 
 
     </md-content>
