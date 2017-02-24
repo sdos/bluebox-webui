@@ -34,7 +34,7 @@ CLASS_SCHEMA = json.loads(open("mcm/Bluebox/include/object_class_schema").read()
 RETENTIONFIELD = 'x-object-meta-mgmt-retentiondate'
 OBJECTCLASSFIELD = 'x-container-meta-objectclass'
 INTERNALOCNAME = "object-class-definitions"
-
+PREFIX_MCM_INTERNAL = '_mcm-internal_'
 API_ROOT = "/swift"
 
 
@@ -328,7 +328,6 @@ def create_container():
             container_metadata["x-container-meta-sdosHeight"] = container_sdosHeight
             container_metadata["x-container-meta-sdosBatchDelete"] = container_sdosBatchDelete
 
-
     try:
         class_name = container_definition.get("objectClass")
         class_definition = internal_data.get_data(INTERNALOCNAME, class_name)
@@ -589,6 +588,10 @@ def stream_object(container_name, object_name):
     show_inline_param = request.args.get("show_inline")
     if show_inline_param and show_inline_param == "true":
         headers["Content-Disposition"] = "inline"
+        if container_name.startswith(PREFIX_MCM_INTERNAL):
+            # return a "readable" srting rep. of the internal binary objects for in-browser viewing
+            mime_type = "text/plain"
+            return Response(str(swift_data.read()), mimetype=mime_type, headers=headers)
     else:
         headers["Content-Disposition"] = "attachment"
 

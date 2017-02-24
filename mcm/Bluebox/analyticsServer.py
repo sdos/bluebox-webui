@@ -84,7 +84,7 @@ def doPlot():
         logging.exception("plotting error:")
         raise HttpError(
             "the Node-RED result could not be plotted. Maybe wrong data format for the plot type? Check result table: {}".format(
-                str(e)), 500)
+                e), 500)
 
 
 @app.route("/api_analytics/nrsources", methods=["GET"])
@@ -154,16 +154,10 @@ def __get_color_palette(length):
 ###############################################################################
 # Plots
 ###############################################################################
-
-###############################################################################
-# WORKING
-###############################################################################
 def bokeh_plot_line(data, nrDataSource, logScale="linear"):
     title = "Line graph: " + nrDataSource['name']
     value_col_names = [d for d in data.columns[1:]]
     # print(data)
-
-
 
     plot = figure(plot_width=1200, plot_height=600, y_axis_type=logScale)
     plot.title.text = title
@@ -217,7 +211,6 @@ def bokeh_plot_pie(data, nrDataSource):
     plot = Donut(data, values=value_col_names[0], label=data.columns[0],
                  text_font_size='8pt', plot_width=800, plot_height=800) #, color=__get_color_palette(num_rows)) #default palette looks best
 
-    print("ccc", num_rows, __get_color_palette(num_rows))
     script, div = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
     return (script, div)
 
@@ -225,7 +218,6 @@ def bokeh_plot_pie(data, nrDataSource):
 ###############################################################################
 # nodered integration
 ###############################################################################
-
 def getListOfKeys(d):
     keys = []
     for k in d.keys():
