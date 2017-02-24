@@ -16,18 +16,19 @@ from io import StringIO
 from urllib import parse as urlParse
 
 import pandas
-from pandas.indexes.range import RangeIndex
 import psycopg2
 import requests
-from bokeh.plotting import figure
-from bokeh.charts import Area, vplot, Bar, Line, BoxPlot
 from bokeh.embed import components
-from bokeh.models import ColumnDataSource, TickFormatter
-from bokeh.properties import Dict, Int, String, Auto
+from bokeh.models import TickFormatter
 from bokeh.palettes import small_palettes
-from bokeh.util.compiler import CoffeeScript
+from bokeh.plotting import figure
+from bokeh.charts import Donut
+
+from bokeh.properties import Dict, Int, String
 from bokeh.resources import EMPTY
+from bokeh.util.compiler import CoffeeScript
 from flask import request, Response
+from pandas.indexes.range import RangeIndex
 
 from mcm.Bluebox import app, accountServer
 from mcm.Bluebox import configuration
@@ -201,36 +202,25 @@ def bokeh_plot_bar(data, nrDataSource, logScale="linear"):
     return (js, div)
 
 def bokeh_plot_pie(data, nrDataSource):
-    title = "Pie chart: " + nrDataSource['name']
     value_col_names = [d for d in data.columns[1:]]
     # print(data)
 
-    # small_palettes only works with 2+ items; so we increase size by two
-    #   and later reduce back down
-    colors = small_palettes['Dark2'][len(value_col_names) + 2]
-    colors = colors[:len(value_col_names)]
 
-    plot = figure(plot_width=1000, plot_height=600)
-    plot.title.text = title
-    plot.yaxis.axis_label = "values"
-    plot.xaxis.axis_label = data.columns[0]
 
-    num_series = len(value_col_names)
-    for (col_name, color, idx) in zip(value_col_names, colors, range(0, num_series)):
-        this_index = RangeIndex(start=idx, stop=len(data.index) * num_series, step=num_series)
-        print(data[col_name])
-        print(col_name)
-        print(this_index)
-        plot.vbar(x=this_index, width=0.5, top=data[col_name], name=col_name, legend=col_name, color=color)
+    plot = Donut(data, label=['abbr', 'medal'], values='medal_count',
+          text_font_size='8pt', color=small_palettes['Dark2'])
 
-    print(__col_to_label_dict(data[data.columns[0]], offset=num_series))
-    plot.xaxis[0].formatter = FixedTickFormatter(labels=__col_to_label_dict(data[data.columns[0]], offset=num_series))
+
+
 
     script, div = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
 
-    js = EMPTY.js_raw[0] + script
 
-    return (js, div)
+
+
+
+
+    return (script, div)
 
 
 ###############################################################################
