@@ -29,8 +29,9 @@
                 queries)
                 -> Bokeh (Plot)</h3>
             <p>
-                Analytics runs on metadata replicated to the warehouse and runs queries in node-red. Results are shown here
-                after bokeh renders them server-side.
+                Analytics runs on metadata replicated to the warehouse and SQL queries in node-red. Results are shown
+                here after bokeh renders them server-side. <br>
+                The result-table from node-red has to be: [0] first column contains keys; stings. [1..n] further columns with numerical values.
             </p>
 
             <md-button class="md-raised md-primary" ng-click="showTableStructure($event)">
@@ -59,7 +60,9 @@
                     list
                 </md-icon>
                 <md-select ng-model="selectedSource">
-                    <md-option ng-repeat="source in availableSources" value="{{ source }}">
+                    <!-- selected="selected" on all -- this actually results in the last item being selected...
+                            no easier way to achieve that -->
+                    <md-option ng-repeat="source in availableSources" value="{{ source }}" selected="selected">
                         {{ source.url }}
                         <b>
                             {{ source.name }}
@@ -74,7 +77,8 @@
             </h3>
 
 
-            <md-switch class="md-primary" ng-change="table_on && showResultTable()" ng-model="table_on" ng-disabled="!selectedSource">
+            <md-switch class="md-primary" ng-change="table_on && showResultTable()" ng-model="table_on"
+                       ng-disabled="!selectedSource">
                 Show table (raw results)
             </md-switch>
             <md-button class="md-raised md-primary" ng-click="drawPlot('line')" ng-disabled="!selectedSource">
@@ -147,8 +151,10 @@
             </div>
         </md-toolbar>
         <md-content class="bb-container">
+
             <pre>{{ bbTableData.info }}</pre>
             <p ng-hide="!bbTableData.truncated"><b>Showing only the first 50 rows</b></p>
+            <p>Data format should be: [0] first column contains keys; stings. [1..n] further columns with numerical values.</p>
 
             <md-table-container>
                 <table md-table ng-model="bbTableData.table">
