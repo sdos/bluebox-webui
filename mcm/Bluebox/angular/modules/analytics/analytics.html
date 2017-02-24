@@ -8,12 +8,116 @@
 </head>
 <body>
 
+<div layout="column" layout-gt-md="row">
 
-<!--   ############################################################################# -->
-<!-- PLOT AREA -->
-<!--   ############################################################################# -->
-<div ng-hide="!bbplot" layout="row">
-    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
+    <!--   ############################################################################# -->
+    <!-- MENU AREA -->
+    <!--   ############################################################################# -->
+
+    <div class="md-whiteframe-4dp bb-container" flex="40" flex-xs="90">
+        <md-toolbar class="md-hue-2">
+            <div class="md-toolbar-tools">
+                <h2>
+       <span>
+        Select data source and plot type
+       </span>
+                </h2>
+            </div>
+        </md-toolbar>
+        <md-content class="bb-container">
+            <h3>Postgres (warehouse) -> Nodered (SQL
+                queries)
+                -> Bokeh (Plot)</h3>
+            <p>
+                Analytics runs on metadata replicated to the warehouse and runs queries in node-red. Results are shown here
+                after bokeh renders them server-side.
+            </p>
+
+            <md-button class="md-raised md-primary" ng-click="showTableStructure($event)">
+                <md-icon md-font-set="material-icons">
+                    grid_on
+                </md-icon>
+                Show warehouse tables
+            </md-button>
+            <md-button class="md-raised md-primary" ng-href="{{ nodered.url }}" target="_blank">
+                <md-icon md-font-set="material-icons">
+                    timeline
+                </md-icon>
+                Open Node-RED editor
+            </md-button>
+
+
+            <h3>
+                Select the node-red endpoint data source
+            </h3>
+            <!-- Dropdown to choose Node-RED endpoints -->
+            <md-input-container class="md-block md-icon-float" flex-gt-sm="50" ng-click="updateNodeRedSources()">
+                <label>
+                    Select your data source here
+                </label>
+                <md-icon md-font-set="material-icons">
+                    list
+                </md-icon>
+                <md-select ng-model="selectedSource">
+                    <md-option ng-repeat="source in availableSources" value="{{ source }}">
+                        {{ source.url }}
+                        <b>
+                            {{ source.name }}
+                        </b>
+                    </md-option>
+                </md-select>
+            </md-input-container>
+
+
+            <h3>
+                Select the plot type
+            </h3>
+
+
+            <md-switch class="md-primary" ng-change="table_on && showResultTable()" ng-model="table_on" ng-disabled="!selectedSource">
+                Show table (raw results)
+            </md-switch>
+            <md-button class="md-raised md-primary" ng-click="drawPlot('line')" ng-disabled="!selectedSource">
+                <md-icon md-font-set="material-icons">
+                    trending_up
+                </md-icon>
+                Line graph
+            </md-button>
+            <md-button class="md-raised md-primary" ng-click="drawPlot('line_log')" ng-disabled="!selectedSource">
+                <md-icon md-font-set="material-icons">
+                    trending_up
+                </md-icon>
+                Line graph - log scale
+            </md-button>
+            <md-button class="md-raised md-primary" ng-click="drawPlot('bar')" ng-disabled="!selectedSource">
+                <md-icon md-font-set="material-icons">
+                    equalizer
+                </md-icon>
+                Bar chart
+            </md-button>
+            <md-button class="md-raised md-primary" ng-click="drawPlot('bar_log')" ng-disabled="!selectedSource">
+                <md-icon md-font-set="material-icons">
+                    equalizer
+                </md-icon>
+                Bar chart - log scale
+            </md-button>
+            <md-button class="md-raised md-primary" ng-click="drawPlot('pie')" ng-disabled="!selectedSource">
+                <md-icon md-font-set="material-icons">
+                    pie_chart
+                </md-icon>
+                Pie chart
+            </md-button>
+
+
+        </md-content>
+    </div>
+    <md-progress-circular class="md-accent" md-mode="query" ng-hide="!waitingForPlot" md-diameter="70">
+    </md-progress-circular>
+
+    <!--   ############################################################################# -->
+    <!-- PLOT AREA -->
+    <!--   ############################################################################# -->
+    <div ng-hide="!bbplot" class="md-whiteframe-4dp bb-container" flex="100" flex-gt-md="60">
         <md-toolbar class="md-accent md-hue-2">
             <div class="md-toolbar-tools">
                 <h2>
@@ -27,19 +131,13 @@
             <div ng-bind-html="bbplot | to_trusted"></div>
         </md-content>
     </div>
-    <div flex="">
-    </div>
-</div>
 
-<md-progress-circular class="md-accent" md-mode="query" ng-hide="!waitingForPlot" md-diameter="70">
-            </md-progress-circular>
 
-<!--   ############################################################################# -->
-<!-- TABLE AREA -->
-<!--   ############################################################################# -->
-<div ng-hide="!bbTableData" layout="row">
-    <div class="md-whiteframe-4dp bb-container" flex="90" flex-xs="90">
-        <md-toolbar class="md-accent md-hue-2">
+    <!--   ############################################################################# -->
+    <!-- TABLE AREA -->
+    <!--   ############################################################################# -->
+    <div ng-hide="!bbTableData || !table_on" class="md-whiteframe-4dp bb-container" flex="100" flex-gt-md="60">
+        <md-toolbar class="md-hue-2">
             <div class="md-toolbar-tools">
                 <h2>
       <span>
@@ -70,157 +168,7 @@
 
         </md-content>
     </div>
-    <div flex="">
-    </div>
+
 </div>
-
-
-<div layout="row" layout-xs="column">
-    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
-        <md-toolbar class="md-hue-2">
-            <div class="md-toolbar-tools">
-                <h2>
-       <span>
-        <b>
-         Step 1:
-        </b>
-        Open the Node-RED editor and create your queries
-       </span>
-                </h2>
-            </div>
-        </md-toolbar>
-        <md-content class="bb-container">
-            <p>
-                BB-Insights comes with a Node-RED instance that is connected to your metadata warehouse. You can create
-                SQL queries, pull in external data
-                sources, and use JavaScript functions to analyze your data and prepare it for visualization.
-            </p>
-            <p>
-                After you have created your flow in Node-RED, turn it into a data source for BB-Insights. Use the HTTP
-                node to create an endpoint, connect
-                your query to the HTTP node, and give it any URL and name you like.
-            </p>
-            <p>Before creating your queries, you can inspect the schema of the metadata warehouse below.</p>
-
-            <div>
-                <md-button class="md-raised" ng-click="showTableStructure($event)">
-                    <md-icon md-font-set="material-icons">
-                        grid_on
-                    </md-icon>
-                    Inspect metadata warehouse
-                </md-button>
-            </div>
-            <div>
-                <md-button class="md-raised" ng-href="{{ nodered.url }}" target="_blank">
-                    <md-icon md-font-set="material-icons">
-                        timeline
-                    </md-icon>
-                    Open Node-RED editor
-                </md-button>
-            </div>
-        </md-content>
-    </div>
-    <div class="md-whiteframe-4dp bb-container" flex="50" flex-xs="90">
-        <md-toolbar class="md-hue-2">
-            <div class="md-toolbar-tools">
-                <h2>
-       <span>
-        <b>
-         Step 2:
-        </b>
-        Select your Node-RED data source
-       </span>
-                </h2>
-            </div>
-        </md-toolbar>
-        <md-content class="bb-container">
-            <p>
-                The following list shows all your endpoints from Node-RED. Select the one you want to use for this
-                analysis.
-            </p>
-            <!-- Dropdown to choose Node-RED endpoints -->
-            <md-input-container class="md-block md-icon-float" flex-gt-sm="50" ng-click="updateNodeRedSources()">
-                <label>
-                    Select your data source here
-                </label>
-                <md-icon md-font-set="material-icons">
-                    open_in_browser
-                </md-icon>
-                <md-select ng-model="selectedSource">
-                    <md-option ng-repeat="source in availableSources" value="{{ source }}">
-                        {{ source.url }}
-                        <b>
-                            {{ source.name }}
-                        </b>
-                    </md-option>
-                </md-select>
-            </md-input-container>
-        </md-content>
-    </div>
-</div>
-<div class="md-whiteframe-4dp bb-container fade" ng-hide="!selectedSource">
-    <md-toolbar class="md-hue-2">
-        <div class="md-toolbar-tools">
-            <h2>
-      <span>
-       <b>
-        Step 3:
-       </b>
-       Select a suitable visualization for your data
-      </span>
-            </h2>
-        </div>
-    </md-toolbar>
-    <md-content class="bb-container">
-        <p>
-            Select the plot type.
-        </p>
-        <md-button class="md-raised md-primary" ng-click="showResultTable()" ng-disabled="!selectedSource">
-            <md-icon md-font-set="material-icons">
-                grid_on
-            </md-icon>
-            <p><b>
-                Table
-            </b></p>
-            <p>
-                raw results
-            </p>
-        </md-button>
-        <md-button class="md-raised md-primary" ng-click="drawPlot('line')" ng-disabled="!selectedSource">
-            <md-icon md-font-set="material-icons">
-                trending_up
-            </md-icon>
-                Line graph
-        </md-button>
-        <md-button class="md-raised md-primary" ng-click="drawPlot('line_log')" ng-disabled="!selectedSource">
-            <md-icon md-font-set="material-icons">
-                trending_up
-            </md-icon>
-                Line graph - log scale
-        </md-button>
-        <md-button class="md-raised md-primary" ng-click="drawPlot('bar')" ng-disabled="!selectedSource">
-            <md-icon md-font-set="material-icons">
-                equalizer
-            </md-icon>
-                Bar graph
-        </md-button>
-        <md-button class="md-raised md-primary" ng-click="drawPlot('bar_log')" ng-disabled="!selectedSource">
-            <md-icon md-font-set="material-icons">
-                equalizer
-            </md-icon>
-                Bar graph - log scale
-        </md-button>
-        <md-button class="md-raised md-primary" ng-click="drawPlot('pie')" ng-disabled="!selectedSource">
-            <md-icon md-font-set="material-icons">
-                pie_chart
-            </md-icon>
-                Pie chart
-        </md-button>
-
-
-    </md-content>
-</div>
-
-
 </body>
 </html>

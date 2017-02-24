@@ -39,7 +39,7 @@ analyticsModule
                  * */
 
                 $scope.drawPlot = function (plotType) {
-                    $scope.bbTableData = undefined;
+                    //$scope.bbTableData = undefined;
                     $scope.waitingForPlot = true;
                     $http
                         .get('api_analytics/plot',
