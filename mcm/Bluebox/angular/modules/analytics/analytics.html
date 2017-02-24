@@ -63,7 +63,7 @@
                                placeholder="Select query">
                         <!-- selected="selected" on all -- this actually results in the last item being selected...
                                 no easier way to achieve that -->
-                        <md-option ng-repeat="source in availableSources" value="{{ source }}" selected="selected">
+                        <md-option ng-repeat="source in availableSources" value="{{ source }}" selected="selected" ng-click="update_view(selected_container, source)">
                             <code>{{ source.url }}</code>
                             &nbsp;&nbsp;
                             <b>
@@ -84,8 +84,8 @@
                         <!-- selected="selected" on all -- this actually results in the last item being selected...
                                 no easier way to achieve that -->
                         <md-option ng-repeat="container in availableContainers" value="{{ container }}"
-                                   selected="selected">
-                            {{ container.name }}
+                                   selected="selected" ng-click="update_view(container, selectedSource)">
+                            {{ container.name }} {{ !container.name ? " -- No filter -- " : "" }}
                         </md-option>
                     </md-select>
                 </md-input-container>
@@ -148,7 +148,7 @@
             <div class="md-toolbar-tools">
                 <h2>
       <span>
-       Plot
+       Plot {{ selected_container.name ? " for "+selected_container["name"] : "" }}
       </span>
                 </h2>
             </div>

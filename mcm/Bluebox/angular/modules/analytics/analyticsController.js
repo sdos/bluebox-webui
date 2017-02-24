@@ -28,6 +28,7 @@ analyticsModule
                     url: "http://" + MY_PUBLIC_HOSTNAME + ":" + HTTP_NODERED_PORT
                 };
 
+                $scope.current_plot_type = undefined;
                 console.log("Analytics!");
 
                 updateNodeRedSources();
@@ -41,7 +42,23 @@ analyticsModule
                 fileSystemService.getContainers("", "", 10000)
                     .then(function (response) {
                         $scope.availableContainers = response.containers;
+                        // this indicates the "none" filter where no container is selected
+                        $scope.availableContainers.push({name: ""});
                     })
+
+
+                $scope.update_view = function (selected_container, selected_source) {
+                    if ($scope.current_plot_type) {
+                        $scope.selectedSource = selected_source;
+                        $scope.selected_container = JSON.stringify(selected_container);
+                        $scope.drawPlot($scope.current_plot_type);
+                    }
+                    if ($scope.table_on) {
+                        $scope.selectedSource = selected_source;
+                        $scope.selected_container = JSON.stringify(selected_container);
+                        $scope.showResultTable();
+                    }
+                };
 
 
                 /**
@@ -52,18 +69,20 @@ analyticsModule
 
                 $scope.drawPlot = function (plotType) {
                     //$scope.bbTableData = undefined;
+                    $scope.current_plot_type = plotType;
                     $scope.waitingForPlot = true;
                     $http
                         .get('api_analytics/plot',
                             {
                                 params: {
                                     "nrDataSource": $filter('urlEncode')($scope.selectedSource),
-                                    "plotType": $filter('urlEncode')(plotType)
+                                    "plotType": $filter('urlEncode')(plotType),
+                                    "container_filter": $filter('urlEncode')($scope.selected_container)
                                 }
                             })
                         .then(
                             function successCallback(response) {
-                                console.log(response.data);
+                                //console.log(response.data);
 
                                 if (!response.data) {
                                     $rootScope
@@ -105,7 +124,9 @@ analyticsModule
 
 
                             }, function e(err) {
+                                console.log(e)
                                 $scope.waitingForPlot = false;
+                                $scope.bbplot = undefined;
                             });
 
                 };
@@ -122,12 +143,13 @@ analyticsModule
                         .get('api_analytics/table',
                             {
                                 params: {
-                                    "nrDataSource": $filter('urlEncode')($scope.selectedSource)
+                                    "nrDataSource": $filter('urlEncode')($scope.selectedSource),
+                                    "container_filter": $filter('urlEncode')($scope.selected_container)
                                 }
                             })
                         .then(
                             function successCallback(response) {
-                                console.log(response);
+                                //console.log(response);
                                 if (!response.data.table) {
                                     $rootScope
                                         .$broadcast(
@@ -146,6 +168,10 @@ analyticsModule
                                 };
                                 //console.log($scope.bbTableData);
                                 $scope.waitingForPlot = false;
+                            }, function error(e) {
+                                console.log(e)
+                                $scope.bbTableData = undefined;
+
                             });
 
                 };

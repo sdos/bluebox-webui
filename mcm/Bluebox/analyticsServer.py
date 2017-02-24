@@ -43,8 +43,9 @@ from mcm.Bluebox.exceptions import HttpError
 def doTable():
     accountServer.assert_token_tenant_validity(request)
     nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
+    container_filter = json.loads(urlParse.unquote(request.args.get("container_filter")))["name"]
     logging.info("producing table for: {}".format(nrDataSource))
-    data = getDataFromNodeRed(nrDataSource=nrDataSource)
+    data = getDataFromNodeRed(nrDataSource=nrDataSource, container_filter=container_filter)
     # log.debug("our pandas data frame is: {}".format(data.to_json(orient="records")))
     info = StringIO()
     data.info(verbose=False, buf=info)
@@ -62,9 +63,10 @@ def doPlot():
     accountServer.assert_token_tenant_validity(request)
     nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
     plotType = request.args.get("plotType")
+    container_filter = json.loads(urlParse.unquote(request.args.get("container_filter")))["name"]
     logging.info("producing plot: {} for: {}".format(plotType, nrDataSource))
 
-    df = getDataFromNodeRed(nrDataSource=nrDataSource)
+    df = getDataFromNodeRed(nrDataSource=nrDataSource, container_filter=container_filter)
     try:
         logging.info(df)
         if ('bar' == plotType):
@@ -137,12 +139,12 @@ def __col_to_label_dict(col, offset=1):
 
 
 def __get_color_palette(length):
-    #print("__get_color_palette", length)
+    # print("__get_color_palette", length)
     """
     see
     http://bokeh.pydata.org/en/latest/docs/reference/palettes.html
     """
-    if length <= 8-2:
+    if length <= 8 - 2:
         # small_palettes only works with 2+ items; so we increase size by two
         #   and later reduce back down
         colors = palettes.Colorblind[length + 2]
@@ -209,7 +211,8 @@ def bokeh_plot_pie(data, nrDataSource):
     num_rows = len(data[data.columns[0]])
 
     plot = Donut(data, values=value_col_names[0], label=data.columns[0],
-                 text_font_size='8pt', plot_width=800, plot_height=800) #, color=__get_color_palette(num_rows)) #default palette looks best
+                 text_font_size='8pt', plot_width=800,
+                 plot_height=800)  # , color=__get_color_palette(num_rows)) #default palette looks best
 
     script, div = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
     return (script, div)
@@ -225,10 +228,11 @@ def getListOfKeys(d):
     return keys
 
 
-def getDataFromNodeRed(nrDataSource):
+def getDataFromNodeRed(nrDataSource, container_filter=None):
     url = configuration.nodered_url + nrDataSource['url']
-    logging.info("getting data from node red at: {}".format(url))
-    r = requests.get(url)
+    params = {"container_filter": container_filter}
+    logging.info("getting data from node red at: {} with params: {}".format(url, params))
+    r = requests.get(url, params=params)
     if r.status_code == 404:
         raise HttpError("the Node-RED data source is not reachable: {}".format(url), 420)
     try:
@@ -237,7 +241,9 @@ def getDataFromNodeRed(nrDataSource):
         df = pandas.DataFrame(data, columns=dataKeys)
         df[dataKeys[0]] = df[dataKeys[0]].map(lambda x: str(x)[:20])
         return df
-
+    except IndexError as e:
+        logging.warning("no data returned {}".format(e))
+        raise HttpError("emtpy response from node-red", 404)
     except:
         logging.exception("JSON parse error:")
         raise HttpError("the Node-RED result is no valid JSON", 500)
