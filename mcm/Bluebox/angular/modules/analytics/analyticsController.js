@@ -65,6 +65,8 @@ analyticsModule
                                     return;
                                 }
 
+                                //console.log(response.data[0])
+
 
                                 $scope.bbplot = response.data[1];
                                 $scope.waitingForPlot = false;

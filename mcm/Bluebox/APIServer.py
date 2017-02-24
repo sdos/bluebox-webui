@@ -55,13 +55,16 @@ def log_requests(f):
 ##############################################################################
 @app.errorhandler(Exception)
 def handle_invalid_usage(e):
-    log.exception("api exception")
     if (ClientException == type(e)):
         if (401 == e.http_status):
+            logging.error("not logged in: {}".format(e))
             return "not authenticated", 401
         return e.http_response_content, e.http_status
     if (HttpError == type(e)):
+        if e.status_code == 401:
+            logging.error("not logged in {}".format(e))
         return e.to_string(), e.status_code
+    logging.exception("api exception")
     return "{}".format(e), 500
 
 

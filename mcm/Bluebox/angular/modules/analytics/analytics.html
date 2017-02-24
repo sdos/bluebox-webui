@@ -9,6 +9,11 @@
 <body>
 
 
+
+<md-progress-circular class="md-accent" md-mode="query" ng-hide="!waitingForPlot">
+        </md-progress-circular>
+
+
 <!--   ############################################################################# -->
 <!-- PLOT AREA -->
 <!--   ############################################################################# -->
@@ -18,7 +23,7 @@
             <div class="md-toolbar-tools">
                 <h2>
       <span>
-       Your results
+       Results
       </span>
                 </h2>
             </div>
@@ -299,8 +304,7 @@
         </md-button>
 
 
-        <md-progress-linear class="md-accent" md-mode="query" ng-hide="!waitingForPlot">
-        </md-progress-linear>
+
     </md-content>
 </div>
 
