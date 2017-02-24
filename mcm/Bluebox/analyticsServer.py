@@ -13,6 +13,7 @@ import collections
 import json
 import logging
 from io import StringIO
+from math import pi
 from urllib import parse as urlParse
 
 import pandas
@@ -161,9 +162,10 @@ def bokeh_plot_line(data, nrDataSource, logScale="linear"):
         plot.line(data.index, data[col_name], name=col_name, legend=col_name, color=color, line_width=3)
 
     plot.xaxis[0].formatter = FixedTickFormatter(labels=__col_to_label_dict(data[data.columns[0]]))
+    plot.xaxis[0].ticker.desired_num_ticks = len(data[data.columns[0]])
+    plot.xaxis[0].major_label_orientation = pi / 4
 
     script, div = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
-
     js = EMPTY.js_raw[0] + script
 
     return (js, div)
@@ -185,21 +187,21 @@ def bokeh_plot_bar(data, nrDataSource, logScale="linear"):
     plot.xaxis.axis_label = data.columns[0]
 
     num_series = len(value_col_names)
+    max_idx = len(data.index) * (num_series + 1)
     for (col_name, color, idx) in zip(value_col_names, colors, range(0, num_series)):
-        this_index = RangeIndex(start=idx, stop=len(data.index) * num_series, step=num_series)
-        print(data[col_name])
-        print(col_name)
-        print(this_index)
-        plot.vbar(x=this_index, width=0.5, top=data[col_name], name=col_name, legend=col_name, color=color)
+        this_index = RangeIndex(start=idx, stop=max_idx, step=num_series + 1)
+        plot.vbar(x=this_index, width=0.8, top=data[col_name], name=col_name, legend=col_name, color=color)
 
-    print(__col_to_label_dict(data[data.columns[0]], offset=num_series))
-    plot.xaxis[0].formatter = FixedTickFormatter(labels=__col_to_label_dict(data[data.columns[0]], offset=num_series))
+    plot.xaxis[0].formatter = FixedTickFormatter(
+        labels=__col_to_label_dict(data[data.columns[0]], offset=num_series + 1))
+    plot.xaxis[0].ticker.desired_num_ticks = max_idx
+    plot.xaxis[0].major_label_orientation = pi / 4
 
     script, div = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
-
     js = EMPTY.js_raw[0] + script
 
     return (js, div)
+
 
 def bokeh_plot_pie(data, nrDataSource):
     value_col_names = [d for d in data.columns[1:]]
@@ -208,17 +210,9 @@ def bokeh_plot_pie(data, nrDataSource):
 
 
     plot = Donut(data, label=['abbr', 'medal'], values='medal_count',
-          text_font_size='8pt', color=small_palettes['Dark2'])
-
-
-
+                 text_font_size='8pt', color=small_palettes['Dark2'])
 
     script, div = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
-
-
-
-
-
 
     return (script, div)
 
