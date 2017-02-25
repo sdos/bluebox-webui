@@ -143,20 +143,7 @@
     <!--   ############################################################################# -->
     <!-- PLOT AREA -->
     <!--   ############################################################################# -->
-    <div ng-hide="!bbplot" class="md-whiteframe-4dp bb-container" flex="100" flex-gt-md="60">
-        <md-toolbar class="md-accent md-hue-2">
-            <div class="md-toolbar-tools">
-                <h2>
-      <span>
-       Plot
-      </span>
-                </h2>
-            </div>
-        </md-toolbar>
-        <md-content>
-            <div ng-bind-html="bbplot | to_trusted"></div>
-        </md-content>
-    </div>
+<div ng-bind-html="bbplot | to_trusted" flex="100" flex-gt-md="60"></div>
 
 
     <!--   ############################################################################# -->

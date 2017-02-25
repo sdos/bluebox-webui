@@ -169,7 +169,7 @@ def bokeh_plot_line(data, nrDataSource, logScale="linear"):
     value_col_names = [d for d in data.columns[1:]]
     # print(data)
 
-    plot = figure(plot_width=1200, plot_height=600, y_axis_type=logScale)
+    plot = figure(plot_width=1200, plot_height=600, y_axis_type=logScale, responsive=True)
     plot.title.text = title
     plot.yaxis.axis_label = "values"
     plot.xaxis.axis_label = data.columns[0]
@@ -192,7 +192,7 @@ def bokeh_plot_bar(data, nrDataSource, logScale="linear"):
     value_col_names = [d for d in data.columns[1:]]
     # print(data)
 
-    plot = figure(plot_width=1200, plot_height=600, y_axis_type=logScale)
+    plot = figure(plot_width=1200, plot_height=600, y_axis_type=logScale, responsive=True)
     plot.title.text = title
     plot.yaxis.axis_label = "values"
     plot.xaxis.axis_label = data.columns[0]
@@ -220,7 +220,7 @@ def bokeh_plot_pie(data, nrDataSource):
 
     plot = Donut(data, values=value_col_names[0], label=data.columns[0],
                  text_font_size='8pt', plot_width=800,
-                 plot_height=800)  # , color=__get_color_palette(num_rows)) #default palette looks best
+                 plot_height=800, responsive=True)  # , color=__get_color_palette(num_rows)) #default palette looks best
 
     script, div = components(plot, resources=None, wrap_script=False, wrap_plot_info=True)
     return (script, div)
