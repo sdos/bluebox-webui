@@ -20,7 +20,7 @@ import pandas
 import psycopg2
 import requests
 from bokeh.embed import components
-from bokeh.models import TickFormatter
+from bokeh.models import TickFormatter, LabelSet
 from bokeh import palettes
 from bokeh.plotting import figure
 from bokeh.charts import Donut
@@ -173,7 +173,7 @@ def bokeh_plot_line(data, nrDataSource, logScale="linear"):
 
     plot = figure(plot_width=1200, plot_height=600, y_axis_type=logScale, responsive=True)
     plot.title.text = title
-    plot.yaxis.axis_label = "values"
+    plot.yaxis.axis_label = value_col_names[0] if len(value_col_names) == 1 else "values"
     plot.xaxis.axis_label = data.columns[0]
 
     for (col_name, color) in zip(value_col_names, __get_color_palette(len(value_col_names))):
@@ -196,7 +196,7 @@ def bokeh_plot_bar(data, nrDataSource, logScale="linear"):
 
     plot = figure(plot_width=1200, plot_height=600, y_axis_type=logScale, responsive=True)
     plot.title.text = title
-    plot.yaxis.axis_label = "values"
+    plot.yaxis.axis_label = value_col_names[0] if len(value_col_names) == 1 else "values"
     plot.xaxis.axis_label = data.columns[0]
 
     num_series = len(value_col_names)
@@ -204,6 +204,8 @@ def bokeh_plot_bar(data, nrDataSource, logScale="linear"):
     for (col_name, color, idx) in zip(value_col_names, __get_color_palette(len(value_col_names)), range(0, num_series)):
         this_index = RangeIndex(start=idx, stop=max_idx, step=num_series + 1)
         plot.vbar(x=this_index, width=0.8, top=data[col_name], name=col_name, legend=col_name, color=color)
+        # labels = LabelSet(x=this_index, y=col_name, text=col_name, y_offset=8, source=data,text_font_size="8pt", text_color="#555555", text_align='center')
+        # plot.add_layout(labels)
 
     plot.xaxis[0].formatter = FixedTickFormatter(
         labels=__col_to_label_dict(data[data.columns[0]], offset=num_series + 1))
