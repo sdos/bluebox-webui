@@ -109,6 +109,8 @@ def __safe_get_nested_json_prop(request_args):
         return json.loads(__filter_prop).get("name", None) if __filter_prop else None
     except AttributeError:
         return
+    except TypeError:
+        return
 
 
 ###############################################################################
