@@ -43,7 +43,7 @@ from mcm.Bluebox.exceptions import HttpError
 def doTable():
     accountServer.assert_token_tenant_validity(request)
     nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
-    container_filter = json.loads(urlParse.unquote(request.args.get("container_filter", "")))["name"]
+    container_filter = __safe_get_nested_json_prop(request.args)
     logging.info("producing table for: {}".format(nrDataSource))
     data = getDataFromNodeRed(nrDataSource=nrDataSource, container_filter=container_filter)
     # log.debug("our pandas data frame is: {}".format(data.to_json(orient="records")))
@@ -63,10 +63,7 @@ def doPlot():
     accountServer.assert_token_tenant_validity(request)
     nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
     plotType = request.args.get("plotType")
-    __filter_prop = urlParse.unquote(request.args.get("container_filter", None))
-    print(__filter_prop)
-    print(type(__filter_prop))
-    container_filter = json.loads(__filter_prop).get("name", None) if __filter_prop else None
+    container_filter = __safe_get_nested_json_prop(request.args)
     logging.info("producing plot: {} for: {}".format(plotType, nrDataSource))
 
     df = getDataFromNodeRed(nrDataSource=nrDataSource, container_filter=container_filter)
@@ -104,6 +101,14 @@ def getNodeRedEnpointList():
         if ('http in' == s['type'] and 'url' in s):
             sources.append({"url": s['url'], "name": s['name']})
     return Response(json.dumps(sources), mimetype="application/json")
+
+
+def __safe_get_nested_json_prop(request_args):
+    try:
+        __filter_prop = urlParse.unquote(request_args.get("container_filter", None))
+        return json.loads(__filter_prop).get("name", None) if __filter_prop else None
+    except AttributeError:
+        return
 
 
 ###############################################################################
@@ -246,7 +251,7 @@ def getDataFromNodeRed(nrDataSource, container_filter=None):
         return df
     except IndexError as e:
         logging.warning("no data returned {}".format(e))
-        raise HttpError("emtpy response from node-red", 404)
+        raise HttpError("query returned no data", 404)
     except:
         logging.exception("JSON parse error:")
         raise HttpError("the Node-RED result is no valid JSON", 500)
