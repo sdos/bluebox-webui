@@ -75,9 +75,9 @@ analyticsModule
                         .get('api_analytics/plot',
                             {
                                 params: {
-                                    "nrDataSource": $filter('urlEncode')($scope.selectedSource),
-                                    "plotType": $filter('urlEncode')(plotType),
-                                    "container_filter": $filter('urlEncode')($scope.selected_container)
+                                    "nrDataSource": $scope.selectedSource,
+                                    "plotType": plotType,
+                                    "container_filter": $scope.selected_container
                                 }
                             })
                         .then(
@@ -143,8 +143,8 @@ analyticsModule
                         .get('api_analytics/table',
                             {
                                 params: {
-                                    "nrDataSource": $filter('urlEncode')($scope.selectedSource),
-                                    "container_filter": $filter('urlEncode')($scope.selected_container)
+                                    "nrDataSource": $scope.selectedSource,
+                                    "container_filter": $scope.selected_container
                                 }
                             })
                         .then(

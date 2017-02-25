@@ -43,7 +43,7 @@ from mcm.Bluebox.exceptions import HttpError
 def doTable():
     accountServer.assert_token_tenant_validity(request)
     nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
-    container_filter = json.loads(urlParse.unquote(request.args.get("container_filter")))["name"]
+    container_filter = json.loads(urlParse.unquote(request.args.get("container_filter", "")))["name"]
     logging.info("producing table for: {}".format(nrDataSource))
     data = getDataFromNodeRed(nrDataSource=nrDataSource, container_filter=container_filter)
     # log.debug("our pandas data frame is: {}".format(data.to_json(orient="records")))
@@ -63,7 +63,10 @@ def doPlot():
     accountServer.assert_token_tenant_validity(request)
     nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
     plotType = request.args.get("plotType")
-    container_filter = json.loads(urlParse.unquote(request.args.get("container_filter")))["name"]
+    __filter_prop = urlParse.unquote(request.args.get("container_filter", None))
+    print(__filter_prop)
+    print(type(__filter_prop))
+    container_filter = json.loads(__filter_prop).get("name", None) if __filter_prop else None
     logging.info("producing plot: {} for: {}".format(plotType, nrDataSource))
 
     df = getDataFromNodeRed(nrDataSource=nrDataSource, container_filter=container_filter)
