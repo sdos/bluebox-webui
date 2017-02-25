@@ -318,7 +318,7 @@
                     <tr md-row="" ng-repeat="object in container.objects">
                         <td class="bb-icon-column" md-cell="">
                             <a ng-href="/swift/containers/{{ container.name }}/objects/{{ object.name | urlEncode }}?show_inline=true"
-                               target="_blank">
+                               target="_self">
                                 <md-icon md-font-set="material-icons">
                                     {{ object.content_type | fileTypeIcon }}
                                 </md-icon>
