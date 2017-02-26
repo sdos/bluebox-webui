@@ -20,7 +20,7 @@ tasksModule.controller('TasksController',
                 "dispose": "Dispose of old objects",
                 "ping": "ping"
             };
-            $scope.availableContainers = undefined;
+            $scope.available_containers = undefined;
 
             var my_topic = $cookies.get('MCM-TENANT-NAME');
 
@@ -45,7 +45,7 @@ tasksModule.controller('TasksController',
 
             fileSystemService.getContainers("", "", 10000)
                 .then(function (response) {
-                    $scope.availableContainers = response.containers;
+                    $scope.available_containers = response.containers;
                 });
 
 

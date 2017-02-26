@@ -31,7 +31,8 @@
             <p>
                 Analytics runs on metadata replicated to the warehouse and SQL queries in node-red. Results are shown
                 here after bokeh renders them server-side. <br>
-                The result-table schema from node-red has to be: [0] first column contains keys (stings). [1..n] further columns
+                The result-table schema from node-red has to be: [0] first column contains keys (stings). [1..n] further
+                columns
                 with numerical values.
             </p>
 
@@ -59,11 +60,11 @@
                         list
                     </md-icon>
                     <label>Select query</label>
-                    <md-select ng-model="selectedSource" ng-click="updateNodeRedSources()"
+                    <md-select ng-model="selected_source" ng-click="updateNodeRedSources()"
                                placeholder="Select query">
                         <!-- selected="selected" on all -- this actually results in the last item being selected...
                                 no easier way to achieve that -->
-                        <md-option ng-repeat="source in availableSources" value="{{ source }}" selected="selected" ng-click="update_view(selected_container, source)">
+                        <md-option ng-repeat="source in available_sources" value="{{ source }}">
                             <small>{{ source.url }}</small>
                             &nbsp;&nbsp;
                             <b>
@@ -80,12 +81,11 @@
                     </md-icon>
                     <label>Container filter</label>
                     <md-select ng-model="selected_container"
-                               placeholder="Container filter">
+                               placeholder="Container filter" ng-click="update_containers()">
                         <!-- selected="selected" on all -- this actually results in the last item being selected...
                                 no easier way to achieve that -->
-                        <md-option ng-repeat="container in availableContainers" value="{{ container }}"
-                                   ng-click="update_view(container, selectedSource)">
-                            {{ container.name }} {{ !container.name ? " -- No filter -- " : "" }}
+                        <md-option ng-repeat="container_name in available_containers" value="{{ container_name }}">
+                            {{ container_name }} {{ !container_name ? " -- No filter -- " : "" }}
                         </md-option>
                     </md-select>
                 </md-input-container>
@@ -100,34 +100,34 @@
 
 
             <md-switch class="md-primary" ng-change="table_on && showResultTable()" ng-model="table_on"
-                       ng-disabled="!selectedSource">
+                       ng-disabled="!selected_source">
                 Show table (raw results)
             </md-switch>
-            <md-button class="md-raised md-primary" ng-click="drawPlot('line')" ng-disabled="!selectedSource">
+            <md-button class="md-raised md-primary" ng-click="drawPlot('line')" ng-disabled="!selected_source">
                 <md-icon md-font-set="material-icons">
                     trending_up
                 </md-icon>
                 Line graph
             </md-button>
-            <md-button class="md-raised md-primary" ng-click="drawPlot('line_log')" ng-disabled="!selectedSource">
+            <md-button class="md-raised md-primary" ng-click="drawPlot('line_log')" ng-disabled="!selected_source">
                 <md-icon md-font-set="material-icons">
                     trending_up
                 </md-icon>
                 Line graph - log scale
             </md-button>
-            <md-button class="md-raised md-primary" ng-click="drawPlot('bar')" ng-disabled="!selectedSource">
+            <md-button class="md-raised md-primary" ng-click="drawPlot('bar')" ng-disabled="!selected_source">
                 <md-icon md-font-set="material-icons">
                     equalizer
                 </md-icon>
                 Bar chart
             </md-button>
-            <md-button class="md-raised md-primary" ng-click="drawPlot('bar_log')" ng-disabled="!selectedSource">
+            <md-button class="md-raised md-primary" ng-click="drawPlot('bar_log')" ng-disabled="!selected_source">
                 <md-icon md-font-set="material-icons">
                     equalizer
                 </md-icon>
                 Bar chart - log scale
             </md-button>
-            <md-button class="md-raised md-primary" ng-click="drawPlot('pie')" ng-disabled="!selectedSource">
+            <md-button class="md-raised md-primary" ng-click="drawPlot('pie')" ng-disabled="!selected_source">
                 <md-icon md-font-set="material-icons">
                     pie_chart
                 </md-icon>
@@ -137,13 +137,16 @@
 
         </md-content>
     </div>
-    <md-progress-circular class="md-accent" md-mode="query" ng-hide="!waitingForPlot" md-diameter="70">
-    </md-progress-circular>
-
+    <div layout="row">
+        <md-progress-circular class="md-accent" md-mode="query" ng-hide="!waitingForPlot" md-diameter="70">
+        </md-progress-circular>
+        <md-progress-circular class="md-accent" md-mode="query" ng-hide="!waitingForTable" md-diameter="70">
+        </md-progress-circular>
+    </div>
     <!--   ############################################################################# -->
     <!-- PLOT AREA -->
     <!--   ############################################################################# -->
-<div ng-bind-html="bbplot | to_trusted" flex="100" flex-gt-md="60"></div>
+    <div ng-bind-html="bbplot | to_trusted" flex="100" flex-gt-md="60"></div>
 
 
     <!--   ############################################################################# -->

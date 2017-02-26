@@ -43,7 +43,7 @@ from mcm.Bluebox.exceptions import HttpError
 def doTable():
     accountServer.assert_token_tenant_validity(request)
     nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
-    container_filter = __safe_get_nested_json_prop(request.args)
+    container_filter = request.args.get("container_filter", None)
     logging.info("producing table for: {}".format(nrDataSource))
     data = getDataFromNodeRed(nrDataSource=nrDataSource, container_filter=container_filter)
     # log.debug("our pandas data frame is: {}".format(data.to_json(orient="records")))
@@ -63,22 +63,22 @@ def doPlot():
     accountServer.assert_token_tenant_validity(request)
     nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
     plotType = request.args.get("plotType")
-    container_filter = __safe_get_nested_json_prop(request.args)
+    container_filter = request.args.get("container_filter", None)
     logging.info("producing plot: {} for: {}".format(plotType, nrDataSource))
 
     df = getDataFromNodeRed(nrDataSource=nrDataSource, container_filter=container_filter)
     try:
         logging.info(df)
         if ('bar' == plotType):
-            c = bokeh_plot_bar(data=df, nrDataSource=nrDataSource)
+            c = bokeh_plot_bar(data=df, nrDataSource=nrDataSource, container_filter=container_filter)
         elif ('bar_log' == plotType):
-            c = bokeh_plot_bar(data=df, nrDataSource=nrDataSource, logScale="log")
+            c = bokeh_plot_bar(data=df, nrDataSource=nrDataSource, logScale="log", container_filter=container_filter)
         elif ('line' == plotType):
-            c = bokeh_plot_line(data=df, nrDataSource=nrDataSource)
+            c = bokeh_plot_line(data=df, nrDataSource=nrDataSource, container_filter=container_filter)
         elif ('line_log' == plotType):
-            c = bokeh_plot_line(data=df, nrDataSource=nrDataSource, logScale="log")
+            c = bokeh_plot_line(data=df, nrDataSource=nrDataSource, logScale="log", container_filter=container_filter)
         elif ('pie' == plotType):
-            c = bokeh_plot_pie(data=df, nrDataSource=nrDataSource)
+            c = bokeh_plot_pie(data=df, nrDataSource=nrDataSource, container_filter=container_filter)
         else:
             return Response("Plot type unknown", status=500)
         return Response(json.dumps(c), mimetype="application/json")
@@ -101,16 +101,6 @@ def getNodeRedEnpointList():
         if ('http in' == s['type'] and 'url' in s):
             sources.append({"url": s['url'], "name": s['name']})
     return Response(json.dumps(sources), mimetype="application/json")
-
-
-def __safe_get_nested_json_prop(request_args):
-    try:
-        __filter_prop = urlParse.unquote(request_args.get("container_filter", None))
-        return json.loads(__filter_prop).get("name", None) if __filter_prop else None
-    except AttributeError:
-        return
-    except TypeError:
-        return
 
 
 ###############################################################################
@@ -166,8 +156,9 @@ def __get_color_palette(length):
 ###############################################################################
 # Plots
 ###############################################################################
-def bokeh_plot_line(data, nrDataSource, logScale="linear"):
-    title = "Line graph: " + nrDataSource['name']
+def bokeh_plot_line(data, nrDataSource, logScale="linear", container_filter=""):
+    title = "Line graph: " + nrDataSource['name'] + (
+    (", container: " + container_filter) if container_filter else ", all containers")
     value_col_names = [d for d in data.columns[1:]]
     # print(data)
 
@@ -189,8 +180,9 @@ def bokeh_plot_line(data, nrDataSource, logScale="linear"):
     return (js, div)
 
 
-def bokeh_plot_bar(data, nrDataSource, logScale="linear"):
-    title = "Bar graph: " + nrDataSource['name']
+def bokeh_plot_bar(data, nrDataSource, logScale="linear", container_filter=""):
+    title = "Bar chart: " + nrDataSource['name'] + (
+    (" container: " + container_filter) if container_filter else ", all containers")
     value_col_names = [d for d in data.columns[1:]]
     # print(data)
 
@@ -204,9 +196,9 @@ def bokeh_plot_bar(data, nrDataSource, logScale="linear"):
     for (col_name, color, idx) in zip(value_col_names, __get_color_palette(len(value_col_names)), range(0, num_series)):
         this_index = RangeIndex(start=idx, stop=max_idx, step=num_series + 1)
         plot.vbar(x=this_index, width=0.8, top=data[col_name], name=col_name, legend=col_name, color=color)
-        #s=ColumnDataSource(data)
-        #labels = LabelSet(x=list(this_index), y=col_name, text=col_name, y_offset=8, source=s,text_font_size="8pt", text_color="#555555", text_align='center')
-        #plot.add_layout(labels)
+        # s=ColumnDataSource(data)
+        # labels = LabelSet(x=list(this_index), y=col_name, text=col_name, y_offset=8, source=s,text_font_size="8pt", text_color="#555555", text_align='center')
+        # plot.add_layout(labels)
 
     plot.xaxis[0].formatter = FixedTickFormatter(
         labels=__col_to_label_dict(data[data.columns[0]], offset=num_series + 1))
@@ -219,11 +211,13 @@ def bokeh_plot_bar(data, nrDataSource, logScale="linear"):
     return (js, div)
 
 
-def bokeh_plot_pie(data, nrDataSource):
+def bokeh_plot_pie(data, nrDataSource, container_filter=""):
+    title = "Pie chart: " + nrDataSource['name'] + (
+    (" container: " + container_filter) if container_filter else ", all containers")
     value_col_names = [d for d in data.columns[1:]]
     num_rows = len(data[data.columns[0]])
 
-    plot = Donut(data, values=value_col_names[0], label=data.columns[0],
+    plot = Donut(data, title=title, values=value_col_names[0], label=data.columns[0],
                  text_font_size='8pt', plot_width=800,
                  plot_height=800, responsive=True)  # , color=__get_color_palette(num_rows)) #default palette looks best
 

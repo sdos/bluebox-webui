@@ -24,6 +24,7 @@ analyticsModule
                       $timeout, $filter, $http, $location, $mdDialog, $mdMedia, HTTP_NODERED_PORT, MY_PUBLIC_HOSTNAME, fileSystemService) {
 
                 $scope.waitingForPlot = false;
+                $scope.waitingForTable = false;
                 $scope.nodered = {
                     url: "http://" + MY_PUBLIC_HOSTNAME + ":" + HTTP_NODERED_PORT
                 };
@@ -31,31 +32,22 @@ analyticsModule
                 $scope.current_plot_type = undefined;
                 console.log("Analytics!");
 
-                updateNodeRedSources();
 
-                /**
-                 *
-                 * Get the list of container from swift
-                 *
-                 * */
+                $scope.$watch('selected_source', function () {
+                    update_view();
 
-                fileSystemService.getContainers("", "", 10000)
-                    .then(function (response) {
-                        $scope.availableContainers = response.containers;
-                        // this indicates the "none" filter where no container is selected
-                        $scope.availableContainers.push({name: ""});
-                    })
+                });
+                $scope.$watch('selected_container', function () {
+                    update_view();
+
+                });
 
 
-                $scope.update_view = function (selected_container, selected_source) {
+                var update_view = function () {
                     if ($scope.current_plot_type) {
-                        $scope.selectedSource = selected_source;
-                        $scope.selected_container = JSON.stringify(selected_container);
                         $scope.drawPlot($scope.current_plot_type);
                     }
                     if ($scope.table_on) {
-                        $scope.selectedSource = selected_source;
-                        $scope.selected_container = JSON.stringify(selected_container);
                         $scope.showResultTable();
                     }
                 };
@@ -75,7 +67,7 @@ analyticsModule
                         .get('api_analytics/plot',
                             {
                                 params: {
-                                    "nrDataSource": $scope.selectedSource,
+                                    "nrDataSource": $scope.selected_source,
                                     "plotType": plotType,
                                     "container_filter": $scope.selected_container
                                 }
@@ -83,22 +75,6 @@ analyticsModule
                         .then(
                             function successCallback(response) {
                                 //console.log(response.data);
-
-                                if (!response.data) {
-                                    $rootScope
-                                        .$broadcast(
-                                            'FlashMessage',
-                                            {
-                                                "type": "danger",
-                                                "text": "No data received from backend"
-                                            });
-                                    $scope.waitingForPlot = false;
-                                    return;
-                                }
-
-                                //console.log(response.data[0])
-
-
                                 $scope.bbplot = response.data[1];
                                 $scope.waitingForPlot = false;
                                 // There has to be a better
@@ -118,8 +94,6 @@ analyticsModule
                                         $scope.waitingForPlot = false;
                                         $scope.bbplot = undefined;
                                     }
-
-
                                 }, 100);
 
 
@@ -138,36 +112,25 @@ analyticsModule
 
                 $scope.showResultTable = function () {
                     //$scope.bbplot = undefined;
-                    $scope.waitingForPlot = true;
+                    $scope.waitingForTable = true;
                     $http
                         .get('api_analytics/table',
                             {
                                 params: {
-                                    "nrDataSource": $scope.selectedSource,
+                                    "nrDataSource": $scope.selected_source,
                                     "container_filter": $scope.selected_container
                                 }
                             })
                         .then(
                             function successCallback(response) {
                                 //console.log(response);
-                                if (!response.data.table) {
-                                    $rootScope
-                                        .$broadcast(
-                                            'FlashMessage',
-                                            {
-                                                "type": "danger",
-                                                "text": "No data received from backend"
-                                            });
-                                    $scope.waitingForPlot = false;
-                                    return;
-                                }
                                 $scope.bbTableData = {
                                     table: JSON.parse(response.data.table),
                                     info: response.data.info,
                                     truncated: response.data.truncated
                                 };
                                 //console.log($scope.bbTableData);
-                                $scope.waitingForPlot = false;
+                                $scope.waitingForTable = false;
                             }, function error(e) {
                                 console.log(e)
                                 $scope.bbTableData = undefined;
@@ -181,17 +144,35 @@ analyticsModule
                  * Get the list of Node-RED endoints for the list
                  *
                  * */
-                $scope.updateNodeRedSources = updateNodeRedSources;
-                function updateNodeRedSources() {
+                $scope.updateNodeRedSources = function () {
                     $http
                         .get('api_analytics/nrsources')
                         .then(
                             function successCallback(response) {
                                 //console.log(response.data);
-                                $scope.availableSources = response.data;
-                                //$scope.selectedSource = $scope.availableSources[0];
+                                $scope.available_sources = response.data;
+                                //$scope.selected_source = $scope.available_sources[0];
                             });
                 };
+                $scope.updateNodeRedSources();
+                /**
+                 *
+                 * Get the list of container from swift
+                 *
+                 * */
+
+                $scope.update_containers = function () {
+                    fileSystemService.getContainers("", "", 10000)
+                        .then(function (response) {
+                            $scope.available_containers = [];
+                            response.containers.forEach(function (element) {
+                                $scope.available_containers.push(element.name);
+                            });
+                            // this indicates the "none" filter where no container is selected
+                            $scope.available_containers.push("");
+                        })
+                };
+                $scope.update_containers();
 
 
                 /**
