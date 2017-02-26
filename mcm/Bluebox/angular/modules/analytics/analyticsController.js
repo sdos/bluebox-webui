@@ -59,12 +59,10 @@ analyticsModule
                  *
                  * */
                 function find_source_object() {
-                    console.log($scope.available_sources)
+                    //console.log($scope.available_sources)
                     var s = undefined;
                     $scope.available_sources.forEach(function (element) {
-                        console.log(element)
                         if (element.url == $scope.selected_source) {
-                            console.log("FOURND!")
                             s = element;
                         }
                     });
@@ -161,14 +159,11 @@ analyticsModule
                         .get('api_analytics/nrsources')
                         .then(
                             function successCallback(response) {
-                                console.log(response.data);
+                                //console.log(response.data);
                                 var new_sources = response.data;
                                 if (!$scope.available_sources) {
-                                    console.log("setting initial select")
                                     $scope.available_sources = new_sources;
                                     $scope.selected_source = $scope.available_sources[0].url;
-                                    console.log($scope.selected_source)
-                                    console.log($scope.available_sources)
                                 } else {
                                     $scope.available_sources = new_sources;
                                 }
@@ -248,8 +243,6 @@ function AnalyticsDialogController($rootScope, $state, $scope, $mdDialog, $http)
     };
     $scope.cancel = function () {
         $mdDialog.cancel();
-
-        console.log("Closed Dialog");
     };
 
 
