@@ -163,7 +163,8 @@ analyticsModule
                                 var new_sources = response.data;
                                 if (!$scope.available_sources) {
                                     $scope.available_sources = new_sources;
-                                    $scope.selected_source = $scope.available_sources[0].url;
+                                    //$scope.selected_source = $scope.available_sources[0].url;
+                                    $scope.selected_source = "/default";
                                 } else {
                                     $scope.available_sources = new_sources;
                                 }
