@@ -49,12 +49,11 @@
                 Open Node-RED editor
             </md-button>
 
-
+{{ selected_source }}
             <h3>
                 Select node-red query and container filter
             </h3>
             <div layout="row">
-
                 <md-input-container flex="40">
                     <md-icon md-font-set="material-icons">
                         list
@@ -62,9 +61,7 @@
                     <label>Select query</label>
                     <md-select ng-model="selected_source" ng-click="updateNodeRedSources()"
                                placeholder="Select query">
-                        <!-- selected="selected" on all -- this actually results in the last item being selected...
-                                no easier way to achieve that -->
-                        <md-option ng-repeat="source in available_sources" value="{{ source }}">
+                        <md-option ng-repeat="source in available_sources" value="{{ source.url }}">
                             <small>{{ source.url }}</small>
                             &nbsp;&nbsp;
                             <b>
@@ -82,8 +79,6 @@
                     <label>Container filter</label>
                     <md-select ng-model="selected_container"
                                placeholder="Container filter" ng-click="update_containers()">
-                        <!-- selected="selected" on all -- this actually results in the last item being selected...
-                                no easier way to achieve that -->
                         <md-option ng-repeat="container_name in available_containers" value="{{ container_name }}">
                             {{ container_name }} {{ !container_name ? " -- No filter -- " : "" }}
                         </md-option>

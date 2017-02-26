@@ -58,6 +58,18 @@ analyticsModule
                  * Draws the plot. Get the data from backend and run bokeh
                  *
                  * */
+                function find_source_object() {
+                    console.log($scope.available_sources)
+                    var s = undefined;
+                    $scope.available_sources.forEach(function (element) {
+                        console.log(element)
+                        if (element.url == $scope.selected_source) {
+                            console.log("FOURND!")
+                            s = element;
+                        }
+                    });
+                    return s;
+                };
 
                 $scope.drawPlot = function (plotType) {
                     //$scope.bbTableData = undefined;
@@ -67,7 +79,7 @@ analyticsModule
                         .get('api_analytics/plot',
                             {
                                 params: {
-                                    "nrDataSource": $scope.selected_source,
+                                    "nrDataSource": find_source_object(),
                                     "plotType": plotType,
                                     "container_filter": $scope.selected_container
                                 }
@@ -149,9 +161,18 @@ analyticsModule
                         .get('api_analytics/nrsources')
                         .then(
                             function successCallback(response) {
-                                //console.log(response.data);
-                                $scope.available_sources = response.data;
-                                //$scope.selected_source = $scope.available_sources[0];
+                                console.log(response.data);
+                                var new_sources = response.data;
+                                if (!$scope.available_sources) {
+                                    console.log("setting initial select")
+                                    $scope.available_sources = new_sources;
+                                    $scope.selected_source = $scope.available_sources[0].url;
+                                    console.log($scope.selected_source)
+                                    console.log($scope.available_sources)
+                                } else {
+                                    $scope.available_sources = new_sources;
+                                }
+
                             });
                 };
                 $scope.updateNodeRedSources();
@@ -164,12 +185,20 @@ analyticsModule
                 $scope.update_containers = function () {
                     fileSystemService.getContainers("", "", 10000)
                         .then(function (response) {
-                            $scope.available_containers = [];
+                            var new_container_names = []
                             response.containers.forEach(function (element) {
-                                $scope.available_containers.push(element.name);
+                                new_container_names.push(element.name);
                             });
-                            // this indicates the "none" filter where no container is selected
-                            $scope.available_containers.push("");
+                            if (!$scope.available_containers) {
+                                $scope.available_containers = new_container_names;
+                                // this indicates the "none" filter where no container is selected
+                                $scope.available_containers.push("");
+                                $scope.selected_container = "";
+                            } else {
+                                $scope.available_containers = new_container_names;
+                            }
+
+
                         })
                 };
                 $scope.update_containers();
