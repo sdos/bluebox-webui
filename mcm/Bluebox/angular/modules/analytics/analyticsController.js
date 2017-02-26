@@ -127,7 +127,7 @@ analyticsModule
                         .get('api_analytics/table',
                             {
                                 params: {
-                                    "nrDataSource": $scope.selected_source,
+                                    "nrDataSource": find_source_object(),
                                     "container_filter": $scope.selected_container
                                 }
                             })
