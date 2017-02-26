@@ -41,7 +41,7 @@
                     <md-icon md-font-set="material-icons">
                         folder_open
                     </md-icon>
-                    <md-select ng-model="newTaskDefinition.container">
+                    <md-select ng-model="newTaskDefinition.container" ng-click="update_containers()">
                         <md-option ng-repeat="c in available_containers" value="{{ c.name }}">
                             {{ c.name }}
                         </md-option>
@@ -132,7 +132,9 @@
         Messages &nbsp;&nbsp;&nbsp;</span>
                 </h2>
                 <md-button class="md-raised" ng-click="clear_all_messages()">clear list</md-button>
-                <md-button ng-hide="loading_stopped" ng-disabled="true" style="color: lightgreen;" class="md-raised">Websocket connected</md-button>
+                <md-button ng-hide="loading_stopped" ng-disabled="true" style="color: lightgreen;" class="md-raised">
+                    Websocket connected
+                </md-button>
 
             </div>
         </md-toolbar>

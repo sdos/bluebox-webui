@@ -43,10 +43,13 @@ tasksModule.controller('TasksController',
              *
              * */
 
-            fileSystemService.getContainers("", "", 10000)
-                .then(function (response) {
-                    $scope.available_containers = response.containers;
-                });
+            $scope.update_containers = function () {
+                fileSystemService.getContainers("", "", 10000)
+                    .then(function (response) {
+                        $scope.available_containers = response.containers;
+                    })
+            };
+            $scope.update_containers();
 
 
             /**
