@@ -79,7 +79,7 @@
                     <md-select ng-model="selected_container"
                                placeholder="Container filter" ng-click="update_containers()">
                         <md-option ng-repeat="container_name in available_containers" value="{{ container_name }}">
-                            {{ container_name }} {{ !container_name ? " -- No filter -- " : "" }}
+                            {{ container_name }} {{ !container_name ? " -- all containers -- " : "" }}
                         </md-option>
                     </md-select>
                 </md-input-container>
