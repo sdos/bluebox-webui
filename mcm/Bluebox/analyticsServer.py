@@ -268,7 +268,8 @@ def __get_db_connection_for_tenant(tenant):
 @app.route("/api_analytics/tablestructure", methods=["GET"])
 def getTableStructure():
     # check if user is logged in
-    t = accountServer.get_and_assert_tenant_from_request(request)
+    accountServer.assert_token_tenant_validity(request)
+    t = accountServer.get_tenant_name_from_request(request)
     d = __get_db_connection_for_tenant(t)
     # Establish connection to PostgreSQL database
     # conn = sqlite3.connect("/tmp/metadata.sqlite") #SQLITE
