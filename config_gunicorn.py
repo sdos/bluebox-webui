@@ -24,7 +24,7 @@ graceful_timeout = 800
 # change the monkey patch depending on used worker type
 # in file: __init__.py
 
-# worker_class = "gevent"
-# worker_class = "eventlet"
+worker_class = "gevent"
+#worker_class = "eventlet"
 # worker_class = "geventwebsocket.gunicorn.workers.GeventWebSocketWorker"
-worker_class = "egg:meinheld#gunicorn_worker"
+# worker_class = "egg:meinheld#gunicorn_worker"
