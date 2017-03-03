@@ -14,8 +14,8 @@ import json
 import logging
 from io import StringIO
 from math import pi
-from urllib import parse as urlParse
 
+import urllib
 import pandas
 import psycopg2
 import requests
@@ -42,7 +42,7 @@ from mcm.Bluebox.exceptions import HttpError
 @app.route("/api_analytics/table", methods=["GET"])
 def doTable():
     accountServer.assert_token_tenant_validity(request)
-    nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
+    nrDataSource = json.loads(urllib.unquote(request.args.get("nrDataSource")))
     container_filter = request.args.get("container_filter", None)
     logging.info("producing table for: {}".format(nrDataSource))
     data = getDataFromNodeRed(nrDataSource=nrDataSource, container_filter=container_filter)
@@ -61,7 +61,7 @@ def doTable():
 @app.route("/api_analytics/plot", methods=["GET"])
 def doPlot():
     accountServer.assert_token_tenant_validity(request)
-    nrDataSource = json.loads(urlParse.unquote(request.args.get("nrDataSource")))
+    nrDataSource = json.loads(urllib.unquote(request.args.get("nrDataSource")))
     plotType = request.args.get("plotType")
     container_filter = request.args.get("container_filter", None)
     logging.info("producing plot: {} for: {}".format(plotType, nrDataSource))
