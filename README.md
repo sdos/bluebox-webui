@@ -1,20 +1,7 @@
-# mcm-bluebox
-Bluebox - part of the Micro Content Management system (MCM)
+# This repo contains the web-UI for the SDOS encrypted object store
 
-
-MCM consists of multiple components that form a small content management system.
-
-### The other parts of the MCM project are
-* [-- Deploy Environment (set up everything) --](https://github.com/timwaizenegger/mcm-deployEnvironment)
-* [Bluebox web-UI](https://github.com/timwaizenegger/mcm-bluebox)
-* [SDOS (Secure Delete Object Store) Cryptographic Deletion](https://github.com/timwaizenegger/mcm-sdos)
-* [Metadata Extractor](https://github.com/timwaizenegger/mcm-metadataExtractor)
-* [Retention Manager](https://github.com/timwaizenegger/mcm-retentionManager)
-
-
-### This repo contains the web-UI
-
-Bluebox is a web UI for the swift object store with Enterprise Content Management extensions. This is the UI for our larger "MCM" research project
+Bluebox is a web UI for the swift object store with Enterprise Content Management extensions. 
+This is the UI for our larger "MCM" research project
 
 Bluebox consists of two parts:
 * a small server runtime written in python
@@ -22,6 +9,13 @@ Bluebox consists of two parts:
 
 they communicate over an HTTP API. 
 The "frontend" is served by the python app as well but any static HTTP server could be used.  
+
+
+# demo-deployment
+deployment automation for the whole system can be found at:
+
+[https://github.com/sdos/deploy-sdos](https://github.com/sdos/deploy-sdos)
+
 
 ## Screenshots
 
