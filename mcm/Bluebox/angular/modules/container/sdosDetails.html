@@ -26,8 +26,8 @@
                     <br>Free keys: <b>{{ sdos_cascade_stats.freeSlots | numberFormat }}</b>
 
 
-                    <br>Num partitions max: <b>{{ sdos_cascade_stats.numPartitions| numberFormat }}</b>
-                    <br>Keys in one partition: <b>{{ sdos_cascade_stats.partitionSize }}</b>
+                    <br>Num nodes max: <b>{{ sdos_cascade_stats.numPartitions| numberFormat }}</b>
+                    <br>Keys in one node: <b>{{ sdos_cascade_stats.partitionSize }}</b>
                     <br>Tree height: <b>{{ sdos_cascade_stats.levels }}</b></p>
                 <p>
                     <md-button aria-label="Show Key Cascade" class="md-raised" ng-click="showCascadeSheet($event)">
@@ -58,20 +58,20 @@
 
             <div>
 
-                <p>Master key available: <b
+                <p>Root key available: <b
                         ng-style="sdos_cascade_stats.masterKeySource.is_unlocked && {'color': 'green'} || {'color': 'red'}">{{ sdos_cascade_stats.masterKeySource.is_unlocked }}</b>
 
 
                     <md-button ng-hide="sdos_cascade_stats.masterKeySource.is_unlocked"
                                class="md-raised md-primary"
-                               ng-click="unlockMasterKey()">Unlock master key
+                               ng-click="unlockMasterKey()">Unlock root key
                     </md-button>
 
                     <md-button ng-hide="!sdos_cascade_stats.masterKeySource.is_unlocked"
-                               class="md-raised md-warn" ng-click="lockMasterKey()">Lock master key
+                               class="md-raised md-warn" ng-click="lockMasterKey()">Lock root key
                     </md-button>
 
-                    <br>Master key hash: <b
+                    <br>Root key hash: <b
                             ng-style="{ 'mix-blend-mode': 'difference',  'color': 'black', 'background': sdos_cascade_stats.masterKeySource.keyIdColor }">{{ sdos_cascade_stats.masterKeySource.key_id }}</b>
 
                     <br>Deletable key provided by: <b>{{ sdos_cascade_stats.masterKeySource.type }}</b>

@@ -15,12 +15,12 @@
    preserveAspectRatio="xMidYMid"
    xml:space="preserve"
    id="svg2"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.1 r15371"
    sodipodi:docname="dk4.svg"
    style="fill-rule:evenodd;stroke-width:28.22200012;stroke-linejoin:round"><metadata
      id="metadata236"><rdf:RDF><cc:Work
          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><sodipodi:namedview
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title /></cc:Work></rdf:RDF></metadata><sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1"
@@ -29,8 +29,8 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1535"
-     inkscape:window-height="1176"
+     inkscape:window-width="2495"
+     inkscape:window-height="1416"
      id="namedview234"
      showgrid="false"
      fit-margin-top="0.3"
@@ -38,7 +38,7 @@
      fit-margin-right="0"
      fit-margin-bottom="0"
      inkscape:zoom="1.7940591"
-     inkscape:cx="179.18038"
+     inkscape:cx="88.046258"
      inkscape:cy="97.756859"
      inkscape:window-x="65"
      inkscape:window-y="24"
@@ -279,7 +279,8 @@
                    inkscape:connector-curvature="0"
                    style="fill:#000000;stroke:none" /><text
                    class="TextShape"
-                   id="text128"><tspan
+                   id="text128"
+                   style="line-height:0%"><tspan
                      class="TextParagraph"
                      font-size="353px"
                      font-weight="700"
@@ -290,7 +291,7 @@
                        y="10621"
                        id="tspan132"><tspan
                          id="tspan134"
-                         style="fill:#000000;stroke:none">mk</tspan></tspan></tspan></text>
+                         style="fill:#000000;stroke:none">rk</tspan></tspan></tspan></text>
 </g></g><g
                class="com.sun.star.drawing.ConnectorShape"
                id="g136"><g
@@ -417,7 +418,8 @@
                    inkscape:connector-curvature="0"
                    style="fill:#000000;stroke:none" /><text
                    class="TextShape"
-                   id="text198"><tspan
+                   id="text198"
+                   style="line-height:0%"><tspan
                      class="TextParagraph"
                      font-size="564px"
                      font-weight="400"
@@ -441,7 +443,8 @@
                    id="rect209"
                    style="fill:none;stroke:none" /><text
                    class="TextShape"
-                   id="text211"><tspan
+                   id="text211"
+                   style="line-height:0%"><tspan
                      class="TextParagraph"
                      font-size="494px"
                      font-style="italic"

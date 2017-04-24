@@ -78,19 +78,19 @@
                                      src="/angular/icons/example-tree.svg"/>
                             </div>
                             <div flex>
-                                <p>The <i>Key Cascade</i> tree structure manages all the object keys in its leaves. The
+                                <p>The <i>Key Cascade</i> tree structure enables efficient cryptographic deletion. It manages all the object keys in its leaves. The
                                     height
                                     and node degree determine how many keys are available as well as the performance.
                                 </p>
-                                <p><- This example tree has height <b>2</b> and <b>2</b> partition bits.</p>
+                                <p><- This example tree has height <b>2</b> and <b>2</b> node bits.</p>
                                 <md-divider></md-divider>
                                 <p>New container will have height <b>{{ newContainer.sdosHeight }}</b> and
-                                    <b>{{ newContainer.sdosPartitionBits }}</b> partition bits.
-                                    The partitions will have
+                                    <b>{{ newContainer.sdosPartitionBits }}</b> node bits.
+                                    The nodes will have
                                     <b>{{ newContainer.sdosPartitionBits | sdosPartitionBitsToSize }}</b>
                                     slots (2^{{ newContainer.sdosPartitionBits }}).
                                 </p>
-                                <p>The Cascade will support up to
+                                <p>The Key-Cascade will support up to
                                     <b>{{ newContainer | sdosCapacity | numberFormat }}</b>
                                     object keys.</p></div>
                         </div>
@@ -105,7 +105,7 @@
                             </md-input-container>
                         </md-slider-container>
                         <md-slider-container ng-disabled="!newContainer.sdosKeyCascade">
-                            <span>Partition bits</span>
+                            <span>Node bits</span>
                             <md-slider flex min="2" max="16" md-discrete class="md-primary"
                                        ng-model="newContainer.sdosPartitionBits">
                             </md-slider>
@@ -131,7 +131,7 @@
                                     <img alt="deletable key general example" style="width: 15em;"
                                          src="/angular/icons/dk1.svg"/>
                                 </div>
-                                <div flex><p>The master key for each cascade is stored encrypted with a <i>deletable</i>
+                                <div flex><p>The root key for each cascade is stored encrypted with a <i>deletable</i>
                                     key.</p>
                                     <p>Please select where the deletable key should come from. Note that the
                                         secure-delete
@@ -196,7 +196,7 @@
                                                      class="md-primary">
 
                                         <b>Trusted Platform Module (TPM): </b> Uses TPM hardware to securely en/decrypt
-                                        the master key. The deletable key is stored inside the TPM, and can never leave
+                                        the root key. The deletable key is stored inside the TPM, and can never leave
                                         it. Secure deletion is provided by the TPM which can securely replace internal
                                         keys.
 
