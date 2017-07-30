@@ -39,7 +39,7 @@ var app = angular.module('bluebox', [
 app.constant('BACKEND_BASE_URL', '/swift/');
 app.constant('BACKEND_BASE_URL_METADATA_API', '/api_metadata/');
 app.constant('BACKEND_BASE_URL_TASKS_API', '/api_tasks/');
-app.constant('WEBSOCKET_TASKS_PORT', '7080');
-app.constant('HTTP_NODERED_PORT', '1880');
+app.constant('WEBSOCKET_TASKS_PORT', '31780');
+app.constant('HTTP_NODERED_PORT', '31880');
 app.constant('MY_PUBLIC_HOSTNAME', window.location.hostname);
 app.constant('MY_DEFAULT_TENANT_NAME', 'mcmdemo');
