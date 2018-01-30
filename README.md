@@ -11,6 +11,11 @@ they communicate over an HTTP API.
 The "frontend" is served by the python app as well but any static HTTP server could be used.  
 
 
+# Read the PDF
+You can find a lot of details about the concepts, as well as about the implementation, in my Dissertation: 
+[http://dx.doi.org/10.18419/opus-9571](http://dx.doi.org/10.18419/opus-9571)
+
+
 # demo-deployment
 deployment automation for the whole system can be found at:
 
