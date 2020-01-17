@@ -5,7 +5,7 @@ python-swiftclient==3.3.0
 python-keystoneclient==3.10.0
 jsonschema==2.6.0
 pandas==0.19.2
-psycopg2==2.6.2
+psycopg2==2.8.4
 bokeh==0.12.4
 gevent==1.2.1
 greenlet==0.4.12
