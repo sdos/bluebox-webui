@@ -10,4 +10,4 @@ bokeh==0.12.4
 gevent==1.2.1
 greenlet==0.4.12
 gunicorn==19.6.0
-numpy==1.12.0
+numpy==1.22.0
